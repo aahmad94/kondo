@@ -1,12 +1,11 @@
 // pages/index.js
 import React from 'react';
-import Dashboard from './dashboard';
+import Chatbox from './chatbox';
 
 function HomePage() {
   return (
-    <div>
-      <h1>Welcome to the Home Page</h1>
-      <Dashboard />
+    <div >
+      <Chatbox />
       {/* Add more content or components here */}
     </div>
   );

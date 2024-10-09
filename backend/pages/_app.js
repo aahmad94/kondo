@@ -1,5 +1,6 @@
 // pages/_app.js
 import { SessionProvider } from "next-auth/react"
+import '../app/globals.css'
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (

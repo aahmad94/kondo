@@ -1,8 +1,9 @@
 // pages/dashboard.js
 import { getSession, useSession } from "next-auth/react"
 import ProtectedRoute from "../app/components/ProtectedRoute"
+import Menubar from "../app/components/menubar"
 
-export default function Dashboard() {
+export default function Chatbox() {
   const { data: session, status } = useSession()
 
   if (status === "loading") {
@@ -11,9 +12,11 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
+      
       <div>
+        <Menubar className="w-full h-[100px] flex justify-end" />
         <h1>
-          Welcome to your dashboard, {session?.user?.name || 'Guest'}!
+          Welcome to your chatbox, {session?.user?.name || 'Guest'}!
         </h1>
         {/* Add more dashboard components here */}
       </div>
