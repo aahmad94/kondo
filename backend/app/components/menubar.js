@@ -10,12 +10,11 @@ const Menubar = () => {
   }
 
   return (
-    <nav className="bg-white shadow-md p-4 flex justify-between w-full">
-      <div className="text-2xl text-black w-1/2">
+    <nav className="bg-white shadow-md p-2 flex justify-between items-center w-full">
+      <div className="text-2xl flex text-black">
         <Link href="/">Kondo</Link>
       </div>
-      <div className="flex-1 flex justify-end items-center space-x-4 w-1/2">
-        {session?.user?.image && (
+      {session?.user?.image && (
           <Image
             src={session.user.image}
             alt="User Avatar"
@@ -24,7 +23,6 @@ const Menubar = () => {
             className="rounded-full"
           />
         )}
-      </div>
     </nav>
   )
 }
