@@ -39,12 +39,21 @@ export default function Chatbox() {
     return <div>Loading...</div>
   }
 
+  const formatResponse = (text) => {
+    return text.split('\n').map((line, index) => (
+      <span key={index}>
+        {line}
+        <br />
+      </span>
+    ));
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold">Learn Japanese</h1>
       <form onSubmit={handleSubmit} className="my-4">
         <textarea
-          className=" text-black w-full p-2 border border-gray-300 rounded"
+          className="text-black w-full p-2 border border-gray-300 rounded"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Enter your question or sentence in English..."
@@ -61,7 +70,7 @@ export default function Chatbox() {
       {response && (
         <div className="mt-4 p-4 border border-gray-300 rounded">
           <h2 className="font-bold">AI Response:</h2>
-          <p>{response}</p>
+          <div className="whitespace-pre-wrap">{formatResponse(response)}</div>
         </div>
       )}
     </div>
