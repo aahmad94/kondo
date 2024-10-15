@@ -1,7 +1,7 @@
 // pages/index.js
 import React from 'react';
-import Chatbox from '../app/components/chatbox';
-import Menubar from '../app/components/menubar';
+import Chatbox from '../app/components/ChatBox';
+import Menubar from '../app/components/MenuBar';
 import { getSession, useSession } from "next-auth/react"
 import ProtectedRoute from "../app/components/ProtectedRoute"
 
@@ -11,9 +11,9 @@ export default function HomePage() {
 
   return (
     <ProtectedRoute>
-			<div>
+			<div className="h-full">
 				<Menubar/>
-				<div className="w-full h-full flex">
+				<div className="h-full flex flex-col justify-end">
 					<Chatbox />
 				</div>
 				{/* Add more content or components here */}

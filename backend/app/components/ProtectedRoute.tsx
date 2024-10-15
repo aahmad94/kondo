@@ -1,7 +1,11 @@
+import React, { useEffect } from "react"
 import { useSession, signIn } from "next-auth/react"
-import { useEffect } from "react"
 
-export default function ProtectedRoute({ children }) {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { data: session, status } = useSession()
 
   useEffect(() => {
@@ -13,5 +17,5 @@ export default function ProtectedRoute({ children }) {
     return <div>Loading...</div>
   }
 
-  return children
+  return <>{children}</>
 }

@@ -1,8 +1,9 @@
+import React from 'react';
 import { useSession } from "next-auth/react"
 import Link from 'next/link'
 import Image from 'next/image'
 
-const Menubar = () => {
+const MenuBar: React.FC = () => {
   const { data: session, status } = useSession()
 
   if (status === "loading") {
@@ -27,4 +28,4 @@ const Menubar = () => {
   )
 }
 
-export default Menubar
+export default MenuBar
