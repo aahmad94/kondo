@@ -11,13 +11,11 @@ export default function HomePage() {
 
   return (
     <ProtectedRoute>
-			<div className="h-full">
 				<Menubar/>
-				<div className="h-full flex flex-col justify-end">
+				<div className="h-full bg-gray-900 flex flex-col justify-end">
 					<Chatbox />
 				</div>
 				{/* Add more content or components here */}
-			</div>
     </ProtectedRoute>
   );
 }

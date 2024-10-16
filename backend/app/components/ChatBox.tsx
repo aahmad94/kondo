@@ -31,7 +31,7 @@ export default function ChatBox() {
   };
 
   if (status === "loading") {
-    return <div>Loading...</div>
+    return <div className="text-white">Loading...</div>
   }
 
   const formatResponse = (text: string) => {
@@ -44,10 +44,10 @@ export default function ChatBox() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
       {response && (
-          <div className="mt-4 p-4 border border-gray-300 rounded">
-          <h2 className="font-bold">AI Response:</h2>
+        <div className="mt-4 p-4 border rounded text-white">
+          <h2 className="font-bold text-blue-400">AI Response:</h2>
           <div className="whitespace-pre-wrap">{formatResponse(response)}</div>
         </div>
       )}
