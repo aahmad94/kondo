@@ -32,7 +32,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw new Error('No content in OpenAI response');
     }
 
-    console.log(completion.choices[0].message.content);
     res.status(200).json({ result: completion.choices[0].message.content });
   } catch (error) {
     console.error('Error fetching from OpenAI:', error instanceof Error ? error.message : 'Unknown error');

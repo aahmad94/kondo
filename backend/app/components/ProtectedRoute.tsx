@@ -1,5 +1,8 @@
-import React, { useEffect } from "react"
-import { useSession, signIn } from "next-auth/react"
+'use client';
+
+import { useSession } from "next-auth/react"
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,15 +10,16 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { data: session, status } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
-    if (status === "loading") return // Do nothing while loading
-    if (!session) signIn() // Redirect to sign-in if not authenticated
-  }, [session, status])
+    if (status === 'loading') return // Do nothing while loading
+    if (!session) router.push('/api/auth/signin') // Redirect to login if not authenticated
+  }, [session, status, router])
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return <div>Loading...</div>
   }
 
-  return <>{children}</>
+  return session ? <>{children}</> : null
 }

@@ -1,4 +1,5 @@
 import React, { useState, KeyboardEvent } from 'react';
+import { useSession } from "next-auth/react"
 
 interface UserInputProps {
   onSubmit: (prompt: string) => Promise<void>;
@@ -7,6 +8,7 @@ interface UserInputProps {
 export default function UserInput({ onSubmit }: UserInputProps) {
   const [prompt, setPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const { data: session, status } = useSession();
 
   const handleKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -19,7 +21,8 @@ export default function UserInput({ onSubmit }: UserInputProps) {
       }
     }
   };
-
+  
+  const message = session?.user?.name ? `こんにちは, ${session.user.name}! write a phrase or sentence to breakdown in Japanese...` : "こんにちは, ゲスト!";
   return (
     <div className="my-4">
       <textarea
@@ -27,7 +30,7 @@ export default function UserInput({ onSubmit }: UserInputProps) {
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="こんにちは, write a phrase or sentence to breakdown in Japanese..."
+        placeholder={message}
         rows={1}
         disabled={loading}
       />

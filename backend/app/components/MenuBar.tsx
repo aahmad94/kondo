@@ -11,14 +11,14 @@ const MenuBar: React.FC = () => {
   }
 
   return (
-    <nav className="bg-gray-800 shadow-md py-2 flex justify-between items-center w-full">
+    <nav className="bg-gray-800 shadow-md flex justify-between items-center w-full">
       <Link 
             className="text-2xl pt-2 pl-2 text-white"
             href="/">Kondo
       </Link>
       {session?.user?.image && (
         <Image
-          className="rounded-full border-2 border-blue-500"
+          className="rounded-full m-2 border-2 border-blue-500"
           src={session.user.image}
           alt="User Avatar"
           width={40}
