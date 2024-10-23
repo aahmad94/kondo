@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSession } from "next-auth/react"
 import UserInput from './UserInput';
+import GPTResponse from './GPTResponse';
 
 export default function ChatBox() {
   const { data: session, status } = useSession()
@@ -34,23 +35,9 @@ export default function ChatBox() {
     return <div className="text-white">Loading...</div>
   }
 
-  const formatResponse = (text: string) => {
-    return text.split('\n').map((line, index) => (
-      <span key={index}>
-        {line}
-        <br />
-      </span>
-    ));
-  };
-
   return (
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
-      {response && (
-        <div className="mt-4 p-4 border rounded text-white">
-          <h2 className="font-bold text-blue-400">AI Response:</h2>
-          <div className="whitespace-pre-wrap">{formatResponse(response)}</div>
-        </div>
-      )}
+      {response && <GPTResponse response={response} />}
       <UserInput onSubmit={handleSubmit} />
     </div>
   );
