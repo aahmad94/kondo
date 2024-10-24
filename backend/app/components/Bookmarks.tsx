@@ -32,6 +32,10 @@ export default function Bookmarks() {
     }
   };
 
+  const handleBookmarkClick = (bookmarkId: string) => {
+    // TODO: Implement bookmark click logic
+  };
+
   return (
     <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-12'}`}>
       <div className="flex justify-between items-center p-2">
@@ -47,8 +51,12 @@ export default function Bookmarks() {
       {isOpen && (
         <ul className="list-disc list-inside p-2 pl-4">
           {bookmarks.map((bookmark) => (
-            <div key={bookmark.id} className="mb-2">
-                {bookmark.title}
+            <div
+              key={bookmark.id}
+              className="mb-2 cursor-pointer"
+              onClick={() => handleBookmarkClick(bookmark.id)}
+            >
+              {bookmark.title}
             </div>
           ))}
         </ul>
