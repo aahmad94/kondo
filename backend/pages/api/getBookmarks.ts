@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           responses: true,
         },
       });
-
+      console.log({bookmarks});
       res.status(200).json(bookmarks);
     } catch (error) {
       console.error(error);
