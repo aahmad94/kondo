@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
@@ -21,6 +21,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const [response, setResponse] = useState<string>('');
   const [bookmarkResponses, setBookmarkResponses] = useState<string[]>([]);
   const [responses, setResponses] = useState<string[]>([]);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedBookmarkId && session?.userId) {
@@ -42,6 +43,12 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       console.error('Error fetching bookmark responses:', error);
     }
   };
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [responses, bookmarkResponses]);
 
   const handleSubmit = async (prompt: string) => {
     try {
@@ -71,7 +78,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
 
   return (
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
-      <div className="flex-grow" style={{ maxHeight: '79vh' }}>
+      <div 
+        ref={chatContainerRef}
+        className="flex-grow overflow-y-auto"
+        style={{ maxHeight: '79vh' }}
+      >
         {/* Instructions message when no bookmark is selected */}
         {!selectedBookmarkId && (
           <GPTResponse
