@@ -23,7 +23,7 @@ export default function UserInput({ onSubmit }: UserInputProps) {
     }
   };
   
-  const message = session?.user?.name ? `こんにちは, ${session.user.name}! write a phrase or sentence to breakdown in Japanese...` : "こんにちは, ゲスト!";
+  const message = session?.user?.name ? `おはよう, ${session.user.name}! write a phrase to get started...` : "おはよう! Write a phrase to get started...";
 
   return (
     <div className="my-4 relative">

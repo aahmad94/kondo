@@ -10,7 +10,7 @@ interface ChatBoxProps {
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const instructions = `
   - Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
-    - The response will include a translation in 1/ Japanese with kanji, 2/ hiragana and katakana, and 3/ romaji 
+    - The response will include a translation in 1/ Japanese with kanji, 2/ hiragana and katakana, and 3/ romaji. 
   - Use "verb" followed by a verb to get a tense table with formal and informal forms of the verb.
   - Use "terms" followed by a word to receive a list of related words in Japanese.
   - Use "random" for a daily-use sentence translated to Japanese.
@@ -81,7 +81,9 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       <div 
         ref={chatContainerRef}
         className="flex-grow overflow-y-auto"
-        style={{ maxHeight: '79vh' }}
+        style={{ 
+          maxHeight: selectedBookmarkId ? '90vh' : '79vh'
+        }}
       >
         {/* Instructions message when no bookmark is selected */}
         {!selectedBookmarkId && (
