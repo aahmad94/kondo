@@ -8,15 +8,17 @@ interface ChatBoxProps {
 }
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
-  const tooltipContent = `
+  const instructions = `
   - Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
+    - The response will include a translation in 1/ Japanese with kanji, 2/ hiragana and katakana, and 3/ romaji 
   - Use "verb" followed by a verb to get a tense table with formal and informal forms of the verb.
   - Use "terms" followed by a word to receive a list of related words in Japanese.
   - Use "random" for a daily-use sentence translated to Japanese.
   - Use "katakana" for a table showing the katakana alphabet with hiragana and romaji.
+  - use an asterisk "*" followed by a question to inquire about anything else.
 `;
   const { data: session, status } = useSession()
-  const [response, setResponse] = useState<string>(tooltipContent);
+  const [response, setResponse] = useState<string>('');
   const [bookmarkResponses, setBookmarkResponses] = useState<string[]>([]);
 
   useEffect(() => {
@@ -71,6 +73,14 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   return (
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
       <div className="flex-grow" style={{ maxHeight: '79vh' }}>
+        {/* Instructions message when no bookmark is selected */}
+        {!selectedBookmarkId && (
+          <GPTResponse
+          response={instructions}
+          selectedBookmarkId={selectedBookmarkId}
+        />
+        )}
+        
         {selectedBookmarkId ? (
           bookmarkResponses.map((response, index) => (
             <GPTResponse
