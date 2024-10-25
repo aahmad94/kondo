@@ -65,11 +65,20 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
       {selectedBookmarkId ? (
         bookmarkResponses.map((response, index) => (
-          <GPTResponse key={index} response={response} />
+          <GPTResponse
+            key={index}
+            response={response}
+            selectedBookmarkId={selectedBookmarkId}
+          />
         ))
       ) : (
         <>
-          {response && <GPTResponse response={response} />}
+          {response && (
+            <GPTResponse
+              response={response}
+              selectedBookmarkId={selectedBookmarkId}
+            />
+          )}
           <UserInput onSubmit={handleSubmit} />
         </>
       )}

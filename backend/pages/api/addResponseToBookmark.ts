@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Create a new GPT response and link it to a bookmark
-      const newResponse = await prisma.gptResponse.create({
+      const newResponse = await prisma.gPTResponse.create({
         data: {
           content: gptResponseContent,
           user: {
