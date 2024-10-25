@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
+import CreateBookmarkModal from './CreateBookmarkModal';
 
 interface Bookmark {
   id: string;
@@ -12,8 +13,9 @@ interface BookmarksProps {
 }
 
 export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -40,9 +42,18 @@ export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
     onBookmarkSelect(bookmarkId);
   };
 
+  const handleCreateNewBookmark = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleBookmarkCreated = (newBookmark: Bookmark) => {
+    setBookmarks([...bookmarks, newBookmark]);
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-12'}`}>
-      <div className="flex justify-between items-center px-3 py-2">
+      <div className="flex justify-between items-center pl-4 px-2 py-2">
         {isOpen && <h2 className="text-xl">Bookmarks</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="text-white">
           {isOpen ? (
@@ -53,17 +64,32 @@ export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
         </button>
       </div>
       {isOpen && (
-        <ul className="list-disc list-inside p-2 pl-4">
+        <div className="flex flex-col p-2">
+          <div
+            className="mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
+            onClick={handleCreateNewBookmark}
+          >
+            <PlusCircleIcon 
+              className="h-4 w-4 inline mr-2"/>
+            <span>create bookmark</span>
+          </div>
           {bookmarks.map((bookmark) => (
             <div
               key={bookmark.id}
-              className="mb-2 cursor-pointer inline-block hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all px-2 py-1"
+              className="mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
               onClick={() => handleBookmarkClick(bookmark.id)}
             >
               {bookmark.title}
             </div>
           ))}
-        </ul>
+        </div>
+      )}
+      {isCreateModalOpen && (
+        <CreateBookmarkModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onBookmarkCreated={handleBookmarkCreated}
+        />
       )}
     </div>
   );

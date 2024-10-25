@@ -1,5 +1,6 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { useSession } from "next-auth/react"
+import { InformationCircleIcon } from '@heroicons/react/24/solid';
 
 interface UserInputProps {
   onSubmit: (prompt: string) => Promise<void>;
@@ -23,8 +24,9 @@ export default function UserInput({ onSubmit }: UserInputProps) {
   };
   
   const message = session?.user?.name ? `こんにちは, ${session.user.name}! write a phrase or sentence to breakdown in Japanese...` : "こんにちは, ゲスト!";
+
   return (
-    <div className="my-4">
+    <div className="my-4 relative">
       <textarea
         className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
         value={prompt}

@@ -22,7 +22,7 @@ export default function GPTResponse({ response, selectedBookmarkId }: GPTRespons
   return (
     <div className="mt-4 p-4 border rounded text-white">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="font-bold text-blue-400">AI Response:</h2>
+        <h2 className="font-bold text-blue-400">KondoAI message:</h2>
         {!selectedBookmarkId && (
           <button onClick={() => setIsModalOpen(true)} className="text-white">
             <PlusIcon className="h-6 w-6" />

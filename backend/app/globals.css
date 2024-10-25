@@ -25,3 +25,21 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Add this to your global CSS file or within a <style jsx global> block */
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Prevent scrolling on the body */
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+}
+
+.flex-grow {
+  overflow-y: auto; /* Allow scrolling within this div */
+  max-height: 79vh; /* Adjust as needed */
+}

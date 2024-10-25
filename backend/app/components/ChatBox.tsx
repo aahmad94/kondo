@@ -8,8 +8,15 @@ interface ChatBoxProps {
 }
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
+  const tooltipContent = `
+  - Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
+  - Use "verb" followed by a verb to get a tense table with formal and informal forms of the verb.
+  - Use "terms" followed by a word to receive a list of related words in Japanese.
+  - Use "random" for a daily-use sentence translated to Japanese.
+  - Use "katakana" for a table showing the katakana alphabet with hiragana and romaji.
+`;
   const { data: session, status } = useSession()
-  const [response, setResponse] = useState<string>('');
+  const [response, setResponse] = useState<string>(tooltipContent);
   const [bookmarkResponses, setBookmarkResponses] = useState<string[]>([]);
 
   useEffect(() => {
@@ -63,24 +70,28 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
 
   return (
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
-      {selectedBookmarkId ? (
-        bookmarkResponses.map((response, index) => (
-          <GPTResponse
-            key={index}
-            response={response}
-            selectedBookmarkId={selectedBookmarkId}
-          />
-        ))
-      ) : (
-        <>
-          {response && (
+      <div className="flex-grow" style={{ maxHeight: '79vh' }}>
+        {selectedBookmarkId ? (
+          bookmarkResponses.map((response, index) => (
+            <GPTResponse
+              key={index}
+              response={response}
+              selectedBookmarkId={selectedBookmarkId}
+            />
+          ))
+        ) : (
+          response && (
             <GPTResponse
               response={response}
               selectedBookmarkId={selectedBookmarkId}
             />
-          )}
+          )
+        )}
+      </div>
+      {!selectedBookmarkId && (
+        <div className="mt-4">
           <UserInput onSubmit={handleSubmit} />
-        </>
+        </div>
       )}
     </div>
   );
