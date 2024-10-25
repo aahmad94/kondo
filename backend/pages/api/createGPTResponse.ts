@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
           ...(bookmarkId && {
             bookmarks: {
-              connect: { id: bookmarkId },
+              connect: { id: bookmarkId.toString() }, // Convert bookmarkId to string
             },
           }),
         },

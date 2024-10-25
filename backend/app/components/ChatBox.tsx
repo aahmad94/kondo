@@ -7,6 +7,10 @@ interface ChatBoxProps {
   selectedBookmarkId: string | null;
 }
 
+interface BookmarkResponse {
+  content: string;
+}
+
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const instructions = `
   - Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
@@ -18,7 +22,6 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   - use an asterisk "*" followed by a question to inquire about anything else.
 `;
   const { data: session, status } = useSession()
-  const [response, setResponse] = useState<string>('');
   const [bookmarkResponses, setBookmarkResponses] = useState<string[]>([]);
   const [responses, setResponses] = useState<string[]>([]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +41,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setBookmarkResponses(data.map((response: any) => response.content));
+      setBookmarkResponses(data.map((response: BookmarkResponse) => response.content));
     } catch (error) {
       console.error('Error fetching bookmark responses:', error);
     }

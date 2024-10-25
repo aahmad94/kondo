@@ -3,12 +3,11 @@ import React, { useState } from 'react';
 import Chatbox from '../app/components/ChatBox';
 import Menubar from '../app/components/MenuBar';
 import Bookmarks from '../app/components/Bookmarks';
-import { getSession, useSession } from "next-auth/react"
+import { getSession } from "next-auth/react"
 import ProtectedRoute from "../app/components/ProtectedRoute"
 
 
 export default function HomePage() {
-	const { data: session, status } = useSession()
 	const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
 
 	const handleBookmarkSelect = (bookmarkId) => {

@@ -1,6 +1,5 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { useSession } from "next-auth/react"
-import { InformationCircleIcon } from '@heroicons/react/24/solid';
 
 interface UserInputProps {
   onSubmit: (prompt: string) => Promise<void>;
@@ -9,7 +8,7 @@ interface UserInputProps {
 export default function UserInput({ onSubmit }: UserInputProps) {
   const [prompt, setPrompt] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const handleKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
