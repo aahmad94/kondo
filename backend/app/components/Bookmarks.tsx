@@ -7,7 +7,11 @@ interface Bookmark {
   title: string;
 }
 
-export default function Bookmarks() {
+interface BookmarksProps {
+  onBookmarkSelect: (bookmarkId: string) => void;
+}
+
+export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const { data: session } = useSession();
@@ -33,13 +37,13 @@ export default function Bookmarks() {
   };
 
   const handleBookmarkClick = (bookmarkId: string) => {
-    // TODO: Implement bookmark click logic
+    onBookmarkSelect(bookmarkId);
   };
 
   return (
     <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-12'}`}>
-      <div className="flex justify-between items-center p-2">
-        {isOpen && <h2 className="text-xl font-bold">Bookmarks</h2>}
+      <div className="flex justify-between items-center px-3 py-2">
+        {isOpen && <h2 className="text-xl">Bookmarks</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="text-white">
           {isOpen ? (
             <ChevronLeftIcon className="h-6 w-6" />
@@ -53,7 +57,7 @@ export default function Bookmarks() {
           {bookmarks.map((bookmark) => (
             <div
               key={bookmark.id}
-              className="mb-2 cursor-pointer"
+              className="mb-2 cursor-pointer inline-block hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all px-2 py-1"
               onClick={() => handleBookmarkClick(bookmark.id)}
             >
               {bookmark.title}

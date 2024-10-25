@@ -1,5 +1,5 @@
 // pages/index.js
-import React from 'react';
+import React, { useState } from 'react';
 import Chatbox from '../app/components/ChatBox';
 import Menubar from '../app/components/MenuBar';
 import Bookmarks from '../app/components/Bookmarks';
@@ -9,34 +9,39 @@ import ProtectedRoute from "../app/components/ProtectedRoute"
 
 export default function HomePage() {
 	const { data: session, status } = useSession()
+	const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
 
-  return (
-    <ProtectedRoute>
-      <Menubar />
-      <div className="flex h-screen bg-gray-900">
-        <Bookmarks />
-        <div className="flex-1 flex flex-col justify-end">
-          <Chatbox />
-        </div>
-      </div>
-    </ProtectedRoute>
-  );
+	const handleBookmarkSelect = (bookmarkId) => {
+		setSelectedBookmarkId(bookmarkId);
+	};
+
+	return (
+		<ProtectedRoute>
+			<Menubar onBookmarkSelect={handleBookmarkSelect} />
+			<div className="flex h-screen bg-gray-900">
+				<Bookmarks onBookmarkSelect={handleBookmarkSelect} />
+				<div className="flex-1 flex flex-col justify-end">
+					<Chatbox selectedBookmarkId={selectedBookmarkId} />
+				</div>
+			</div>
+		</ProtectedRoute>
+	);
 }
 
 export async function getServerSideProps(context) {
-  const session = await getSession(context)
-  console.log("Session in getServerSideProps:", session) // Server-side log
+	const session = await getSession(context)
+	console.log("Session in getServerSideProps:", session) // Server-side log
 
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/api/auth/signin',
-        permanent: false,
-      },
-    }
-  }
+	if (!session) {
+		return {
+			redirect: {
+				destination: '/api/auth/signin',
+				permanent: false,
+			},
+		}
+	}
 
-  return {
-    props: { session },
-  }
+	return {
+		props: { session },
+	}
 }

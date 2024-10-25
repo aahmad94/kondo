@@ -3,18 +3,29 @@ import { useSession } from "next-auth/react"
 import Link from 'next/link'
 import Image from 'next/image'
 
-const MenuBar: React.FC = () => {
+
+interface MenuBarProps {
+  onBookmarkSelect: (bookmarkId: string) => void;
+}
+
+const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect }: MenuBarProps) => {
   const { data: session, status } = useSession()
 
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
   }
 
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    onBookmarkSelect('');
+  };
+
   return (
     <nav className="bg-gray-800 shadow-md flex justify-between items-center w-full">
       <Link 
             className="text-2xl pt-2 pl-2 text-white"
-            href="/">Kondo
+            href="/"
+            onClick={handleLogoClick}>Kondo
       </Link>
       {session?.user?.image && (
         <Image
