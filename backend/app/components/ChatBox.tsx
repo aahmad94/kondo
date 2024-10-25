@@ -20,6 +20,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const [response, setResponse] = useState<string>('');
   const [bookmarkResponses, setBookmarkResponses] = useState<string[]>([]);
+  const [responses, setResponses] = useState<string[]>([]);
 
   useEffect(() => {
     if (selectedBookmarkId && session?.userId) {
@@ -43,8 +44,6 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   };
 
   const handleSubmit = async (prompt: string) => {
-    setResponse('');
-
     try {
       const res = await fetch('/api/openai', {
         method: 'POST',
@@ -59,10 +58,10 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       }
 
       const data: { result: string } = await res.json();
-      setResponse(data.result);
+      setResponses(prevResponses => [...prevResponses, data.result]);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResponse('An error occurred while fetching the response.');
+      setResponses(prevResponses => [...prevResponses, 'An error occurred while fetching the response.']);
     }
   };
 
@@ -76,9 +75,9 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         {/* Instructions message when no bookmark is selected */}
         {!selectedBookmarkId && (
           <GPTResponse
-          response={instructions}
-          selectedBookmarkId={selectedBookmarkId}
-        />
+            response={instructions}
+            selectedBookmarkId={selectedBookmarkId}
+          />
         )}
         
         {selectedBookmarkId ? (
@@ -90,12 +89,13 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
             />
           ))
         ) : (
-          response && (
+          responses.map((response, index) => (
             <GPTResponse
+              key={index}
               response={response}
               selectedBookmarkId={selectedBookmarkId}
             />
-          )
+          ))
         )}
       </div>
       {!selectedBookmarkId && (
