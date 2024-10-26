@@ -1,6 +1,7 @@
 // pages/api/auth/[...nextauth].js
 import NextAuth, { DefaultSession, NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
+import { PrismaClient } from '@prisma/client';
 
 declare module "next-auth" {
   interface Session {
@@ -11,6 +12,7 @@ declare module "next-auth" {
   }
 }
 
+const prisma = new PrismaClient();
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
