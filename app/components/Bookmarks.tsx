@@ -27,6 +27,24 @@ export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
     }
   }, [session]);
 
+  useEffect(() => {
+    // Check if window width is less than 768px (mobile)
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsOpen(false);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const fetchBookmarks = async (userId: string) => {
     try {
       const response = await fetch(`/api/getBookmarks?userId=${userId}`);
@@ -87,7 +105,7 @@ export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
   };
 
   return (
-    <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-12'}`}>
+    <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out max-w-[16rem] ${isOpen ? 'w-64' : 'w-12'}`}>
       <div className="flex justify-between items-center pl-4 px-2 py-2">
         {isOpen && <h2 className="text-xl">Bookmarks</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="text-white">

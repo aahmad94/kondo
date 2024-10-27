@@ -83,13 +83,13 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   }
 
   return (
-    <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
+    <div className="container mx-auto p-4 bg-[#111111] min-h-screen flex flex-col">
       <div 
         ref={chatContainerRef}
         className={`flex-grow overflow-y-auto relative ${
           selectedBookmarkId 
-            ? 'max-h-[85vh]' 
-            : ' md:max-h-[77vh] max-h-[75vh]'
+            ? 'h-[85vh]' 
+            : 'h-[calc(100vh-180px)]'  // Leave fixed space for input
         }`}
       >
         {/* Loading overlay */}
@@ -126,7 +126,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         )}
       </div>
       {!selectedBookmarkId && (
-        <div className="mt-4">
+        <div className="sticky bottom-0 mt-4">
           <UserInput onSubmit={handleSubmit} isLoading={isLoading} />
         </div>
       )}
