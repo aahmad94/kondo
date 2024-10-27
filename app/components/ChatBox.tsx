@@ -119,13 +119,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   }
 
   return (
-    <div className="container mx-auto p-4 bg-[#000000] min-h-screen flex flex-col">
+    <div className="container mx-auto p-4 bg-[#000000] h-screen flex flex-col">
       <div 
         ref={chatContainerRef}
-        className={`flex-grow overflow-y-auto relative ${
-          selectedBookmarkId 
-            ? 'h-[80vh]' 
-            : 'h-[calc(100vh-180px)]'
+        className={`overflow-y-auto relative ${
+          selectedBookmarkId ? 'h-[92.5%]' : 'h-[calc(100%-150px)]'
         }`}
       >
         {isLoading && (

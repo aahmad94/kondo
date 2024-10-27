@@ -32,9 +32,3 @@ html, body {
   margin: 0;
   overflow: hidden; /* Prevent scrolling on the body */
 }
-
-.container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* Full viewport height */
-}
