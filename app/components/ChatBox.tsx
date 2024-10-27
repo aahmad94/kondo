@@ -14,7 +14,6 @@ interface BookmarkResponse {
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const instructions = `
   - Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
-    - The response will include a translation in 1/ Japanese with kanji, 2/ hiragana and katakana, and 3/ romaji. 
   - Use "verb" followed by a verb to get a tense table with formal and informal forms of the verb.
   - Use "terms" followed by a word to receive a list of related words in Japanese.
   - Use "random" for a daily-use sentence translated to Japanese.
@@ -24,6 +23,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const [bookmarkResponses, setBookmarkResponses] = useState<string[]>([]);
   const [responses, setResponses] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,6 +55,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
 
   const handleSubmit = async (prompt: string) => {
     try {
+      setIsLoading(true);
       const res = await fetch('/api/openai', {
         method: 'POST',
         headers: {
@@ -72,6 +73,8 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     } catch (error) {
       console.error('Error fetching data:', error);
       setResponses(prevResponses => [...prevResponses, 'An error occurred while fetching the response.']);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,12 +86,19 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
       <div 
         ref={chatContainerRef}
-        className={`flex-grow overflow-y-auto ${
+        className={`flex-grow overflow-y-auto relative ${
           selectedBookmarkId 
             ? 'max-h-[85vh]' 
             : ' md:max-h-[77vh] max-h-[75vh]'
         }`}
       >
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+          </div>
+        )}
+        
         {/* Instructions message when no bookmark is selected */}
         {!selectedBookmarkId && (
           <GPTResponse
@@ -117,7 +127,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       </div>
       {!selectedBookmarkId && (
         <div className="mt-4">
-          <UserInput onSubmit={handleSubmit} />
+          <UserInput onSubmit={handleSubmit} isLoading={isLoading} />
         </div>
       )}
     </div>

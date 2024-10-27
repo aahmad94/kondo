@@ -3,43 +3,36 @@ import { useSession } from "next-auth/react"
 
 interface UserInputProps {
   onSubmit: (prompt: string) => Promise<void>;
+  isLoading: boolean;
 }
 
-export default function UserInput({ onSubmit }: UserInputProps) {
+export default function UserInput({ onSubmit, isLoading }: UserInputProps) {
   const [prompt, setPrompt] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
   const { data: session } = useSession();
 
   const handleKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (prompt.trim() && !loading) {
-        setLoading(true);
+      if (prompt.trim() && !isLoading) {
         await onSubmit(prompt);
         setPrompt('');
-        setLoading(false);
       }
     }
   };
   
-  const message = session?.user?.name ? `おはよう, ${session.user.name}! Enter a phrase to get started...` : "おはよう! Enter a phrase to get started...";
+  const message = session?.user?.name ? `おはよう, ${session.user.name}! Write your prompt here...` : "おはよう! Write your prompt here...";
 
   return (
     <div className="my-4 relative">
       <textarea
-        className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+        className="w-full p-3 bg-gray-900 text-white border border-gray-700 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={message}
         rows={1}
-        disabled={loading}
+        disabled={isLoading}
       />
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded-full">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-        </div>
-      )}
     </div>
   );
 }
