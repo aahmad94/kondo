@@ -88,7 +88,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         ref={chatContainerRef}
         className={`flex-grow overflow-y-auto relative ${
           selectedBookmarkId 
-            ? 'h-[85vh]' 
+            ? 'h-[80vh]' 
             : 'h-[calc(100vh-180px)]'  // Leave fixed space for input
         }`}
       >
