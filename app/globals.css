@@ -38,8 +38,3 @@ html, body {
   flex-direction: column;
   height: 100vh; /* Full viewport height */
 }
-
-.flex-grow {
-  overflow-y: auto; /* Allow scrolling within this div */
-  max-height: 79vh; /* Adjust as needed */
-}

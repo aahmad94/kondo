@@ -83,10 +83,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen">
       <div 
         ref={chatContainerRef}
-        className="flex-grow overflow-y-auto"
-        style={{ 
-          maxHeight: selectedBookmarkId ? '90vh' : '79vh'
-        }}
+        className={`flex-grow overflow-y-auto ${
+          selectedBookmarkId 
+            ? 'max-h-[85vh]' 
+            : ' md:max-h-[77vh] max-h-[75vh]'
+        }`}
       >
         {/* Instructions message when no bookmark is selected */}
         {!selectedBookmarkId && (
