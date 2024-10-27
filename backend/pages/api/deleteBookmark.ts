@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { deleteBookmark } from '../lib/bookmarkService';
+import { deleteBookmark } from '../../lib/bookmarkService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'DELETE') {
