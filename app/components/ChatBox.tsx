@@ -7,7 +7,13 @@ interface ChatBoxProps {
   selectedBookmarkId: string | null;
 }
 
+interface Response {
+  id: string | null;
+  content: string;
+}
+
 interface BookmarkResponse {
+  id: string;
   content: string;
 }
 
@@ -21,8 +27,8 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   - use an asterisk "*" followed by a question to inquire about anything else.
 `;
   const { data: session, status } = useSession()
-  const [bookmarkResponses, setBookmarkResponses] = useState<string[]>([]);
-  const [responses, setResponses] = useState<string[]>([]);
+  const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
+  const [responses, setResponses] = useState<Response[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +47,10 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setBookmarkResponses(data.map((response: BookmarkResponse) => response.content));
+      setBookmarkResponses(data.map((response: BookmarkResponse) => ({
+        id: response.id,
+        content: response.content
+      })));
     } catch (error) {
       console.error('Error fetching bookmark responses:', error);
     }
@@ -69,12 +78,39 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       }
 
       const data: { result: string } = await res.json();
-      setResponses(prevResponses => [...prevResponses, data.result]);
+      setResponses(prevResponses => [...prevResponses, { id: null, content: data.result }]);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResponses(prevResponses => [...prevResponses, 'An error occurred while fetching the response.']);
+      setResponses(prevResponses => [...prevResponses, { 
+        id: null, 
+        content: 'An error occurred while fetching the response.' 
+      }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResponseDelete = async (responseId: string) => {
+    if (!session?.userId || !selectedBookmarkId) return;
+    
+    try {
+      const res = await fetch(
+        `/api/deleteGPTResponse?gptResponseId=${responseId}&bookmarkId=${selectedBookmarkId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error('Failed to delete response');
+      }
+
+      // Update the state locally instead of reloading the page
+      setBookmarkResponses(prevResponses => 
+        prevResponses.filter(response => response.id !== responseId)
+      );
+    } catch (error) {
+      console.error('Error deleting response:', error);
     }
   };
 
@@ -83,27 +119,26 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   }
 
   return (
-    <div className="container mx-auto p-4 bg-[#111111] min-h-screen flex flex-col">
+    <div className="container mx-auto p-4 bg-[#000000] min-h-screen flex flex-col">
       <div 
         ref={chatContainerRef}
         className={`flex-grow overflow-y-auto relative ${
           selectedBookmarkId 
             ? 'h-[80vh]' 
-            : 'h-[calc(100vh-180px)]'  // Leave fixed space for input
+            : 'h-[calc(100vh-180px)]'
         }`}
       >
-        {/* Loading overlay */}
         {isLoading && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-50">
             <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
           </div>
         )}
         
-        {/* Instructions message when no bookmark is selected */}
         {!selectedBookmarkId && (
           <GPTResponse
             response={instructions}
             selectedBookmarkId={selectedBookmarkId}
+            responseId={null}
           />
         )}
         
@@ -111,16 +146,20 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
           bookmarkResponses.map((response, index) => (
             <GPTResponse
               key={index}
-              response={response}
+              response={response.content}
               selectedBookmarkId={selectedBookmarkId}
+              responseId={response.id}
+              onDelete={handleResponseDelete}
             />
           ))
         ) : (
           responses.map((response, index) => (
             <GPTResponse
               key={index}
-              response={response}
+              response={response.content}
               selectedBookmarkId={selectedBookmarkId}
+              responseId={response.id}
+              onDelete={handleResponseDelete}
             />
           ))
         )}

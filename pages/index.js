@@ -17,7 +17,7 @@ export default function HomePage() {
 	return (
 		<ProtectedRoute>
 			<Menubar onBookmarkSelect={handleBookmarkSelect} />
-			<div className="flex h-screen bg-[#111111]">
+			<div className="flex h-screen bg-[#000000]">
 				<Bookmarks onBookmarkSelect={handleBookmarkSelect} />
 				<div className="flex-1 flex flex-col justify-end">
 					<Chatbox selectedBookmarkId={selectedBookmarkId} />

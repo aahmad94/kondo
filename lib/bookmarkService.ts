@@ -30,3 +30,35 @@ export async function deleteBookmark(userId: string, bookmarkId: string) {
     throw error;
   }
 }
+
+export async function deleteGptResponse(userId: string, gptResponseId: string, bookmarkId: string) {
+  try {
+    // First remove the association between the bookmark and the response
+    await prisma.bookmark.update({
+      where: {
+        id: bookmarkId,
+        userId: userId
+      },
+      data: {
+        responses: {
+          disconnect: {
+            id: gptResponseId
+          }
+        }
+      }
+    });
+
+    // Then delete the GPTResponse if it exists
+    const deletedResponse = await prisma.gPTResponse.deleteMany({
+      where: {
+        id: gptResponseId,
+        userId: userId
+      }
+    });
+
+    return deletedResponse;
+  } catch (error) {
+    console.error('Error deleting GPT response:', error);
+    throw error;
+  }
+}
