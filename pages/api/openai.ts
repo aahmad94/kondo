@@ -10,6 +10,7 @@ const openai = new OpenAI({
 // Read the prompt from the external file
 const promptPath = path.join(process.cwd(), 'japanese_gpt_prompt.txt');
 const systemPrompt = fs.readFileSync(promptPath, 'utf8');
+export const maxDuration = 30; // This function can run for a maximum of 5 seconds
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
