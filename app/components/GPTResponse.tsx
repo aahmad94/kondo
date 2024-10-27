@@ -6,7 +6,7 @@ interface GPTResponseProps {
   response: string;
   selectedBookmarkId: string | null;
   responseId?: string | null;
-  onDelete: (responseId: string) => Promise<void>;
+  onDelete?: (responseId: string) => Promise<void>;
 }
 
 export default function GPTResponse({ response, selectedBookmarkId, responseId, onDelete }: GPTResponseProps) {
@@ -14,7 +14,7 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!selectedBookmarkId || !responseId || isDeleting) return;
+    if (!selectedBookmarkId || !responseId || isDeleting || !onDelete) return;
 
     try {
       setIsDeleting(true);
@@ -45,7 +45,7 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
               <PlusIcon className="h-6 w-6" />
             </button>
           )}
-          {selectedBookmarkId && responseId && (
+          {selectedBookmarkId && responseId && onDelete && (
             <button 
               onClick={handleDelete} 
               disabled={isDeleting}
