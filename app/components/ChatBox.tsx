@@ -125,6 +125,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         className={`overflow-y-auto relative mb-4 ${
           selectedBookmarkId ? 'h-[87.5%]' : 'h-[calc(100%-180px)]'
         }`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {isLoading && (
           <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-50">
@@ -163,7 +164,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         )}
       </div>
       {!selectedBookmarkId && (
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <UserInput onSubmit={handleSubmit} isLoading={isLoading} />
         </div>
       )}
