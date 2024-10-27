@@ -122,8 +122,8 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     <div className="container mx-auto p-4 bg-[#000000] h-screen flex flex-col">
       <div 
         ref={chatContainerRef}
-        className={`overflow-y-auto relative ${
-          selectedBookmarkId ? 'h-[92.5%]' : 'h-[calc(100%-150px)]'
+        className={`overflow-y-auto relative mb-4 ${
+          selectedBookmarkId ? 'h-[87.5%]' : 'h-[calc(100%-180px)]'
         }`}
       >
         {isLoading && (
@@ -163,7 +163,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         )}
       </div>
       {!selectedBookmarkId && (
-        <div className="sticky bottom-0 mt-4">
+        <div className="flex-shrink-0">
           <UserInput onSubmit={handleSubmit} isLoading={isLoading} />
         </div>
       )}
