@@ -24,12 +24,12 @@ export default function UserInput({ onSubmit, isLoading }: UserInputProps) {
     }
   };
   
-  const message = session?.user?.name ? `おはよう, ${session.user.name}! Write your prompt here...` : "おはよう! Write your prompt here...";
+  const message = session?.user?.name ? `おはよう, ${session.user.name}!` : "おはよう!";
 
   return (
-    <div className="my-4 relative flex items-center gap-2 bg-[#111111] p-2 rounded-lg">
+    <div className="my-4 relative flex items-center gap-2 bg-gray-900 p-2 rounded-lg">
       <textarea
-        className="flex-1 p-3 bg-[#111111] text-white border border-gray-700 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50"
+        className="flex-1 p-3 bg-gray-900 text-white border border-gray-700 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         onKeyDown={handleKeyDown}
