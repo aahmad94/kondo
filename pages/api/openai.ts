@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4', // or any model you choose
+      model: 'gpt-4o-mini', // or any model you choose
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt },
