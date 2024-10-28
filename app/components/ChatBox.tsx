@@ -47,7 +47,8 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setBookmarkResponses(data.map((response: BookmarkResponse) => ({
+      const sortedData = data.sort((a: BookmarkResponse, b: BookmarkResponse) => a.id.localeCompare(b.id));
+      setBookmarkResponses(sortedData.map((response: BookmarkResponse) => ({
         id: response.id,
         content: response.content
       })));
