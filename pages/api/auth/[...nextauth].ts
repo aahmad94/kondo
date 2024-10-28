@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
         user.id = newUser.id;
 
         // Create default bookmarks for the new user
-        const defaultBookmarks = ['travel', 'counting', 'verbs'];
+        const defaultBookmarks = ['travel', 'counting', 'grammar'];
         await Promise.all(defaultBookmarks.map(title => 
           prisma.bookmark.create({
             data: {
