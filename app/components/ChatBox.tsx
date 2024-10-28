@@ -32,6 +32,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  // When the selected bookmark changes, fetch the responses from the database
   useEffect(() => {
     if (selectedBookmarkId && session?.userId) {
       fetchBookmarkResponses(session.userId, selectedBookmarkId);
@@ -40,6 +41,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   }, [selectedBookmarkId, session]);
 
+  // Fetch bookmark responses from database and sets responses in ascending order
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
     try {
       const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${bookmarkId}`);
@@ -57,12 +59,14 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   };
 
+  // Scrolls to the bottom of the chat container when either responses or bookmark responses change
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [responses, bookmarkResponses]);
 
+  // Handle the user's input, does not save to database
   const handleSubmit = async (prompt: string) => {
     try {
       setIsLoading(true);
@@ -91,6 +95,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   };
 
+  // Deletes response from database and updates state locally
   const handleResponseDelete = async (responseId: string) => {
     if (!session?.userId || !selectedBookmarkId) return;
     
