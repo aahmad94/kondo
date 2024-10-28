@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 
 interface MenuBarProps {
-  onBookmarkSelect: (bookmarkId: string) => void;
+  onBookmarkSelect: (bookmarkId: string | null) => void;
 }
 
 const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect }: MenuBarProps) => {
@@ -17,15 +17,17 @@ const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect }: MenuBarProps) => 
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    onBookmarkSelect('');
+    onBookmarkSelect(null); // Changed from empty string to null to be consistent
   };
 
   return (
     <nav className="bg-gray-800 shadow-md flex justify-between items-center w-full">
       <Link 
-            className="text-2xl pt-2 pl-4 text-white"
-            href="/"
-            onClick={handleLogoClick}>Kondo
+        className="text-2xl pt-2 pl-4 text-white"
+        href="/"
+        onClick={handleLogoClick}
+      >
+        Kondo
       </Link>
       {session?.user?.image && (
         <Image
@@ -34,8 +36,8 @@ const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect }: MenuBarProps) => 
           alt="User Avatar"
           width={40}
           height={40}
-          />
-        )}
+        />
+      )}
     </nav>
   )
 }

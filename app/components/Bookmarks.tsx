@@ -11,9 +11,10 @@ interface Bookmark {
 
 interface BookmarksProps {
   onBookmarkSelect: (bookmarkId: string) => void;
+  selectedBookmarkId: string | null;
 }
 
-export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
+export default function Bookmarks({ onBookmarkSelect, selectedBookmarkId }: BookmarksProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -128,7 +129,8 @@ export default function Bookmarks({ onBookmarkSelect }: BookmarksProps) {
           {bookmarks.map((bookmark) => (
             <div
               key={bookmark.id}
-              className="mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group"
+              className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
+                ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
               onClick={() => handleBookmarkClick(bookmark.id)}
             >
               <span>{bookmark.title}</span>

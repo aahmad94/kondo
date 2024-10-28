@@ -18,29 +18,32 @@ export default function HomePage() {
 		<ProtectedRoute>
 			<Menubar onBookmarkSelect={handleBookmarkSelect} />
 			<div className="flex h-screen bg-[#000000]">
-				<Bookmarks onBookmarkSelect={handleBookmarkSelect} />
+				<Bookmarks 
+					onBookmarkSelect={handleBookmarkSelect} 
+					selectedBookmarkId={selectedBookmarkId}
+				/>
 				<div className="flex-1 flex flex-col justify-end">
 					<Chatbox selectedBookmarkId={selectedBookmarkId} />
+					</div>
 				</div>
-			</div>
-		</ProtectedRoute>
-	);
-}
+			</ProtectedRoute>
+		);
+	}
 
-export async function getServerSideProps(context) {
-	const session = await getSession(context)
-	console.log("Session in getServerSideProps:", session) // Server-side log
+	export async function getServerSideProps(context) {
+		const session = await getSession(context)
+		console.log("Session in getServerSideProps:", session) // Server-side log
 
-	if (!session) {
+		if (!session) {
+			return {
+				redirect: {
+					destination: '/api/auth/signin',
+					permanent: false,
+				},
+			}
+		}
+
 		return {
-			redirect: {
-				destination: '/api/auth/signin',
-				permanent: false,
-			},
+			props: { session },
 		}
 	}
-
-	return {
-		props: { session },
-	}
-}
