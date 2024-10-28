@@ -10,11 +10,11 @@ interface Bookmark {
 }
 
 interface BookmarksProps {
-  onBookmarkSelect: (bookmarkId: string) => void;
+  changeSelectedBookmarkId: (bookmarkId: string|null) => void;
   selectedBookmarkId: string | null;
 }
 
-export default function Bookmarks({ onBookmarkSelect, selectedBookmarkId }: BookmarksProps) {
+export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId }: BookmarksProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -60,7 +60,7 @@ export default function Bookmarks({ onBookmarkSelect, selectedBookmarkId }: Book
   };
 
   const handleBookmarkClick = (bookmarkId: string) => {
-    onBookmarkSelect(bookmarkId);
+    changeSelectedBookmarkId(bookmarkId);
   };
 
   const handleCreateNewBookmark = () => {
@@ -97,6 +97,9 @@ export default function Bookmarks({ onBookmarkSelect, selectedBookmarkId }: Book
         }
 
         setBookmarks(bookmarks.filter(b => b.id !== bookmarkToDelete.id));
+        if (selectedBookmarkId === bookmarkToDelete.id) {
+          changeSelectedBookmarkId(null);
+        }
         setIsDeleteModalOpen(false);
         setBookmarkToDelete(null);
       } catch (error) {

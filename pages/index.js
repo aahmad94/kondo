@@ -19,7 +19,7 @@ export default function HomePage() {
 			<Menubar onBookmarkSelect={handleBookmarkSelect} />
 			<div className="flex h-screen bg-[#000000]">
 				<Bookmarks 
-					onBookmarkSelect={handleBookmarkSelect} 
+					changeSelectedBookmarkId={handleBookmarkSelect} 
 					selectedBookmarkId={selectedBookmarkId}
 				/>
 				<div className="flex-1 flex flex-col justify-end">
