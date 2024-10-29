@@ -79,7 +79,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const message = session?.user?.name ? `おはよう, ${session.user.name}!` : "おはよう!";
 
   return (
-    <div className="relative flex items-end gap-3 bg-[#000000] p-2 rounded-lg">
+    <div className="relative flex items-end gap-2 bg-[#000000] p-2 rounded-lg">
       <textarea
         ref={textareaRef}
         className="flex-1 p-2 bg-[#000000] text-white border border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[50px] h-[50px] max-h-[100px] overflow-y-auto leading-[1.5]"
@@ -92,7 +92,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
       <button
         onClick={handleSubmit}
         disabled={isLoading || !prompt.trim()}
-        className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-[38px] w-[38px] flex-shrink-0 flex items-center justify-center"
+        className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-[38px] w-[38px] flex-shrink-0 flex items-center justify-center mb-2"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
