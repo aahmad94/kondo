@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, XCircleIcon, ArrowUturnRightIcon } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 
@@ -8,9 +8,10 @@ interface GPTResponseProps {
   selectedBookmarkId: string | null;
   responseId?: string | null;
   onDelete?: (responseId: string) => Promise<void>;
+  onQuote?: (response: string) => void;
 }
 
-export default function GPTResponse({ response, selectedBookmarkId, responseId, onDelete }: GPTResponseProps) {
+export default function GPTResponse({ response, selectedBookmarkId, responseId, onDelete, onQuote }: GPTResponseProps) {
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,16 +43,32 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
     ));
   };
 
+  const handleQuoteClick = () => {
+    if (onQuote) {
+      onQuote(response);
+    }
+  };
+
   return (
     <div className="mt-4 p-4 rounded text-white">
       <div className="flex justify-between items-center mb-2">
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
         <div className="flex gap-2">
-          {!selectedBookmarkId && (
+          {!selectedBookmarkId && onQuote && (
+            <>
+            <button 
+              onClick={() => onQuote(response)} 
+              className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+            >
+              <ArrowUturnRightIcon className="h-6 w-6" />
+            </button>
+
             <button onClick={() => setIsBookmarkModalOpen(true)} className="text-white">
               <PlusIcon className="h-6 w-6" />
             </button>
+            </>
           )}
+
           {selectedBookmarkId && responseId && onDelete && (
             <button 
               onClick={handleDeleteClick}

@@ -18,19 +18,19 @@ interface BookmarkResponse {
 }
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
-  const instructions = `
-  - Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
+  const instructions = `- Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
   - Use "verb" followed by a verb to get a tense table with formal and informal forms of the verb.
   - Use "terms" followed by a word to receive a list of related words in Japanese.
   - Use "random" for a daily-use sentence translated to Japanese.
   - Use "katakana" for a table showing the katakana alphabet with hiragana and romaji.
-  - use an asterisk "*" followed by a question to inquire about anything else.
-`;
+  - use an asterisk * followed by a question to inquire about anything else.`;
   const { data: session, status } = useSession()
   const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [responseQuote, setResponseQuote] = useState<string>('');
+  const [userInputOffset, setUserInputOffset] = useState<number>(0);
 
   // When the selected bookmark changes, fetch the responses from the database
   useEffect(() => {
@@ -62,9 +62,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   // Scrolls to the bottom of the chat container when either responses or bookmark responses change
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      setTimeout(() => {
+        chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
+      }, 50);
     }
-  }, [responses, bookmarkResponses]);
+  }, [responses, bookmarkResponses, responseQuote]);
 
   // Handle the user's input, does not save to database
   const handleSubmit = async (prompt: string) => {
@@ -95,6 +97,12 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   };
 
+  // Adjusts the user input offset when the user input changes
+  const handleUserInputOffset = (offset: number) => {
+    console.log({offset});
+    setUserInputOffset(offset);
+  };
+
   // Deletes response from database and updates state locally
   const handleResponseDelete = async (responseId: string) => {
     if (!session?.userId || !selectedBookmarkId) return;
@@ -120,6 +128,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   };
 
+  const handleResponseQuote = (response: string) => {
+    const quotedResponse = `${response}\n\n* In the above phrase... `;
+    setResponseQuote(quotedResponse);
+  };
+
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
   }
@@ -128,10 +141,13 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     <div className="container mx-auto bg-[#000000] h-screen flex flex-col">
       <div 
         ref={chatContainerRef}
-        className={`overflow-y-auto relative mb-4 ${
-          selectedBookmarkId ? 'h-[87.5%]' : 'h-[calc(100%-150px)]'
+        className={`overflow-y-auto relative mb-2 ${
+          selectedBookmarkId ? 'h-[87.5%]' : ''
         }`}
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        style={{ 
+          height: selectedBookmarkId ? undefined : `calc(100% - ${150 + userInputOffset}px)`,
+          paddingBottom: 'env(safe-area-inset-bottom)' 
+        }}
       >
         {isLoading && (
           <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-50">
@@ -155,6 +171,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
               selectedBookmarkId={selectedBookmarkId}
               responseId={response.id}
               onDelete={handleResponseDelete}
+              onQuote={handleResponseQuote}
             />
           ))
         ) : (
@@ -165,15 +182,19 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
               selectedBookmarkId={selectedBookmarkId}
               responseId={response.id}
               onDelete={handleResponseDelete}
+              onQuote={handleResponseQuote}
             />
           ))
         )}
       </div>
       {!selectedBookmarkId && (
-        <div className="flex-shrink-0" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          <UserInput onSubmit={handleSubmit} isLoading={isLoading} />
-        </div>
-      )}
+        <UserInput 
+          onSubmit={handleSubmit} 
+          isLoading={isLoading} 
+          defaultPrompt={responseQuote}
+          onUserInputOffset={handleUserInputOffset}
+        />
+    )}
     </div>
   );
 }
