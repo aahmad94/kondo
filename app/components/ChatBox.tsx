@@ -99,7 +99,6 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
 
   // Adjusts the user input offset when the user input changes
   const handleUserInputOffset = (offset: number) => {
-    console.log({offset});
     setUserInputOffset(offset);
   };
 
