@@ -31,6 +31,28 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
+  const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(150);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) { // Assuming 768px as the breakpoint for mobile
+        setBaseUserInputOffset(225);
+      } else {
+        setBaseUserInputOffset(150); // Default value for non-mobile
+      }
+    };
+
+    // Set the initial value based on the current window width
+    handleResize();
+
+    // Add event listener to handle window resize
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // When the selected bookmark changes, fetch the responses from the database
   useEffect(() => {
@@ -148,7 +170,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
           selectedBookmarkId ? 'h-[87.5%]' : ''
         }`}
         style={{ 
-          height: selectedBookmarkId ? undefined : `calc(100% - ${150 + userInputOffset}px)`,
+          height: selectedBookmarkId ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset}px)`,
           paddingBottom: 'env(safe-area-inset-bottom)' 
         }}
       >

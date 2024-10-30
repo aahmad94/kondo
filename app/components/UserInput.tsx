@@ -13,6 +13,8 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const [prompt, setPrompt] = useState<string>('');
   const { data: session } = useSession();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaMaxHeight = 150;
+  const textareaMinHeight = 50;
 
   useEffect(() => {
     if (defaultPrompt) {
@@ -39,14 +41,16 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
 
       } else {
         const newHeight = Math.max(textarea.scrollHeight, 50);
-        textarea.style.height = newHeight + 'px';
 
         // Adjust the offset based on the height of the textarea
-        if (newHeight > 50 && newHeight < 100) {
-          onUserInputOffset((newHeight % 50));
-        } else if (newHeight > 100) {
-          onUserInputOffset(50);
+        if (newHeight > textareaMinHeight && newHeight < textareaMaxHeight) {
+          textarea.style.height = newHeight + 'px';
+          onUserInputOffset((newHeight % textareaMinHeight));
+        } else if (newHeight > textareaMaxHeight) {
+          textarea.style.height = textareaMaxHeight + 'px';
+          onUserInputOffset(textareaMaxHeight-textareaMinHeight);
         } else {
+          textarea.style.height = `${textareaMinHeight}px`;
           onUserInputOffset(0);
         }
       }
@@ -84,30 +88,32 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const message = session?.user?.name ? `おはよう, ${session.user.name}!` : "おはよう!";
 
   return (
-    <div className="fixed bottom-0 z-50 relative flex items-end gap-2 bg-[#000000] p-2 rounded-lg">
+    <div className="flex items-center bg-[#000000] rounded-lg">
       <textarea
         ref={textareaRef}
-        className="flex-1 p-2 bg-[#111111] text-white border border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[50px] h-[50px] max-h-[100px] overflow-y-auto leading-[1.5]"
+        className={`flex-grow m-2 px-4 py-2 bg-[#111111] text-white border border-gray-700 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[${textareaMinHeight}px] h-[${textareaMinHeight}px] max-h-[${textareaMaxHeight}px] overflow-y-auto leading-[1.5]`}
         value={prompt}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={message}
         disabled={isLoading}
       />
-      <button
-        onClick={handleSubmit}
-        disabled={isLoading || !prompt.trim()}
-        className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-[38px] w-[38px] flex-shrink-0 flex items-center justify-center mb-2"
-      >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 24 24" 
-          fill="currentColor" 
-          className="w-5 h-5"
+      <div className="flex-none mr-2">
+        <button
+          onClick={handleSubmit}
+          disabled={isLoading || !prompt.trim()}
+          className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-[38px] w-[38px] items-center justify-center"
         >
-          <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-        </svg>
-      </button>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="currentColor" 
+            className="w-5 h-5"
+          >
+            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
