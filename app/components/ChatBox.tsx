@@ -29,7 +29,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const [responses, setResponses] = useState<Response[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [responseQuote, setResponseQuote] = useState<string>('');
+  const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
 
   // When the selected bookmark changes, fetch the responses from the database
@@ -132,6 +132,10 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     setResponseQuote(quotedResponse);
   };
 
+  const setResponseQuoteToNull = () => {
+    setResponseQuote(null);
+  };
+
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
   }
@@ -144,7 +148,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
           selectedBookmarkId ? 'h-[87.5%]' : ''
         }`}
         style={{ 
-          height: selectedBookmarkId ? undefined : `calc(100% - ${180 + userInputOffset}px)`,
+          height: selectedBookmarkId ? undefined : `calc(100% - ${150 + userInputOffset}px)`,
           paddingBottom: 'env(safe-area-inset-bottom)' 
         }}
       >
@@ -192,6 +196,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
           isLoading={isLoading} 
           defaultPrompt={responseQuote}
           onUserInputOffset={handleUserInputOffset}
+          onQuoteToNull={setResponseQuoteToNull}
         />
     )}
     </div>

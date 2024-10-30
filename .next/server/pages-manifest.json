@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
   "/api/getBookmarks": "pages/api/getBookmarks.js",
-  "/": "pages/index.js"
+  "/": "pages/index.js",
+  "/api/openai": "pages/api/openai.js",
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
 }

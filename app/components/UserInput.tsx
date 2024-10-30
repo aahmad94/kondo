@@ -4,11 +4,12 @@ import { useSession } from "next-auth/react"
 interface UserInputProps {
   onSubmit: (prompt: string) => Promise<void>;
   isLoading: boolean;
-  defaultPrompt?: string;
+  defaultPrompt?: string|null;
   onUserInputOffset: (offset: number) => void;
+  onQuoteToNull: () => void;
 }
 
-export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserInputOffset }: UserInputProps) {
+export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserInputOffset, onQuoteToNull }: UserInputProps) {
   const [prompt, setPrompt] = useState<string>('');
   const { data: session } = useSession();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -17,7 +18,6 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
     if (defaultPrompt) {
       setPrompt(defaultPrompt);
       setTimeout(adjustHeight, 0);
-
       // Focus on the textarea and scroll to the bottom
       if (textareaRef.current) {
         textareaRef.current.focus();
@@ -36,6 +36,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
       if (textarea.value.trim() === '') {
         textarea.style.height = '50px';
         onUserInputOffset(0);
+
       } else {
         const newHeight = Math.max(textarea.scrollHeight, 50);
         textarea.style.height = newHeight + 'px';
@@ -56,6 +57,10 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
     adjustHeight();
+    if (defaultPrompt && e.target.value !== defaultPrompt) {
+      defaultPrompt = null;
+      onQuoteToNull();
+    }
   };
 
   // Submit the user's input
@@ -79,10 +84,10 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const message = session?.user?.name ? `おはよう, ${session.user.name}!` : "おはよう!";
 
   return (
-    <div className="relative flex items-end gap-2 bg-[#000000] p-2 rounded-lg">
+    <div className="fixed bottom-0 z-50 relative flex items-end gap-2 bg-[#000000] p-2 rounded-lg">
       <textarea
         ref={textareaRef}
-        className="flex-1 p-2 bg-[#000000] text-black border border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[50px] h-[50px] max-h-[100px] overflow-y-auto leading-[1.5]"
+        className="flex-1 p-2 bg-[#111111] text-white border border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[50px] h-[50px] max-h-[100px] overflow-y-auto leading-[1.5]"
         value={prompt}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
