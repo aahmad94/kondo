@@ -36,7 +36,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth <= 768) { // Assuming 768px as the breakpoint for mobile
-        setBaseUserInputOffset(225);
+        setBaseUserInputOffset(245);
       } else {
         setBaseUserInputOffset(150); // Default value for non-mobile
       }
