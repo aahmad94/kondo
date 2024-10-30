@@ -19,9 +19,9 @@ interface BookmarkResponse {
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const instructions = `- Enter a phrase or sentence to breakdown in Japanese, no need to include "translate" in your prompt.
+  - Use "random" for a daily-use sentence translated to Japanese.
   - Use "verb" followed by a verb to get a tense table with formal and informal forms of the verb.
   - Use "terms" followed by a word to receive a list of related words in Japanese.
-  - Use "random" for a daily-use sentence translated to Japanese.
   - Use "katakana" for a table showing the katakana alphabet with hiragana and romaji.
   - use an asterisk * followed by a question to inquire about anything else.`;
   const { data: session, status } = useSession()
