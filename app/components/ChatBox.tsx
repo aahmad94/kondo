@@ -31,15 +31,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
-  const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(150);
+  const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth <= 768) { // Assuming 768px as the breakpoint for mobile
-        setBaseUserInputOffset(245);
-      } else {
-        setBaseUserInputOffset(150); // Default value for non-mobile
-      }
+      initBaseUserInputOffset();
     };
 
     // Set the initial value based on the current window width
@@ -123,6 +119,24 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const handleUserInputOffset = (offset: number) => {
     setUserInputOffset(offset);
   };
+
+  // Initializes the base user input offset based on the user's browser
+  function initBaseUserInputOffset() {
+    const userAgent = navigator.userAgent;
+  
+    // Mobile
+    if (/Mobile/i.test(userAgent)) {
+      setBaseUserInputOffset(245);
+      console.log('Mobile');
+    }
+  
+    // Desktop
+    if (!/Mobile/i.test(userAgent) || /DuckDuckGo/i.test(userAgent)) {
+      setBaseUserInputOffset(140);
+      console.log('Desktop');
+    };
+  }
+  
 
   // Deletes response from database and updates state locally
   const handleResponseDelete = async (responseId: string) => {
