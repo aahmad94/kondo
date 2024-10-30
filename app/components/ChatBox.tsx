@@ -124,33 +124,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   function initBaseUserInputOffset() {
     const userAgent = navigator.userAgent;
   
-    // Mobile
     if (/Mobile/i.test(userAgent)) {
-      setBaseUserInputOffset(240);
-      console.log('Mobile');
-      alert('Mobile');
-    }
-  
-    // Chrome Mobile
-    if (/Chrome/i.test(userAgent) && /Mobile/i.test(userAgent)) {
-      setBaseUserInputOffset(255);
-      console.log('Chrome Mobile');
-      alert('Chrome Mobile');
-    }
-
-    // DuckDuckGo Mobile
-    if (/DuckDuckGo/i.test(userAgent) && /Mobile/i.test(userAgent)) {
-      setBaseUserInputOffset(255);
-      console.log('DuckDuckGo Mobile');
-      alert('DuckDuckGo Mobile');
-    }
-
-    // Desktop
-    if (!/Mobile/i.test(userAgent)) {
+      setBaseUserInputOffset(250);
+    } else {
       setBaseUserInputOffset(140);
-      console.log('Desktop');
-      alert('Desktop');
-    };
+    }
   }
   
 
