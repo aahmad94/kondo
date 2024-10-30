@@ -82,7 +82,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
     <div className="relative flex items-end gap-2 bg-[#000000] p-2 rounded-lg">
       <textarea
         ref={textareaRef}
-        className="flex-1 p-2 bg-[#000000] text-white border border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[50px] h-[50px] max-h-[100px] overflow-y-auto leading-[1.5]"
+        className="flex-1 p-2 bg-[#000000] text-black border border-gray-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[50px] h-[50px] max-h-[100px] overflow-y-auto leading-[1.5]"
         value={prompt}
         onChange={handleChange}
         onKeyDown={handleKeyDown}

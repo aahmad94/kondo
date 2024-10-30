@@ -144,7 +144,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
           selectedBookmarkId ? 'h-[87.5%]' : ''
         }`}
         style={{ 
-          height: selectedBookmarkId ? undefined : `calc(100% - ${150 + userInputOffset}px)`,
+          height: selectedBookmarkId ? undefined : `calc(100% - ${180 + userInputOffset}px)`,
           paddingBottom: 'env(safe-area-inset-bottom)' 
         }}
       >
