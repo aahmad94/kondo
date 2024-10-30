@@ -23,7 +23,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
         textareaRef.current.focus();
         setTimeout(() => {
           textareaRef.current!.scrollTop = textareaRef.current!.scrollHeight;
-        }, 10);
+        }, 50);
       }
     }
   }, [defaultPrompt]);
