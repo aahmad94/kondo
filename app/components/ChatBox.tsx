@@ -84,8 +84,8 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data: { result: string } = await res.json();
-      setResponseQuote('');
       setResponses(prevResponses => [...prevResponses, { id: null, content: data.result }]);
+      setResponseQuote('');
     } catch (error) {
       console.error('Error fetching data:', error);
       setResponses(prevResponses => [...prevResponses, { 
