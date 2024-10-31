@@ -18,7 +18,7 @@ interface BookmarkResponse {
 }
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
-  const instructions = "1 \- Enter a phrase or sentence to breakdown in Japanese, no need to include \"translate\" in your prompt.\n2 \- Use **\"random\"** for a daily-use sentence translated to Japanese.\n3 \- Use **\"verb\"** followed by a verb to get a tense table with formal and informal forms of the verb.\n4 \- Use **\"terms\"** followed by a word to receive a list of related words in Japanese.\n5 \- Use **\"katakana\"** for a table showing the katakana alphabet with hiragana and romaji.\nUse an **asterisk (*)** followed by a question to inquire about anything else.";
+  const instructions = "1 \- Enter a phrase or sentence to breakdown in Japanese, no need to include \"translate\" in your prompt.\n2 \- Use **\"random\"** for a daily-use sentence translated to Japanese.\n3 \- Use **\"verb\"** followed by a verb to get a tense table with formal and informal forms of the verb.\n4 \- Use **\"terms\"** followed by a word to receive a list of related words in Japanese.\n5 \- Use **\"katakana\"** for a table showing the katakana alphabet with hiragana and romaji.\n6 \- Use an **asterisk (*)** followed by a question to inquire about anything else.\n\n You may use the + button to create a bookmark of your response.";
   const { data: session, status } = useSession()
   const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
