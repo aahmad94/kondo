@@ -18,6 +18,10 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const cleanResponse = response
+    .replace(/\n\s*\n\s*\n/g, '\n\n')  // Replace multiple empty lines with single empty line
+    .replace(/\n-/g, '\n');  // Remove dash after newline
+
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
   };
@@ -74,7 +78,7 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
         </div>
       </div>
       <div className="whitespace-pre-wrap">
-        <Markdown remarkPlugins={[remarkGfm]}>{response}</Markdown>
+        <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
       </div>
       {isBookmarkModalOpen && (
         <BookmarksModal
