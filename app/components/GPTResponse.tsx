@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { PlusIcon, XCircleIcon, ArrowUturnRightIcon } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface GPTResponseProps {
   response: string;
@@ -34,15 +36,6 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
     }
   };
 
-  const formatResponse = (text: string) => {
-    return text.split('\n').map((line, index) => (
-      <span key={index}>
-        {line}
-        <br />
-      </span>
-    ));
-  };
-
   const handleQuoteClick = () => {
     if (onQuote) {
       onQuote(response);
@@ -50,7 +43,7 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
   };
 
   return (
-    <div className="mt-4 p-4 rounded text-white">
+    <div className="mt-2 p-2 pl-4 rounded text-white">
       <div className="flex justify-between items-center mb-2">
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
         <div className="flex gap-2">
@@ -80,7 +73,9 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
           )}
         </div>
       </div>
-      <div className="whitespace-pre-wrap">{formatResponse(response)}</div>
+      <div className="whitespace-pre-wrap">
+        <Markdown remarkPlugins={[remarkGfm]}>{response}</Markdown>
+      </div>
       {isBookmarkModalOpen && (
         <BookmarksModal
           isOpen={isBookmarkModalOpen}
