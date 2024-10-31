@@ -16,6 +16,15 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const textareaMaxHeight = 150;
   const textareaMinHeight = 50;
 
+
+  // Adjust the height of the textarea when the component is mounted
+  useEffect(() => {
+    setTimeout(() => {
+      adjustHeight();
+    }, 0);
+  }, []);
+
+  // Set the default prompt and adjust the height of the textarea
   useEffect(() => {
     if (defaultPrompt) {
       setPrompt(defaultPrompt);
@@ -36,11 +45,16 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
     const textarea = textareaRef.current;
     if (textarea) {
       if (textarea.value.trim() === '') {
-        textarea.style.height = '50px';
+        textarea.style.height = `${textareaMinHeight}px`;
         onUserInputOffset(0);
 
       } else {
-        const newHeight = Math.max(textarea.scrollHeight, 50);
+        let newHeight = Math.max(textarea.scrollHeight, textareaMinHeight);
+
+        // If the user has not entered more than 12 characters, set the height to the minimum height
+        if (textarea.value.length < 20) {
+          newHeight = textareaMinHeight;
+        }
 
         // Adjust the offset based on the height of the textarea
         if (newHeight > textareaMinHeight && newHeight < textareaMaxHeight) {
