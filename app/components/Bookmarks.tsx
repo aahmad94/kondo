@@ -109,7 +109,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
   };
 
   return (
-    <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out max-w-[16rem] ${isOpen ? 'w-48' : 'w-12'}`}>
+    <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out max-w-48 ${isOpen ? 'w-48' : 'w-12'}`}>
       <div className="flex justify-between items-center pl-4 px-2 py-2">
         {isOpen && <h2 className="text-xl">Bookmarks</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="text-white">
