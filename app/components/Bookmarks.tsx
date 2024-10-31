@@ -109,7 +109,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
   };
 
   return (
-    <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out max-w-48 ${isOpen ? 'w-48' : 'w-12'}`}>
+    <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out max-w-48 h-screen ${isOpen ? 'w-48' : 'w-12'}`}>
       <div className="flex justify-between items-center pl-4 px-2 py-2">
         {isOpen && <h2 className="text-xl">Bookmarks</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="text-white">
@@ -129,24 +129,26 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
             <PlusCircleIcon className="h-4 w-4 inline mr-2"/>
             <span>create bookmark</span>
           </div>
-          {bookmarks.map((bookmark) => (
-            <div
-              key={bookmark.id}
-              className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
-                ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
-              onClick={() => handleBookmarkInteraction(bookmark.id)}
-              onTouchStart={() => handleBookmarkInteraction(bookmark.id)}
-            >
-              <span>{bookmark.title}</span>
-              <XCircleIcon
-                className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick(bookmark, e);
-                }}
-              />
-            </div>
-          ))}
+          <div className="overflow-y-auto max-h-[50vh]">
+            {bookmarks.map((bookmark) => (
+              <div
+                key={bookmark.id}
+                className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
+                  ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
+                onClick={() => handleBookmarkInteraction(bookmark.id)}
+                onTouchStart={() => handleBookmarkInteraction(bookmark.id)}
+              >
+                <span>{bookmark.title}</span>
+                <XCircleIcon
+                  className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(bookmark, e);
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
       {isCreateModalOpen && (
