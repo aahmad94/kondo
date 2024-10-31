@@ -121,7 +121,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
         </button>
       </div>
       {isOpen && (
-        <div className="flex flex-col p-2">
+        <div className="min-w-48 max-w-48 flex flex-col p-2">
           <div
             className="mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
             onClick={handleCreateNewBookmark}
