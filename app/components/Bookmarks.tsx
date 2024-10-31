@@ -59,7 +59,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
     }
   };
 
-  const handleBookmarkClick = (bookmarkId: string) => {
+  const handleBookmarkInteraction = (bookmarkId: string) => {
     changeSelectedBookmarkId(bookmarkId);
   };
 
@@ -134,7 +134,8 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
               key={bookmark.id}
               className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
                 ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
-              onClick={() => handleBookmarkClick(bookmark.id)}
+              onClick={() => handleBookmarkInteraction(bookmark.id)}
+              onTouchStart={() => handleBookmarkInteraction(bookmark.id)}
             >
               <span>{bookmark.title}</span>
               <XCircleIcon
