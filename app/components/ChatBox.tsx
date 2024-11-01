@@ -166,7 +166,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   }
 
   return (
-    <div className="container mx-auto bg-[#000000] h-screen flex flex-col">
+    <div className="container mx-auto bg-[#000000] h-screen flex flex-col max-w-[calc(100vw-48px)]">
       <div 
         ref={chatContainerRef}
         className={`overflow-y-auto relative mb-2 ${
