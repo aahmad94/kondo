@@ -32,7 +32,12 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
     // Check if window width is less than 768px (mobile)
     const handleResize = () => {
       if (window.innerWidth < 768) {
-        setIsOpen(false);
+        // Only set isOpen to false on initial load or when resizing to mobile
+        // Don't override if we're already in mobile view
+        if (isOpen) {
+          // setIsOpen(false);
+          // console.log('setting isOpen to false');
+        }
       }
     };
 
@@ -108,49 +113,67 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
     }
   };
 
+  const handleToggleOpen = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div className={`bg-gray-800 text-white transition-all duration-300 ease-in-out max-w-48 h-screen ${isOpen ? 'w-48' : 'w-12'}`}>
-      <div className="flex justify-between items-center pl-4 px-2 py-2">
-        {isOpen && <h2 className="text-xl">Bookmarks</h2>}
-        <button onClick={() => setIsOpen(!isOpen)} className="text-white">
-          {isOpen ? (
-            <ChevronLeftIcon className="h-6 w-6" />
-          ) : (
-            <ChevronRightIcon className="h-6 w-6" />
-          )}
-        </button>
-      </div>
-      {isOpen && (
-        <div className="min-w-48 max-w-48 flex flex-col p-2">
-          <div
-            className="mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
-            onClick={handleCreateNewBookmark}
+    <>
+      {!isOpen && (
+        <div className="fixed top-[50px] h-[50px] w-8 rounded-r-lg bg-gray-800/80 ml-0 flex items-center justify-center z-10">
+          <button 
+            onClick={handleToggleOpen}
+            className="text-white w-full h-full flex items-center justify-center cursor-pointer"
           >
-            <PlusCircleIcon className="h-4 w-4 inline mr-2"/>
-            <span>create bookmark</span>
+            <ChevronRightIcon className="h-6 w-6 text-blue-400" />
+          </button>
+        </div>
+      )}
+      
+      {isOpen && (
+        <div className="bg-gray-800 text-white max-w-48 w-48 h-[calc(100vh-50px)]">
+          <div className="flex justify-between items-center pl-4 px-2 py-2">
+            <h2 className="text-xl">Bookmarks</h2>
+            <button 
+              onClick={handleToggleOpen} 
+              className="text-white cursor-pointer"
+            >
+              <ChevronLeftIcon className="h-6 w-6" />
+            </button>
           </div>
-          <div className="overflow-y-auto max-h-[50vh]">
-            {bookmarks.map((bookmark) => (
-              <div
-                key={bookmark.id}
-                className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
-                  ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
-                onClick={() => handleBookmarkInteraction(bookmark.id)}
-                onTouchStart={() => handleBookmarkInteraction(bookmark.id)}
-              >
-                <span>{bookmark.title}</span>
-                <XCircleIcon
-                  className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClick(bookmark, e);
-                  }}
-                />
-              </div>
-            ))}
+          <div className="min-w-48 max-w-48 flex flex-col p-2">
+            <div
+              className="mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
+              onClick={handleCreateNewBookmark}
+            >
+              <PlusCircleIcon className="h-4 w-4 inline mr-2"/>
+              <span>create bookmark</span>
+            </div>
+            <div className="overflow-y-auto max-h-[50vh]">
+              {bookmarks.map((bookmark) => (
+                <div
+                  key={bookmark.id}
+                  className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
+                    ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
+                  onClick={() => handleBookmarkInteraction(bookmark.id)}
+                  onTouchStart={() => handleBookmarkInteraction(bookmark.id)}
+                >
+                  <span>{bookmark.title}</span>
+                  <XCircleIcon
+                    className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(bookmark, e);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
+      
+      {/* Modals */}
       {isCreateModalOpen && (
         <CreateBookmarkModal
           isOpen={isCreateModalOpen}
@@ -166,6 +189,6 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
           bookmarkTitle={bookmarkToDelete.title}
         />
       )}
-    </div>
+    </>
   );
 }
