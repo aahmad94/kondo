@@ -14,4 +14,5 @@ Another rule -- if I prompt in English or Japanese without specifying a command 
 
 Lastly if the promt begins with an asterisk * it's me directly asking questions to you for further clarification.
 
-Try to minimize white space in your responses, there should only be empty lines between different sections like "breakdown" or "table" etc...
+Try to minimize white space in your responses, there should only be empty lines between different sections like "breakdown" or "table" etc... numbered or bulleted lists should have a line break between each item but no empty lines before or after each item.
+Double check to make sure that the only "/n/n" empty lines are between new sections and not listed items.

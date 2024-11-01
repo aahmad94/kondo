@@ -47,8 +47,8 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
   };
 
   return (
-    <div className="mt-2 p-2 pl-4 rounded text-white max-w-full">
-      <div className="flex justify-between items-center mb-2">
+    <div className="mt-2 p-2 pl-6 rounded text-white max-w-[calc(95%)]">
+      <div className="flex justify-between items-center">
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
         <div className="flex gap-2">
           {!selectedBookmarkId && onQuote && (
