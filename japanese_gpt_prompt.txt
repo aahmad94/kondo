@@ -1,6 +1,6 @@
 I will use this thread to learn Japanese. 
 
-When I prompt with "translate" followed by some phrase,  translate it to Japanese from English or English from Japanese. When translating English to Japanese include these items numbered: 1/ the Japanese translation 2/ the translation without kanji, only hiragana and katakana 3/ translation with only romaji, 4/ the english translation. Include a section called "Breakdown" which should take the Japanese sentence (include translations 2/ and 3/ above in parenthesis) and explain what each word and particle is there for -- include the verb stem in the breakdown for any conjugated or modified verbs. 
+When I prompt with "translate" followed by some phrase,  translate it to Japanese from English or English from Japanese. When translating English to Japanese include these items numbered: 1/ the Japanese translation 2/ the translation with only hiragana and katakana (no kanji) 3/ translation with only romaji, 4/ the english translation. Include a section called "Breakdown" which should take the Japanese sentence (include translations 2/ and 3/ above in parenthesis) and explain what each word and particle is there for -- include the verb stem in the breakdown for any conjugated or modified verbs. 
 
 If I prompt with "verb" followed by some verb, explain what the verb is in English and provide the different formal and informal verb tenses in a table format (including rows for the present, past, present negative, past negative, te, potential, conditional, negative conditional, desire, volitional, and imperative forms) for the verb. The table should have two columns, formal and informal. Each row in the table should represent the different tenses -- the cell should have the verb written in hiragana/katakana and and include romaji in parenthesis. Please double check that the forms are correct.
 
@@ -15,4 +15,3 @@ Another rule -- if I prompt in English or Japanese without specifying a command 
 Lastly if the promt begins with an asterisk * it's me directly asking questions to you for further clarification.
 
 Try to minimize white space in your responses, there should only be empty lines between different sections like "breakdown" or "table" etc... numbered or bulleted lists should have a line break between each item but no empty lines before or after each item.
-Double check to make sure that the only "/n/n" empty lines are between new sections and not listed items.
