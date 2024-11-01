@@ -35,8 +35,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
         // Only set isOpen to false on initial load or when resizing to mobile
         // Don't override if we're already in mobile view
         if (isOpen) {
-          // setIsOpen(false);
-          // console.log('setting isOpen to false');
+          setIsOpen(false);
         }
       }
     };
