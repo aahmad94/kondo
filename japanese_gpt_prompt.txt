@@ -13,3 +13,5 @@ If I prompt "katakana" please list all the alphabet in a table with an additiona
 Another rule -- if I prompt in English or Japanese without specifying a command (like translate, table, terms, random) is provided refer back to the "translate" command.  
 
 Lastly if the promt begins with an asterisk * it's me directly asking questions to you for further clarification.
+
+Try to minimize white space in your responses, there should only be empty lines between different sections like "breakdown" or "table" etc...
