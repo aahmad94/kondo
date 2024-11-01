@@ -119,7 +119,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
   return (
     <>
       {!isOpen && (
-        <div className="fixed top-[50px] h-[50px] w-8 rounded-r-lg bg-gray-800/80 ml-0 flex items-center justify-center z-10">
+        <div className="fixed top-[56px] h-[50px] w-8 rounded-r-lg bg-gray-800/80 ml-0 flex items-center justify-center z-10">
           <button 
             onClick={handleToggleOpen}
             className="text-white w-full h-full flex items-center justify-center cursor-pointer"
@@ -137,7 +137,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
               onClick={handleToggleOpen} 
               className="text-white cursor-pointer"
             >
-              <ChevronLeftIcon className="h-6 w-6" />
+              <ChevronLeftIcon className="h-6 w-6 text-blue-400" />
             </button>
           </div>
           <div className="min-w-48 max-w-48 flex flex-col p-2">
@@ -145,8 +145,8 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
               className="mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
               onClick={handleCreateNewBookmark}
             >
-              <PlusCircleIcon className="h-4 w-4 inline mr-2"/>
-              <span>create bookmark</span>
+              <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+              <span className="text-blue-400">create bookmark</span>
             </div>
             <div className="overflow-y-auto max-h-[50vh]">
               {bookmarks.map((bookmark) => (

@@ -55,7 +55,7 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
             <>
             <button 
               onClick={() => onQuote(response)} 
-              className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+              className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
             >
               <ArrowUturnRightIcon className="h-6 w-6" />
             </button>
