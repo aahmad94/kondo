@@ -20,6 +20,7 @@ model User {
   sessions      Session[]
   responses     GPTResponse[]
   bookmarks     Bookmark[]
+  subscribed    Boolean   @default(false)
 }
 
 model Account {
@@ -64,6 +65,7 @@ model GPTResponse {
   userId     String
   user       User      @relation(fields: [userId], references: [id])
   bookmarks  Bookmark[] @relation("BookmarksToResponses")
+  rank        Int       @default(1)
 }
 
 model Bookmark {
