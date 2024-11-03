@@ -29,28 +29,31 @@ export default function GPTResponse({
   const red = '#d93900'
   const purple = '#6a5cff'
   const grey = '#2a3236'
+  const green = '#30642e'
+  const [newRank, setNewRank] = useState(rank);
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [rankContainerBg, setRankContainerBg] = useState(grey);
-  const [rankTextColor, setRankTextColor] = useState('#ffffff');
 
   useEffect(() => {
-    if (rankContainerBg == grey) {
-      if (rank == 1) {
-        setRankTextColor(red);
-      } else if (rank == 3) {
-        setRankTextColor(purple);
-      }
-    } else {
-      setRankTextColor('#ffffff');
-    }
+    handleRankColorChange(rank);
   }, [rank]);
 
-  
+  const handleRankColorChange = (rank: number) => {
+    if (rank == 1) {
+      setRankContainerBg(red);
+    } else if (rank == 2) {
+      setRankContainerBg(grey);
+    } else if (rank == 3) {
+      setRankContainerBg(green);
+    }
+  }
+
   const onRankClick = async (increment: boolean) => {
     await handleRankClick(increment);
-    setRankContainerBg(increment ? purple : red);
+    setNewRank(increment ? rank + 1 : rank - 1);
+    handleRankColorChange(newRank);
   };
   
   const handleRankClick = async (increment: boolean) => {
@@ -91,7 +94,7 @@ export default function GPTResponse({
   };
 
   return (
-    <div className="mt-2 p-2 pl-6 rounded text-white max-w-[calc(95%)]">
+    <div className="mt-2 rounded text-white max-w-[calc(95%)]">
       <div className="flex justify-between items-center">
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
         <div className="button-container flex gap-2 items-center">
@@ -108,8 +111,7 @@ export default function GPTResponse({
                 <ChevronUpIcon className="h-4 w-4" />
               </button>
               <span 
-                className={`text-sm px-1 rounded`}
-                style={{ color: rankTextColor }}
+                className={`text-sm px-1 rounded text-white`}
               >
                 {rank}
               </span>
