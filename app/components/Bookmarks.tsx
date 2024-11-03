@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 
@@ -142,11 +142,20 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
           </div>
           <div className="min-w-48 max-w-48 flex flex-col p-2">
             <div
-              className="mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
+              className="create-bookmark-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
               onClick={handleCreateNewBookmark}
             >
               <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
               <span className="text-blue-400">create bookmark</span>
+            </div>
+            <div 
+              className={`all-responses-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block
+                ${selectedBookmarkId === "all" ? 'bg-gray-700 rounded-lg' : ''}`}
+              onClick={() => handleBookmarkInteraction("all")}
+              onTouchStart={() => handleBookmarkInteraction("all")}
+            >
+              <QueueListIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+              <span className="text-blue-400">all responses</span>
             </div>
             <div className="overflow-y-auto max-h-[50vh]">
               {bookmarks.map((bookmark) => (

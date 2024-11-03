@@ -23,4 +23,29 @@ export async function updateGPTResponseRank(gptResponseId: string, rank: number)
     console.error('Error updating GPT response rank:', error);
     throw error;
   }
+}
+
+export async function getUserResponses(userId: string) {
+  try {
+    const responses = await prisma.gPTResponse.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: [
+        { rank: 'desc' },     // Higher ranks first
+        { createdAt: 'asc' }  // Newly created items (later date) with same rank are futher down
+      ],
+      select: {
+        id: true,
+        content: true,
+        rank: true,
+        createdAt: true
+      }
+    });
+
+    return responses;
+  } catch (error) {
+    console.error('Error fetching user responses:', error);
+    throw error;
+  }
 } 

@@ -27,7 +27,6 @@ export default function GPTResponse({
   onRankUpdate 
 }: GPTResponseProps) {
   const red = '#d93900'
-  const purple = '#6a5cff'
   const grey = '#2a3236'
   const green = '#30642e'
   const [newRank, setNewRank] = useState(rank);
@@ -94,8 +93,8 @@ export default function GPTResponse({
   };
 
   return (
-    <div className="mt-2 rounded text-white max-w-[calc(95%)]">
-      <div className="flex justify-between items-center">
+    <div className="pl-3 pt-3 rounded text-white max-w-[calc(95%)]">
+      <div className="header flex justify-between items-start max-w-[700px]">
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
         <div className="button-container flex gap-2 items-center">
           {selectedBookmarkId && responseId && (

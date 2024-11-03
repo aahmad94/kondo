@@ -51,22 +51,36 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
 
   // When the selected bookmark changes, fetch the responses from the database
   useEffect(() => {
-    if (selectedBookmarkId && session?.userId) {
+    if (selectedBookmarkId && selectedBookmarkId !== "all" && session?.userId) {
       fetchBookmarkResponses(session.userId, selectedBookmarkId);
+    } else if (selectedBookmarkId === "all" && session?.userId) {
+      fetchAllResponses(session.userId);
     } else {
       setBookmarkResponses([]);
     }
 
+    // Scrolls to the bottom of the chat container when selectedBookmarkId changes
+    if (chatContainerRef.current && selectedBookmarkId) {
+      setTimeout(() => {
+        chatContainerRef.current!.scrollTo({
+          top: chatContainerRef.current!.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 500);
+    } 
   }, [selectedBookmarkId, session]);
 
   // Scrolls to the bottom of the chat container when either a new response is added or a user clicks on response quote
   useEffect(() => {
     if (chatContainerRef.current && !selectedBookmarkId) {
       setTimeout(() => {
-        chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
-      }, 100);
+        chatContainerRef.current!.scrollTo({
+          top: chatContainerRef.current!.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 500);
     }
-  }, [responses, bookmarkResponses, responseQuote]);
+  }, [responses, responseQuote]);
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
@@ -75,9 +89,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      const data = await res.json();
-      console.log("Data:", data)
-      
+      const data = await res.json();      
       setBookmarkResponses(data.map((response: BookmarkResponse) => ({
         id: response.id,
         content: response.content,
@@ -88,6 +100,24 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       console.error('Error fetching bookmark responses:', error);
     }
   };
+
+  const fetchAllResponses = async (userId: string) => {
+    try {
+      const res = await fetch(`/api/getUserResponses?userId=${userId}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setBookmarkResponses(data.map((response: Response) => ({
+        id: response.id,
+        content: response.content,
+        rank: response.rank,
+        createdAt: new Date(response.createdAt)
+      })));
+    } catch (error) {
+      console.error('Error fetching all responses:', error);
+    }
+  }
 
   // Handle the user's input, does not save to database
   const handleSubmit = async (prompt: string) => {
