@@ -106,8 +106,7 @@ export default function GPTResponse({
                 <ChevronUpIcon className="h-5 w-5" />
               </button>
               <span 
-                className={`text-sm font-bold px-1 ${rankTextColor}`}
-                style={{ color: rankTextColor }}
+                className={`text-sm px-2 mx-2 rounded-lg opacity-75 bg-[${rankTextColor}]`}
               >
                 {rank}
               </span>
