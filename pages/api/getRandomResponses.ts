@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../../lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -24,7 +22,6 @@ export default async function handler(
       },
       take: 7,
       orderBy: {
-        // This creates random ordering in Postgres
         createdAt: 'desc',
       },
       select: {
