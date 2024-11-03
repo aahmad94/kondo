@@ -10,11 +10,15 @@ interface ChatBoxProps {
 interface Response {
   id: string | null;
   content: string;
+  rank?: number;
+  createdAt?: Date;
 }
 
 interface BookmarkResponse {
   id: string;
   content: string;
+  rank: number;
+  createdAt: Date;
 }
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
@@ -54,7 +58,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   }, [selectedBookmarkId, session]);
 
-  // Fetch bookmark responses from database and sets responses in ascending order
+  // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
     try {
       const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${bookmarkId}`);
@@ -62,10 +66,13 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      const sortedData = data.sort((a: BookmarkResponse, b: BookmarkResponse) => a.id.localeCompare(b.id));
-      setBookmarkResponses(sortedData.map((response: BookmarkResponse) => ({
+      console.log("Data:", data)
+      
+      setBookmarkResponses(data.map((response: BookmarkResponse) => ({
         id: response.id,
-        content: response.content
+        content: response.content,
+        rank: response.rank,
+        createdAt: new Date(response.createdAt)
       })));
     } catch (error) {
       console.error('Error fetching bookmark responses:', error);

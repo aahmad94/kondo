@@ -2,9 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js",
-  "/": "pages/index.js",
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
   "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
-  "/api/addResponseToBookmark": "pages/api/addResponseToBookmark.js",
-  "/api/createBookmark": "pages/api/createBookmark.js"
+  "/api/updateGPTResponseRank": "pages/api/updateGPTResponseRank.js",
+  "/": "pages/index.js",
+  "/api/getBookmarks": "pages/api/getBookmarks.js"
 }

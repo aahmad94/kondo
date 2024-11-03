@@ -1,41 +1,45 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../lib/prisma';
 
-const prisma = new PrismaClient();
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'GET') {
-    const { bookmarkId } = req.query;
+  const { userId, bookmarkId } = req.query;
 
-    if (!bookmarkId || typeof bookmarkId !== 'string') {
-      return res.status(400).json({ error: 'Invalid bookmarkId' });
-    }
+  if (!userId || typeof userId !== 'string' || !bookmarkId || typeof bookmarkId !== 'string') {
+    return res.status(400).json({ message: 'User ID and Bookmark ID are required' });
+  }
 
-    try {
-      const responses = await prisma.gPTResponse.findMany({
-        where: {
-          bookmarks: {
-            some: {
-              id: bookmarkId,
-            },
-          },
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-            },
-          },
-        },
-      });
+  try {
+    const responses = await prisma.gPTResponse.findMany({
+      where: {
+        userId: userId,
+        bookmarks: {
+          some: {
+            id: bookmarkId
+          }
+        }
+      },
+      orderBy: [
+        { rank: 'desc' },      // Lower ranks first
+        { createdAt: 'asc' } // older items last within same rank
+      ],
+      select: {
+        id: true,
+        content: true,
+        rank: true,
+        createdAt: true
+      }
+    });
 
-      res.status(200).json(responses);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to fetch bookmark responses' });
-    }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' });
+    return res.status(200).json(responses);
+  } catch (error) {
+    console.error('Error fetching bookmark responses:', error);
+    return res.status(500).json({ message: 'Error fetching bookmark responses' });
   }
 }
