@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { PlusIcon, XCircleIcon, ArrowUturnRightIcon } from '@heroicons/react/24/solid';
+import React, { useState, useEffect } from 'react';
+import { PlusIcon, XCircleIcon, ArrowUturnRightIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import Markdown from 'react-markdown'
@@ -9,18 +9,62 @@ interface GPTResponseProps {
   response: string;
   selectedBookmarkId: string | null;
   responseId?: string | null;
+  rank?: number;
+  createdAt?: Date;
   onDelete?: (responseId: string) => Promise<void>;
   onQuote?: (response: string) => void;
+  onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
 }
 
-export default function GPTResponse({ response, selectedBookmarkId, responseId, onDelete, onQuote }: GPTResponseProps) {
+export default function GPTResponse({ 
+  response, 
+  selectedBookmarkId, 
+  responseId, 
+  rank = 1, 
+  createdAt,
+  onDelete, 
+  onQuote,
+  onRankUpdate 
+}: GPTResponseProps) {
+  const red = '#d93900'
+  const purple = '#6a5cff'
+  const grey = '#2a3236'
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [rankContainerBg, setRankContainerBg] = useState(grey);
+  const [rankTextColor, setRankTextColor] = useState('#ffffff');
 
+  useEffect(() => {
+    if (rankContainerBg == grey) {
+      if (rank == 1) {
+        setRankTextColor(red);
+      } else if (rank == 3) {
+        setRankTextColor(purple);
+      }
+    } else {
+      setRankTextColor('#ffffff');
+    }
+  }, [rank]);
+
+  
+  const onRankClick = async (increment: boolean) => {
+    await handleRankClick(increment);
+    setRankContainerBg(increment ? purple : red);
+  };
+  
+  const handleRankClick = async (increment: boolean) => {
+    if (!responseId || !onRankUpdate) return;
+    
+    const newRank = increment ? rank + 1 : rank - 1;
+    if (newRank >= 1 && newRank <= 3) {
+      await onRankUpdate(responseId, newRank);
+    }
+  };
+  
   const cleanResponse = response
-    .replace(/\n\s*\n\s*\n/g, '\n\n')  // Replace multiple empty lines with single empty line
-    .replace(/\n-/g, '\n');  // Remove dash after newline
+    .replace(/\n\s*\n\s*\n/g, '\n\n')
+    .replace(/\n-/g, '\n');
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
@@ -50,19 +94,44 @@ export default function GPTResponse({ response, selectedBookmarkId, responseId, 
     <div className="mt-2 p-2 pl-6 rounded text-white max-w-[calc(95%)]">
       <div className="flex justify-between items-center">
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
-        <div className="flex gap-2">
+        <div className="button-container flex gap-2 items-center">
+          {selectedBookmarkId && responseId && (
+            <div className={`rank-container flex items-center gap-1 mr-2 px-2 py-1 rounded-lg transition-colors duration-200 bg-[${rankContainerBg}]`}
+            >
+              <button 
+                onClick={() => onRankClick(true)}
+                disabled={rank >= 3}
+                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-200 font-bold"
+              >
+                <ChevronUpIcon className="h-5 w-5" />
+              </button>
+              <span 
+                className={`text-sm font-bold px-1 ${rankTextColor}`}
+                style={{ color: rankTextColor }}
+              >
+                {rank}
+              </span>
+              <button 
+                onClick={() => onRankClick(false)}
+                disabled={rank <= 1}
+                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-200 font-bold"
+              >
+                <ChevronDownIcon className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+
           {!selectedBookmarkId && onQuote && (
             <>
-            <button 
-              onClick={() => onQuote(response)} 
-              className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-            >
-              <ArrowUturnRightIcon className="h-6 w-6" />
-            </button>
-
-            <button onClick={() => setIsBookmarkModalOpen(true)} className="text-white">
-              <PlusIcon className="h-6 w-6" />
-            </button>
+              <button 
+                onClick={() => onQuote(response)} 
+                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+              >
+                <ArrowUturnRightIcon className="h-6 w-6" />
+              </button>
+              <button onClick={() => setIsBookmarkModalOpen(true)} className="text-white">
+                <PlusIcon className="h-6 w-6" />
+              </button>
             </>
           )}
 

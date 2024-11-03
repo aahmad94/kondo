@@ -10,8 +10,8 @@ interface ChatBoxProps {
 interface Response {
   id: string | null;
   content: string;
-  rank?: number;
-  createdAt?: Date;
+  rank: number;
+  createdAt: Date;
 }
 
 interface BookmarkResponse {
@@ -56,7 +56,23 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     } else {
       setBookmarkResponses([]);
     }
+
+    // Scrolls to the bottom of the chat container when selectedBookmarkId changes
+    if (chatContainerRef.current && selectedBookmarkId) {
+      setTimeout(() => {
+        chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
+      }, 50);
+    } 
   }, [selectedBookmarkId, session]);
+
+  // Scrolls to the bottom of the chat container when either a new response is added or a user clicks on response quote
+  useEffect(() => {
+    if (chatContainerRef.current && !selectedBookmarkId) {
+      setTimeout(() => {
+        chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
+      }, 50);
+    }
+  }, [responses, responseQuote]);
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
@@ -79,15 +95,6 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   };
 
-  // Scrolls to the bottom of the chat container when either responses or bookmark responses change
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      setTimeout(() => {
-        chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
-      }, 50);
-    }
-  }, [responses, bookmarkResponses, responseQuote]);
-
   // Handle the user's input, does not save to database
   const handleSubmit = async (prompt: string) => {
     try {
@@ -104,13 +111,15 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data: { result: string } = await res.json();
-      setResponses(prevResponses => [...prevResponses, { id: null, content: data.result }]);
+      setResponses(prevResponses => [...prevResponses, { id: null, content: data.result, rank: 1, createdAt: new Date() }]);
       setResponseQuote('');
     } catch (error) {
       console.error('Error fetching data:', error);
       setResponses(prevResponses => [...prevResponses, { 
         id: null, 
-        content: 'An error occurred while fetching the response.' 
+        content: 'An error occurred while fetching the response.',
+        rank: 1,
+        createdAt: new Date()
       }]);
     } finally {
       setIsLoading(false);
@@ -168,12 +177,47 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     setResponseQuote(null);
   };
 
+  const handleRankUpdate = async (responseId: string, newRank: number) => {
+    if (!session?.userId) return;
+
+    try {
+      const response = await fetch('/api/updateGPTResponseRank', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          gptResponseId: responseId,
+          rank: newRank
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update rank');
+      }
+
+      const updatedResponse = await response.json();
+      console.log("Updated response:", updatedResponse);
+
+      setBookmarkResponses(prevResponses => {
+        // First update the rank of the modified response
+        return prevResponses.map(response => 
+          response.id === updatedResponse.id 
+            ? { ...response, rank: updatedResponse.rank }
+            : response
+        );
+      });
+    } catch (error) {
+      console.error('Error updating rank:', error);
+    }
+  };
+
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
   }
 
   return (
-    <div className="container mx-auto bg-[#000000] h-screen flex flex-col max-w-[100vw]">
+    <div className="container mx-auto bg-[#000000] h-screen flex flex-col max-w-[calc(100vw-48px)]">
       <div 
         ref={chatContainerRef}
         className={`overflow-y-auto relative mb-2 ${
@@ -205,8 +249,11 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
               response={response.content}
               selectedBookmarkId={selectedBookmarkId}
               responseId={response.id}
+              rank={response.rank}
+              createdAt={response.createdAt}
               onDelete={handleResponseDelete}
               onQuote={handleResponseQuote}
+              onRankUpdate={handleRankUpdate}
             />
           ))
         ) : (
