@@ -26,8 +26,8 @@ export default async function handler(
         }
       },
       orderBy: [
-        { rank: 'desc' },      // Lower ranks first
-        { createdAt: 'asc' } // older items last within same rank
+        { rank: 'asc' },      // Lower ranks first
+        { createdAt: 'desc' } // older items last within same rank
       ],
       select: {
         id: true,

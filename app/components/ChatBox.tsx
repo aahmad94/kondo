@@ -57,12 +57,6 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       setBookmarkResponses([]);
     }
 
-    // Scrolls to the bottom of the chat container when selectedBookmarkId changes
-    if (chatContainerRef.current && selectedBookmarkId) {
-      setTimeout(() => {
-        chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
-      }, 100);
-    } 
   }, [selectedBookmarkId, session]);
 
   // Scrolls to the bottom of the chat container when either a new response is added or a user clicks on response quote
@@ -72,7 +66,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
       }, 100);
     }
-  }, [responses, responseQuote]);
+  }, [responses, bookmarkResponses, responseQuote]);
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
