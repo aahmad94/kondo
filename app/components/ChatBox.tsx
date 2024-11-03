@@ -61,7 +61,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     if (chatContainerRef.current && selectedBookmarkId) {
       setTimeout(() => {
         chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
-      }, 50);
+      }, 100);
     } 
   }, [selectedBookmarkId, session]);
 
@@ -70,7 +70,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     if (chatContainerRef.current && !selectedBookmarkId) {
       setTimeout(() => {
         chatContainerRef.current!.scrollTop = chatContainerRef.current!.scrollHeight;
-      }, 50);
+      }, 100);
     }
   }, [responses, responseQuote]);
 

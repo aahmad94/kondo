@@ -96,17 +96,20 @@ export default function GPTResponse({
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
         <div className="button-container flex gap-2 items-center">
           {selectedBookmarkId && responseId && (
-            <div className={`rank-container flex items-center gap-1 mr-2 px-2 py-1 rounded-lg transition-colors duration-200 bg-[${rankContainerBg}]`}
+            <div 
+            className={"rank-container flex items-center gap-1 mr-2 px-2 py-1 rounded-lg transition-colors duration-200]"}
+            style={{ backgroundColor: rankContainerBg }}
             >
               <button 
                 onClick={() => onRankClick(true)}
                 disabled={rank >= 3}
                 className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-200 font-bold"
               >
-                <ChevronUpIcon className="h-5 w-5" />
+                <ChevronUpIcon className="h-4 w-4" />
               </button>
               <span 
-                className={`text-sm px-2 mx-2 rounded-lg opacity-75 bg-[${rankTextColor}]`}
+                className={`text-sm px-1 rounded`}
+                style={{ color: rankTextColor }}
               >
                 {rank}
               </span>
@@ -115,7 +118,7 @@ export default function GPTResponse({
                 disabled={rank <= 1}
                 className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-200 font-bold"
               >
-                <ChevronDownIcon className="h-5 w-5" />
+                <ChevronDownIcon className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -126,10 +129,10 @@ export default function GPTResponse({
                 onClick={() => onQuote(response)} 
                 className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
               >
-                <ArrowUturnRightIcon className="h-6 w-6" />
+                <ArrowUturnRightIcon className="h-5 w-5" />
               </button>
               <button onClick={() => setIsBookmarkModalOpen(true)} className="text-white">
-                <PlusIcon className="h-6 w-6" />
+                <PlusIcon className="h-5 w-5" />
               </button>
             </>
           )}
