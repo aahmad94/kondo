@@ -13,6 +13,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter()
 
   useEffect(() => {
+    console.log("Session in ProtectedRoute:", session)
     if (status === 'loading') return // Do nothing while loading
     if (!session) router.push('/api/auth/signin') // Redirect to login if not authenticated
   }, [session, status, router])
