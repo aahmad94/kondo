@@ -76,15 +76,6 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }
   }, [selectedBookmarkId, session]);
 
-  // Scroll to bottom when bookmark responses are loaded
-  useEffect(() => {
-    if (chatContainerRef.current && selectedBookmarkId && bookmarkResponses.length > 0) {
-      chatContainerRef.current.scrollTo({
-        top: chatContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
-  }, [bookmarkResponses, selectedBookmarkId]);
 
   // Scroll to bottom when new responses are added or quote is clicked
   useEffect(() => {
@@ -95,6 +86,17 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       });
     }
   }, [responses, responseQuote, selectedBookmarkId]);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+        });
+      }
+    }, 500);
+  }
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
@@ -112,6 +114,8 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       })));
     } catch (error) {
       console.error('Error fetching bookmark responses:', error);
+    } finally {
+      scrollToBottom();
     }
   };
 
@@ -130,6 +134,8 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       })));
     } catch (error) {
       console.error('Error fetching all responses:', error);
+    } finally {
+      scrollToBottom();
     }
   }
 
