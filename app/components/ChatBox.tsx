@@ -49,7 +49,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     };
   }, []);
 
-  // When the selected bookmark changes, fetch the responses from the database
+  // When the selected bookmark changes, fetch the responses and scroll when they're loaded
   useEffect(() => {
     if (selectedBookmarkId && selectedBookmarkId !== "all" && session?.userId) {
       fetchBookmarkResponses(session.userId, selectedBookmarkId);
@@ -59,28 +59,42 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       setBookmarkResponses([]);
     }
 
-    // Scrolls to the bottom of the chat container when selectedBookmarkId changes
+    // Scroll to bottom when responses are loaded
     if (chatContainerRef.current && selectedBookmarkId) {
-      setTimeout(() => {
-        chatContainerRef.current!.scrollTo({
-          top: chatContainerRef.current!.scrollHeight,
-          behavior: 'smooth'
-        });
-      }, 500);
-    } 
+      const intervalId = setInterval(() => {
+        if (bookmarkResponses.length > 0) {
+          chatContainerRef.current!.scrollTo({
+            top: chatContainerRef.current!.scrollHeight,
+            behavior: 'smooth'
+          });
+          clearInterval(intervalId);
+        }
+      }, 200);
+
+      // Cleanup interval on unmount or when selectedBookmarkId changes
+      return () => clearInterval(intervalId);
+    }
   }, [selectedBookmarkId, session]);
 
-  // Scrolls to the bottom of the chat container when either a new response is added or a user clicks on response quote
+  // Scroll to bottom when bookmark responses are loaded
   useEffect(() => {
-    if (chatContainerRef.current && !selectedBookmarkId) {
-      setTimeout(() => {
-        chatContainerRef.current!.scrollTo({
-          top: chatContainerRef.current!.scrollHeight,
-          behavior: 'smooth'
-        });
-      }, 500);
+    if (chatContainerRef.current && selectedBookmarkId && bookmarkResponses.length > 0) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
-  }, [responses, responseQuote]);
+  }, [bookmarkResponses, selectedBookmarkId]);
+
+  // Scroll to bottom when new responses are added or quote is clicked
+  useEffect(() => {
+    if (chatContainerRef.current && !selectedBookmarkId && (responses.length > 0 || responseQuote)) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [responses, responseQuote, selectedBookmarkId]);
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
