@@ -65,6 +65,10 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
 
   const handleBookmarkInteraction = (bookmarkId: string) => {
     changeSelectedBookmarkId(bookmarkId);
+    // close bookmarks if on mobile
+    if (window.innerWidth < 768) {
+      setIsOpen(false);
+    }
   };
 
   const handleCreateNewBookmark = () => {
