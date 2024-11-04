@@ -98,6 +98,15 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
     }, 500);
   }
 
+  const scrollToTop = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: 0,
+        behavior: 'auto'
+      });
+    }
+  }
+
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
     try {
@@ -105,6 +114,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+      scrollToTop();
       const data = await res.json();      
       setBookmarkResponses(data.map((response: BookmarkResponse) => ({
         id: response.id,
@@ -125,6 +135,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+      scrollToTop();
       const data = await res.json();
       setBookmarkResponses(data.map((response: Response) => ({
         id: response.id,
