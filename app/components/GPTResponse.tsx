@@ -65,7 +65,7 @@ export default function GPTResponse({
   };
   
   const cleanResponse = response
-    .replace(/\n\s*\n\s*\n/g, '\n\n')
+    .replace(/\n\s*\n/g, '\n')
     .replace(/\n-/g, '\n');
 
   const handleDeleteClick = () => {
