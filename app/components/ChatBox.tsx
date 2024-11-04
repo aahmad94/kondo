@@ -95,7 +95,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
         behavior: 'smooth'
         });
       }
-    }, 250);
+    }, 500);
   }
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
