@@ -18,6 +18,7 @@ html, body {
   margin: 0;
   overflow: hidden; /* Prevent scrolling on the body */
 }
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -46,6 +47,7 @@ html, body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -73,6 +75,7 @@ html, body {
     --chart-5: 340 75% 55%;
   }
 }
+
 @layer base {
   * {
     @apply border-border;
@@ -80,4 +83,24 @@ html, body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.markdown-content p {
+  margin: 0.5rem 0 !important;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  margin: 0.75rem 0; /* Reduce heading margin */
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 0.5rem 0; /* Reduce list margin */
+  padding-left: 1rem; /* Adjust list indentation */
+}
+
+.markdown-content li {
+  margin: 0.25rem 0; /* Reduce list item spacing */
 }

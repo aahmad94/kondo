@@ -22,7 +22,7 @@ interface BookmarkResponse {
 }
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
-  const instructions = "1 \- Enter a phrase or sentence to breakdown in Japanese, no need to include \"translate\" in your prompt.\n2 \- Use **\"random\"** for a daily-use sentence translated to Japanese.\n3 \- Use **\"verb\"** followed by a verb (English or Japanese) to get a tense table with formal and informal forms of the verb.\n4 \- Use **\"terms\"** followed by a word to receive a list of related words in Japanese.\n5 \- Use **\"katakana\"** for a table showing the katakana alphabet with hiragana and romaji.\n6 \- Use an **asterisk (*)** followed by a question to inquire about anything else.\n\n Lastly, use the **(+) icon** at the top right of each response to save it to your bookmarks.";
+  const instructions = "Enter a phrase or sentence to translate in Japanese, no need to include \"translate\" in your prompt; reply with the blue arrow to get a more detailed **breakdown**.\n1 \- Use **\"random\"** for a daily-use sentence translated to Japanese.\n2 \- Use **\"verb\"** followed by a verb (English or Japanese) to get a tense table with formal and informal forms of the verb.\n3 \- Use **\"terms\"** followed by a word to receive a list of related words in Japanese.\n4 \- Use **\"katakana\"** for a table showing the katakana alphabet with hiragana and romaji.\n5 \- Use an **asterisk (*)** followed by a question to inquire about anything else.\n\nLastly, use the **(+) icon** at the top right of each response to save it to your bookmarks.\nYou may rank the saved responses to sort their order.";
   const { data: session, status } = useSession()
   const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
@@ -213,7 +213,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   };
 
   const handleResponseQuote = (response: string) => {
-    const quotedResponse = `${response}\n\n* In the above phrase... `;
+    const quotedResponse = `${response}\n\n* Breakdown the above phrase.`;
     setResponseQuote(quotedResponse);
   };
 
