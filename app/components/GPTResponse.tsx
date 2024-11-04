@@ -27,7 +27,7 @@ export default function GPTResponse({
   onRankUpdate 
 }: GPTResponseProps) {
   const red = '#d93900'
-  const grey = '#2a3236'
+  const grey = '#161b1d'
   const green = '#30642e'
   const [newRank, setNewRank] = useState(rank);
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
@@ -94,18 +94,18 @@ export default function GPTResponse({
 
   return (
     <div className="pl-3 pt-3 rounded text-white max-w-[calc(95%)]">
-      <div className="header flex justify-between items-start max-w-[700px]">
+      <div className="header flex justify-between max-w-[700px] border-b-2 pb-1" style={{ borderBottomColor: grey }}>
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
-        <div className="button-container flex gap-2 items-center">
+        <div className="button-container flex gap-2">
           {selectedBookmarkId && responseId && (
             <div 
-            className={"rank-container flex items-center gap-1 mr-2 px-2 py-1 rounded-lg transition-colors duration-200]"}
+            className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400]"}
             style={{ backgroundColor: rankContainerBg }}
             >
               <button 
                 onClick={() => onRankClick(true)}
                 disabled={rank >= 3}
-                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-200 font-bold"
+                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
               >
                 <ChevronUpIcon className="h-4 w-4" />
               </button>
@@ -117,7 +117,7 @@ export default function GPTResponse({
               <button 
                 onClick={() => onRankClick(false)}
                 disabled={rank <= 1}
-                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-200 font-bold"
+                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
               >
                 <ChevronDownIcon className="h-4 w-4" />
               </button>
