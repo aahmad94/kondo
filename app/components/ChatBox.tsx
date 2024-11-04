@@ -22,7 +22,21 @@ interface BookmarkResponse {
 }
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
-  const instructions = "Enter a phrase or sentence to translate in Japanese, no need to include \"translate\" in your prompt; reply with the blue arrow to get a more detailed **breakdown**.\n1 \- Use **\"random\"** for a daily-use sentence translated to Japanese.\n2 \- Use **\"verb\"** followed by a verb (English or Japanese) to get a tense table with formal and informal forms of the verb.\n3 \- Use **\"terms\"** followed by a word to receive a list of related words in Japanese.\n4 \- Use **\"katakana\"** for a table showing the katakana alphabet with hiragana and romaji.\n5 \- Use an **asterisk (*)** followed by a question to inquire about anything else.\n\nLastly, use the **(+) icon** at the top right of each response to save it to your bookmarks.\nYou may rank the saved responses to sort their order.";
+  const instructions = `
+  Enter a phrase or sentence to translate into Japanese.
+  Use **reply button** on a response to get a more *detailed breakdown*.  
+
+  **Bookmark features:**
+  **(+) button** - save response to save it to a bookmark.
+  **up or down chevron (^)** - rank each response in a bookmark.
+
+  **Additional commands:**
+  1 - **"random"** + (optional topic) + (optional difficulty level)
+  2 - **"verb" +** (eng/jpn) **verb** - get a table for all verb tenses.
+  3 - **"terms" + topic** - list of related words in Japanese.
+  4 - **"katakana"** - table of hiragana/katakana and romaji.
+  5 - **"asterisk (*)" + question** - inquire about anything else.
+`;
   const { data: session, status } = useSession()
   const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);

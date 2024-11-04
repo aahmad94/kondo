@@ -65,9 +65,8 @@ export default function GPTResponse({
   };
   
   const cleanResponse = response
-    .replace(/\n\s*\n/g, '\n')
-    .replace(/\n-/g, '\n')
-    .replace(/ +\n/g, '\n').trim();
+    .replace(/\s\s\n/g, '\n')
+    .replace(/^\s*-\s*/gm, '');
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
@@ -152,9 +151,7 @@ export default function GPTResponse({
       </div>
       <div className="whitespace-pre-wrap overflow-x-auto">
         <div className="max-w-[calc(100vw-80px)]"> {/* 48px for bookmarks + 32px for padding */}
-          <div className="markdown-content">
-            <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
-          </div>
+          <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
         </div>
       </div>
       {isBookmarkModalOpen && (
