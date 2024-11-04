@@ -4,7 +4,7 @@
   "/_document": "pages/_document.js",
   "/": "pages/index.js",
   "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
+  "/api/getUserResponses": "pages/api/getUserResponses.js",
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js",
-  "/api/getUserResponses": "pages/api/getUserResponses.js"
+  "/api/getBookmarks": "pages/api/getBookmarks.js"
 }
