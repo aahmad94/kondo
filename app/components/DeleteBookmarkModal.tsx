@@ -12,7 +12,7 @@ const DeleteBookmarkModal: React.FC<DeleteBookmarkModalProps> = ({ isOpen, onClo
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
-      <div className="bg-gray-800 text-white p-6 rounded-lg relative z-[101]">
+      <div className="bg-gray-800 text-white p-6 rounded-lg relative z-[101] max-w-[70vw] w-full max-h-[70vh] overflow-y-auto">
         <h2 className="text-xl font-bold mb-4">Delete Bookmark</h2>
         <p className="mb-4">Are you sure you want to delete the bookmark &quot;{bookmarkTitle}&quot; and all its contents?</p>
         <div className="flex justify-end">

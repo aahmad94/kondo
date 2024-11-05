@@ -168,7 +168,6 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
                   className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
                     ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
                   onClick={() => handleBookmarkInteraction(bookmark.id)}
-                  onTouchStart={() => handleBookmarkInteraction(bookmark.id)}
                 >
                   <span>{bookmark.title}</span>
                   <XCircleIcon
