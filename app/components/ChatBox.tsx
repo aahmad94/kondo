@@ -23,8 +23,7 @@ interface BookmarkResponse {
 
 export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const instructions = `
-  Enter a phrase or sentence to translate into Japanese.
-  Use **reply button** on a response to get a more *detailed breakdown*.  
+  Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.  
 
   **Bookmark features:**
   **(+) button** - save response to save it to a bookmark.
