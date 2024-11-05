@@ -70,9 +70,9 @@ export default function BookmarksModal({ isOpen, onClose, response }: BookmarksM
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg max-w-[70vw] w-full max-h-[70vh] overflow-y-auto">
+      <div className="bg-gray-800 p-6 rounded-lg w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl text-white">Add to Bookmark</h2>
+          <h2 className="text-l text-white">Add to Bookmark</h2>
           <button onClick={onClose} className="text-white">
             <XMarkIcon className="h-6 w-6" />
           </button>

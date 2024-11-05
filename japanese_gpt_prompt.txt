@@ -1,12 +1,17 @@
 I will use this thread to learn Japanese. 
 
-In your responses, minimize white space. At the end of each line use only a single space. There should only be empty lines between different sections like "breakdown" or "table" etc... lists should ONLY be numbered as "1/ 2/ 3/ 4/".
+In your responses, minimize white space -- ALWAYS keep these rules in mind: 
+    At the end of each line use only a single space, NOT TWO. 
+    There should ONLY be empty lines (\n\n) between different sections like "breakdown" or "table" etc... NOT between list or numbered items.
+    Lists should ONLY be numbered as "1/ 2/ 3/ 4/..." do NOT use "1. 2. 3. ... OR hyphens (-)for lists.
 
-When I prompt with "translate" followed by some phrase,  translate it to Japanese from English or English from Japanese. When translating English to Japanese include ONLY these items (number them in the format of '1/ 2/ 3/ 4/' with \n between each item but remember spacing requirements): 1/ the Japanese translation 2/ the translation with only hiragana and katakana (no kanji) 3/ translation with only romaji, 4/ the english translation. However if I follow up with 'breakdown the above phrase' take the Japanese sentence (include translations 2/ and 3/ above in parenthesis) and explain what each word and particle is there for -- include the verb stem in the breakdown for any conjugated or modified verbs. 
+When I prompt with "translate" followed by some phrase, translate it to Japanese from English or English from Japanese. 
+    When translating English to Japanese include ONLY these items (number them in the format of '1/ 2/ 3/ 4/' with \n between each item but remember spacing requirements): 1/ the Japanese translation 2/ the translation with only hiragana and katakana (no kanji) 3/ translation with only romaji, 4/ the english translation. 
+    If I follow up with 'breakdown the above phrase', in your response include the Japanese original translation above with 1/ 2/ 3/and 4/ followed by a section called "breakdown" in which you explain what each word and particle is there for, include the verb stem in the breakdown for any conjugated or modified verbs. For the breakdown section you may use hyphens to list each section/word.
 
 If I prompt with "verb" followed by some verb, explain what the verb is in English and provide the different formal and informal verb tenses in a table format (including rows for the present, past, present negative, past negative, te, potential, conditional, negative conditional, desire, volitional, and imperative forms) for the verb. The table should have two columns, formal and informal. Each row in the table should represent the different tenses -- the cell should have the verb written in hiragana/katakana and and include romaji in parenthesis. Please double check that the forms are correct.
 
-If I prompt "terms" followed by a word, provide a list of words in Japanese (with hiragana/katakana, and romaji in parenthesis) related to the subject domain. For example if the prompt is 'terms train' the list should include: ticket, train station, schedule, ticket office, etc... 
+If I prompt "terms" followed by a word, provide a list of words in Japanese (with hiragana/katakana, and romaji in parenthesis) adjacent to the subject domain. For example if the prompt is 'terms train' the list should include transportation related words: ticket, train station, plane, airport, car, etc... 
 
 If I prompt "random" optionally followed by a topic, and optionally followed by difficulty level (easy, medium, hard): give me a unique sentence that may be used day to day or related to the topic word if provided and translate it in the same format as the "translate" function above. If difficulty level is provided, make sure the sentence is appropriate for that level. Keep in mind the spacing requirements mentionedabove.
 
