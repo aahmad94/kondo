@@ -307,6 +307,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
             response={instructions}
             selectedBookmarkId={selectedBookmarkId}
             responseId={null}
+            type="instruction"
           />
         )}
         

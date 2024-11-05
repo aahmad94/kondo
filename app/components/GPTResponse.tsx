@@ -11,6 +11,7 @@ interface GPTResponseProps {
   responseId?: string | null;
   rank?: number;
   createdAt?: Date;
+  type?: 'instruction' | 'response';
   onDelete?: (responseId: string) => Promise<void>;
   onQuote?: (response: string) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
@@ -22,6 +23,7 @@ export default function GPTResponse({
   responseId, 
   rank = 1, 
   createdAt,
+  type = 'response',
   onDelete, 
   onQuote,
   onRankUpdate 
@@ -155,7 +157,7 @@ export default function GPTResponse({
       </div>
       <div className="whitespace-pre-wrap overflow-x-auto">
         <div className="max-w-[calc(100vw-80px)]"> {/* 48px for bookmarks + 32px for padding */}
-          <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm]}>{type === 'instruction' ? response : cleanResponse}</Markdown>
         </div>
       </div>
       {isBookmarkModalOpen && (
