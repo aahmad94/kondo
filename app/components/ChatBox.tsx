@@ -45,18 +45,18 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
 
+  const bookmarkContainerHeight = () => {
+    return window.innerWidth < 768 ? 'h-[82.5%]' : 'h-[92.5%]';
+  };
+
   useEffect(() => {
     const handleResize = () => {
       initBaseUserInputOffset();
     };
 
-    // Set the initial value based on the current window width
     handleResize();
-
-    // Add event listener to handle window resize
     window.addEventListener('resize', handleResize);
 
-    // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener('resize', handleResize);
     };
@@ -289,7 +289,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
       <div 
         ref={chatContainerRef}
         className={`overflow-y-auto relative mb-2 ${
-          selectedBookmarkId ? 'h-[87.5%]' : ''
+          selectedBookmarkId ? bookmarkContainerHeight() : ''
         }`}
         style={{ 
           height: selectedBookmarkId ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset}px)`,

@@ -5,7 +5,5 @@
   "/": "pages/index.js",
   "/api/getBookmarks": "pages/api/getBookmarks.js",
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/api/openai": "pages/api/openai.js",
-  "/api/getUserResponses": "pages/api/getUserResponses.js",
   "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js"
 }
