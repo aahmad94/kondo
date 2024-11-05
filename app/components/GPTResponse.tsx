@@ -94,9 +94,9 @@ export default function GPTResponse({
 
   return (
     <div className="pl-3 pt-3 rounded text-white max-w-[calc(95%)]">
-      <div className="header flex justify-between max-w-[700px] border-b-2 pb-1" style={{ borderBottomColor: grey }}>
+      <div className="header flex justify-between max-w-[700px] max-h-[30px] border-b-2 pb-1" style={{ borderBottomColor: grey }}>
         <h2 className="font-bold text-blue-400">KondoAI message:</h2>
-        <div className="button-container flex gap-2">
+        <div className="button-container flex items-center gap-2">
           {selectedBookmarkId && responseId && (
             <div 
             className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400]"}
