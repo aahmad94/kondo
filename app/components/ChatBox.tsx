@@ -46,7 +46,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
 
   const bookmarkContainerHeight = () => {
-    return window.innerWidth < 768 ? 'h-[81.5%]' : 'h-[92.5%]';
+    return window.innerWidth < 768 ? 'h-[80]' : 'h-[91%]';
   };
 
   useEffect(() => {
