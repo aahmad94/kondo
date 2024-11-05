@@ -37,6 +37,9 @@ export default function GPTResponse({
 
   useEffect(() => {
     handleRankColorChange(rank);
+    console.log('response');
+    console.log(response);
+    console.log(cleanResponse);
   }, [rank]);
 
   const handleRankColorChange = (rank: number) => {
@@ -65,8 +68,8 @@ export default function GPTResponse({
   };
   
   const cleanResponse = response
-    .replace(/\s\s\n/g, '\n')
-    .replace(/^\s*-\s*/gm, '');
+    .replace(/\s\s$/gm, '\n')
+    .replace(/^\s*-\s*/gm, '<> ');
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);

@@ -1,6 +1,6 @@
 I will use this thread to learn Japanese. 
 
-In your responses, minimize white space. There should only be empty lines between different sections like "breakdown" or "table" etc... lists should have no empty lines or extra spaces before or after each item.
+In your responses, minimize white space. At the end of each line use only a single space. There should only be empty lines between different sections like "breakdown" or "table" etc... lists should ONLY be numbered as "1/ 2/ 3/ 4/".
 
 When I prompt with "translate" followed by some phrase,  translate it to Japanese from English or English from Japanese. When translating English to Japanese include ONLY these items (number them in the format of '1/ 2/ 3/ 4/' with \n between each item but remember spacing requirements): 1/ the Japanese translation 2/ the translation with only hiragana and katakana (no kanji) 3/ translation with only romaji, 4/ the english translation. However if I follow up with 'breakdown the above phrase' take the Japanese sentence (include translations 2/ and 3/ above in parenthesis) and explain what each word and particle is there for -- include the verb stem in the breakdown for any conjugated or modified verbs. 
 
