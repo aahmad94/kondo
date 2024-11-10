@@ -26,7 +26,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
   Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.  
 
   **Bookmark features:**
-  **(+) button** - save response to save it to a bookmark.
+  **(+) button** - add response to a bookmark.
   **up or down chevron (^)** - rank each response in a bookmark.
 
   **Additional commands:**
