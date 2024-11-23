@@ -2,7 +2,7 @@
 - Use commands and phrases to generate study material: 
   - 'random + (optional) topic + (optional) difficulty'
   - 'topic + topic'
-- For Japanese, you will receive a translation in 1/ kanji, 2/ hiragana + katakana, 3/ romaji, 4/ english
+- For Japanese, you will receive a translation in 1/ Japanese (w/ kanji), 2/ hiragana + katakana, 3/ romaji, 4/ english
   - User reply icon to get a word by word breakdown of the translation, including grammar points and topic particles
 - Bookmark your responses and rank them, more poorly ranked responses will be shown first while higher ranked responses will be shown last
 
