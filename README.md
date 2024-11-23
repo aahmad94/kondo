@@ -1,4 +1,5 @@
-# Generate and organize study material to learn new languages
+# Kondo
+## Generate and organize study material to learn new languages
 - Use commands and phrases to generate study material: 
   - 'random + (optional) topic + (optional) difficulty'
   - 'topic + topic'
