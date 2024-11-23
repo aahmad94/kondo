@@ -1,13 +1,19 @@
 # Kondo
 ## Generate and organize study material to learn new languages
 - Use commands and phrases to generate study material: 
-  - 'random + (optional) topic + (optional) difficulty'
-  - 'topic + topic'
+  - random + (optional) \<topic\> + (optional) \<difficulty\>
+  - topic + \<topic\>
+  - verb + \<verb\>
 - For Japanese, you will receive a translation in 1/ Japanese (w/ kanji), 2/ hiragana + katakana, 3/ romaji, 4/ english
   - User reply icon to get a word by word breakdown of the translation, including grammar points and topic particles
 - Bookmark your responses and rank them, more poorly ranked responses will be shown first while higher ranked responses will be shown last
 
+### verb + 'to choose'
+![screenshot](/assets/kondo-verbs.png)
+
+### further breakdown response
 ![screenshot](/assets/kondo-main.png)
+### organize and rank responses in bookmarks
 ![screenshot](/assets/kondo-bookmarks.png)
 
 
