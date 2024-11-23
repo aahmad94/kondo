@@ -1,3 +1,15 @@
+# Kondo will help you generate and organize study material to learn new languages
+- Use commands and phrases to generate study material: 
+  - 'random + (optional) topic + (optional) difficulty'
+  - 'topic + topic'
+- For Japanese, you will receive a translation in 1/ kanji, 2/ hiragana + katakana, 3/ romaji, 4/ english
+  - User reply icon to get a word by word breakdown of the translation, including grammar points and topic particles
+- Bookmark your responses and rank them, more poorly ranked responses will be shown first while higher ranked responses will be shown last
+
+![screenshot](/assets/kondo-main.png)
+![screenshot](/assets/kondo-bookmarks.png)
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -13,6 +25,7 @@ pnpm dev
 # or
 bun dev
 ```
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
