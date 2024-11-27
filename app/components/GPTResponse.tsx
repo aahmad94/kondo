@@ -101,63 +101,67 @@ export default function GPTResponse({
   return (
     <div className="pl-3 pt-3 rounded text-white max-w-[calc(95%)]">
       <div className="header flex justify-between max-w-[700px] max-h-[30px] border-b-2 pb-1" style={{ borderBottomColor: grey }}>
-        <h2 className="font-bold text-blue-400">KondoAI message:</h2>
+        <h2 className="font-bold text-blue-400">
+          {type === 'instruction' ? 'Instructions:' : 'KondoAI message:'}
+        </h2>
         <div className="button-container flex items-center gap-2">
-          {selectedBookmarkId && responseId && (
-            <div 
-            className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400]"}
-            style={{ backgroundColor: rankContainerBg }}
-            >
-              <button 
-                onClick={() => onRankClick(true)}
-                disabled={rank >= 3}
-                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
-              >
-                <ChevronUpIcon className="h-4 w-4" />
-              </button>
-              <span 
-                className={`text-sm px-1 rounded text-white`}
-              >
-                {rank}
-              </span>
-              <button 
-                onClick={() => onRankClick(false)}
-                disabled={rank <= 1}
-                className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
-              >
-                <ChevronDownIcon className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-
-          {!selectedBookmarkId && onQuote && (
+          {type === 'response' && (
             <>
-              <button 
-                onClick={() => onQuote(response)} 
-                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-              >
-                <ArrowUturnRightIcon className="h-5 w-5" />
-              </button>
-              <button onClick={() => setIsBookmarkModalOpen(true)} className="text-white">
-                <PlusIcon className="h-5 w-5" />
-              </button>
-            </>
-          )}
+              {selectedBookmarkId && responseId && (
+                <div 
+                className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400]"}
+                style={{ backgroundColor: rankContainerBg }}
+                >
+                  <button 
+                    onClick={() => onRankClick(true)}
+                    disabled={rank >= 3}
+                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                  >
+                    <ChevronUpIcon className="h-4 w-4" />
+                  </button>
+                  <span className={`text-sm px-1 rounded text-white`}>
+                    {rank}
+                  </span>
+                  <button 
+                    onClick={() => onRankClick(false)}
+                    disabled={rank <= 1}
+                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                  >
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
 
-          {selectedBookmarkId && responseId && onDelete && (
-            <button 
-              onClick={handleDeleteClick}
-              disabled={isDeleting}
-              className="text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors duration-200"
-            >
-              <XCircleIcon className="h-6 w-6" />
-            </button>
+              {!selectedBookmarkId && onQuote && (
+                <>
+                  <button 
+                    onClick={() => onQuote(response)} 
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+                  >
+                    <ArrowUturnRightIcon className="h-5 w-5" />
+                  </button>
+                  <button onClick={() => setIsBookmarkModalOpen(true)} className="text-white">
+                    <PlusIcon className="h-5 w-5" />
+                  </button>
+                </>
+              )}
+
+              {selectedBookmarkId && responseId && onDelete && (
+                <button 
+                  onClick={handleDeleteClick}
+                  disabled={isDeleting}
+                  className="text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors duration-200"
+                >
+                  <XCircleIcon className="h-6 w-6" />
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
       <div className="whitespace-pre-wrap overflow-x-auto">
-        <div className="max-w-[calc(100vw-80px)]"> {/* 48px for bookmarks + 32px for padding */}
-          <Markdown remarkPlugins={[remarkGfm]}>{type === 'instruction' ? response : cleanResponse}</Markdown>
+        <div className="max-w-[calc(100vw-80px)]">
+          <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
         </div>
       </div>
       {isBookmarkModalOpen && (
