@@ -27,7 +27,7 @@ const testFunction = inngest.createFunction(
 // Create a scheduled function to run every morning
 const dailyResponseLogger = inngest.createFunction(
   { id: "daily-response-logger" },
-  { cron: "0 0 * * *" }, // This cron expression runs the function every day at midnight
+  { cron: "0 6 * * *" }, // This cron expression runs the function every day at 6 AM
   async ({ step }) => {
     // Fetch 10 random GPT responses
     const responses = await step.run("fetch-random-responses", async () => {
