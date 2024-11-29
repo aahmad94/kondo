@@ -6,28 +6,10 @@ import prisma from '../../lib/prisma';
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
 
-// Create a test function
-const testFunction = inngest.createFunction(
-  { id: "test-function" },
-  { event: "test/hello" },
-  async ({ event, step }) => {
-    await step.sleep("wait-a-moment", "1s");
-    
-    const message = await step.run("create-message", () => {
-      return `Hello from Inngest! Event data: ${JSON.stringify(event.data)}`;
-    });
-
-    return {
-      message,
-      timestamp: new Date().toISOString()
-    };
-  }
-);
-
-// Create a scheduled function to run every morning
+// Create a scheduled function to run every evening at 9 PM EST
 const dailyResponseLogger = inngest.createFunction(
   { id: "daily-response-logger" },
-  { cron: "0 6 * * *" }, // This cron expression runs the function every day at 6 AM
+  { cron: "0 21 * * * America/New_York" }, // Run at 9 PM EST
   async ({ step }) => {
     // Fetch 10 random GPT responses
     const responses = await step.run("fetch-random-responses", async () => {
@@ -67,8 +49,8 @@ const dailyResponseLogger = inngest.createFunction(
   }
 );
 
-// Export the serve handler with our functions
+// Export the serve handler with our function
 export default serve({
   client: inngest,
-  functions: [testFunction, dailyResponseLogger],
+  functions: [dailyResponseLogger],
 });
