@@ -23,13 +23,25 @@ interface BookmarkResponse {
   createdAt: Date;
 }
 
+const DAILY_SUMMARY_INSTRUCTIONS = `
+**Daily Response Summary Generator**\n\n
+Everyday, this tool creates a **new summary at 23:59 Eastern Standard Time**.\n\n
+
+A summary includes the following:
+1 - top 4 highest priority 🔴 responses
+2 - top 2 medium priority 🟡 responses
+3 - top 1 lowest priority 🟢 response\n\n
+
+Click the **refresh** button above to manually create a new summary.
+`;
+
 export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, reservedBookmarkTitles }: ChatBoxProps) {
   const instructions = `
-  Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.  
+  Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.\n\n 
 
   **Bookmark features:**
   **(+) button** - add response to a bookmark.
-  **up or down chevron (^)** - rank each response in a bookmark.
+  **up or down chevron (^)** - rank each response in a bookmark.\n\n
 
   **Additional commands:**
   1 - **"random"** + (optional topic) + (optional difficulty level)
@@ -74,8 +86,10 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
       setBookmarkResponses([]);
     }
 
-    // Scroll to bottom when responses are loaded
-    if (chatContainerRef.current && selectedBookmarkId) {
+    // Only scroll to bottom for non-daily-summaries bookmarks
+    if (chatContainerRef.current 
+      && selectedBookmarkId
+    ) {
       const intervalId = setInterval(() => {
         if (bookmarkResponses.length > 0) {
           chatContainerRef.current!.scrollTo({
@@ -104,7 +118,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      if (chatContainerRef.current) {
+      if (chatContainerRef.current && selectedBookmarkTitle !== 'daily summaries') {
         chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
@@ -282,6 +296,28 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
     }
   };
 
+  const handleGenerateSummary = async () => {
+    if (!session?.userId) return;
+    
+    try {
+      setIsLoading(true);
+      const res = await fetch(`/api/getDailySummary?userId=${session.userId}`);
+      
+      if (!res.ok) {
+        throw new Error('Failed to generate summary');
+      }
+      
+      const data = await res.json();
+      if (data.success && selectedBookmarkId) {
+        await fetchBookmarkResponses(session.userId, selectedBookmarkId);
+      }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
   }
@@ -312,6 +348,18 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
             reservedBookmarkTitles={reservedBookmarkTitles}
             responseId={null}
             type="instruction"
+          />
+        )}
+        
+        {selectedBookmarkTitle === 'daily summaries' && (
+          <GPTResponse
+            response={DAILY_SUMMARY_INSTRUCTIONS}
+            selectedBookmarkId={selectedBookmarkId}
+            selectedBookmarkTitle={selectedBookmarkTitle}
+            reservedBookmarkTitles={reservedBookmarkTitles}
+            responseId={null}
+            type="instruction"
+            onGenerateSummary={handleGenerateSummary}
           />
         )}
         

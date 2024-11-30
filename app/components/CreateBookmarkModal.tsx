@@ -11,14 +11,17 @@ interface CreateBookmarkModalProps {
 
 export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated, reservedBookmarkTitles }: CreateBookmarkModalProps) {
   const [bookmarkTitle, setBookmarkTitle] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { data: session } = useSession();
 
   const handleCreateBookmark = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.userId || !bookmarkTitle.trim()) return;
 
+    setError(null); // Reset error state
+
     if (reservedBookmarkTitles.includes(bookmarkTitle)) {
-      alert('This bookmark title is reserved.');
+      setError('This bookmark title is reserved.');
       return;
     }
 
@@ -34,15 +37,19 @@ export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to create bookmark');
+        setError(data.error);
+        return;
       }
 
-      const newBookmark = await response.json();
-      onBookmarkCreated(newBookmark);
+      onBookmarkCreated(data);
       setBookmarkTitle('');
+      onClose();
     } catch (error) {
       console.error('Error creating bookmark:', error);
+      setError('Failed to create bookmark. Please try again.');
     }
   };
 
@@ -65,6 +72,11 @@ export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated
             placeholder="Enter bookmark name"
             className="w-full p-2 mb-4 bg-gray-700 text-white rounded"
           />
+          {error && (
+            <div className="text-red-500 mb-4 text-sm">
+              {error}
+            </div>
+          )}
           <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"

@@ -1,23 +1,22 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/prisma';
+import { checkBookmarkExists, createBookmark } from '../../lib/bookmarkService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { title, userId } = req.body as {
       title: string;
-      userId: number;
+      userId: string;
     };
 
     try {
-      const newBookmark = await prisma.bookmark.create({
-        data: {
-          title,
-          user: {
-            connect: { id: userId.toString() },
-          },
-        },
-      });
+      // Check if bookmark already exists
+      const exists = await checkBookmarkExists(userId, title);
+      
+      if (exists) {
+        return res.status(400).json({ error: 'A bookmark with this title already exists' });
+      }
 
+      const newBookmark = await createBookmark(userId, title);
       res.status(200).json(newBookmark);
     } catch (error) {
       console.error(error);

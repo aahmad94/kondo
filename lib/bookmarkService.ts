@@ -60,3 +60,32 @@ export async function deleteGptResponse(userId: string, gptResponseId: string, b
     throw error;
   }
 }
+
+export async function checkBookmarkExists(userId: string, title: string) {
+  const bookmark = await prisma.bookmark.findFirst({
+    where: {
+      userId: userId,
+      title: title
+    }
+  });
+  
+  return bookmark !== null;
+}
+
+export async function createBookmark(userId: string, title: string) {
+  try {
+    const newBookmark = await prisma.bookmark.create({
+      data: {
+        title,
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+    
+    return newBookmark;
+  } catch (error) {
+    console.error('Error creating bookmark:', error);
+    throw error;
+  }
+}

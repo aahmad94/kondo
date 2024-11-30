@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, XCircleIcon, ArrowUturnRightIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, XCircleIcon, ArrowUturnRightIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import Markdown from 'react-markdown'
@@ -17,6 +17,7 @@ interface GPTResponseProps {
   onDelete?: (responseId: string) => Promise<void>;
   onQuote?: (response: string) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
+  onGenerateSummary?: () => Promise<void>;
 }
 
 export default function GPTResponse({ 
@@ -30,7 +31,8 @@ export default function GPTResponse({
   type = 'response',
   onDelete, 
   onQuote,
-  onRankUpdate 
+  onRankUpdate,
+  onGenerateSummary
 }: GPTResponseProps) {
   const red = '#d93900'
   const grey = '#161b1d'
@@ -109,6 +111,14 @@ export default function GPTResponse({
           {type === 'instruction' ? 'Instructions:' : 'KondoAI message:'}
         </h2>
         <div className="button-container flex items-center gap-2">
+          {selectedBookmarkTitle === 'daily summaries' && type === 'instruction' && (
+            <button
+              onClick={onGenerateSummary}
+              className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+            >
+              <ArrowPathIcon className="h-5 w-5" />
+            </button>
+          )}
           {type === 'response' && (
             <>
               {selectedBookmarkId && responseId && !reservedBookmarkTitles.includes(selectedBookmarkTitle) && (
