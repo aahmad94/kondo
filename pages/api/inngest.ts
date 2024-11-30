@@ -128,6 +128,18 @@ const dailyResponseLogger = inngest.createFunction(
             });
           }
 
+          // Delete all previous summaries for this user
+          await prisma.gPTResponse.deleteMany({
+            where: {
+              userId: user.userId,
+              bookmarks: {
+                some: {
+                  id: dailySummariesBookmark.id
+                }
+              }
+            }
+          });
+
           // Create new GPTResponse entry for this user
           const newResponse = await prisma.gPTResponse.create({
             data: {
