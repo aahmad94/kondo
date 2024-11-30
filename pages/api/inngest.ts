@@ -9,7 +9,7 @@ const inngest = new Inngest({ id: 'Kondo' });
 // Create a scheduled function to run every evening at 9 PM EST
 const dailyResponseLogger = inngest.createFunction(
   { id: "daily-response-logger" },
-  { cron: "TZ=America/New_York 25 0 * * *" }, // Run at 11:59 PM EST
+  { cron: "TZ=America/New_York 40 0 * * *" }, // Run at 12:40 AM EST
   async ({ step }) => {
     // First, get all unique users who have responses
     const users = await step.run("fetch-unique-users", async () => {
@@ -94,7 +94,7 @@ const dailyResponseLogger = inngest.createFunction(
           });
           return `${dateFormatted} at ${timeFormatted}`;
         }
-
+        
         if (allResponses.length > 0) {
           const combinedContent = `**Daily Response Summary (${formatDate(new Date())}):**\n\n` + 
             allResponses.map((r, index: number) => {
@@ -125,9 +125,8 @@ const dailyResponseLogger = inngest.createFunction(
           }
 
           // Create new GPTResponse entry for this user
-          try {
-            const newResponse = await prisma.gPTResponse.create({
-              data: {
+          const newResponse = await prisma.gPTResponse.create({
+            data: {
               content: combinedContent,
               rank: 1,
               userId: user.userId,
@@ -139,10 +138,7 @@ const dailyResponseLogger = inngest.createFunction(
               }
             }
           });
-          } catch (error) {
-            console.log('error creating daily response summary');
-            console.error(error);
-          }
+        }
       }
     });
 

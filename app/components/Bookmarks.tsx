@@ -171,7 +171,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
                 >
                   <span 
                     className={
-                      bookmark.id === "daily summaries" ? "text-blue-400" : ""
+                      bookmark.title === "daily summaries" ? "text-blue-400" : ""
                     }
                   >
                     {bookmark.title}
