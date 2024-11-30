@@ -29,34 +29,123 @@ const dailyResponseLogger = inngest.createFunction(
     // For each user, fetch and aggregate their responses
     await step.run("process-user-responses", async () => {
       for (const user of users) {
-        // Fetch 10 random responses for this user
-        const userResponses = await prisma.gPTResponse.findMany({
+        // Fetch responses for rank 1 (4 responses)
+        const rank1Responses = await prisma.gPTResponse.findMany({
           where: {
-            userId: user.userId
+            userId: user.userId,
+            rank: 1
           },
-          take: 10,
+          take: 4,
           orderBy: {
             createdAt: 'desc'
           },
           select: {
             content: true,
-            createdAt: true
+            createdAt: true,
+            rank: true
           }
         });
 
-        if (userResponses.length > 0) {
-          const date = new Date().toISOString().split('T')[0];
-          const combinedContent = `Daily Response Summary for User (${date}):\n\n` + 
-            userResponses.map((r: { content: string; createdAt: Date }, index: number) =>
-              `${index + 1}. ${r.content} (Created At: ${new Date(r.createdAt).toISOString()})`).join('\n\n');
+        // Fetch responses for rank 2 (2 responses)
+        const rank2Responses = await prisma.gPTResponse.findMany({
+          where: {
+            userId: user.userId,
+            rank: 2
+          },
+          take: 2,
+          orderBy: {
+            createdAt: 'desc'
+          },
+          select: {
+            content: true,
+            createdAt: true,
+            rank: true
+          }
+        });
+
+        // Fetch responses for rank 3 (1 response)
+        const rank3Responses = await prisma.gPTResponse.findMany({
+          where: {
+            userId: user.userId,
+            rank: 3
+          },
+          take: 1,
+          orderBy: {
+            createdAt: 'desc'
+          },
+          select: {
+            content: true,
+            createdAt: true,
+            rank: true
+          }
+        });
+
+        const allResponses = [...rank1Responses, ...rank2Responses, ...rank3Responses];
+
+        if (allResponses.length > 0) {
+          const now = new Date();
+          const dateFormatted = now.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          });
+          const timeFormatted = now.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          });
           
+          const combinedContent = `**Daily Response Summary (${dateFormatted} at ${timeFormatted}):**\n\n` + 
+            allResponses.map((r, index: number) => {
+              const number = `**${index + 1} of 7**\n`;
+              const responseDate = new Date(r.createdAt);
+              const responseDateFormatted = responseDate.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+              });
+              const responseTimeFormatted = responseDate.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+              });
+              const dateCreated = `Created: ${responseDateFormatted} at ${responseTimeFormatted}\n`
+              const rankIcon = r.rank === 1 ? "🔴" : r.rank === 2 ? "🟡🟡" : "🟢🟢🟢";
+              const rank = `**rank: ${rankIcon}**\n`;
+
+              return `${number} ${dateCreated} ${rank} ${r.content}`
+            }).join('\n\n');
+          
+          // Check if user has "daily summaries" bookmark
+          let dailySummariesBookmark = await prisma.bookmark.findFirst({
+            where: {
+              userId: user.userId,
+              title: "daily summaries"
+            }
+          });
+
+          // Create the bookmark if it doesn't exist
+          if (!dailySummariesBookmark) {
+            dailySummariesBookmark = await prisma.bookmark.create({
+              data: {
+                title: "daily summaries",
+                userId: user.userId
+              }
+            });
+          }
+
           // Create new GPTResponse entry for this user
-          await prisma.gPTResponse.create({
+          const newResponse = await prisma.gPTResponse.create({
             data: {
               content: combinedContent,
               rank: 1,
               userId: user.userId,
-              createdAt: new Date()
+              createdAt: new Date(),
+              bookmarks: {
+                connect: {
+                  id: dailySummariesBookmark.id
+                }
+              }
             }
           });
         }

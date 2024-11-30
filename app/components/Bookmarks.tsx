@@ -169,7 +169,13 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
                     ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
                   onClick={() => handleBookmarkInteraction(bookmark.id)}
                 >
-                  <span>{bookmark.title}</span>
+                  <span 
+                    className={
+                      bookmark.id === "all" ? "text-blue-400" : ""
+                    }
+                  >
+                    {bookmark.title}
+                  </span>
                   <XCircleIcon
                     className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     onClick={(e) => {
