@@ -9,7 +9,7 @@ const inngest = new Inngest({ id: 'Kondo' });
 // Create a scheduled function to run every evening at 9 PM EST
 const dailyResponseLogger = inngest.createFunction(
   { id: "daily-response-logger" },
-  { cron: "TZ=America/New_York 0 23 * * *" }, // Run at 11 PM EST
+  { cron: "TZ=America/New_York 25 0 * * *" }, // Run at 11:59 PM EST
   async ({ step }) => {
     // First, get all unique users who have responses
     const users = await step.run("fetch-unique-users", async () => {
@@ -81,35 +81,25 @@ const dailyResponseLogger = inngest.createFunction(
         });
 
         const allResponses = [...rank1Responses, ...rank2Responses, ...rank3Responses];
-
-        if (allResponses.length > 0) {
-          const now = new Date();
-          const dateFormatted = now.toLocaleDateString('en-US', {
+        const formatDate = (date: Date) => {
+          const dateFormatted = date.toLocaleDateString('en-US', {
             month: 'long',
             day: 'numeric',
             year: 'numeric'
           });
-          const timeFormatted = now.toLocaleTimeString('en-US', {
+          const timeFormatted = date.toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true
           });
-          
-          const combinedContent = `**Daily Response Summary (${dateFormatted} at ${timeFormatted}):**\n\n` + 
+          return `${dateFormatted} at ${timeFormatted}`;
+        }
+
+        if (allResponses.length > 0) {
+          const combinedContent = `**Daily Response Summary (${formatDate(new Date())}):**\n\n` + 
             allResponses.map((r, index: number) => {
               const number = `**${index + 1} of 7**\n`;
-              const responseDate = new Date(r.createdAt);
-              const responseDateFormatted = responseDate.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-              });
-              const responseTimeFormatted = responseDate.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-              });
-              const dateCreated = `Created: ${responseDateFormatted} at ${responseTimeFormatted}\n`
+              const dateCreated = `Created: ${formatDate(r.createdAt)}\n`
               const rankIcon = r.rank === 1 ? "🔴" : r.rank === 2 ? "🟡🟡" : "🟢🟢🟢";
               const rank = `**rank: ${rankIcon}**\n`;
 
@@ -135,8 +125,9 @@ const dailyResponseLogger = inngest.createFunction(
           }
 
           // Create new GPTResponse entry for this user
-          const newResponse = await prisma.gPTResponse.create({
-            data: {
+          try {
+            const newResponse = await prisma.gPTResponse.create({
+              data: {
               content: combinedContent,
               rank: 1,
               userId: user.userId,
@@ -148,7 +139,10 @@ const dailyResponseLogger = inngest.createFunction(
               }
             }
           });
-        }
+          } catch (error) {
+            console.log('error creating daily response summary');
+            console.error(error);
+          }
       }
     });
 
