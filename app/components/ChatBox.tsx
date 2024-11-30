@@ -6,6 +6,7 @@ import GPTResponse from './GPTResponse';
 interface ChatBoxProps {
   selectedBookmarkId: string | null;
   selectedBookmarkTitle: string | null;
+  reservedBookmarkTitles: string[];
 }
 
 interface Response {
@@ -22,7 +23,7 @@ interface BookmarkResponse {
   createdAt: Date;
 }
 
-export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle }: ChatBoxProps) {
+export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, reservedBookmarkTitles }: ChatBoxProps) {
   const instructions = `
   Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.  
 
@@ -308,6 +309,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle }: C
             response={instructions}
             selectedBookmarkId={selectedBookmarkId}
             selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
+            reservedBookmarkTitles={reservedBookmarkTitles}
             responseId={null}
             type="instruction"
           />
@@ -320,6 +322,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle }: C
               response={response.content}
               selectedBookmarkId={selectedBookmarkId}
               selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
+              reservedBookmarkTitles={reservedBookmarkTitles}
               responseId={response.id}
               rank={response.rank}
               createdAt={response.createdAt}
@@ -335,6 +338,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle }: C
               response={response.content}
               selectedBookmarkId={selectedBookmarkId}
               selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
+              reservedBookmarkTitles={reservedBookmarkTitles}
               responseId={response.id}
               onDelete={handleResponseDelete}
               onQuote={handleResponseQuote}

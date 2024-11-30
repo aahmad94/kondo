@@ -12,9 +12,11 @@ interface Bookmark {
 interface BookmarksProps {
   changeSelectedBookmark: (bookmarkId: string|null, bookmarkTitle: string|null) => void;
   selectedBookmarkId: string | null;
+  selectedBookmarkTitle: string | null;
+  reservedBookmarkTitles: string[];
 }
 
-export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId }: BookmarksProps) {
+export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId, selectedBookmarkTitle, reservedBookmarkTitles }: BookmarksProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -144,6 +146,7 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId }
               <ChevronLeftIcon className="h-6 w-6 text-blue-400" />
             </button>
           </div>
+
           <div className="min-w-48 max-w-48 flex flex-col p-2">
             <div
               className="create-bookmark-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
@@ -152,6 +155,7 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId }
               <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
               <span className="text-blue-400">create bookmark</span>
             </div>
+
             <div 
               className={`all-responses-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block
                 ${selectedBookmarkId === "all" ? 'bg-gray-700 rounded-lg' : ''}`}
@@ -161,30 +165,36 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId }
               <QueueListIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
               <span className="text-blue-400">all responses</span>
             </div>
+
+
             <div className="overflow-y-auto max-h-[50vh]">
-              {bookmarks.map((bookmark) => (
-                <div
-                  key={bookmark.id}
-                  className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
-                    ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
-                  onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
-                >
-                  <span 
-                    className={
-                      bookmark.title === "daily summaries" ? "text-blue-400" : ""
-                    }
+              {bookmarks
+                .sort((a, b) => {
+                  // Put 'daily summaries' at the top
+                  if (reservedBookmarkTitles.includes(a.title)) return -1;
+                  if (reservedBookmarkTitles.includes(b.title)) return 1;
+                  // For all other bookmarks, maintain their original order
+                  return 0;
+                })
+                .map((bookmark) => (
+                  <div
+                    key={bookmark.id}
+                    className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
+                      ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
+                    onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                   >
-                    {bookmark.title}
-                  </span>
-                  <XCircleIcon
-                    className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(bookmark, e);
-                    }}
-                  />
-                </div>
-              ))}
+                    <span className={reservedBookmarkTitles.includes(bookmark.title) ? "text-blue-400" : ""}>
+                      {bookmark.title}
+                    </span>
+                    <XCircleIcon
+                      className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(bookmark, e);
+                      }}
+                    />
+                  </div>
+                ))}
             </div>
           </div>
         </div>

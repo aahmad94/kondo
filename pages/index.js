@@ -10,6 +10,7 @@ import ProtectedRoute from "../app/components/ProtectedRoute"
 export default function HomePage() {
 	const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
 	const [selectedBookmarkTitle, setSelectedBookmarkTitle] = useState(null);
+	const [reservedBookmarkTitles, setreservedBookmarkTitles] = useState(['all responses', 'daily summaries']);
 	const handleBookmarkSelect = (bookmarkId, bookmarkTitle) => {
 		setSelectedBookmarkId(bookmarkId);
 		setSelectedBookmarkTitle(bookmarkTitle);
@@ -22,11 +23,14 @@ export default function HomePage() {
 				<Bookmarks 
 					changeSelectedBookmark={handleBookmarkSelect} 
 					selectedBookmarkId={selectedBookmarkId}
+					selectedBookmarkTitle={selectedBookmarkTitle}
+					reservedBookmarkTitles={reservedBookmarkTitles}
 				/>
 				<div className="flex-1 flex flex-col justify-end">
 					<Chatbox 
 						selectedBookmarkId={selectedBookmarkId} 
 						selectedBookmarkTitle={selectedBookmarkTitle}
+						reservedBookmarkTitles={reservedBookmarkTitles}
 					/>
 				</div>
 			</div>
