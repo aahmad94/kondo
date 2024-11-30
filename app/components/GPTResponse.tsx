@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm'
 interface GPTResponseProps {
   response: string;
   selectedBookmarkId: string | null;
+  selectedBookmarkTitle: string;
   responseId?: string | null;
   rank?: number;
   createdAt?: Date;
@@ -20,6 +21,7 @@ interface GPTResponseProps {
 export default function GPTResponse({ 
   response, 
   selectedBookmarkId, 
+  selectedBookmarkTitle,
   responseId, 
   rank = 1, 
   createdAt,
@@ -36,6 +38,8 @@ export default function GPTResponse({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [rankContainerBg, setRankContainerBg] = useState(grey);
+  const excludeBookmarkTitles = ['all responses', 'daily summaries'];
+
 
   useEffect(() => {
     handleRankColorChange(rank);
@@ -107,7 +111,7 @@ export default function GPTResponse({
         <div className="button-container flex items-center gap-2">
           {type === 'response' && (
             <>
-              {selectedBookmarkId && responseId && (
+              {selectedBookmarkId && responseId && !excludeBookmarkTitles.includes(selectedBookmarkTitle) && (
                 <div 
                 className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400]"}
                 style={{ backgroundColor: rankContainerBg }}

@@ -10,11 +10,11 @@ interface Bookmark {
 }
 
 interface BookmarksProps {
-  changeSelectedBookmarkId: (bookmarkId: string|null) => void;
+  changeSelectedBookmark: (bookmarkId: string|null, bookmarkTitle: string|null) => void;
   selectedBookmarkId: string | null;
 }
 
-export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId }: BookmarksProps) {
+export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId }: BookmarksProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -63,8 +63,8 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
     }
   };
 
-  const handleBookmarkInteraction = (bookmarkId: string) => {
-    changeSelectedBookmarkId(bookmarkId);
+  const handleBookmarkInteraction = (bookmarkId: string, bookmarkTitle: string) => {
+    changeSelectedBookmark(bookmarkId, bookmarkTitle);
     // close bookmarks if on mobile
     if (window.innerWidth < 768) {
       setIsOpen(false);
@@ -106,7 +106,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
 
         setBookmarks(bookmarks.filter(b => b.id !== bookmarkToDelete.id));
         if (selectedBookmarkId === bookmarkToDelete.id) {
-          changeSelectedBookmarkId(null);
+          changeSelectedBookmark(null, null);
         }
         setIsDeleteModalOpen(false);
         setBookmarkToDelete(null);
@@ -155,8 +155,8 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
             <div 
               className={`all-responses-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block
                 ${selectedBookmarkId === "all" ? 'bg-gray-700 rounded-lg' : ''}`}
-              onClick={() => handleBookmarkInteraction("all")}
-              onTouchStart={() => handleBookmarkInteraction("all")}
+              onClick={() => handleBookmarkInteraction("all", "all responses")}
+              onTouchStart={() => handleBookmarkInteraction("all", "all responses")}
             >
               <QueueListIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
               <span className="text-blue-400">all responses</span>
@@ -167,7 +167,7 @@ export default function Bookmarks({ changeSelectedBookmarkId, selectedBookmarkId
                   key={bookmark.id}
                   className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
                     ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
-                  onClick={() => handleBookmarkInteraction(bookmark.id)}
+                  onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                 >
                   <span 
                     className={

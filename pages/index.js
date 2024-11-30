@@ -9,9 +9,10 @@ import ProtectedRoute from "../app/components/ProtectedRoute"
 
 export default function HomePage() {
 	const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
-
-	const handleBookmarkSelect = (bookmarkId) => {
+	const [selectedBookmarkTitle, setSelectedBookmarkTitle] = useState(null);
+	const handleBookmarkSelect = (bookmarkId, bookmarkTitle) => {
 		setSelectedBookmarkId(bookmarkId);
+		setSelectedBookmarkTitle(bookmarkTitle);
 	};
 
 	return (
@@ -19,16 +20,19 @@ export default function HomePage() {
 			<Menubar onBookmarkSelect={handleBookmarkSelect} />
 			<div className="flex h-screen bg-[#000000]">
 				<Bookmarks 
-					changeSelectedBookmarkId={handleBookmarkSelect} 
+					changeSelectedBookmark={handleBookmarkSelect} 
 					selectedBookmarkId={selectedBookmarkId}
 				/>
 				<div className="flex-1 flex flex-col justify-end">
-					<Chatbox selectedBookmarkId={selectedBookmarkId} />
-					</div>
+					<Chatbox 
+						selectedBookmarkId={selectedBookmarkId} 
+						selectedBookmarkTitle={selectedBookmarkTitle}
+					/>
 				</div>
-			</ProtectedRoute>
-		);
-	}
+			</div>
+		</ProtectedRoute>
+	);
+}
 
 	export async function getServerSideProps(context) {
 		const session = await getSession(context)

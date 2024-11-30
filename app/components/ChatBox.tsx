@@ -5,6 +5,7 @@ import GPTResponse from './GPTResponse';
 
 interface ChatBoxProps {
   selectedBookmarkId: string | null;
+  selectedBookmarkTitle: string | null;
 }
 
 interface Response {
@@ -21,7 +22,7 @@ interface BookmarkResponse {
   createdAt: Date;
 }
 
-export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
+export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle }: ChatBoxProps) {
   const instructions = `
   Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.  
 
@@ -306,6 +307,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
           <GPTResponse
             response={instructions}
             selectedBookmarkId={selectedBookmarkId}
+            selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
             responseId={null}
             type="instruction"
           />
@@ -317,6 +319,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
               key={index}
               response={response.content}
               selectedBookmarkId={selectedBookmarkId}
+              selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
               responseId={response.id}
               rank={response.rank}
               createdAt={response.createdAt}
@@ -331,6 +334,7 @@ export default function ChatBox({ selectedBookmarkId }: ChatBoxProps) {
               key={index}
               response={response.content}
               selectedBookmarkId={selectedBookmarkId}
+              selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
               responseId={response.id}
               onDelete={handleResponseDelete}
               onQuote={handleResponseQuote}

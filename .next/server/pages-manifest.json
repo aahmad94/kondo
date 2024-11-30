@@ -3,6 +3,8 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/": "pages/index.js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js"
+  "/api/getBookmarks": "pages/api/getBookmarks.js",
+  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
+  "/api/getUserResponses": "pages/api/getUserResponses.js",
+  "/": "pages/index.js"
 }
