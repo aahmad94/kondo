@@ -6,15 +6,21 @@ interface CreateBookmarkModalProps {
   isOpen: boolean;
   onClose: () => void;
   onBookmarkCreated: (newBookmark: { id: string; title: string }) => void;
+  reservedBookmarkTitles: string[];
 }
 
-export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated }: CreateBookmarkModalProps) {
+export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated, reservedBookmarkTitles }: CreateBookmarkModalProps) {
   const [bookmarkTitle, setBookmarkTitle] = useState('');
   const { data: session } = useSession();
 
   const handleCreateBookmark = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.userId || !bookmarkTitle.trim()) return;
+
+    if (reservedBookmarkTitles.includes(bookmarkTitle)) {
+      alert('This bookmark title is reserved.');
+      return;
+    }
 
     try {
       const response = await fetch('/api/createBookmark', {

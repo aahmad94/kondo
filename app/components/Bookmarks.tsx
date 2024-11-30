@@ -206,6 +206,7 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId, 
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onBookmarkCreated={handleBookmarkCreated}
+          reservedBookmarkTitles={reservedBookmarkTitles}
         />
       )}
       {isDeleteModalOpen && bookmarkToDelete && (
