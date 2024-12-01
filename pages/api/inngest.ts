@@ -10,7 +10,7 @@ const inngest = new Inngest({ id: 'Kondo' });
 // Create a scheduled function to run every evening at 9 PM EST
 const dailyResponseLogger = inngest.createFunction(
   { id: "daily-response-logger" },
-  { cron: "TZ=America/New_York 0 21 * * *" }, // Run at 9:00 PM EST
+  { cron: "TZ=America/New_York 30 * * * *" }, // Run at 9:00 PM EST
   async ({ step }) => {
     // First, get all unique users who have bookmarked responses
     const users = await step.run("fetch-unique-users", async () => {
