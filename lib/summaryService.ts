@@ -1,3 +1,4 @@
+import { Bookmark } from '@prisma/client';
 import prisma from './prisma';
 import { format, toZonedTime } from 'date-fns-tz';
 
@@ -5,21 +6,10 @@ interface Response {
   content: string;
   createdAt: Date;
   rank: number;
+  bookmarks: Bookmark[];
 }
 
 export async function generateUserSummary(userId: string) {
-  // Common where clause for bookmarked responses
-  const bookmarkFilter = {
-    userId: userId,
-    bookmarks: {
-      some: {
-        title: {
-          not: 'daily summary'
-        }
-      }
-    }
-  };
-
   const formatDate = (date: Date) => {
     const timeZone = 'America/New_York';
     const zonedDate = toZonedTime(date, timeZone);
@@ -30,6 +20,27 @@ export async function generateUserSummary(userId: string) {
     return `${dateFormatted} at ${timeFormatted} EST`;
   };
 
+    // Common where clause for bookmarked responses
+    const bookmarkFilter = {
+        userId: userId,
+        bookmarks: {
+          some: {
+            AND: [
+              {
+                title: {
+                  not: 'daily summary'
+                }
+              },
+              {
+                title: {
+                  not: ''
+                }
+              },
+            ]
+          }
+        }
+      };
+      
   // Helper function to fetch random responses for a given rank and take
   const getRandomUserResponses = async (rank: number, take: number) => {
     const allResponses = await prisma.gPTResponse.findMany({
@@ -38,6 +49,7 @@ export async function generateUserSummary(userId: string) {
         rank: rank
       },
       select: {
+        bookmarks: true,
         content: true,
         createdAt: true,
         rank: true
@@ -55,7 +67,7 @@ export async function generateUserSummary(userId: string) {
   }
 
   // Fetch random responses for different ranks
-  const rank1Responses = await getRandomUserResponses(1, 4);
+  const rank1Responses = await getRandomUserResponses(1, 3);
   const rank2Responses = await getRandomUserResponses(2, 2);
   const rank3Responses = await getRandomUserResponses(3, 1);
 
@@ -68,12 +80,14 @@ export async function generateUserSummary(userId: string) {
   // Generate the combined content
   const combinedContent = `**Daily Response Summary (${formatDate(new Date())}):**\n\n\n` + 
     allResponses.map((r: Response, index: number) => {
-      const number = `**${index + 1} of ${allResponses.length}**\n`;
-      const dateCreated = `From: ${formatDate(r.createdAt)}\n`
-      const rankIcon = r.rank === 1 ? "hard 🔴" : r.rank === 2 ? "medium 🟡" : "easy 🟢";
-      const rank = `**rank: ${rankIcon}**\n`;
+      const number = `${index + 1} of ${allResponses.length}\n`;
+      const dateCreated = `From: ${formatDate(r.createdAt)}\n`;
+      const bookmarkTitles = r.bookmarks.map(b => `"${b.title}"`).join(', ');
+      const bookmarks = `Bookmarked in: ${bookmarkTitles}\n`;
+      const rankIcon = r.rank === 1 ? "less familiar 🔴" : r.rank === 2 ? "familiar 🟡" : "very familiar 🟢";
+      const rank = `rank: ${rankIcon}\n\n\n`;
 
-      return `${number} ${dateCreated} ${rank} ${r.content}\n\n`;
+      return `${number} ${dateCreated} ${bookmarks} ${rank} ${r.content}\n\n___________________________`;
     }).join('\n\n');
 
   return combinedContent;
