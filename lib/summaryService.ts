@@ -14,7 +14,7 @@ export async function generateUserSummary(userId: string) {
     bookmarks: {
       some: {
         title: {
-          not: 'daily summaries'
+          not: 'daily summary'
         }
       }
     }
@@ -80,11 +80,11 @@ export async function generateUserSummary(userId: string) {
 }
 
 export async function saveDailySummary(userId: string, content: string) {
-  // Check if user has "daily summaries" bookmark
+  // Check if user has "daily summary" bookmark
   let dailySummariesBookmark = await prisma.bookmark.findFirst({
     where: {
       userId: userId,
-      title: "daily summaries"
+      title: "daily summary"
     }
   });
 
@@ -92,7 +92,7 @@ export async function saveDailySummary(userId: string, content: string) {
   if (!dailySummariesBookmark) {
     dailySummariesBookmark = await prisma.bookmark.create({
       data: {
-        title: "daily summaries",
+        title: "daily summary",
         userId: userId
       }
     });

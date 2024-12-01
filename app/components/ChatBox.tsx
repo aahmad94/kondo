@@ -118,7 +118,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      if (chatContainerRef.current && selectedBookmarkTitle !== 'daily summaries') {
+      if (chatContainerRef.current && selectedBookmarkTitle !== 'daily summary') {
         chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
@@ -351,7 +351,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
           />
         )}
         
-        {selectedBookmarkTitle === 'daily summaries' && (
+        {selectedBookmarkTitle === 'daily summary' && (
           <GPTResponse
             response={DAILY_SUMMARY_INSTRUCTIONS}
             selectedBookmarkId={selectedBookmarkId}

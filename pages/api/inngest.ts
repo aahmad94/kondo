@@ -26,7 +26,7 @@ const dailyResponseLogger = inngest.createFunction(
           bookmarks: {
             some: {
               title: {
-                not: 'daily summaries'
+                not: 'daily summary'
               }
             }
           }

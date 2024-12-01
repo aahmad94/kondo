@@ -10,7 +10,7 @@ import ProtectedRoute from "../app/components/ProtectedRoute"
 export default function HomePage() {
 	const [selectedBookmarkId, setSelectedBookmarkId] = useState(null);
 	const [selectedBookmarkTitle, setSelectedBookmarkTitle] = useState(null);
-	const [reservedBookmarkTitles, setreservedBookmarkTitles] = useState(['all responses', 'daily summaries']);
+	const [reservedBookmarkTitles, setreservedBookmarkTitles] = useState(['all responses', 'daily summary']);
 	const handleBookmarkSelect = (bookmarkId, bookmarkTitle) => {
 		setSelectedBookmarkId(bookmarkId);
 		setSelectedBookmarkTitle(bookmarkTitle);

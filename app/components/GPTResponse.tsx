@@ -111,7 +111,7 @@ export default function GPTResponse({
           {type === 'instruction' ? 'Instructions:' : 'KondoAI message:'}
         </h2>
         <div className="button-container flex items-center gap-2">
-          {selectedBookmarkTitle === 'daily summaries' && type === 'instruction' && (
+          {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
             <button
               onClick={onGenerateSummary}
               className="text-blue-400 hover:text-blue-700 transition-colors duration-200"

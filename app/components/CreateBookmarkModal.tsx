@@ -20,10 +20,10 @@ export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated
 
     setError(null); // Reset error state
 
-    if (reservedBookmarkTitles.includes(bookmarkTitle)) {
-      setError('This bookmark title is reserved.');
-      return;
-    }
+    // if (reservedBookmarkTitles.includes(bookmarkTitle)) {
+    //   setError('This bookmark title is reserved.');
+    //   return;
+    // }
 
     try {
       const response = await fetch('/api/createBookmark', {

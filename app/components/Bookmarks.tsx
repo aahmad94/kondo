@@ -170,7 +170,7 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId, 
             <div className="overflow-y-auto max-h-[50vh]">
               {bookmarks
                 .sort((a, b) => {
-                  // Put 'daily summaries' at the top
+                  // Put 'daily summary' at the top
                   if (reservedBookmarkTitles.includes(a.title)) return -1;
                   if (reservedBookmarkTitles.includes(b.title)) return 1;
                   // For all other bookmarks, maintain their original order
@@ -186,13 +186,15 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId, 
                     <span className={reservedBookmarkTitles.includes(bookmark.title) ? "text-blue-400" : ""}>
                       {bookmark.title}
                     </span>
-                    <XCircleIcon
+                    {!reservedBookmarkTitles.includes(bookmark.title) && (
+                      <XCircleIcon
                       className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteClick(bookmark, e);
-                      }}
-                    />
+                        }}
+                      />
+                    )}
                   </div>
                 ))}
             </div>
