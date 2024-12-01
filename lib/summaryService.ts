@@ -1,4 +1,5 @@
 import prisma from './prisma';
+import { format, toZonedTime } from 'date-fns-tz';
 
 interface Response {
   content: string;
@@ -20,23 +21,12 @@ export async function generateUserSummary(userId: string) {
   };
 
   const formatDate = (date: Date) => {
-    // Convert the date to NY timezone
-    const nyDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-    
-    const dateFormatted = nyDate.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      timeZone: 'America/New_York'
-    });
-    
-    const timeFormatted = nyDate.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-      timeZone: 'America/New_York'
-    });
-    
+    const timeZone = 'America/New_York';
+    const zonedDate = toZonedTime(date, timeZone);
+
+    const dateFormatted = format(zonedDate, 'MMMM d, yyyy', { timeZone });
+    const timeFormatted = format(zonedDate, 'h:mm a', { timeZone });
+
     return `${dateFormatted} at ${timeFormatted} EST`;
   };
 
