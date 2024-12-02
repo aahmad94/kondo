@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 
@@ -184,6 +184,9 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId, 
                     onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                   >
                     <span className={reservedBookmarkTitles.includes(bookmark.title) ? "text-blue-400" : ""}>
+                      {bookmark.title === 'daily summary' ? (
+                        <DocumentTextIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                      ) : null}
                       {bookmark.title}
                     </span>
                     {!reservedBookmarkTitles.includes(bookmark.title) && (
