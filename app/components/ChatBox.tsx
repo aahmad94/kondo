@@ -86,16 +86,12 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
       setBookmarkResponses([]);
     }
 
-    // Only scroll to bottom for non-daily-summaries bookmarks
     if (chatContainerRef.current 
       && selectedBookmarkId
     ) {
       const intervalId = setInterval(() => {
         if (bookmarkResponses.length > 0) {
-          chatContainerRef.current!.scrollTo({
-            top: chatContainerRef.current!.scrollHeight,
-            behavior: 'smooth'
-          });
+          scrollToBottom();
           clearInterval(intervalId);
         }
       }, 200);
@@ -106,13 +102,10 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
   }, [selectedBookmarkId, session]);
 
 
-  // Scroll to bottom when new responses are added or quote is clicked
+  // Scroll to bottom when new responses are added or quote is clicked in main chat
   useEffect(() => {
-    if (chatContainerRef.current && !selectedBookmarkId && (responses.length > 0 || responseQuote)) {
-      chatContainerRef.current.scrollTo({
-        top: chatContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+    if (!selectedBookmarkId && (responses.length > 0 || responseQuote)) {
+      scrollToBottom();
     }
   }, [responses, responseQuote, selectedBookmarkId]);
 
