@@ -106,7 +106,7 @@ export default function GPTResponse({
 
   return (
     <div className="pl-3 pt-3 rounded text-white max-w-[calc(95%)]">
-      <div className="header flex justify-between max-w-[700px] max-h-[30px] border-b-2 pb-1" style={{ borderBottomColor: grey }}>
+      <div className="header flex justify-between max-w-[700px] max-h-[30px] mb-2 border-b-2 pb-1" style={{ borderBottomColor: grey }}>
         <h2 className="font-bold text-blue-400">
           {type === 'instruction' ? 'Instructions:' : 'KondoAI message:'}
         </h2>
