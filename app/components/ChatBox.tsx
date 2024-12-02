@@ -25,12 +25,12 @@ interface BookmarkResponse {
 
 const DAILY_SUMMARY_INSTRUCTIONS = `
 **Daily Response Summary Generator**\n\n
-Everyday, this tool creates a **new summary at 12:01 AM Eastern Standard Time**.\n\n
+Everyday, this tool creates a new summary at 12:01 AM Eastern Standard Time.\n
+A summary includes the following:\n\n
 
-A summary includes the following:
-1 - top 4 highest priority 🔴 responses
-2 - top 2 medium priority 🟡 responses
-3 - top 1 lowest priority 🟢 response\n\n
+3 less familiar 🔴 responses
+2 familiar 🟡 responses
+1 very familiar 🟢 response\n\n
 
 Click the **refresh** button above to manually create a new summary.
 `;

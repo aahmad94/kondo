@@ -80,14 +80,14 @@ export async function generateUserSummary(userId: string) {
   // Generate the combined content
   const combinedContent = `**Daily Response Summary (${formatDate(new Date())}):**\n\n\n` + 
     allResponses.map((r: Response, index: number) => {
-      const number = `${index + 1} of ${allResponses.length}\n`;
-      const dateCreated = `From: ${formatDate(r.createdAt)}\n`;
+      const divider = "___________________________";
+      const number = `${index + 1} of ${allResponses.length}`;
+      const dateCreated = `${formatDate(r.createdAt)}`;
       const bookmarkTitles = r.bookmarks.map(b => `"${b.title}"`).join(', ');
-      const bookmarks = `Bookmarked in: ${bookmarkTitles}\n`;
-      const rankIcon = r.rank === 1 ? "less familiar 🔴" : r.rank === 2 ? "familiar 🟡" : "very familiar 🟢";
-      const rank = `rank: ${rankIcon}\n\n\n`;
+      const bookmarks = `${bookmarkTitles}`;
+      const rankIcon = r.rank === 1 ? "🔴" : r.rank === 2 ? "🟡" : "🟢";
 
-      return `${number} ${dateCreated} ${bookmarks} ${rank} ${r.content}\n\n___________________________`;
+      return `${divider}\n ${number} ${rankIcon} topic: ${bookmarks}\n ${dateCreated}\n\n\n ${r.content}\n\n`;
     }).join('\n\n');
 
   return combinedContent;
