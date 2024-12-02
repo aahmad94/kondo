@@ -30,6 +30,13 @@ export async function getUserResponses(userId: string) {
     const responses = await prisma.gPTResponse.findMany({
       where: {
         userId: userId,
+        NOT: {
+          bookmarks: {
+            some: {
+              title: 'daily summary'
+            }
+          }
+        }
       },
       orderBy: [
         { rank: 'desc' },     // Higher ranks first
