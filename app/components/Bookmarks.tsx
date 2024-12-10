@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
+import { useRouter } from 'next/router';
 
 interface Bookmark {
   id: string;
@@ -23,6 +24,7 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId, 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [bookmarkToDelete, setBookmarkToDelete] = useState<Bookmark | null>(null);
   const { data: session } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (session?.userId) {
@@ -66,7 +68,17 @@ export default function Bookmarks({ changeSelectedBookmark, selectedBookmarkId, 
   };
 
   const handleBookmarkInteraction = (bookmarkId: string, bookmarkTitle: string) => {
+    // Update URL with new query parameters
+    router.push({
+      pathname: router.pathname,
+      query: { 
+        bookmarkId, 
+        bookmarkTitle: encodeURIComponent(bookmarkTitle)
+      }
+    }, undefined, { shallow: true });
+
     changeSelectedBookmark(bookmarkId, bookmarkTitle);
+    
     // close bookmarks if on mobile
     if (window.innerWidth < 768) {
       setIsOpen(false);
