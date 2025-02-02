@@ -76,9 +76,10 @@ export default function GPTResponse({
   };
   
   const cleanResponse = response
-    .replace(/\n\n/gm, '\n')
-    .replace(/^\s*-\s*/gm, '<> ')
-    .replace(/ {2}$/gm, '');
+    .replace(/^\s*<>\s*/gm, '• ')
+    .replace(/^\s*-\s*/gm, '• ')
+    .replace(/\n\s*\n/g, '\n')
+    .replace(/ {2,}$/gm, '');
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
