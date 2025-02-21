@@ -227,14 +227,21 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
   
 
   // Deletes response from database and updates state locally
-  const handleResponseDelete = async (responseId: string) => {
-    if (!session?.userId || !selectedBookmarkId) return;
+  const handleResponseDelete = async (responseId: string, bookmarks?: Record<string, string>) => {
+    if (!session?.userId) return;
     
     try {
       const res = await fetch(
-        `/api/deleteGPTResponse?gptResponseId=${responseId}&bookmarkId=${selectedBookmarkId}`,
+        `/api/deleteGPTResponse`,
         {
           method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            gptResponseId: responseId,
+            bookmarks: bookmarks || {}
+          })
         }
       );
 

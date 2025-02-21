@@ -15,7 +15,7 @@ interface GPTResponseProps {
   rank?: number;
   createdAt?: Date;
   type?: 'instruction' | 'response';
-  onDelete?: (responseId: string) => Promise<void>;
+  onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
@@ -90,11 +90,11 @@ export default function GPTResponse({
   };
 
   const handleDeleteConfirm = async () => {
-    if (!selectedBookmarkId || !responseId || isDeleting || !onDelete) return;
+    if (!responseId || isDeleting || !onDelete) return;
 
     try {
       setIsDeleting(true);
-      await onDelete(responseId);
+      await onDelete(responseId, bookmarks || {});
       setIsDeleteModalOpen(false);
     } catch (error) {
       console.error('Error deleting response:', error);

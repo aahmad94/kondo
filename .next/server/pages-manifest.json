@@ -2,12 +2,10 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
-  "/api/updateGPTResponseRank": "pages/api/updateGPTResponseRank.js",
-  "/api/deleteGPTResponse": "pages/api/deleteGPTResponse.js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js",
   "/api/getUserResponses": "pages/api/getUserResponses.js",
-  "/api/getDailySummary": "pages/api/getDailySummary.js"
+  "/api/getDailySummary": "pages/api/getDailySummary.js",
+  "/api/updateGPTResponseRank": "pages/api/updateGPTResponseRank.js",
+  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
+  "/api/deleteGPTResponse": "pages/api/deleteGPTResponse.js",
+  "/": "pages/index.js"
 }
