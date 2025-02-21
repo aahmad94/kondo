@@ -8,17 +8,16 @@ datasource db {
 }
 
 model User {
-  id             String         @id @default(cuid())
-  email          String?        @unique
-  emailVerified  DateTime?
-  image          String?
-  name           String?
-  subscribed     Boolean        @default(false)
-  accounts       Account[]
-  bookmarks      Bookmark[]
-  dailySummaries DailySummary[]
-  responses      GPTResponse[]
-  sessions       Session[]
+  id            String        @id @default(cuid())
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  name          String?
+  subscribed    Boolean?      @default(false)
+  accounts      Account[]
+  bookmarks     Bookmark[]
+  responses     GPTResponse[]
+  sessions      Session[]
 }
 
 model Account {
@@ -60,7 +59,7 @@ model GPTResponse {
   content   String
   createdAt DateTime   @default(now())
   userId    String
-  rank      Int        @default(1)
+  rank      Int?       @default(1)
   user      User       @relation(fields: [userId], references: [id])
   bookmarks Bookmark[] @relation("BookmarksToResponses")
 }
@@ -71,12 +70,4 @@ model Bookmark {
   userId    String
   user      User          @relation(fields: [userId], references: [id])
   responses GPTResponse[] @relation("BookmarksToResponses")
-}
-
-model DailySummary {
-  id          String   @id @default(cuid())
-  userId      String
-  responseIds String[]
-  createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id])
 }
