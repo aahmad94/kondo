@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { generateUserSummary, saveDailySummary } from '../../lib/summaryService';
+import { generateUserSummary } from '../../lib/summaryService';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,26 +10,25 @@ export default async function handler(
   }
 
   const userId = req.query.userId as string;
+  const forceRefresh = req.query.forceRefresh === 'true';
 
   if (!userId) {
     return res.status(400).json({ success: false, message: 'User ID is required' });
   }
 
   try {
-    const summary = await generateUserSummary(userId);
+    const responses = await generateUserSummary(userId, forceRefresh);
     
-    if (!summary) {
+    if (!responses) {
       return res.status(404).json({ 
         success: false, 
         message: 'No responses found to generate summary' 
       });
     }
-
-    const savedSummary = await saveDailySummary(userId, summary);
     
     return res.status(200).json({ 
       success: true, 
-      summary: savedSummary 
+      responses: responses 
     });
   } catch (error) {
     console.error('Error generating summary:', error);

@@ -1,141 +1,169 @@
-import { Bookmark } from '@prisma/client';
+import { Bookmark, PrismaClient } from '@prisma/client';
 import prisma from './prisma';
-import { format, toZonedTime } from 'date-fns-tz';
 
 interface Response {
+  id: string;
   content: string;
   createdAt: Date;
   rank: number;
-  bookmarks: Bookmark[];
+  bookmarks: Record<string, string>;
 }
 
-export async function generateUserSummary(userId: string) {
-  const formatDate = (date: Date) => {
-    const timeZone = 'America/New_York';
-    const zonedDate = toZonedTime(date, timeZone);
+export async function generateUserSummary(userId: string, forceRefresh: boolean = false) {
+  try {
+    // Only check for existing summary if not forcing a refresh
+    if (!forceRefresh) {
+      // Get the latest daily summary
+      const latestSummary = await prisma.dailySummary.findFirst({
+        where: {
+          userId
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
 
-    const dateFormatted = format(zonedDate, 'MMMM d, yyyy', { timeZone });
-    const timeFormatted = format(zonedDate, 'h:mm a', { timeZone });
+      if (latestSummary) {
+        console.log('Found latest summary:', latestSummary);
+        // Fetch responses in the exact order they were saved
+        const responses = await prisma.gPTResponse.findMany({
+          where: {
+            id: {
+              in: latestSummary.responseIds
+            }
+          },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            rank: true,
+            bookmarks: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
+          }
+        });
+        
+        // Maintain the original order from responseIds and transform bookmarks into a dictionary
+        const orderedResponses = latestSummary.responseIds
+          .map(id => {
+            const response = responses.find(r => r.id === id);
+            if (response) {
+              return {
+                ...response,
+                bookmarks: response.bookmarks.reduce((acc, bookmark) => {
+                  acc[bookmark.id] = bookmark.title;
+                  return acc;
+                }, {} as Record<string, string>)
+              };
+            }
+            return undefined;
+          })
+          .filter((r): r is Response => r !== undefined);
+        
+        console.log('Fetched latest summary responses:', orderedResponses.length);
+        return orderedResponses;
+      }
+    }
 
-    return `${dateFormatted} at ${timeFormatted} EST`;
-  };
-
-    // Common where clause for bookmarked responses
+    // Generate a new summary
     const bookmarkFilter = {
-        userId: userId,
-        bookmarks: {
-          some: {
-            AND: [
-              {
-                title: {
-                  not: 'daily summary'
-                }
-              },
-              {
-                title: {
-                  not: ''
-                }
-              },
-            ]
+      userId: userId,
+      bookmarks: {
+        some: {
+          AND: [
+            {
+              title: {
+                not: 'daily summary'
+              }
+            },
+            {
+              title: {
+                not: ''
+              }
+            },
+          ]
+        }
+      }
+    };
+
+    console.log('Using bookmark filter:', JSON.stringify(bookmarkFilter, null, 2));
+        
+    // Helper function to fetch random responses for a given rank and take
+    const getRandomUserResponses = async (rank: number, take: number) => {
+      const query = {
+        where: {
+          ...bookmarkFilter,
+          rank: rank
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          rank: true,
+          bookmarks: {
+            select: {
+              id: true,
+              title: true
+            }
           }
         }
       };
       
-  // Helper function to fetch random responses for a given rank and take
-  const getRandomUserResponses = async (rank: number, take: number) => {
-    const allResponses = await prisma.gPTResponse.findMany({
-      where: {
-        ...bookmarkFilter,
-        rank: rank
-      },
-      select: {
-        bookmarks: true,
-        content: true,
-        createdAt: true,
-        rank: true
+      console.log(`Query for rank ${rank}:`, JSON.stringify(query, null, 2));
+      
+      const allResponses = await prisma.gPTResponse.findMany(query);
+      
+      // Transform bookmarks into a dictionary format
+      const transformedResponses = allResponses.map(response => ({
+        ...response,
+        bookmarks: response.bookmarks.reduce((acc, bookmark) => {
+          acc[bookmark.id] = bookmark.title;
+          return acc;
+        }, {} as Record<string, string>)
+      }));
+
+      console.log(`Found ${transformedResponses.length} responses with rank ${rank}`);
+
+      // Shuffle the responses using Fisher-Yates algorithm
+      for (let i = transformedResponses.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [transformedResponses[i], transformedResponses[j]] = [transformedResponses[j], transformedResponses[i]];
       }
-    });
 
-    // Shuffle the responses using Fisher-Yates algorithm
-    for (let i = allResponses.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [allResponses[i], allResponses[j]] = [allResponses[j], allResponses[i]];
+      // Return only the requested number of responses
+      const selectedResponses = transformedResponses.slice(0, take);
+      console.log(`Selected ${selectedResponses.length} responses with rank ${rank}`);
+      return selectedResponses;
     }
 
-    // Return only the requested number of responses
-    return allResponses.slice(0, take);
-  }
+    // Fetch random responses for different ranks
+    const rank1Responses = await getRandomUserResponses(1, 3); // 3 less familiar responses
+    const rank2Responses = await getRandomUserResponses(2, 2); // 2 familiar responses
+    const rank3Responses = await getRandomUserResponses(3, 1); // 1 very familiar response
 
-  // Fetch random responses for different ranks
-  const rank1Responses = await getRandomUserResponses(1, 3);
-  const rank2Responses = await getRandomUserResponses(2, 2);
-  const rank3Responses = await getRandomUserResponses(3, 1);
-
-  const allResponses = [...rank1Responses, ...rank2Responses, ...rank3Responses];
-  
-  if (allResponses.length === 0) {
-    return null;
-  }
-
-  // Generate the combined content
-  const combinedContent = `**Daily Response Summary (${formatDate(new Date())}):**\n\n\n` + 
-    allResponses.map((r: Response, index: number) => {
-      const divider = "___________________________";
-      const number = `${index + 1} of ${allResponses.length}`;
-      const dateCreated = `${formatDate(r.createdAt)}`;
-      const bookmarkTitles = r.bookmarks.map(b => `"${b.title}"`).join(', ');
-      const bookmarks = `${bookmarkTitles}`;
-      const rankIcon = r.rank === 1 ? "🔴" : r.rank === 2 ? "🟡" : "🟢";
-
-      return `${divider}\n ${number} ${rankIcon} topic: ${bookmarks}\n ${dateCreated}\n\n\n ${r.content}\n\n`;
-    }).join('\n\n');
-
-  return combinedContent;
-}
-
-export async function saveDailySummary(userId: string, content: string) {
-  // Check if user has "daily summary" bookmark
-  let dailySummariesBookmark = await prisma.bookmark.findFirst({
-    where: {
-      userId: userId,
-      title: "daily summary"
+    const allResponses = [...rank1Responses, ...rank2Responses, ...rank3Responses];
+    console.log('Total responses selected:', allResponses.length);
+    
+    if (allResponses.length === 0) {
+      console.log('No responses found');
+      return null;
     }
-  });
 
-  // Create the bookmark if it doesn't exist
-  if (!dailySummariesBookmark) {
-    dailySummariesBookmark = await prisma.bookmark.create({
+    // Save the new daily summary
+    const savedSummary = await prisma.dailySummary.create({
       data: {
-        title: "daily summary",
-        userId: userId
+        userId,
+        responseIds: allResponses.map(r => r.id)
       }
     });
+    console.log('Saved new daily summary with response IDs:', savedSummary.responseIds);
+
+    return allResponses;
+  } catch (error) {
+    console.error('Error in generateUserSummary:', error);
+    throw error;
   }
-
-  // Delete all previous summaries for this user
-  await prisma.gPTResponse.deleteMany({
-    where: {
-      userId: userId,
-      bookmarks: {
-        some: {
-          id: dailySummariesBookmark.id
-        }
-      }
-    }
-  });
-
-  // Create new GPTResponse entry for this user
-  return await prisma.gPTResponse.create({
-    data: {
-      content: content,
-      rank: 1,
-      userId: userId,
-      createdAt: new Date(),
-      bookmarks: {
-        connect: {
-          id: dailySummariesBookmark.id
-        }
-      }
-    }
-  });
 } 

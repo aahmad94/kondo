@@ -14,6 +14,7 @@ interface Response {
   content: string;
   rank: number;
   createdAt: Date;
+  bookmarks?: Record<string, string>;
 }
 
 interface BookmarkResponse {
@@ -28,9 +29,9 @@ const DAILY_SUMMARY_INSTRUCTIONS = `
 Everyday, this tool creates a new summary at 12:01 AM Eastern Standard Time.\n
 A summary includes the following:\n\n
 
-3 less familiar 🔴 responses
-2 familiar 🟡 responses
-1 very familiar 🟢 response\n\n
+- 1 very familiar response\n\n
+- 2 familiar responses\n\n
+- 3 less familiar responses
 
 Click the **refresh** button above to manually create a new summary.
 `;
@@ -79,7 +80,11 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
   // When the selected bookmark changes, fetch the responses and scroll when they're loaded
   useEffect(() => {
     if (selectedBookmarkId && selectedBookmarkId !== "all" && session?.userId) {
-      fetchBookmarkResponses(session.userId, selectedBookmarkId);
+      if (selectedBookmarkTitle === 'daily summary') {
+        handleGenerateSummary(false); // Load latest summary without force refresh
+      } else {
+        fetchBookmarkResponses(session.userId, selectedBookmarkId);
+      }
     } else if (selectedBookmarkId === "all" && session?.userId) {
       fetchAllResponses(session.userId);
     } else {
@@ -163,7 +168,8 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
         id: response.id,
         content: response.content,
         rank: response.rank,
-        createdAt: new Date(response.createdAt)
+        createdAt: new Date(response.createdAt),
+        bookmarks: response.bookmarks
       })));
     } catch (error) {
       console.error('Error fetching all responses:', error);
@@ -289,20 +295,29 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
     }
   };
 
-  const handleGenerateSummary = async () => {
+  const handleGenerateSummary = async (forceRefresh: boolean = false) => {
     if (!session?.userId) return;
     
     try {
       setIsLoading(true);
-      const res = await fetch(`/api/getDailySummary?userId=${session.userId}`);
+      const res = await fetch(`/api/getDailySummary?userId=${session.userId}&forceRefresh=${forceRefresh}`);
       
       if (!res.ok) {
         throw new Error('Failed to generate summary');
       }
       
       const data = await res.json();
-      if (data.success && selectedBookmarkId) {
-        await fetchBookmarkResponses(session.userId, selectedBookmarkId);
+      console.log('Daily summary response:', data);
+      
+      if (data.success) {
+        console.log('Setting bookmark responses:', data.responses.length);
+        setBookmarkResponses(data.responses.map((response: Response) => ({
+          id: response.id,
+          content: response.content,
+          rank: response.rank,
+          createdAt: new Date(response.createdAt),
+          bookmarks: response.bookmarks
+        })));
       }
     } catch (error) {
       console.error('Error generating summary:', error);
@@ -335,24 +350,25 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
         
         {!selectedBookmarkId && (
           <GPTResponse
+            type="instruction"
             response={instructions}
             selectedBookmarkId={selectedBookmarkId}
             selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
             reservedBookmarkTitles={reservedBookmarkTitles}
             responseId={null}
-            type="instruction"
           />
         )}
         
         {selectedBookmarkTitle === 'daily summary' && (
           <GPTResponse
+          type="instruction"
             response={DAILY_SUMMARY_INSTRUCTIONS}
             selectedBookmarkId={selectedBookmarkId}
             selectedBookmarkTitle={selectedBookmarkTitle}
             reservedBookmarkTitles={reservedBookmarkTitles}
-            responseId={null}
-            type="instruction"
             onGenerateSummary={handleGenerateSummary}
+            onRankUpdate={handleRankUpdate}
+            onDelete={handleResponseDelete}
           />
         )}
         
@@ -367,9 +383,10 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
               responseId={response.id}
               rank={response.rank}
               createdAt={response.createdAt}
-              onDelete={handleResponseDelete}
+              bookmarks={response.bookmarks}
               onQuote={handleResponseQuote}
               onRankUpdate={handleRankUpdate}
+              onDelete={handleResponseDelete}
             />
           ))
         ) : (

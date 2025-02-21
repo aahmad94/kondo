@@ -2,7 +2,7 @@
 import { serve } from "inngest/next";
 import { Inngest } from 'inngest';
 import prisma from '../../lib/prisma';
-import { generateUserSummary, saveDailySummary } from '../../lib/summaryService';
+import { generateUserSummary} from '../../lib/summaryService';
 
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
@@ -37,10 +37,7 @@ const dailyResponseLogger = inngest.createFunction(
     // For each user, generate and save their summary
     await step.run("process-user-responses", async () => {
       for (const user of users) {
-        const summary = await generateUserSummary(user.userId);
-        if (summary) {
-          await saveDailySummary(user.userId, summary);
-        }
+        await generateUserSummary(user.userId);
       }
     });
 

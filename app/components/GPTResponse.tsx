@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { PlusIcon, XCircleIcon, ArrowUturnRightIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
@@ -17,7 +18,8 @@ interface GPTResponseProps {
   onDelete?: (responseId: string) => Promise<void>;
   onQuote?: (response: string) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
-  onGenerateSummary?: () => Promise<void>;
+  onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
+  bookmarks?: Record<string, string>;
 }
 
 export default function GPTResponse({ 
@@ -32,7 +34,8 @@ export default function GPTResponse({
   onDelete, 
   onQuote,
   onRankUpdate,
-  onGenerateSummary
+  onGenerateSummary,
+  bookmarks
 }: GPTResponseProps) {
   const red = '#d93900'
   const grey = '#161b1d'
@@ -42,6 +45,7 @@ export default function GPTResponse({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [rankContainerBg, setRankContainerBg] = useState(grey);
+  const router = useRouter();
 
   useEffect(() => {
     handleRankColorChange(rank);
@@ -105,6 +109,16 @@ export default function GPTResponse({
     }
   };
 
+  const handleBookmarkClick = () => {
+    if (bookmarks && Object.keys(bookmarks).length > 0) {
+      const bookmarkId = Object.keys(bookmarks)[0];
+      const bookmarkTitle = bookmarks[bookmarkId];
+      const baseUrl = window.location.origin;
+      const url = `${baseUrl}/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`;
+      router.push(url);
+    }
+  };
+
   return (
     <div className="pl-3 pt-3 rounded text-white max-w-[calc(95%)]">
       <div className="header flex justify-between max-w-[700px] max-h-[30px] mb-2 border-b-2 pb-1" style={{ borderBottomColor: grey }}>
@@ -114,7 +128,7 @@ export default function GPTResponse({
         <div className="button-container flex items-center gap-2">
           {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
             <button
-              onClick={onGenerateSummary}
+              onClick={() => onGenerateSummary?.(true)}
               className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
             >
               <ArrowPathIcon className="h-5 w-5" />
@@ -122,28 +136,38 @@ export default function GPTResponse({
           )}
           {type === 'response' && (
             <>
-              {selectedBookmarkId && responseId && !reservedBookmarkTitles.includes(selectedBookmarkTitle) && (
-                <div 
-                className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400]"}
-                style={{ backgroundColor: rankContainerBg }}
-                >
-                  <button 
-                    onClick={() => onRankClick(true)}
-                    disabled={rank >= 3}
-                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+              {selectedBookmarkId && responseId && (
+                <div className="flex items-center gap-2">
+                  {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses') && bookmarks && Object.keys(bookmarks).length > 0 && (
+                    <span 
+                      onClick={handleBookmarkClick}
+                      className="text-xs px-2 py-0.5 bg-blue-500 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors duration-200"
+                    >
+                      {Object.values(bookmarks).find(title => !reservedBookmarkTitles.includes(title)) || Object.values(bookmarks)[0]}
+                    </span>
+                  )}
+                  <div 
+                    className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400"}
+                    style={{ backgroundColor: rankContainerBg }}
                   >
-                    <ChevronUpIcon className="h-4 w-4" />
-                  </button>
-                  <span className={`text-sm px-1 rounded text-white`}>
-                    {rank}
-                  </span>
-                  <button 
-                    onClick={() => onRankClick(false)}
-                    disabled={rank <= 1}
-                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
-                  >
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </button>
+                    <button 
+                      onClick={() => onRankClick(true)}
+                      disabled={rank >= 3}
+                      className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                    >
+                      <ChevronUpIcon className="h-4 w-4" />
+                    </button>
+                    <span className={`text-sm px-1 rounded text-white`}>
+                      {rank}
+                    </span>
+                    <button 
+                      onClick={() => onRankClick(false)}
+                      disabled={rank <= 1}
+                      className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                    >
+                      <ChevronDownIcon className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               )}
 
