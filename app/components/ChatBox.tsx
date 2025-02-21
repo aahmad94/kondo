@@ -116,7 +116,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      if (chatContainerRef.current && selectedBookmarkTitle !== 'daily summary') {
+      if (chatContainerRef.current && selectedBookmarkTitle && !reservedBookmarkTitles.includes(selectedBookmarkTitle)) {
         chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
