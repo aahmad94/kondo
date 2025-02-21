@@ -9,7 +9,7 @@
 - Bookmark your responses and rank them, more poorly ranked responses will be shown first while higher ranked responses will be shown last
 - View a daily summary of your bookmarked responses, less familiar topics will be shown more frequently
 
-### daily summary
+### daily summary w/ inngest scheduled jobs
 ![screenshot](/assets/kondo-daily-summary.png)
 ### verb + 'to choose'
 ![screenshot](/assets/kondo-verbs.png)
