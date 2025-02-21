@@ -18,53 +18,38 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
         where: {
           userId
         },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      });
-
-      if (latestSummary) {
-        console.log('Found latest summary:', latestSummary);
-        // Fetch responses in the exact order they were saved
-        const responses = await prisma.gPTResponse.findMany({
-          where: {
-            id: {
-              in: latestSummary.responseIds
-            }
-          },
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            rank: true,
-            bookmarks: {
-              select: {
-                id: true,
-                title: true
+        include: {
+          responses: {
+            select: {
+              id: true,
+              content: true,
+              createdAt: true,
+              rank: true,
+              bookmarks: {
+                select: {
+                  id: true,
+                  title: true
+                }
               }
             }
           }
-        });
+        },
+        orderBy: {
+          id: 'desc'
+        }
+      });
+
+      if (latestSummary && latestSummary.responses.length > 0) {
+        // Transform bookmarks into a dictionary format
+        const transformedResponses = latestSummary.responses.map(response => ({
+          ...response,
+          bookmarks: response.bookmarks.reduce((acc, bookmark) => {
+            acc[bookmark.id] = bookmark.title;
+            return acc;
+          }, {} as Record<string, string>)
+        }));
         
-        // Maintain the original order from responseIds and transform bookmarks into a dictionary
-        const orderedResponses = latestSummary.responseIds
-          .map(id => {
-            const response = responses.find(r => r.id === id);
-            if (response) {
-              return {
-                ...response,
-                bookmarks: response.bookmarks.reduce((acc, bookmark) => {
-                  acc[bookmark.id] = bookmark.title;
-                  return acc;
-                }, {} as Record<string, string>)
-              };
-            }
-            return undefined;
-          })
-          .filter((r): r is Response => r !== undefined);
-        
-        console.log('Fetched latest summary responses:', orderedResponses.length);
-        return orderedResponses;
+        return transformedResponses;
       }
     }
 
@@ -152,14 +137,19 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
       return null;
     }
 
-    // Save the new daily summary
+    // Save the new daily summary with the many-to-many relationship
     const savedSummary = await prisma.dailySummary.create({
       data: {
         userId,
-        responseIds: allResponses.map(r => r.id)
+        responses: {
+          connect: allResponses.map(response => ({ id: response.id }))
+        }
+      },
+      include: {
+        responses: true
       }
     });
-    console.log('Saved new daily summary with response IDs:', savedSummary.responseIds);
+    console.log('Saved new daily summary with responses:', savedSummary.responses.length);
 
     return allResponses;
   } catch (error) {

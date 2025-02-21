@@ -26,11 +26,13 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./pages/*",
-        "./app/*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./app/components/*", "./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/utils/*": ["./lib/utils/*"],
+      "@/hooks/*": ["./lib/hooks/*"]
     }
   },
   "include": [
