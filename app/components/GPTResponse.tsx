@@ -51,9 +51,6 @@ export default function GPTResponse({
 
   useEffect(() => {
     handleRankColorChange(rank);
-    console.log('response');
-    console.log(response);
-    console.log(cleanResponse);
   }, [rank]);
 
   const handleRankColorChange = (rank: number) => {

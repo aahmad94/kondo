@@ -6,31 +6,35 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import MenuBar from './components/MenuBar';
 import ChatBox from './components/ChatBox';
 import Bookmarks from './components/Bookmarks';
-import { parseAsString, useQueryStates } from 'nuqs';
 
 export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [{ bookmarkId, bookmarkTitle }, setQueryStates] = useQueryStates({
-    bookmarkId: parseAsString,
-    bookmarkTitle: parseAsString,
-  });
-  const [selectedBookmarkId, setSelectedBookmarkId] = useState<string | null>(bookmarkId || null);
-  const [selectedBookmarkTitle, setSelectedBookmarkTitle] = useState<string | null>(bookmarkTitle || null);
+  const searchParams = useSearchParams()
+  const [selectedBookmarkId, setSelectedBookmarkId] = useState<string | null>(null);
+  const [selectedBookmarkTitle, setSelectedBookmarkTitle] = useState<string | null>(null);
   const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary']);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
 
+  useEffect(() => {
+    if (searchParams) {
+      const bookmarkId = searchParams.get('bookmarkId');
+      const bookmarkTitle = searchParams.get('bookmarkTitle');
+  
+      if (bookmarkId && bookmarkTitle) {
+        setSelectedBookmarkId(bookmarkId);
+        setSelectedBookmarkTitle(bookmarkTitle);
+      }
+    }
+  }, [searchParams])
+  
+
+  // Handle authentication
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push('/api/auth/signin')
     }
   }, [status, router])
-
-  // Update selected bookmark when query params change
-  useEffect(() => {
-    setSelectedBookmarkId(bookmarkId || null);
-    setSelectedBookmarkTitle(bookmarkTitle || null);
-  }, [bookmarkId, bookmarkTitle]);
 
   if (status === "loading") {
     return <div>Loading...</div>
@@ -40,15 +44,23 @@ export default function Home() {
     return null
   }
 
-  const handleBookmarkSelect = async (newBookmarkId: string | null, newBookmarkTitle: string | null) => {
+  const handleBookmarkSelect = (newBookmarkId: string | null, newBookmarkTitle: string | null) => {
     setSelectedBookmarkId(newBookmarkId);
     setSelectedBookmarkTitle(newBookmarkTitle);
     
     // Update URL query params
-    await setQueryStates({
-      bookmarkId: newBookmarkId,
-      bookmarkTitle: newBookmarkTitle,
-    });
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    if (newBookmarkId) {
+      params.set('bookmarkId', newBookmarkId);
+    } else {
+      params.delete('bookmarkId');
+    }
+    if (newBookmarkTitle) {
+      params.set('bookmarkTitle', newBookmarkTitle);
+    } else {
+      params.delete('bookmarkTitle');
+    }
+    router.push(`/?${params.toString()}`);
   };
 
   const handleLanguageChange = (languageCode: string) => {

@@ -4,7 +4,7 @@ import React from 'react';
 import { useSession } from "next-auth/react"
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import LanguageSelector from './LanguageSelector';
 
 interface MenuBarProps {
@@ -15,7 +15,6 @@ interface MenuBarProps {
 const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect, onLanguageChange }: MenuBarProps) => {
   const { data: session, status } = useSession()
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   if (status === "loading") {
     return <div className="text-white">Loading...</div>

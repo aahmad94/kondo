@@ -319,7 +319,6 @@ export default function ChatBox({
       }
 
       const updatedResponse = await response.json();
-      console.log("Updated response:", updatedResponse);
 
       setBookmarkResponses(prevResponses => {
         // First update the rank of the modified response
@@ -346,10 +345,8 @@ export default function ChatBox({
       }
       
       const data = await res.json();
-      console.log('Daily summary response:', data);
       
       if (data.success && data.responses) {
-        console.log('Setting bookmark responses:', data.responses.length);
         setBookmarkResponses(data.responses.map((response: Response) => ({
           id: response.id,
           content: response.content,
