@@ -10,9 +10,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
+      // Get user's language preference
+      const userLanguagePreference = await prisma.userLanguagePreference.findUnique({
+        where: { userId },
+        select: { languageId: true }
+      });
+
+      // If no preference is set, get the Japanese language ID
+      let languageId;
+      if (!userLanguagePreference) {
+        const japanese = await prisma.language.findUnique({
+          where: { code: 'ja' },
+          select: { id: true }
+        });
+        if (!japanese) {
+          return res.status(500).json({ error: 'Default language not found' });
+        }
+        languageId = japanese.id;
+      } else {
+        languageId = userLanguagePreference.languageId;
+      }
+
       const bookmarks = await prisma.bookmark.findMany({
         where: {
           userId: userId,
+          languageId: languageId
         },
         include: {
           responses: true,

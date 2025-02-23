@@ -1,41 +1,44 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { OpenAI } from 'openai';
+import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Read the prompt from the external file
-const promptPath = path.join(process.cwd(), 'japanese_gpt_prompt.txt');
-const systemPrompt = fs.readFileSync(promptPath, 'utf8');
-export const maxDuration = 30; // This function can run for a maximum of 5 seconds
+// Read prompts from files
+const getPromptFromFile = (languageCode: string): string => {
+  const promptPath = path.join(process.cwd(), `${languageCode}_gpt_prompt.txt`);
+  return fs.readFileSync(promptPath, 'utf8');
+};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
-    res.status(405).json({ message: 'Only POST requests allowed' });
-    return;
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { prompt } = req.body as { prompt: string };
-
   try {
+    const { prompt, languageCode = 'ja' } = req.body;
+    const systemPrompt = getPromptFromFile(languageCode);
+
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o', // or any model you choose
+      model: "gpt-4-turbo-preview",
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: prompt }
       ],
+      temperature: 0.7,
+      max_tokens: 800,
     });
 
-    if (!completion.choices[0].message.content) {
-      throw new Error('No content in OpenAI response');
-    }
-
-    res.status(200).json({ result: completion.choices[0].message.content });
+    const result = completion.choices[0]?.message?.content || 'No response generated';
+    return res.status(200).json({ result });
   } catch (error) {
-    console.error('Error fetching from OpenAI:', error instanceof Error ? error.message : 'Unknown error');
-    res.status(500).json({ message: 'Error generating completion' });
+    console.error('Error:', error);
+    return res.status(500).json({ message: 'Error processing request' });
   }
 }

@@ -9,35 +9,65 @@ export default async function handler(
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { userId, bookmarkId } = req.query;
+  const { bookmarkId, userId } = req.query;
 
-  if (!userId || typeof userId !== 'string' || !bookmarkId || typeof bookmarkId !== 'string') {
-    return res.status(400).json({ message: 'User ID and Bookmark ID are required' });
+  if (!bookmarkId || !userId || typeof userId !== 'string' || typeof bookmarkId !== 'string') {
+    return res.status(400).json({ message: 'Missing required parameters' });
   }
 
   try {
+    // First get the bookmark to get its languageId
+    const bookmark = await prisma.bookmark.findUnique({
+      where: {
+        id: bookmarkId
+      },
+      select: {
+        languageId: true
+      }
+    });
+
+    if (!bookmark) {
+      return res.status(404).json({ message: 'Bookmark not found' });
+    }
+
     const responses = await prisma.gPTResponse.findMany({
       where: {
-        userId: userId,
         bookmarks: {
           some: {
             id: bookmarkId
           }
-        }
+        },
+        languageId: bookmark.languageId // Use the bookmark's languageId
       },
-      orderBy: [
-        { rank: 'desc' },      // Lower ranks first
-        { createdAt: 'asc' } // newly created items within same rank are further down
-      ],
-      select: {
-        id: true,
-        content: true,
-        rank: true,
-        createdAt: true
+      orderBy: {
+        rank: 'asc'
       }
     });
 
-    return res.status(200).json(responses);
+    const bookmarks = await prisma.bookmark.findMany({
+      where: {
+        id: bookmarkId,
+        responses: {
+          some: {
+            id: {
+              in: responses.map(response => response.id)
+            }
+          }
+        }
+      }
+    });
+
+    const bookmarkDict: Record<string, string> = {};
+    responses.forEach(response => {
+      bookmarkDict[response.id] = bookmarkId;
+    });
+
+    const formattedResponses = responses.map(response => ({
+      ...response,
+      bookmarks: bookmarkDict
+    }));
+
+    return res.status(200).json(formattedResponses);
   } catch (error) {
     console.error('Error fetching bookmark responses:', error);
     return res.status(500).json({ message: 'Error fetching bookmark responses' });

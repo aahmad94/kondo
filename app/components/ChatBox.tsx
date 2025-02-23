@@ -1,12 +1,17 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
+import { getLanguageInstructions } from '../../lib/languageService';
 
 interface ChatBoxProps {
   selectedBookmarkId: string | null;
   selectedBookmarkTitle: string | null;
   reservedBookmarkTitles: string[];
+  selectedLanguage: string;
+  onLanguageChange: (languageCode: string) => void;
 }
 
 interface Response {
@@ -36,21 +41,13 @@ A summary includes the following:\n\n
 Click the **refresh** button above to manually create a new summary.
 `;
 
-export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, reservedBookmarkTitles }: ChatBoxProps) {
-  const instructions = `
-  Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.\n\n 
-
-  **Bookmark features:**
-  **(+) button** - add response to a bookmark.
-  **up or down chevron (^)** - rank each response in a bookmark.\n\n
-
-  **Additional commands:**
-  1 - **"random"** + (optional topic) + (optional difficulty level)
-  2 - **"verb" +** (eng/jpn) **verb** - get a table for all verb tenses.
-  3 - **"terms" + topic** - list of related words in Japanese.
-  4 - **"katakana"** - table of hiragana/katakana and romaji.
-  5 - **"asterisk (*)" + question** - inquire about anything else.
-`;
+export default function ChatBox({ 
+  selectedBookmarkId, 
+  selectedBookmarkTitle, 
+  reservedBookmarkTitles,
+  selectedLanguage,
+  onLanguageChange 
+}: ChatBoxProps) {
   const { data: session, status } = useSession()
   const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
@@ -59,6 +56,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
+  const [instructions, setInstructions] = useState({ main: '', dailySummary: '' });
 
   const bookmarkContainerHeight = () => {
     return window.innerWidth < 768 ? 'h-[80%]' : 'h-[91%]';
@@ -76,6 +74,31 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    const fetchLanguageData = async () => {
+      if (session?.userId) {
+        try {
+          // Get user's current language preference
+          const preferenceResponse = await fetch(`/api/getUserLanguagePreference?userId=${session.userId}`);
+          if (preferenceResponse.ok) {
+            const { languageId } = await preferenceResponse.json();
+            const languageResponse = await fetch(`/api/getLanguages`);
+            if (languageResponse.ok) {
+              const languages = await languageResponse.json();
+              const language = languages.find((lang: any) => lang.id === languageId);
+              if (language) {
+                onLanguageChange(language.code);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching language data:', error);
+        }
+      }
+    };
+    fetchLanguageData();
+  }, [session]);
 
   // When the selected bookmark changes, fetch the responses and scroll when they're loaded
   useEffect(() => {
@@ -104,7 +127,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
       // Cleanup interval on unmount or when selectedBookmarkId changes
       return () => clearInterval(intervalId);
     }
-  }, [selectedBookmarkId, session]);
+  }, [selectedBookmarkId, session, selectedLanguage]);
 
 
   // Scroll to bottom when new responses are added or quote is clicked in main chat
@@ -121,8 +144,14 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
         });
+      } else if (chatContainerRef.current && !selectedBookmarkTitle) {
+        chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+        });
       }
-    }, 500);
+
+      }, 500);
   }
 
   const scrollToTop = () => {
@@ -187,7 +216,10 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ 
+          prompt,
+          languageCode: selectedLanguage || 'ja' // Pass the selected language code
+        }),
       });
 
       if (!res.ok) {
@@ -316,7 +348,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
       const data = await res.json();
       console.log('Daily summary response:', data);
       
-      if (data.success) {
+      if (data.success && data.responses) {
         console.log('Setting bookmark responses:', data.responses.length);
         setBookmarkResponses(data.responses.map((response: Response) => ({
           id: response.id,
@@ -325,13 +357,30 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
           createdAt: new Date(response.createdAt),
           bookmarks: response.bookmarks
         })));
+      } else {
+        console.log('No responses found for daily summary');
+        setBookmarkResponses([]);
       }
     } catch (error) {
       console.error('Error generating summary:', error);
+      setBookmarkResponses([]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Update instructions when language changes
+  useEffect(() => {
+    const updateInstructions = async () => {
+      if (session?.userId) {
+        const languageInstructions = await getLanguageInstructions(session.userId, selectedLanguage);
+        setInstructions(languageInstructions);
+        // Clear responses when language changes
+        setResponses([]);
+      }
+    };
+    updateInstructions();
+  }, [session, selectedLanguage]);
 
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
@@ -358,7 +407,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
         {!selectedBookmarkId && (
           <GPTResponse
             type="instruction"
-            response={instructions}
+            response={instructions.main}
             selectedBookmarkId={selectedBookmarkId}
             selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
             reservedBookmarkTitles={reservedBookmarkTitles}
@@ -368,8 +417,8 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
         
         {selectedBookmarkTitle === 'daily summary' && (
           <GPTResponse
-          type="instruction"
-            response={DAILY_SUMMARY_INSTRUCTIONS}
+            type="instruction"
+            response={instructions.dailySummary}
             selectedBookmarkId={selectedBookmarkId}
             selectedBookmarkTitle={selectedBookmarkTitle}
             reservedBookmarkTitles={reservedBookmarkTitles}
@@ -418,6 +467,7 @@ export default function ChatBox({ selectedBookmarkId, selectedBookmarkTitle, res
           defaultPrompt={responseQuote}
           onUserInputOffset={handleUserInputOffset}
           onQuoteToNull={setResponseQuoteToNull}
+          selectedLanguage={selectedLanguage}
         />
     )}
     </div>

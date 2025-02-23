@@ -1,4 +1,4 @@
-import { Bookmark, PrismaClient } from '@prisma/client';
+import { Bookmark } from '@prisma/client';
 import prisma from './prisma';
 
 interface Response {
@@ -11,15 +11,37 @@ interface Response {
 
 export async function generateUserSummary(userId: string, forceRefresh: boolean = false) {
   try {
+    // Get user's language preference
+    const userLanguagePreference = await prisma.userLanguagePreference.findUnique({
+      where: { userId },
+      select: { languageId: true }
+    });
+
+    // Default to Japanese if no preference is set
+    const languageId = userLanguagePreference?.languageId || (
+      await prisma.language.findUnique({
+        where: { code: 'ja' },
+        select: { id: true }
+      })
+    )?.id;
+
+    if (!languageId) {
+      throw new Error('Language not found');
+    }
+
     // Only check for existing summary if not forcing a refresh
     if (!forceRefresh) {
-      // Get the latest daily summary
+      // Get the latest daily summary for the current language
       const latestSummary = await prisma.dailySummary.findFirst({
         where: {
-          userId
+          userId,
+          languageId
         },
         include: {
           responses: {
+            where: {
+              languageId
+            },
             select: {
               id: true,
               content: true,
@@ -35,7 +57,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           }
         },
         orderBy: {
-          id: 'desc'
+          createdAt: 'desc'
         }
       });
 
@@ -53,9 +75,23 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
       }
     }
 
+    // Get the daily summary bookmark for this language
+    const dailySummaryBookmark = await prisma.bookmark.findFirst({
+      where: {
+        userId,
+        languageId,
+        title: 'daily summary'
+      }
+    });
+
+    if (!dailySummaryBookmark) {
+      throw new Error('Daily summary bookmark not found');
+    }
+
     // Generate a new summary
     const bookmarkFilter = {
-      userId: userId,
+      userId,
+      languageId,
       bookmarks: {
         some: {
           AND: [
@@ -140,7 +176,12 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
     // Save the new daily summary with the many-to-many relationship
     const savedSummary = await prisma.dailySummary.create({
       data: {
-        userId,
+        user: {
+          connect: { id: userId }
+        },
+        language: {
+          connect: { id: languageId }
+        },
         responses: {
           connect: allResponses.map(response => ({ id: response.id }))
         }
@@ -150,6 +191,18 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
       }
     });
     console.log('Saved new daily summary with responses:', savedSummary.responses.length);
+
+    // Add the daily summary bookmark to all selected responses
+    await Promise.all(allResponses.map(response => 
+      prisma.gPTResponse.update({
+        where: { id: response.id },
+        data: {
+          bookmarks: {
+            connect: { id: dailySummaryBookmark.id }
+          }
+        }
+      })
+    ));
 
     return allResponses;
   } catch (error) {

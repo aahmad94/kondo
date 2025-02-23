@@ -7,14 +7,17 @@ interface UserInputProps {
   defaultPrompt?: string|null;
   onUserInputOffset: (offset: number) => void;
   onQuoteToNull: () => void;
+  selectedLanguage: string;
 }
 
-export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserInputOffset, onQuoteToNull }: UserInputProps) {
+export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserInputOffset, onQuoteToNull, selectedLanguage }: UserInputProps) {
   const [prompt, setPrompt] = useState<string>('');
   const { data: session } = useSession();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const textareaMaxHeight = 150;
+  const textareaMaxHeight = 120;
   const textareaMinHeight = 50;
+  const jaGreeting = 'おはよう'
+  const koGreeting = '안녕하세요'
 
 
   // Adjust the height of the textarea when the component is mounted
@@ -99,7 +102,16 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
     }
   };
   
-  const message = session?.user?.name ? `おはよう, ${session.user.name}!` : "おはよう!";
+  const getGreeting = () => {
+    const userName = session?.user?.name ? `, ${session.user.name}` : '';
+    switch (selectedLanguage) {
+      case 'ko':
+        return `${koGreeting}${userName}!`;
+      case 'ja':
+      default:
+        return `${jaGreeting}${userName}!`;
+    }
+  };
 
   return (
     <div className="flex items-center bg-[#000000] rounded-lg">
@@ -109,7 +121,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
         value={prompt}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder={message}
+        placeholder={getGreeting()}
         disabled={isLoading}
       />
       <div className="flex-none mr-2">

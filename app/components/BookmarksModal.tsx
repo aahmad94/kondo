@@ -11,9 +11,10 @@ interface BookmarksModalProps {
   isOpen: boolean;
   onClose: () => void;
   response: string;
+  reservedBookmarkTitles: string[];
 }
 
-export default function BookmarksModal({ isOpen, onClose, response }: BookmarksModalProps) {
+export default function BookmarksModal({ isOpen, onClose, response, reservedBookmarkTitles }: BookmarksModalProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const { data: session } = useSession();
 
@@ -30,7 +31,11 @@ export default function BookmarksModal({ isOpen, onClose, response }: BookmarksM
         throw new Error('Failed to fetch bookmarks');
       }
       const data = await response.json();
-      setBookmarks(data);
+      // Filter out reserved bookmarks using the reservedBookmarkTitles array
+      const nonReservedBookmarks = data.filter((bookmark: Bookmark) => 
+        !reservedBookmarkTitles.includes(bookmark.title)
+      );
+      setBookmarks(nonReservedBookmarks);
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
     }

@@ -19,6 +19,7 @@ model User {
   bookmarks     Bookmark[]
   responses     GPTResponse[]
   sessions      Session[]
+  languagePreference UserLanguagePreference?
 }
 
 model Account {
@@ -55,28 +56,57 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Language {
+  id          String   @id @default(cuid())
+  code        String   @unique // e.g., "ja", "ko", "es", "ar"
+  name        String   // e.g., "Japanese", "Korean", "Spanish", "Arabic"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  responses   GPTResponse[]
+  bookmarks   Bookmark[]
+  dailySummaries DailySummary[]
+  userPreferences UserLanguagePreference[]
+}
+
+model UserLanguagePreference {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  languageId  String
+  updatedAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language    Language @relation(fields: [languageId], references: [id])
+}
+
 model GPTResponse {
-  id        String     @id @default(cuid())
-  content   String
-  createdAt DateTime   @default(now())
-  userId    String
-  rank      Int?       @default(1)
-  user      User       @relation(fields: [userId], references: [id])
-  bookmarks Bookmark[] @relation("BookmarksToResponses")
+  id          String     @id @default(cuid())
+  content     String
+  createdAt   DateTime   @default(now())
+  userId      String
+  languageId  String
+  rank        Int?       @default(1)
+  user        User       @relation(fields: [userId], references: [id])
+  language    Language   @relation(fields: [languageId], references: [id])
+  bookmarks   Bookmark[] @relation("BookmarksToResponses")
   dailySummaries DailySummary[] @relation("DailySummaryToResponses")
 }
 
 model Bookmark {
-  id        String        @id @default(cuid())
-  title     String
-  userId    String
-  user      User          @relation(fields: [userId], references: [id])
-  responses GPTResponse[] @relation("BookmarksToResponses")
+  id          String     @id @default(cuid())
+  title       String
+  userId      String
+  languageId  String
+  isReserved  Boolean    @default(false)  // For "all responses" and "daily summary"
+  user        User       @relation(fields: [userId], references: [id])
+  language    Language   @relation(fields: [languageId], references: [id])
+  responses   GPTResponse[] @relation("BookmarksToResponses")
 }
 
-  model DailySummary {
-    id        String     @id @default(cuid())
-    userId    String
-    user      User       @relation(fields: [userId], references: [id])
-    responses GPTResponse[] @relation("DailySummaryToResponses")
+model DailySummary {
+  id          String     @id @default(cuid())
+  userId      String
+  languageId  String
+  createdAt   DateTime   @default(now())
+  user        User       @relation(fields: [userId], references: [id])
+  language    Language   @relation(fields: [languageId], references: [id])
+  responses   GPTResponse[] @relation("DailySummaryToResponses")
 }

@@ -1,16 +1,21 @@
+'use client';
+
 import React from 'react';
 import { useSession } from "next-auth/react"
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
+import LanguageSelector from './LanguageSelector';
 
 interface MenuBarProps {
   onBookmarkSelect: (bookmarkId: string | null, bookmarkTitle: string | null) => void;
+  onLanguageChange: (languageCode: string) => void;
 }
 
-const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect }: MenuBarProps) => {
+const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect, onLanguageChange }: MenuBarProps) => {
   const { data: session, status } = useSession()
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
@@ -18,12 +23,12 @@ const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect }: MenuBarProps) => 
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    // Clear the query parameters
-    router.push({
-      pathname: router.pathname,
-      query: {}
-    }, undefined, { shallow: true });
-    
+    // Clear the query parameters by pushing to the base path
+    router.push('/');
+    onBookmarkSelect(null, null);
+  };
+
+  const handleClearBookmark = () => {
     onBookmarkSelect(null, null);
   };
 
@@ -36,15 +41,18 @@ const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect }: MenuBarProps) => 
       >
         Kondo
       </Link>
-      {session?.user?.image && (
-        <Image
-          className="rounded-full m-2 mr-4 border-2 border-blue-500"
-          src={session.user.image}
-          alt="User Avatar"
-          width={40}
-          height={40}
-        />
-      )}
+      <div className="flex items-center gap-4 mr-4">
+        <LanguageSelector onLanguageChange={onLanguageChange} onClearBookmark={handleClearBookmark} />
+        {session?.user?.image && (
+          <Image
+            className="rounded-full m-2 border-2 border-blue-500"
+            src={session.user.image}
+            alt="User Avatar"
+            width={40}
+            height={40}
+          />
+        )}
+      </div>
     </nav>
   )
 }

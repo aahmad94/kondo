@@ -1,7 +1,8 @@
 // pages/api/auth/[...nextauth].js
 import NextAuth, { DefaultSession, NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-import { PrismaClient } from '@prisma/client';
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import prisma from '../../../lib/prisma'
 
 declare module "next-auth" {
   interface Session {
@@ -12,7 +13,6 @@ declare module "next-auth" {
   }
 }
 
-const prisma = new PrismaClient();
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -36,16 +36,50 @@ export const authOptions: NextAuthOptions = {
         });
         user.id = newUser.id;
 
-        // Create default bookmarks for the new user
+        // Get all active languages
+        const languages = await prisma.language.findMany({
+          where: {
+            isActive: true
+          },
+          select: { id: true }
+        });
+
+        if (languages.length === 0) {
+          console.error('No active languages found in database');
+          return false;
+        }
+
+        // Create default bookmarks for each language
         const defaultBookmarks = ['travel', 'counting', 'verbs', 'daily summary'];
-        await Promise.all(defaultBookmarks.map(title => 
-          prisma.bookmark.create({
+        await Promise.all(
+          languages.flatMap(language => 
+            defaultBookmarks.map(title => 
+              prisma.bookmark.create({
+                data: {
+                  title,
+                  userId: newUser.id,
+                  languageId: language.id,
+                  isReserved: title === 'daily summary' || title === 'all responses'
+                }
+              })
+            )
+          )
+        );
+
+        // Set Japanese as the default language preference
+        const japanese = await prisma.language.findUnique({
+          where: { code: 'ja' },
+          select: { id: true }
+        });
+
+        if (japanese) {
+          await prisma.userLanguagePreference.create({
             data: {
-              title,
-              userId: newUser.id
+              userId: newUser.id,
+              languageId: japanese.id
             }
-          })
-        ));
+          });
+        }
       } else {
         user.id = existingUser.id;
       }

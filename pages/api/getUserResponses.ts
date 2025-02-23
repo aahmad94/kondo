@@ -16,9 +16,28 @@ export default async function handler(
   }
 
   try {
+    // Get user's language preference
+    const languagePreference = await prisma.userLanguagePreference.findUnique({
+      where: { userId },
+      select: { languageId: true }
+    });
+
+    // If no preference is set, get the Japanese language ID
+    const languageId = languagePreference?.languageId || (
+      await prisma.language.findUnique({
+        where: { code: 'ja' },
+        select: { id: true }
+      })
+    )?.id;
+
+    if (!languageId) {
+      return res.status(404).json({ message: 'Language not found' });
+    }
+
     const responses = await prisma.gPTResponse.findMany({
       where: {
-        userId: userId
+        userId: userId,
+        languageId: languageId
       },
       select: {
         id: true,

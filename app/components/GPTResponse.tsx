@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { PlusIcon, XCircleIcon, ArrowUturnRightIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
@@ -38,13 +40,13 @@ export default function GPTResponse({
   bookmarks
 }: GPTResponseProps) {
   const red = '#d93900'
-  const grey = '#161b1d'
+  const yellow = '#b59f3b'
   const green = '#30642e'
   const [newRank, setNewRank] = useState(rank);
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [rankContainerBg, setRankContainerBg] = useState(grey);
+  const [rankContainerBg, setRankContainerBg] = useState(red);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export default function GPTResponse({
     if (rank == 1) {
       setRankContainerBg(red);
     } else if (rank == 2) {
-      setRankContainerBg(grey);
+      setRankContainerBg(yellow);
     } else if (rank == 3) {
       setRankContainerBg(green);
     }
@@ -82,7 +84,6 @@ export default function GPTResponse({
   const cleanResponse = response
     .replace(/^\s*<>\s*/gm, '• ')
     .replace(/^\s*-\s*/gm, '• ')
-    .replace(/\n\s*\n/g, '\n')
     .replace(/ {2,}$/gm, '');
 
   const handleDeleteClick = () => {
@@ -111,17 +112,21 @@ export default function GPTResponse({
 
   const handleBookmarkClick = () => {
     if (bookmarks && Object.keys(bookmarks).length > 0) {
-      const bookmarkId = Object.keys(bookmarks)[0];
-      const bookmarkTitle = bookmarks[bookmarkId];
-      const baseUrl = window.location.origin;
-      const url = `${baseUrl}/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`;
-      router.push(url);
+      // Find the first non-reserved bookmark by checking each ID and title pair
+      const nonReservedBookmarkEntry = Object.entries(bookmarks).find(([id, title]) => 
+        !reservedBookmarkTitles.includes(title)
+      );
+      
+      if (nonReservedBookmarkEntry) {
+        const [bookmarkId, bookmarkTitle] = nonReservedBookmarkEntry;
+        router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
+      }
     }
   };
 
   return (
-    <div className="pl-3 pt-3 rounded text-white max-w-[calc(95%)]">
-      <div className="header flex justify-between max-w-[700px] max-h-[30px] mb-2 border-b-2 pb-1" style={{ borderBottomColor: grey }}>
+    <div className="pl-3 pt-3 rounded text-white w-full">
+      <div className="header flex justify-between w-[90%] mb-2 border-b-2 pb-1" style={{ borderBottomColor: yellow }}>
         <h2 className="font-bold text-blue-400">
           {type === 'instruction' ? 'Instructions:' : 'KondoAI message:'}
         </h2>
@@ -141,7 +146,7 @@ export default function GPTResponse({
                   {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses') && bookmarks && Object.keys(bookmarks).length > 0 && (
                     <span 
                       onClick={handleBookmarkClick}
-                      className="text-xs px-2 py-0.5 bg-blue-500 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors duration-200"
+                      className="text-xs px-2 py-0.5 bg-blue-500 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
                     >
                       {Object.values(bookmarks).find(title => !reservedBookmarkTitles.includes(title)) || Object.values(bookmarks)[0]}
                     </span>
@@ -198,9 +203,10 @@ export default function GPTResponse({
           )}
         </div>
       </div>
-      <div className="whitespace-pre-wrap overflow-x-auto">
-        <div className="max-w-[calc(100vw-80px)]">
-          <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
+      {/* GPT Response content */}
+      <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
+        <div className="pr-3">
+          <Markdown remarkPlugins={[remarkGfm]} className="overflow-hidden">{cleanResponse}</Markdown>
         </div>
       </div>
       {isBookmarkModalOpen && (
@@ -208,6 +214,7 @@ export default function GPTResponse({
           isOpen={isBookmarkModalOpen}
           onClose={() => setIsBookmarkModalOpen(false)}
           response={response}
+          reservedBookmarkTitles={reservedBookmarkTitles}
         />
       )}
       {isDeleteModalOpen && (

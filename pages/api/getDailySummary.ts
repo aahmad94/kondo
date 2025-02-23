@@ -1,40 +1,27 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { generateUserSummary } from '../../lib/summaryService';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const userId = req.query.userId as string;
-  const forceRefresh = req.query.forceRefresh === 'true';
+  const { userId, forceRefresh } = req.query;
 
-  if (!userId) {
-    return res.status(400).json({ success: false, message: 'User ID is required' });
+  if (!userId || typeof userId !== 'string') {
+    return res.status(400).json({ message: 'User ID is required' });
   }
 
   try {
-    const responses = await generateUserSummary(userId, forceRefresh);
+    const responses = await generateUserSummary(userId, forceRefresh === 'true');
     
     if (!responses) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'No responses found to generate summary' 
-      });
+      return res.status(200).json({ success: false, responses: [] });
     }
-    
-    return res.status(200).json({ 
-      success: true, 
-      responses: responses 
-    });
+
+    return res.status(200).json({ success: true, responses });
   } catch (error) {
-    console.error('Error generating summary:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Error generating summary' 
-    });
+    console.error('Error generating daily summary:', error);
+    return res.status(500).json({ message: 'Error generating daily summary' });
   }
 } 

@@ -61,18 +61,21 @@ export async function deleteGptResponse(userId: string, gptResponseId: string, b
   }
 }
 
-export async function checkBookmarkExists(userId: string, title: string) {
+export async function checkBookmarkExists(userId: string, title: string, languageId: string) {
   const bookmark = await prisma.bookmark.findFirst({
     where: {
       userId: userId,
-      title: title
+      title: title,
+      language: {
+        id: languageId
+      }
     }
   });
   
   return bookmark !== null;
 }
 
-export async function createBookmark(userId: string, title: string) {
+export async function createBookmark(userId: string, title: string, languageId: string) {
   try {
     const newBookmark = await prisma.bookmark.create({
       data: {
@@ -80,6 +83,9 @@ export async function createBookmark(userId: string, title: string) {
         user: {
           connect: { id: userId },
         },
+        language: {
+          connect: { id: languageId }
+        }
       },
     });
     
