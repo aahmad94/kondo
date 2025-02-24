@@ -157,16 +157,27 @@ export default function ChatBox({
       }
       scrollToTop();
       const data = await res.json();      
-      setBookmarkResponses(data.map((response: BookmarkResponse) => ({
+      
+      // Transform the response data and sort by rank and date
+      const transformedResponses = data.map((response: BookmarkResponse) => ({
         id: response.id,
         content: response.content,
         rank: response.rank,
         createdAt: new Date(response.createdAt)
-      })));
+      }));
+
+      // Sort responses by rank (ascending) and then by date (newest first) within each rank
+      const sortedResponses = transformedResponses.sort((a: Response, b: Response) => {
+        // First sort by rank (ascending: 1, 2, 3)
+        const rankComparison = a.rank - b.rank;
+        if (rankComparison !== 0) return rankComparison;
+        // Within same rank, sort by date (newest first)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      setBookmarkResponses(sortedResponses);
     } catch (error) {
       console.error('Error fetching bookmark responses:', error);
-    } finally {
-      scrollToBottom();
     }
   };
 
