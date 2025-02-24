@@ -58,6 +58,9 @@ export default function ChatBox({
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '' });
 
+  // Add ref to track previous language
+  const previousLanguageRef = useRef(selectedLanguage);
+
   const bookmarkContainerHeight = () => {
     return window.innerWidth < 768 ? 'h-[80%]' : 'h-[91%]';
   };
@@ -87,7 +90,7 @@ export default function ChatBox({
             if (languageResponse.ok) {
               const languages = await languageResponse.json();
               const language = languages.find((lang: any) => lang.id === languageId);
-              if (language) {
+              if (language && language.code !== selectedLanguage) {
                 onLanguageChange(language.code);
               }
             }
@@ -99,6 +102,22 @@ export default function ChatBox({
     };
     fetchLanguageData();
   }, [session]);
+
+  // Update instructions when language changes
+  useEffect(() => {
+    const updateInstructions = async () => {
+      if (session?.userId) {
+        const languageInstructions = await getLanguageInstructions(session.userId, selectedLanguage);
+        setInstructions(languageInstructions);
+        // Only clear responses if the language actually changed
+        if (selectedLanguage !== previousLanguageRef.current) {
+          setResponses([]);
+          previousLanguageRef.current = selectedLanguage;
+        }
+      }
+    };
+    updateInstructions();
+  }, [session, selectedLanguage]);
 
   // When the selected bookmark changes, fetch the responses and scroll when they're loaded
   useEffect(() => {
@@ -370,19 +389,6 @@ export default function ChatBox({
       setIsLoading(false);
     }
   };
-
-  // Update instructions when language changes
-  useEffect(() => {
-    const updateInstructions = async () => {
-      if (session?.userId) {
-        const languageInstructions = await getLanguageInstructions(session.userId, selectedLanguage);
-        setInstructions(languageInstructions);
-        // Clear responses when language changes
-        setResponses([]);
-      }
-    };
-    updateInstructions();
-  }, [session, selectedLanguage]);
 
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
