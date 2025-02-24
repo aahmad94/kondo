@@ -113,22 +113,7 @@ export default function ChatBox({
     } else {
       setBookmarkResponses([]);
     }
-
-    if (chatContainerRef.current 
-      && selectedBookmarkId
-    ) {
-      const intervalId = setInterval(() => {
-        if (bookmarkResponses.length > 0) {
-          scrollToBottom();
-          clearInterval(intervalId);
-        }
-      }, 200);
-
-      // Cleanup interval on unmount or when selectedBookmarkId changes
-      return () => clearInterval(intervalId);
-    }
   }, [selectedBookmarkId, session, selectedLanguage]);
-
 
   // Scroll to bottom when new responses are added or quote is clicked in main chat
   useEffect(() => {
