@@ -347,7 +347,16 @@ export default function ChatBox({
       const data = await res.json();
       
       if (data.success && data.responses) {
-        setBookmarkResponses(data.responses.map((response: Response) => ({
+        // Sort responses by rank (ascending) and then by date (newest first) within each rank
+        const sortedResponses = data.responses.sort((a: Response, b: Response) => {
+          // First sort by rank (ascending: 1, 2, 3)
+          const rankComparison = a.rank - b.rank;
+          if (rankComparison !== 0) return rankComparison;
+          // Within same rank, sort by date (newest first)
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+
+        setBookmarkResponses(sortedResponses.map((response: Response) => ({
           id: response.id,
           content: response.content,
           rank: response.rank,
