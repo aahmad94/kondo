@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/getDailySummary": "pages/api/getDailySummary.js",
-  "/api/updateGPTResponseRank": "pages/api/updateGPTResponseRank.js",
-  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js"
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
+  "/api/getLanguages": "pages/api/getLanguages.js",
+  "/api/getBookmarks": "pages/api/getBookmarks.js",
+  "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js"
 }

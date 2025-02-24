@@ -187,13 +187,23 @@ export default function Bookmarks({
                   <span className="text-blue-400">all responses</span>
                 </div>
 
+                <div 
+                  className={`daily-summary-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block
+                    ${selectedBookmarkTitle === "daily summary" ? 'bg-gray-700 rounded-lg' : ''}`}
+                  onClick={() => {
+                    const dailySummaryBookmark = bookmarks.find(b => b.title === 'daily summary');
+                    if (dailySummaryBookmark) {
+                      handleBookmarkInteraction(dailySummaryBookmark.id, dailySummaryBookmark.title);
+                    }
+                  }}
+                >
+                  <DocumentTextIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                  <span className="text-blue-400">daily summary</span>
+                </div>
+
                 <div className="overflow-y-auto max-h-[50vh]">
                   {bookmarks
-                    .sort((a, b) => {
-                      if (reservedBookmarkTitles.includes(a.title)) return -1;
-                      if (reservedBookmarkTitles.includes(b.title)) return 1;
-                      return 0;
-                    })
+                    .filter(bookmark => !reservedBookmarkTitles.includes(bookmark.title))
                     .map((bookmark) => (
                       <div
                         key={bookmark.id}
@@ -201,18 +211,13 @@ export default function Bookmarks({
                           ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
                         onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                       >
-                        <span className={`${reservedBookmarkTitles.includes(bookmark.title) ? "text-blue-400" : "text-white"}`}>
-                          {bookmark.title === 'daily summary' ? (
-                            <DocumentTextIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                          ) : null}
+                        <span className="text-white">
                           {bookmark.title}
                         </span>
-                        {!reservedBookmarkTitles.includes(bookmark.title) && (
-                          <XCircleIcon
-                            className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                            onClick={(e) => handleDeleteClick(bookmark, e)}
-                          />
-                        )}
+                        <XCircleIcon
+                          className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          onClick={(e) => handleDeleteClick(bookmark, e)}
+                        />
                       </div>
                     ))}
                 </div>
