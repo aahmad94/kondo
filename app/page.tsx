@@ -37,7 +37,11 @@ export default function Home() {
   }, [status, router])
 
   if (status === "loading") {
-    return <div>Loading...</div>
+    return (
+      <div className="bg-[#000000] h-screen w-full flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      </div>
+    );
   }
 
   if (!session) {
@@ -77,12 +81,12 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-[#000000]">
       <MenuBar 
         onBookmarkSelect={handleBookmarkSelect} 
         onLanguageChange={handleLanguageChange}
       />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden bg-[#000000]">
         <Bookmarks 
           changeSelectedBookmark={handleBookmarkSelect}
           selectedBookmarkId={selectedBookmarkId}
@@ -91,7 +95,7 @@ export default function Home() {
           onRefetchBookmarks={handleRefetchBookmarks}
           selectedLanguage={selectedLanguage}
         />
-        <div className="flex-1 overflow-hidden bg-black">
+        <div className="flex-1 overflow-hidden bg-[#000000]">
           <ChatBox 
             selectedBookmarkId={selectedBookmarkId}
             selectedBookmarkTitle={selectedBookmarkTitle}

@@ -391,7 +391,7 @@ export default function ChatBox({
   };
 
   if (status === "loading") {
-    return <div className="text-white">Loading...</div>
+    return <div>Loading...</div>
   }
 
   return (
