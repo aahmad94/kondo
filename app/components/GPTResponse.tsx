@@ -193,7 +193,7 @@ export default function GPTResponse({
                   >
                     <PlusIcon className="h-5 w-5" />
                     <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      Add this response to bookmark
+                      Add to bookmark
                     </span>
                   </button>
                 </div>
