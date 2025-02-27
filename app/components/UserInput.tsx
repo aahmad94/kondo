@@ -48,25 +48,26 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const adjustHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
+      // Reset height to min to get accurate scrollHeight
+      textarea.style.height = `${textareaMinHeight}px`;
+      
       if (textarea.value.trim() === '') {
-        textarea.style.height = `${textareaMinHeight}px`;
         onUserInputOffset(0);
-
       } else {
         let newHeight = Math.max(textarea.scrollHeight, textareaMinHeight);
 
-        // If the user has not entered more than 12 characters, set the height to the minimum height
+        // If the user has not entered more than 20 characters, set the height to the minimum height
         if (textarea.value.length < 20) {
           newHeight = textareaMinHeight;
         }
 
+        // Ensure we don't exceed maxHeight
+        newHeight = Math.min(newHeight, textareaMaxHeight);
+
         // Adjust the offset based on the height of the textarea
-        if (newHeight > textareaMinHeight && newHeight < textareaMaxHeight) {
+        if (newHeight > textareaMinHeight) {
           textarea.style.height = newHeight + 'px';
-          onUserInputOffset((newHeight % textareaMinHeight));
-        } else if (newHeight > textareaMaxHeight) {
-          textarea.style.height = textareaMaxHeight + 'px';
-          onUserInputOffset(textareaMaxHeight-textareaMinHeight);
+          onUserInputOffset(newHeight - textareaMinHeight);
         } else {
           textarea.style.height = `${textareaMinHeight}px`;
           onUserInputOffset(0);
