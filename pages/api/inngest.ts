@@ -7,10 +7,10 @@ import { generateUserSummary } from '../../lib/summaryService';
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
 
-// Create a function that can be manually triggered
+// Create a scheduled function to run every evening at 9 PM EST
 const dailyResponseLogger = inngest.createFunction(
   { id: "daily-response-logger" },
-  { event: "daily.summary.generate" },  // This makes it manually triggerable
+  { cron: "TZ=America/New_York 1 0 * * *" },
   async ({ step }) => {
     try {
       console.log("[Inngest] Starting daily summary generation...");
