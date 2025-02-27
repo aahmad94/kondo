@@ -125,7 +125,7 @@ export default function GPTResponse({
     <div className="pl-3 pt-3 rounded text-white w-full">
       <div className="header flex justify-between w-[90%] mb-2 border-b-2 pb-1" style={{ borderBottomColor: yellow }}>
         <h2 className="font-bold text-blue-400">
-          {type === 'instruction' ? 'Instructions:' : 'KondoAI message:'}
+          {type === 'instruction' ? 'Instructions:' : 'KondoAI:'}
         </h2>
         <div className="button-container flex items-center gap-2">
           {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
