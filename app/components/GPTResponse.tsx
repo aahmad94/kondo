@@ -18,7 +18,7 @@ interface GPTResponseProps {
   createdAt?: Date;
   type?: 'instruction' | 'response';
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
-  onQuote?: (response: string, type: 'submit' | 'input') => void;
+  onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   bookmarks?: Record<string, string>;
@@ -179,7 +179,7 @@ export default function GPTResponse({
                     </span>
                   </button>
                   <button 
-                    onClick={() => onQuote(response, 'submit')} 
+                    onClick={() => onQuote(response, 'breakdown')} 
                     className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                   >
                     <LightBulbIcon className="h-5 w-5" />

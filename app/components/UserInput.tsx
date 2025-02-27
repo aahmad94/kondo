@@ -2,7 +2,7 @@ import React, { useState, KeyboardEvent, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
 
 interface UserInputProps {
-  onSubmit: (prompt: string) => Promise<void>;
+  onSubmit: (prompt: string, model?: string) => Promise<void>;
   isLoading: boolean;
   defaultPrompt?: string|null;
   onUserInputOffset: (offset: number) => void;

@@ -22,11 +22,11 @@ export default async function handler(
   }
 
   try {
-    const { prompt, languageCode = 'ja' } = req.body;
+    const { prompt, languageCode = 'ja', model = 'gpt-4o' } = req.body;
     const systemPrompt = getPromptFromFile(languageCode);
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: prompt }

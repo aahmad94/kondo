@@ -223,7 +223,7 @@ export default function ChatBox({
   }
 
   // Handle the user's input, does not save to database
-  const handleSubmit = async (prompt: string) => {
+  const handleSubmit = async (prompt: string, model?: string) => {
     try {
       setIsLoading(true);
       const res = await fetch('/api/openai', {
@@ -233,7 +233,8 @@ export default function ChatBox({
         },
         body: JSON.stringify({ 
           prompt,
-          languageCode: selectedLanguage || 'ja' // Pass the selected language code
+          languageCode: selectedLanguage || 'ja',
+          model: model || 'gpt-4o' // Default to gpt-4o if no model is specified
         }),
       });
 
@@ -305,12 +306,12 @@ export default function ChatBox({
     }
   };
 
-  const handleResponseQuote = (response: string, type: 'submit' | 'input' = 'input') => {
+  const handleResponseQuote = (response: string, type: 'submit' | 'breakdown' | 'input' = 'input') => {
     const submitResponse = `* Breakdown the following phrase:\n\n${response}`;
     const quoteResponse = `${response}\n\n* Replace this text to ask anything about the quoted response above...`
 
-    if (type === 'submit') {
-      handleSubmit(submitResponse)
+    if (type === 'breakdown') {
+      handleSubmit(submitResponse, 'gpt-4o-mini');
     } else {
       setResponseQuote(quoteResponse);
     }
