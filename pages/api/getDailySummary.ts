@@ -6,16 +6,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { userId, forceRefresh } = req.query;
+  const { userId, forceRefresh, allLanguages } = req.query;
 
   if (!userId || typeof userId !== 'string') {
     return res.status(400).json({ message: 'User ID is required' });
   }
 
   try {
-    const responses = await generateUserSummary(userId, forceRefresh === 'true');
+    const responses = await generateUserSummary(
+      userId, 
+      forceRefresh === 'true',
+      allLanguages === 'true'
+    );
     
-    if (!responses) {
+    if (!responses || responses.length === 0) {
       return res.status(200).json({ success: false, responses: [] });
     }
 
