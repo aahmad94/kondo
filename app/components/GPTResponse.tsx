@@ -196,7 +196,7 @@ export default function GPTResponse({
                       Add this response to bookmark
                     </span>
                   </button>
-                <div/>
+                </div>
               )}
 
               {selectedBookmarkId && responseId && onDelete && (
