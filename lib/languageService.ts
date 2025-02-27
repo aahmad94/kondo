@@ -10,8 +10,14 @@ const JAPANESE_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.\n\n 
 
   **Bookmark features:**
-  **(+) button** - add response to a bookmark.
-  **up or down chevron (^)** - rank each response in a bookmark.\n\n
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 inline">
+    <path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+  </svg> - add response to a bookmark.
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 inline">
+    <path fill-rule="evenodd" d="M11.47 7.72a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 01-1.06-1.06l7.5-7.5z" clip-rule="evenodd" />
+  </svg>/<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 inline">
+    <path fill-rule="evenodd" d="M12 16.28a.75.75 0 01-.53-.22l-7.5-7.5a.75.75 0 011.06-1.06L12 14.47l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5a.75.75 0 01-.53.22z" clip-rule="evenodd" />
+  </svg> - rank each response in a bookmark.\n\n
 
   **Additional commands:**
   1 - **"random"** + (optional topic) + (optional difficulty level)
@@ -38,8 +44,14 @@ const KOREAN_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Korean; use the **reply button** on a response to get a more detailed breakdown.\n\n 
 
   **Bookmark features:**
-  **(+) button** - add response to a bookmark.
-  **up or down chevron (^)** - rank each response in a bookmark.\n\n
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 inline">
+    <path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+  </svg> - add response to a bookmark.
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 inline">
+    <path fill-rule="evenodd" d="M11.47 7.72a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 01-1.06-1.06l7.5-7.5z" clip-rule="evenodd" />
+  </svg>/<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 inline">
+    <path fill-rule="evenodd" d="M12 16.28a.75.75 0 01-.53-.22l-7.5-7.5a.75.75 0 011.06-1.06L12 14.47l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5a.75.75 0 01-.53.22z" clip-rule="evenodd" />
+  </svg> - rank each response in a bookmark.\n\n
 
   **Additional commands:**
   1 - **"random"** + (optional topic) + (optional difficulty level)
@@ -66,8 +78,14 @@ const SPANISH_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Spanish; use the **reply button** on a response to get a more detailed breakdown.\n\n 
 
   **Bookmark features:**
-  **(+) button** - add response to a bookmark.
-  **up or down chevron (^)** - rank each response in a bookmark.\n\n
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 inline">
+    <path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+  </svg> - add response to a bookmark.
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 inline">
+    <path fill-rule="evenodd" d="M11.47 7.72a.75.75 0 011.06 0l7.5 7.5a.75.75 0 11-1.06 1.06L12 9.31l-6.97 6.97a.75.75 0 01-1.06-1.06l7.5-7.5z" clip-rule="evenodd" />
+  </svg>/<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 inline">
+    <path fill-rule="evenodd" d="M12 16.28a.75.75 0 01-.53-.22l-7.5-7.5a.75.75 0 011.06-1.06L12 14.47l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5a.75.75 0 01-.53.22z" clip-rule="evenodd" />
+  </svg> - rank each response in a bookmark.\n\n
 
   **Additional commands:**
   1 - **"random"** + (optional topic) + (optional difficulty level)
