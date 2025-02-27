@@ -16,9 +16,36 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
     if (allLanguages) {
       // Get all active languages
       const activeLanguages = await prisma.language.findMany({
-        where: { isActive: true },
-        select: { id: true }
+        where: { 
+          isActive: true,
+          // Ensure the language has at least one response or bookmark for this user
+          OR: [
+            {
+              responses: {
+                some: {
+                  userId
+                }
+              }
+            },
+            {
+              bookmarks: {
+                some: {
+                  userId
+                }
+              }
+            }
+          ]
+        },
+        select: { 
+          id: true,
+          code: true,
+          name: true 
+        }
       });
+      
+      console.log(`[Summary] Found ${activeLanguages.length} active languages:`, 
+        activeLanguages.map(l => `${l.name} (${l.code})`));
+      
       languageIds = activeLanguages.map(lang => lang.id);
     } else {
       // Get user's current language preference
