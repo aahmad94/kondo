@@ -6,10 +6,10 @@ import prisma from '../../lib/prisma';
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
 
-// Create a scheduled function to run every evening
+// Create a function that can be manually triggered
 const dailyResponseLogger = inngest.createFunction(
   { id: "daily-response-logger" },
-  { cron: "TZ=America/New_York 1 0 * * *" }, // Run at 12:01 AM EST
+  { event: "daily.summary.generate" },  // This makes it manually triggerable
   async ({ step }) => {
     try {
       console.log("[Inngest] Starting daily summary generation...");
