@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PlusIcon, XCircleIcon, ArrowUturnRightIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, XCircleIcon, ChatBubbleLeftEllipsisIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon, LightBulbIcon } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import Markdown from 'react-markdown'
@@ -18,7 +18,7 @@ interface GPTResponseProps {
   createdAt?: Date;
   type?: 'instruction' | 'response';
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
-  onQuote?: (response: string) => void;
+  onQuote?: (response: string, type: 'submit' | 'input') => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   bookmarks?: Record<string, string>;
@@ -101,12 +101,6 @@ export default function GPTResponse({
     }
   };
 
-  const handleQuoteClick = () => {
-    if (onQuote) {
-      onQuote(response);
-    }
-  };
-
   const handleBookmarkClick = () => {
     if (bookmarks && Object.keys(bookmarks).length > 0) {
       // Find the first non-reserved bookmark by checking each ID and title pair
@@ -176,13 +170,31 @@ export default function GPTResponse({
               {!selectedBookmarkId && onQuote && (
                 <>
                   <button 
-                    onClick={() => onQuote(response)} 
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+                    onClick={() => onQuote(response, 'input')} 
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                   >
-                    <ArrowUturnRightIcon className="h-5 w-5" />
+                    <ChatBubbleLeftEllipsisIcon className="h-5 w-5" />
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      Ask a question about this response
+                    </span>
                   </button>
-                  <button onClick={() => setIsBookmarkModalOpen(true)} className="text-white">
+                  <button 
+                    onClick={() => onQuote(response, 'submit')} 
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <LightBulbIcon className="h-5 w-5" />
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      Breakdown this response
+                    </span>
+                  </button>
+                  <button 
+                    onClick={() => setIsBookmarkModalOpen(true)} 
+                    className="text-white relative group"
+                  >
                     <PlusIcon className="h-5 w-5" />
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      Add this response to bookmark
+                    </span>
                   </button>
                 </>
               )}

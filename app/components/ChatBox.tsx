@@ -305,9 +305,15 @@ export default function ChatBox({
     }
   };
 
-  const handleResponseQuote = (response: string) => {
-    const quotedResponse = `${response}\n\n* Breakdown the above phrase.`;
-    setResponseQuote(quotedResponse);
+  const handleResponseQuote = (response: string, type: 'submit' | 'input' = 'input') => {
+    const submitResponse = `* Breakdown the following phrase:\n\n${response}`;
+    const quoteResponse = `${response}\n\n* Replace this text to ask anything about the quoted response above...`
+
+    if (type === 'submit') {
+      handleSubmit(submitResponse)
+    } else {
+      setResponseQuote(quoteResponse);
+    }
   };
 
   const setResponseQuoteToNull = () => {
