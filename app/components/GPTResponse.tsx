@@ -121,7 +121,7 @@ export default function GPTResponse({
         <h2 className="font-bold text-blue-400">
           {type === 'instruction' ? 'Instructions:' : 'KondoAI:'}
         </h2>
-        <div className="button-container flex items-center gap-2">
+        <div className="button-container flex items-center gap-3">
           {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
             <button
               onClick={() => onGenerateSummary?.(true)}
@@ -168,7 +168,7 @@ export default function GPTResponse({
               )}
 
               {!selectedBookmarkId && onQuote && (
-                <>
+                <div className='flex items-center gap-3'>
                   <button 
                     onClick={() => onQuote(response, 'input')} 
                     className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
@@ -196,7 +196,7 @@ export default function GPTResponse({
                       Add this response to bookmark
                     </span>
                   </button>
-                </>
+                <div/>
               )}
 
               {selectedBookmarkId && responseId && onDelete && (
