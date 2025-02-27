@@ -121,7 +121,7 @@ export default function GPTResponse({
         <h2 className="font-bold text-blue-400">
           {type === 'instruction' ? 'Instructions:' : 'KondoAI:'}
         </h2>
-        <div className="button-container flex items-center gap-3">
+        <div className="button-container flex items-center gap-2">
           {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
             <button
               onClick={() => onGenerateSummary?.(true)}
@@ -133,7 +133,7 @@ export default function GPTResponse({
           {type === 'response' && (
             <>
               {selectedBookmarkId && responseId && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses') && bookmarks && Object.keys(bookmarks).length > 0 && (
                     <span 
                       onClick={handleBookmarkClick}
