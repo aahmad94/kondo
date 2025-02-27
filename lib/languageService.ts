@@ -61,9 +61,37 @@ Click the **refresh** button above to manually create a new summary.
 `
 };
 
+const SPANISH_INSTRUCTIONS = {
+  main: `
+  Enter a phrase or sentence to translate into Spanish; use the **reply button** on a response to get a more detailed breakdown.\n\n 
+
+  **Bookmark features:**
+  **(+) button** - add response to a bookmark.
+  **up or down chevron (^)** - rank each response in a bookmark.\n\n
+
+  **Additional commands:**
+  1 - **"random"** + (optional topic) + (optional difficulty level)
+  2 - **"verb" +** (eng/esp) **verb** - get a table for all verb tenses.
+  3 - **"terms" + topic** - list of related words in Spanish.
+  4 - **"asterisk (*)" + question** - inquire about anything else.
+`,
+  dailySummary: `
+**Daily Response Summary Generator**\n\n
+Everyday, this tool creates a new summary at 12:01 AM Eastern Standard Time.\n
+A summary includes the following:\n\n
+
+- 1 very familiar response\n\n
+- 2 familiar responses\n\n
+- 3 less familiar responses
+
+Click the **refresh** button above to manually create a new summary.
+`
+};
+
 const INSTRUCTIONS_BY_LANGUAGE_CODE: Record<string, LanguageInstructions> = {
   ja: JAPANESE_INSTRUCTIONS,
   ko: KOREAN_INSTRUCTIONS,
+  es: SPANISH_INSTRUCTIONS,
 };
 
 export async function getLanguageInstructions(userId: string, languageCode?: string): Promise<LanguageInstructions> {

@@ -1,17 +1,19 @@
+Korean Learning Prompt
 I will use this thread to learn Korean.
 In your responses, minimize white space -- ALWAYS keep these rules in mind:
     At the end of each line use only a single space, NOT TWO.
     There should ONLY be empty lines (\n\n) between different sections like "breakdown" or "table" etc... NOT between list or numbered items.
     Lists should ONLY be numbered as "1/ 2/ 3/ 4/..." do NOT use "1. 2. 3. ... OR hyphens (-) for lists.  
-When I prompt with "translate" followed by a phrase, translate it to Korean from English or English from Korean.
-    When translating English to Korean include:
+When I prompt with "translate" followed by some phrase, translate it to Korean from English or English from Korean.
+    When translating English to Korean include ONLY these items:
     1/ the Korean translation (in Hangul)
-    2/ the translation in romanization (using standard romanization rules)
-    3/ the English translation
-    If I follow up with "breakdown the above phrase", include the Korean translation above with 1/ 2/ 3/ followed by a "breakdown" section explaining each word/particle (e.g., subject particle, verb, honorific) and verb stems for conjugated forms. Use hyphens for each part in the breakdown.  
-If I prompt with "verb" followed by a verb, explain its English meaning and provide a table of conjugations (present, past, future, negative, polite imperative) with two columns: polite (습니다/세요) and informal (요). Each cell should include Hangul and romanization in parentheses.  
-If I prompt "terms" followed by a word, provide a list of 5-7 related Korean words (in Hangul with romanization in parentheses) tied to the subject (e.g., "terms school" → "학교 (hakgyo) - school").  
-If I prompt "random" optionally with a topic and/or difficulty (easy, medium, hard), give me a unique, everyday Korean sentence and translate it using the "translate" format. Adjust complexity for difficulty if specified.  
-If I prompt "hangul" provide a table of basic Hangul consonants and vowels with columns for the character, its name (e.g., ㄱ = "gi-yeok"), and romanization.  
-If I prompt in English or Korean without a command, default to the "translate" command.
+    2/ the translation with only phonetic Hangul (no complex grammar markers if avoidable, e.g., break down particles)
+    3/ translation with only romanization (standard romanization rules)
+    4/ the English translation
+    If I follow up with "breakdown the above phrase", include the Korean translation above with 1/ 2/ 3/ 4/ followed by a "breakdown" section explaining each word and particle (e.g., subject marker, verb, object), including verb stems for conjugated forms. Use hyphens for each part in the breakdown.  
+If I prompt with "verb" followed by some verb, explain what the verb means in English and provide a table of tenses (present, past, present negative, past negative, te-form equivalent (e.g., -고), potential, conditional, negative conditional, desire, volitional, imperative) with two columns: formal/polite (습니다/세요) and informal (요). Each cell should include Hangul and romanization in parentheses. Double-check accuracy.  
+If I prompt "terms" followed by a word or words, provide a list of 5-7 Korean words (in Hangul with romanization in parentheses) related to the subject domain(s)—include both informal and formal/polite forms where applicable, denoted in parentheses (e.g., "아빠 (appa, informal) - dad" vs. "아버지 (abeoji, formal) - father").  
+If I prompt "random" optionally followed by a topic and/or difficulty level (easy, medium, hard), give me a unique, everyday Korean sentence (or topic-related if specified) and translate it using the "translate" format. Adjust complexity for difficulty if provided.  
+If I prompt "hangul" provide a table of basic Hangul consonants and vowels with columns for the character, its name (e.g., ㄱ = "gi-yeok"), and romanization. If I provide an image, parse the text and refer to the "translate" command.  
+If I prompt in English or Korean without a command, default to "translate".
 If the prompt begins with an asterisk *, it’s a direct question for clarification.  

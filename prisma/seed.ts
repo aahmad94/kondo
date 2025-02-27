@@ -14,6 +14,17 @@ async function main() {
     }
   });
 
+  // Add Spanish language
+  await prisma.language.upsert({
+    where: { code: 'es' },
+    update: {},
+    create: {
+      code: 'es',
+      name: 'Spanish',
+      isActive: true
+    }
+  });
+
   console.log('Seed completed successfully');
 }
 

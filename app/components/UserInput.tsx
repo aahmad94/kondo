@@ -18,6 +18,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const textareaMinHeight = 50;
   const jaGreeting = 'おはよう'
   const koGreeting = '안녕하세요'
+  const esGreeting = '¡Hola'
 
 
   // Adjust the height of the textarea when the component is mounted
@@ -107,6 +108,8 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
     switch (selectedLanguage) {
       case 'ko':
         return `${koGreeting}${userName}!`;
+      case 'es':
+        return `${esGreeting}${userName}!`;
       case 'ja':
       default:
         return `${jaGreeting}${userName}!`;
