@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -21,6 +21,17 @@ async function main() {
     create: {
       code: 'es',
       name: 'Spanish',
+      isActive: true
+    }
+  });
+
+  // Add Arabic language
+  await prisma.language.upsert({
+    where: { code: 'ar' },
+    update: {},
+    create: {
+      code: 'ar',
+      name: 'Arabic',
       isActive: true
     }
   });

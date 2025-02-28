@@ -101,10 +101,43 @@ Click the 🔄 button above to manually create a new summary.
 `
 };
 
+const ARABIC_INSTRUCTIONS = {
+  main: `
+  Enter a phrase or sentence to translate into Arabic; use the **reply button** on a response to get a more detailed breakdown.\n\n 
+  
+  **Response features:**
+  💡 - breakdown response
+  💬 - quote response in input field
+
+  **Bookmark features:**
+  ➕ - add response to a bookmark
+  ⬆️/⬇️ - rank each response in a bookmark\n\n
+
+  **Additional commands:**
+  1 - **"random"** + (optional topic) + (optional difficulty level)
+  2 - **"verb" +** (eng/ar) **verb** - get a table for all verb tenses.
+  3 - **"terms" + topic** - list of related words in Arabic.
+  4 - **"alphabet"** - phonetic table of Arabic script and romanization.
+  5 - **"asterisk (*)" + question** - inquire about anything else.
+`,
+  dailySummary: `
+**Daily Response Summary Generator**\n\n
+Everyday, this tool creates a new summary at 12:01 AM Eastern Standard Time.\n
+A summary includes the following:\n\n
+
+- 1 very familiar response\n\n
+- 2 familiar responses\n\n
+- 3 less familiar responses
+
+Click the 🔄 button above to manually create a new summary.
+`
+};
+
 const INSTRUCTIONS_BY_LANGUAGE_CODE: Record<string, LanguageInstructions> = {
   ja: JAPANESE_INSTRUCTIONS,
   ko: KOREAN_INSTRUCTIONS,
   es: SPANISH_INSTRUCTIONS,
+  ar: ARABIC_INSTRUCTIONS
 };
 
 export async function getLanguageInstructions(userId: string, languageCode?: string): Promise<LanguageInstructions> {
