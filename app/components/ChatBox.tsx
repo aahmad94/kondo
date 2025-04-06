@@ -29,16 +29,15 @@ interface BookmarkResponse {
   createdAt: Date;
 }
 
-const DAILY_SUMMARY_INSTRUCTIONS = `
-**Daily Response Summary Generator**\n\n
-Everyday, this tool creates a new summary at 12:01 AM Eastern Standard Time.\n
-A summary includes the following:\n\n
+const DOJO_INSTRUCTIONS = `
+Everyday, this tool creates a new report at 12:01 AM Eastern Standard Time.\n
+A report includes the following:\n\n
 
-- 1 very familiar response\n\n
+- 3 less familiar responses\n\n
 - 2 familiar responses\n\n
-- 3 less familiar responses
+- 1 very familiar response
 
-Click the **refresh** button above to manually create a new summary.
+Click the **refresh** button above to manually create a new report.
 `;
 
 export default function ChatBox({ 
@@ -435,7 +434,7 @@ export default function ChatBox({
             type="instruction"
             response={instructions.dailySummary}
             selectedBookmarkId={selectedBookmarkId}
-            selectedBookmarkTitle={selectedBookmarkTitle}
+            selectedBookmarkTitle="daily summary"
             reservedBookmarkTitles={reservedBookmarkTitles}
             onGenerateSummary={handleGenerateSummary}
             onRankUpdate={handleRankUpdate}

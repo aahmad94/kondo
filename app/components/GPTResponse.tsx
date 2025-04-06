@@ -119,7 +119,9 @@ export default function GPTResponse({
     <div className="pl-3 pt-3 rounded text-white w-full">
       <div className="header flex justify-between w-[90%] mb-2 border-b-2 pb-1" style={{ borderBottomColor: yellow }}>
         <h2 className="font-bold text-blue-400">
-          {type === 'instruction' ? 'Instructions:' : 'KondoAI:'}
+          {type === 'instruction' 
+            ? (selectedBookmarkTitle === 'daily summary' ? 'Dojo:' : 'Instructions:')
+            : 'KondoAI:'}
         </h2>
         <div className="button-container flex items-center gap-3">
           {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
@@ -139,7 +141,19 @@ export default function GPTResponse({
                       onClick={handleBookmarkClick}
                       className="text-xs px-2 py-0.5 bg-blue-500 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
                     >
-                      {Object.values(bookmarks).find(title => !reservedBookmarkTitles.includes(title)) || Object.values(bookmarks)[0]}
+                      {(() => {
+                        // Find a non-reserved bookmark title
+                        const nonReservedTitle = Object.values(bookmarks).find(title => 
+                          !reservedBookmarkTitles.includes(title)
+                        );
+                        
+                        // If found, return it, otherwise check if it's daily summary
+                        if (nonReservedTitle) return nonReservedTitle;
+                        
+                        // Check if the first bookmark is 'daily summary'
+                        const firstTitle = Object.values(bookmarks)[0];
+                        return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
+                      })()}
                     </span>
                   )}
                   <div 

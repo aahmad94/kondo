@@ -197,8 +197,8 @@ export default function Bookmarks({
                     }
                   }}
                 >
-                  <DocumentTextIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                  <span className="text-blue-400">daily summary</span>
+                  <DocumentTextIcon className="h-4 w-4 inline mr-2" style={{ color: '#b59f3b' }}/>
+                  <span style={{ color: '#b59f3b' }}>dojo</span>
                 </div>
 
                 <div className="overflow-y-auto max-h-[50vh]">
