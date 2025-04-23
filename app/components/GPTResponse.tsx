@@ -2,7 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PlusIcon, XCircleIcon, ChatBubbleLeftEllipsisIcon, ChevronUpIcon, ChevronDownIcon, ArrowPathIcon, LightBulbIcon } from '@heroicons/react/24/solid';
+import { 
+  PlusIcon, 
+  XCircleIcon, 
+  ChatBubbleLeftEllipsisIcon, 
+  ChevronUpIcon, 
+  ChevronDownIcon, 
+  ArrowPathIcon, 
+  LightBulbIcon,
+  PauseCircleIcon,
+  PlayCircleIcon 
+} from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import Markdown from 'react-markdown'
@@ -17,9 +27,11 @@ interface GPTResponseProps {
   rank?: number;
   createdAt?: Date;
   type?: 'instruction' | 'response';
+  isPaused?: boolean;
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
+  onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   bookmarks?: Record<string, string>;
 }
@@ -33,9 +45,11 @@ export default function GPTResponse({
   rank = 1, 
   createdAt,
   type = 'response',
+  isPaused = false,
   onDelete, 
   onQuote,
   onRankUpdate,
+  onPauseToggle,
   onGenerateSummary,
   bookmarks
 }: GPTResponseProps) {
@@ -52,6 +66,10 @@ export default function GPTResponse({
   useEffect(() => {
     handleRankColorChange(rank);
   }, [rank]);
+
+  useEffect(() => {
+    console.log(`GPTResponse [${responseId}]: isPaused=${isPaused}`);
+  }, [isPaused, responseId]);
 
   const handleRankColorChange = (rank: number) => {
     if (rank == 1) {
@@ -178,6 +196,25 @@ export default function GPTResponse({
                       <ChevronDownIcon className="h-4 w-4" />
                     </button>
                   </div>
+                  
+                  {onPauseToggle && (
+                    <button 
+                      onClick={() => onPauseToggle(responseId!, !isPaused)}
+                      className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+                    >
+                      {isPaused ? (
+                        <PlayCircleIcon className="h-6 w-6" />
+                      ) : (
+                        <PauseCircleIcon className="h-6 w-6" />
+                      )}
+                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        {isPaused 
+                          ? "Resume cycling this response in dojo" 
+                          : "Pause cycling this response in dojo"
+                        }
+                      </span>
+                    </button>
+                  )}
                 </div>
               )}
 

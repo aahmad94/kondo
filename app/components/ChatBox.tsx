@@ -19,6 +19,7 @@ interface Response {
   content: string;
   rank: number;
   createdAt: Date;
+  isPaused?: boolean;
   bookmarks?: Record<string, string>;
 }
 
@@ -27,6 +28,7 @@ interface BookmarkResponse {
   content: string;
   rank: number;
   createdAt: Date;
+  isPaused?: boolean;
 }
 
 const DOJO_INSTRUCTIONS = `
@@ -181,7 +183,8 @@ export default function ChatBox({
         id: response.id,
         content: response.content,
         rank: response.rank,
-        createdAt: new Date(response.createdAt)
+        createdAt: new Date(response.createdAt),
+        isPaused: response.isPaused
       }));
 
       // Sort responses by rank (ascending) and then by date (newest first) within each rank
@@ -212,6 +215,7 @@ export default function ChatBox({
         content: response.content,
         rank: response.rank,
         createdAt: new Date(response.createdAt),
+        isPaused: response.isPaused,
         bookmarks: response.bookmarks
       })));
     } catch (error) {
@@ -241,7 +245,7 @@ export default function ChatBox({
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data: { result: string } = await res.json();
-      setResponses(prevResponses => [...prevResponses, { id: null, content: data.result, rank: 1, createdAt: new Date() }]);
+      setResponses(prevResponses => [...prevResponses, { id: null, content: data.result, rank: 1, createdAt: new Date(), isPaused: false }]);
       setResponseQuote('');
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -249,7 +253,8 @@ export default function ChatBox({
         id: null, 
         content: 'An error occurred while fetching the response.',
         rank: 1,
-        createdAt: new Date()
+        createdAt: new Date(),
+        isPaused: false
       }]);
     } finally {
       setIsLoading(false);
@@ -354,6 +359,49 @@ export default function ChatBox({
     }
   };
 
+  const handlePauseToggle = async (responseId: string, isPaused: boolean) => {
+    console.log(`Toggling pause state for response ${responseId} to isPaused=${isPaused}`);
+    
+    try {
+      const res = await fetch('/api/toggleResponsePause', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ responseId, isPaused }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      
+      if (data.success) {
+        // Update the responses in place with the new isPaused value
+        if (selectedBookmarkId) {
+          // Updating bookmarkResponses with new isPaused value
+          setBookmarkResponses(prevResponses => {
+            const updatedResponses = prevResponses.map(response => 
+              response.id === responseId ? { ...response, isPaused } : response
+            );
+            return updatedResponses;
+          });
+        } else {
+          // Updating responses with new isPaused value
+          setResponses(prevResponses => {
+            const updatedResponses = prevResponses.map(response => 
+              response.id === responseId ? { ...response, isPaused } : response
+            );
+            return updatedResponses;
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling response pause state:', error);
+    }
+  };
+
   const handleGenerateSummary = async (forceRefresh: boolean = false) => {
     if (!session?.userId) return;
     
@@ -382,6 +430,7 @@ export default function ChatBox({
           content: response.content,
           rank: response.rank,
           createdAt: new Date(response.createdAt),
+          isPaused: response.isPaused,
           bookmarks: response.bookmarks
         })));
       } else {
@@ -439,6 +488,7 @@ export default function ChatBox({
             onGenerateSummary={handleGenerateSummary}
             onRankUpdate={handleRankUpdate}
             onDelete={handleResponseDelete}
+            onPauseToggle={handlePauseToggle}
           />
         )}
         
@@ -453,10 +503,12 @@ export default function ChatBox({
               responseId={response.id}
               rank={response.rank}
               createdAt={response.createdAt}
+              isPaused={response.isPaused}
               bookmarks={response.bookmarks}
               onQuote={handleResponseQuote}
               onRankUpdate={handleRankUpdate}
               onDelete={handleResponseDelete}
+              onPauseToggle={handlePauseToggle}
             />
           ))
         ) : (
@@ -468,8 +520,10 @@ export default function ChatBox({
               selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
               reservedBookmarkTitles={reservedBookmarkTitles}
               responseId={response.id}
+              isPaused={response.isPaused}
               onDelete={handleResponseDelete}
               onQuote={handleResponseQuote}
+              onRankUpdate={handleRankUpdate}
             />
           ))
         )}

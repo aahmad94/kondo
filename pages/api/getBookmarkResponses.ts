@@ -39,6 +39,13 @@ export default async function handler(
         },
         languageId: bookmark.languageId // Use the bookmark's languageId
       },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        rank: true,
+        isPaused: true
+      },
       orderBy: {
         rank: 'asc'
       }

@@ -44,6 +44,7 @@ export default async function handler(
         content: true,
         createdAt: true,
         rank: true,
+        isPaused: true,
         bookmarks: {
           select: {
             id: true,

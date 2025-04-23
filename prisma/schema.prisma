@@ -84,6 +84,7 @@ model GPTResponse {
   userId      String
   languageId  String
   rank        Int?       @default(1)
+  isPaused    Boolean    @default(false)  // Whether this response should be excluded from summary service
   user        User       @relation(fields: [userId], references: [id])
   language    Language   @relation(fields: [languageId], references: [id])
   bookmarks   Bookmark[] @relation("BookmarksToResponses")

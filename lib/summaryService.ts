@@ -137,6 +137,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
         const bookmarkFilter = {
           userId,
           languageId,
+          isPaused: false, // Exclude paused responses from summary
           bookmarks: {
             some: {
               AND: [
