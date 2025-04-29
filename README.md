@@ -7,16 +7,13 @@
 - For Japanese, you will receive a translation in 1/ Japanese (w/ kanji), 2/ hiragana + katakana, 3/ romaji, 4/ english
   - User reply icon to get a word by word breakdown of the translation, including grammar points and topic particles
 - Bookmark your responses and rank them, more poorly ranked responses will be shown first while higher ranked responses will be shown last
-- View a daily summary of your bookmarked responses, less familiar topics will be shown more frequently
+- View a daily summary of your bookmarked responses (dojo), less familiar topics will be shown more frequently
+  - Responses can be 'paused' or 'resumed' from cycling in dojo
 
-### daily summary w/ inngest scheduled jobs
-![screenshot](/assets/kondo-daily-summary.png)
-### verb + 'to choose'
-![screenshot](/assets/kondo-verbs.png)
-### further breakdown response
-![screenshot](/assets/kondo-main.png)
-### organize and rank responses in bookmarks
-![screenshot](/assets/kondo-bookmarks.png)
+### daily summary (dojo) w/ inngest scheduled jobs
+![screenshot](/assets/kondo_dojo.jpeg)
+### generate material to organize into bookmarks and cycle in dojo
+![screenshot](/assets/kondo_chat.jpeg)
 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
