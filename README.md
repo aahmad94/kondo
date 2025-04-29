@@ -1,4 +1,10 @@
 # Kondo
+
+## generate material to organize into bookmarks and cycle in dojo
+![screenshot](/assets/kondo_chat.jpeg)
+## daily summary (dojo) w/ inngest scheduled jobs
+![screenshot](/assets/kondo_dojo.jpeg)
+
 ## Generate and organize study material to learn new languages
 - Use commands and phrases to generate study material: 
   - random + (optional) \<topic\> + (optional) \<difficulty\>
@@ -9,12 +15,6 @@
 - Bookmark your responses and rank them, more poorly ranked responses will be shown first while higher ranked responses will be shown last
 - View a daily summary of your bookmarked responses (dojo), less familiar topics will be shown more frequently
   - Responses can be 'paused' or 'resumed' from cycling in dojo
-
-### daily summary (dojo) w/ inngest scheduled jobs
-![screenshot](/assets/kondo_dojo.jpeg)
-### generate material to organize into bookmarks and cycle in dojo
-![screenshot](/assets/kondo_chat.jpeg)
-
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
