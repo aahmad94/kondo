@@ -201,7 +201,7 @@ export default function Bookmarks({
                   <span style={{ color: '#b59f3b' }}>dojo</span>
                 </div>
 
-                <div className="overflow-y-auto max-h-[50vh]">
+                <div className="overflow-y-auto max-h-[50vh] bookmark-list">
                   {bookmarks
                     .filter(bookmark => !reservedBookmarkTitles.includes(bookmark.title))
                     .map((bookmark) => (

@@ -19,6 +19,54 @@ html, body {
   overflow: hidden; /* Prevent scrolling on the body */
 }
 
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px; /* Width of the scrollbar */
+  height: 6px; /* Height of the horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track background */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(180, 180, 180, 0.5); /* Light grey, semi-transparent thumb */
+  border-radius: 10px; /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(180, 180, 180, 0.8); /* Slightly darker on hover */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: rgba(180, 180, 180, 0.5) transparent; /* thumb and track color */
+}
+
+/* Dark themed scrollbar for the bookmarks sidebar */
+.bookmark-list::-webkit-scrollbar {
+  width: 4px; /* Slightly thinner for sidebar */
+}
+
+.bookmark-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bookmark-list::-webkit-scrollbar-thumb {
+  background-color: rgba(120, 120, 120, 0.4); /* Darker to match sidebar */
+  border-radius: 10px;
+}
+
+.bookmark-list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(150, 150, 150, 0.6);
+}
+
+.bookmark-list {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 120, 0.4) transparent;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
