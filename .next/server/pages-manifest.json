@@ -3,9 +3,5 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/api/getLanguages": "pages/api/getLanguages.js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js",
-  "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
-  "/api/getDailySummary": "pages/api/getDailySummary.js",
-  "/api/toggleResponsePause": "pages/api/toggleResponsePause.js"
+  "/auth/signin": "pages/auth/signin.js"
 }
