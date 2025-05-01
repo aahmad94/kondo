@@ -31,16 +31,29 @@ interface BookmarkResponse {
   isPaused?: boolean;
 }
 
-const DOJO_INSTRUCTIONS = `
-Everyday, this tool creates a new report at 12:01 AM Eastern Standard Time.\n
-A report includes the following:\n\n
+const formatStats = (stats: {
+  total: number;
+  rank1: { count: number; percentage: number };
+  rank2: { count: number; percentage: number };
+  rank3: { count: number; percentage: number };
+}) => {
+  const padLeft = (str: string, length: number) => str.padStart(length);
+  const padRight = (str: string, length: number) => str.padEnd(length);
+  
+  const totalStr = `**${stats.total}**`;
+  const rank1Str = `**${stats.rank1.count}**/**${stats.total}**`;
+  const rank2Str = `**${stats.rank2.count}**/**${stats.total}**`;
+  const rank3Str = `**${stats.rank3.count}**/**${stats.total}**`;
+  const pct1Str = `**${stats.rank1.percentage}**%`;
+  const pct2Str = `**${stats.rank2.percentage}**%`;
+  const pct3Str = `**${stats.rank3.percentage}**%`;
 
-- 3 less familiar responses\n\n
-- 2 familiar responses\n\n
-- 1 very familiar response
-
-Click the **refresh** button above to manually create a new report.
-`;
+  return `Current stats:\n` +
+         `${padRight('total responses:', 20)} ${padLeft(totalStr, 10)}\n` +
+         `${padRight('hard:', 20)} ${padLeft(rank1Str, 10)} ${padLeft(pct1Str, 8)}\n` +
+         `${padRight('medium:', 20)} ${padLeft(rank2Str, 10)} ${padLeft(pct2Str, 8)}\n` +
+         `${padRight('easy:', 20)} ${padLeft(rank3Str, 10)} ${padLeft(pct3Str, 8)}`;
+};
 
 export default function ChatBox({ 
   selectedBookmarkId, 
@@ -58,6 +71,12 @@ export default function ChatBox({
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '' });
+  const [responseStats, setResponseStats] = useState<{
+    total: number;
+    rank1: { count: number; percentage: number };
+    rank2: { count: number; percentage: number };
+    rank3: { count: number; percentage: number };
+  } | null>(null);
 
   // Add ref to track previous language
   const previousLanguageRef = useRef(selectedLanguage);
@@ -141,6 +160,25 @@ export default function ChatBox({
       scrollToBottom();
     }
   }, [responses, responseQuote, selectedBookmarkId]);
+
+  // Fetch response statistics when component mounts or when responses change
+  useEffect(() => {
+    const fetchResponseStats = async () => {
+      if (session?.userId) {
+        try {
+          const res = await fetch(`/api/getUserResponseStats?userId=${session.userId}`);
+          if (res.ok) {
+            const stats = await res.json();
+            setResponseStats(stats);
+          }
+        } catch (error) {
+          console.error('Error fetching response stats:', error);
+        }
+      }
+    };
+
+    fetchResponseStats();
+  }, [session, responses, bookmarkResponses]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -478,7 +516,7 @@ export default function ChatBox({
         {selectedBookmarkTitle === 'daily summary' && (
           <GPTResponse
             type="instruction"
-            response={instructions.dailySummary}
+            response={responseStats ? `${instructions.dailySummary}\n\n${formatStats(responseStats)}` : instructions.dailySummary}
             selectedBookmarkId={selectedBookmarkId}
             selectedBookmarkTitle="daily summary"
             reservedBookmarkTitles={reservedBookmarkTitles}

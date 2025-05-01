@@ -80,4 +80,49 @@ export async function toggleResponsePause(responseId: string, isPaused: boolean)
     console.error('Error toggling response pause state:', error);
     throw error;
   }
+}
+
+export async function getUserResponseStats(userId: string) {
+  try {
+    // First, get all responses without any filtering
+    const allResponses = await prisma.gPTResponse.findMany({
+      where: {
+        userId: userId
+      },
+      select: {
+        rank: true,
+        bookmarks: {
+          select: {
+            title: true
+          }
+        }
+      }
+    });
+
+    const total = allResponses.length;
+    const rank1 = allResponses.filter(r => r.rank === 1).length;
+    const rank2 = allResponses.filter(r => r.rank === 2).length;
+    const rank3 = allResponses.filter(r => r.rank === 3).length;
+
+    const stats = {
+      total,
+      rank1: {
+        count: rank1,
+        percentage: total > 0 ? Math.round((rank1 / total) * 100) : 0
+      },
+      rank2: {
+        count: rank2,
+        percentage: total > 0 ? Math.round((rank2 / total) * 100) : 0
+      },
+      rank3: {
+        count: rank3,
+        percentage: total > 0 ? Math.round((rank3 / total) * 100) : 0
+      }
+    };
+
+    return stats;
+  } catch (error) {
+    console.error('Error fetching user response stats:', error);
+    throw error;
+  }
 } 
