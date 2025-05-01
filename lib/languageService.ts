@@ -25,7 +25,7 @@ const JAPANESE_INSTRUCTIONS = {
   5 - **"asterisk (*)" + question** - inquire about anything else.
 `,
   dailySummary: `
-Everyday, this tool creates a new report (3 easy, 2 medium, 1 easy) at 12:01 AM Eastern Standard Time.
+This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
 
 Click the 🔄 button above to manually create a new report.
 `
@@ -52,7 +52,7 @@ const KOREAN_INSTRUCTIONS = {
   5 - **"asterisk (*)" + question** - inquire about anything else.
 `,
   dailySummary: `
-Everyday, this tool creates a new report (3 easy, 2 medium, 1 easy) at 12:01 AM Eastern Standard Time.
+This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
 
 Click the 🔄 button above to manually create a new report.
 `
@@ -77,7 +77,7 @@ const SPANISH_INSTRUCTIONS = {
   4 - **"asterisk (*)" + question** - inquire about anything else.
 `,
   dailySummary: `
-Everyday, this tool creates a new report (3 easy, 2 medium, 1 easy) at 12:01 AM Eastern Standard Time.
+This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
 
 Click the 🔄 button above to manually create a new report.
 `
@@ -103,7 +103,7 @@ const ARABIC_INSTRUCTIONS = {
   5 - **"asterisk (*)" + question** - inquire about anything else.
 `,
   dailySummary: `
-Everyday, this tool creates a new report (3 easy, 2 medium, 1 easy) at 12:01 AM Eastern Standard Time.
+This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
 
 Click the 🔄 button above to manually create a new report.
 `
