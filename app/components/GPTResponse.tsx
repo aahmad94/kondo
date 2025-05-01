@@ -56,6 +56,8 @@ export default function GPTResponse({
   const red = '#d93900'
   const yellow = '#b59f3b'
   const green = '#30642e'
+  const blue = '#3b82f6'
+  const white = '#fff'
   const [newRank, setNewRank] = useState(rank);
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -66,10 +68,6 @@ export default function GPTResponse({
   useEffect(() => {
     handleRankColorChange(rank);
   }, [rank]);
-
-  useEffect(() => {
-    console.log(`GPTResponse [${responseId}]: isPaused=${isPaused}`);
-  }, [isPaused, responseId]);
 
   const handleRankColorChange = (rank: number) => {
     if (rank == 1) {
@@ -135,10 +133,10 @@ export default function GPTResponse({
 
   return (
     <div className="pl-3 pt-3 rounded text-white w-full">
-      <div className="header flex justify-between w-[90%] mb-2 border-b-2 pb-1" style={{ borderBottomColor: yellow }}>
-        <h2 className="font-bold text-blue-400">
+      <div className="header flex justify-between w-[90%] mb-2 pb-1">
+        <h2 style={{ color: type === 'instruction' ? 'yellow' : blue }}>
           {type === 'instruction' 
-            ? (selectedBookmarkTitle === 'daily summary' ? 'Dojo:' : 'Instructions:')
+            ? (selectedBookmarkTitle === 'daily summary' ? 'dojo:' : 'Instructions:')
             : 'KondoAI:'}
         </h2>
         <div className="button-container flex items-center gap-3">
@@ -157,7 +155,7 @@ export default function GPTResponse({
                   {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses') && bookmarks && Object.keys(bookmarks).length > 0 && (
                     <span 
                       onClick={handleBookmarkClick}
-                      className="text-xs px-2 py-0.5 bg-blue-500 rounded-lg cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
+                      className="text-xs px-2 py-0.5 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
                     >
                       {(() => {
                         // Find a non-reserved bookmark title
@@ -175,7 +173,7 @@ export default function GPTResponse({
                     </span>
                   )}
                   <div 
-                    className={"rank-container flex items-center gap-1 px-1 rounded-lg transition-colors duration-400"}
+                    className={"rank-container flex items-center gap-1 px-1 rounded-sm transition-colors duration-400"}
                     style={{ backgroundColor: rankContainerBg }}
                   >
                     <button 
@@ -265,7 +263,7 @@ export default function GPTResponse({
       </div>
       {/* GPT Response content */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
-        <div className="pr-3">
+        <div className="pr-3" style={{ color: yellow }}>
           <Markdown remarkPlugins={[remarkGfm]} className="overflow-hidden">{cleanResponse}</Markdown>
         </div>
       </div>

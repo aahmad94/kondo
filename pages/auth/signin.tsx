@@ -5,7 +5,7 @@ import Head from 'next/head';
 
 export default function SignIn({ providers, csrfToken }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-6 font-mono">
       <Head>
         <title>Sign in to Kondo</title>
       </Head>

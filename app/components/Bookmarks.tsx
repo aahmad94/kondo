@@ -170,16 +170,16 @@ export default function Bookmarks({
 
               <div className="flex flex-col p-2">
                 <div
-                  className="create-bookmark-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block"
+                  className="create-bookmark-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block"
                   onClick={handleCreateNewBookmark}
                 >
                   <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                  <span className="text-blue-400">create bookmark</span>
+                  <span className="text-blue-400">add bookmark</span>
                 </div>
 
                 <div 
-                  className={`all-responses-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block
-                    ${selectedBookmarkId === "all" ? 'bg-gray-700 rounded-lg' : ''}`}
+                  className={`all-responses-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
+                    ${selectedBookmarkId === "all" ? 'bg-gray-700 rounded-sm' : ''}`}
                   onClick={() => handleBookmarkInteraction("all", "all responses")}
                   onTouchStart={() => handleBookmarkInteraction("all", "all responses")}
                 >
@@ -188,8 +188,8 @@ export default function Bookmarks({
                 </div>
 
                 <div 
-                  className={`daily-summary-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-lg transition-all pl-2 py-1 inline-block
-                    ${selectedBookmarkTitle === "daily summary" ? 'bg-gray-700 rounded-lg' : ''}`}
+                  className={`daily-summary-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
+                    ${selectedBookmarkTitle === "daily summary" ? 'bg-gray-700 rounded-sm' : ''}`}
                   onClick={() => {
                     const dailySummaryBookmark = bookmarks.find(b => b.title === 'daily summary');
                     if (dailySummaryBookmark) {
@@ -207,8 +207,8 @@ export default function Bookmarks({
                     .map((bookmark) => (
                       <div
                         key={bookmark.id}
-                        className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-lg transition-all pl-2 py-1 flex justify-between items-center group
-                          ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-lg' : ''}`}
+                        className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group
+                          ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
                         onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                       >
                         <span className="text-white">
