@@ -40,7 +40,6 @@ const formatStats = (stats: {
   const padLeft = (str: string, length: number) => str.padStart(length);
   const padRight = (str: string, length: number) => str.padEnd(length);
   
-  const totalStr = `**${stats.total}**`;
   const rank1Str = `**${stats.rank1.count}**/**${stats.total}**`;
   const rank2Str = `**${stats.rank2.count}**/**${stats.total}**`;
   const rank3Str = `**${stats.rank3.count}**/**${stats.total}**`;
@@ -49,9 +48,9 @@ const formatStats = (stats: {
   const pct3Str = `**${stats.rank3.percentage}**%`;
 
   return `**Current stats**\n` +
-         `${padRight('hard', 20)} ${padLeft(rank1Str, 10)} ${padLeft(pct1Str, 8)}\n` +
-         `${padRight('medium', 20)} ${padLeft(rank2Str, 10)} ${padLeft(pct2Str, 8)}\n` +
-         `${padRight('easy', 20)} ${padLeft(rank3Str, 10)} ${padLeft(pct3Str, 8)}\n`;
+         `${padRight('hard', 15)} ${padLeft(rank1Str, 8)} ${padLeft(pct1Str, 6)}\n` +
+         `${padRight('medium', 15)} ${padLeft(rank2Str, 8)} ${padLeft(pct2Str, 6)}\n` +
+         `${padRight('easy', 15)} ${padLeft(rank3Str, 8)} ${padLeft(pct3Str, 6)}\n`;
 };
 
 export default function ChatBox({ 
