@@ -17,6 +17,7 @@ import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import Tooltip from './Tooltip';
 
 interface GPTResponseProps {
   response: string;
@@ -64,6 +65,14 @@ export default function GPTResponse({
   const [isDeleting, setIsDeleting] = useState(false);
   const [rankContainerBg, setRankContainerBg] = useState(red);
   const router = useRouter();
+  const [isHovered, setIsHovered] = useState(false);
+  const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [isQuoteHovered, setIsQuoteHovered] = useState(false);
+  const [isBreakdownHovered, setIsBreakdownHovered] = useState(false);
+  const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
+  const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
+  const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
+  const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     handleRankColorChange(rank);
@@ -196,55 +205,79 @@ export default function GPTResponse({
                   </div>
                   
                   {onPauseToggle && (
-                    <button 
-                      onClick={() => onPauseToggle(responseId!, !isPaused)}
-                      className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+                    <Tooltip
+                      content={isPaused 
+                        ? "Resume cycling this response in dojo" 
+                        : "Pause cycling this response in dojo"
+                      }
+                      isVisible={isHovered}
+                      buttonRef={pauseButtonRef}
                     >
-                      {isPaused ? (
-                        <PlayCircleIcon className="h-6 w-6" />
-                      ) : (
-                        <PauseCircleIcon className="h-6 w-6" />
-                      )}
-                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {isPaused 
-                          ? "Resume cycling this response in dojo" 
-                          : "Pause cycling this response in dojo"
-                        }
-                      </span>
-                    </button>
+                      <button 
+                        ref={pauseButtonRef}
+                        onClick={() => onPauseToggle(responseId!, !isPaused)}
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+                      >
+                        {isPaused ? (
+                          <PlayCircleIcon className="h-6 w-6" />
+                        ) : (
+                          <PauseCircleIcon className="h-6 w-6" />
+                        )}
+                      </button>
+                    </Tooltip>
                   )}
                 </div>
               )}
 
               {!selectedBookmarkId && onQuote && (
                 <div className='flex items-center gap-3'>
-                  <button 
-                    onClick={() => onQuote(response, 'input')} 
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  <Tooltip
+                    content="Ask a question about this response"
+                    isVisible={isQuoteHovered}
+                    buttonRef={quoteButtonRef}
                   >
-                    <ChatBubbleLeftEllipsisIcon className="h-5 w-5" />
-                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      Ask a question about this response
-                    </span>
-                  </button>
-                  <button 
-                    onClick={() => onQuote(response, 'breakdown')} 
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    <button 
+                      ref={quoteButtonRef}
+                      onClick={() => onQuote(response, 'input')} 
+                      onMouseEnter={() => setIsQuoteHovered(true)}
+                      onMouseLeave={() => setIsQuoteHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    >
+                      <ChatBubbleLeftEllipsisIcon className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip
+                    content="Breakdown this response"
+                    isVisible={isBreakdownHovered}
+                    buttonRef={breakdownButtonRef}
                   >
-                    <LightBulbIcon className="h-5 w-5" />
-                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      Breakdown this response
-                    </span>
-                  </button>
-                  <button 
-                    onClick={() => setIsBookmarkModalOpen(true)} 
-                    className="text-white relative group"
+                    <button 
+                      ref={breakdownButtonRef}
+                      onClick={() => onQuote(response, 'breakdown')} 
+                      onMouseEnter={() => setIsBreakdownHovered(true)}
+                      onMouseLeave={() => setIsBreakdownHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    >
+                      <LightBulbIcon className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip
+                    content="Add to bookmark"
+                    isVisible={isBookmarkHovered}
+                    buttonRef={bookmarkButtonRef}
                   >
-                    <PlusIcon className="h-5 w-5" />
-                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      Add to bookmark
-                    </span>
-                  </button>
+                    <button 
+                      ref={bookmarkButtonRef}
+                      onClick={() => setIsBookmarkModalOpen(true)} 
+                      onMouseEnter={() => setIsBookmarkHovered(true)}
+                      onMouseLeave={() => setIsBookmarkHovered(false)}
+                      className="text-white relative group"
+                    >
+                      <PlusIcon className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
                 </div>
               )}
 

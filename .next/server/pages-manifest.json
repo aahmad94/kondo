@@ -7,8 +7,5 @@
   "/api/getLanguages": "pages/api/getLanguages.js",
   "/api/getBookmarks": "pages/api/getBookmarks.js",
   "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
-  "/api/getDailySummary": "pages/api/getDailySummary.js",
-  "/api/getUserResponses": "pages/api/getUserResponses.js",
-  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
-  "/api/toggleResponsePause": "pages/api/toggleResponsePause.js"
+  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js"
 }
