@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/prisma';
+import { toggleResponsePause } from '../../lib/GPTResponseService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -17,31 +17,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Check if the response exists
-    const response = await prisma.gPTResponse.findUnique({
-      where: { id: responseId }
-    });
-
-    if (!response) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Response not found' 
-      });
-    }
-
-    // Update the response's isPaused status using Prisma's update API
-    const updatedResponse = await prisma.gPTResponse.update({
-      where: { id: responseId },
-      data: { isPaused },
-      select: { id: true, isPaused: true }
-    });
-
+    const updatedResponse = await toggleResponsePause(responseId, isPaused);
     return res.status(200).json({ 
       success: true, 
       isPaused: updatedResponse.isPaused
     });
-  } catch (error) {
-    console.error('Error toggling response pause state:', error);
+  } catch (error: any) {
+    if (error.message === 'Response not found') {
+      return res.status(404).json({ 
+        success: false, 
+        message: error.message 
+      });
+    }
     return res.status(500).json({ 
       success: false, 
       message: 'Error toggling response pause state' 

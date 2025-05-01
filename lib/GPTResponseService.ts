@@ -55,4 +55,29 @@ export async function getUserResponses(userId: string) {
     console.error('Error fetching user responses:', error);
     throw error;
   }
+}
+
+export async function toggleResponsePause(responseId: string, isPaused: boolean) {
+  try {
+    // Check if the response exists
+    const response = await prisma.gPTResponse.findUnique({
+      where: { id: responseId }
+    });
+
+    if (!response) {
+      throw new Error('Response not found');
+    }
+
+    // Update the response's isPaused status
+    const updatedResponse = await prisma.gPTResponse.update({
+      where: { id: responseId },
+      data: { isPaused },
+      select: { id: true, isPaused: true }
+    });
+
+    return updatedResponse;
+  } catch (error) {
+    console.error('Error toggling response pause state:', error);
+    throw error;
+  }
 } 
