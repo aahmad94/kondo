@@ -359,9 +359,7 @@ export default function ChatBox({
     }
   };
 
-  const handlePauseToggle = async (responseId: string, isPaused: boolean) => {
-    console.log(`Toggling pause state for response ${responseId} to isPaused=${isPaused}`);
-    
+  const handlePauseToggle = async (responseId: string, isPaused: boolean) => {    
     try {
       const res = await fetch('/api/toggleResponsePause', {
         method: 'POST',
@@ -434,7 +432,6 @@ export default function ChatBox({
           bookmarks: response.bookmarks
         })));
       } else {
-        console.log('No responses found for daily summary');
         setBookmarkResponses([]);
       }
     } catch (error) {

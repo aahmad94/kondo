@@ -43,9 +43,6 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
         }
       });
       
-      console.log(`[Summary] Found ${activeLanguages.length} active languages:`, 
-        activeLanguages.map(l => `${l.name} (${l.code})`));
-      
       languageIds = activeLanguages.map(lang => lang.id);
     } else {
       // Get user's current language preference
@@ -129,7 +126,6 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
         });
 
         if (!dailySummaryBookmark) {
-          console.log(`Daily summary bookmark not found for language ${languageId}`);
           continue; // Skip to next language
         }
 
