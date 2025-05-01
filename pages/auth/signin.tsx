@@ -10,7 +10,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
         <title>Sign in to Kondo</title>
       </Head>
       
-      <div className="w-full max-w-4xl bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div className="w-full max-w-4xl bg-gray-800 rounded-sm shadow-lg overflow-hidden">
         <div className="flex flex-col md:flex-row">
           {/* Left section with headers */}
           <div className="p-8 md:w-2/3">
@@ -29,7 +29,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
               <div key={provider.id} className="mb-3">
                 <button
                   onClick={() => signIn(provider.id, { callbackUrl: '/' })}
-                  className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-4 rounded-lg transition-colors"
+                  className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-4 rounded-sm transition-colors"
                 >
                   {provider.id === 'google' && (
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">

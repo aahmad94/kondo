@@ -11,7 +11,7 @@ const DeleteGPTResponseModal: React.FC<DeleteGPTResponseModalProps> = ({ isOpen,
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-gray-800 text-white p-6 rounded-lg w-[300px] max-w-[70vw]">
+      <div className="bg-gray-800 text-white p-6 rounded-sm w-[300px] max-w-[70vw]">
         <h2 className="text-l font-bold mb-4">Delete Response</h2>
         <p className="mb-4">Are you sure you want to delete this response?</p>
         <div className="flex justify-end">
