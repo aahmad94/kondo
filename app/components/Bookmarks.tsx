@@ -210,6 +210,7 @@ export default function Bookmarks({
                         className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group
                           ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
                         onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
+                        onTouchStart={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                       >
                         <span className="text-white">
                           {bookmark.title}
