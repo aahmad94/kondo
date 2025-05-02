@@ -21,12 +21,18 @@ export default function Home() {
       const bookmarkId = searchParams.get('bookmarkId');
       const bookmarkTitle = searchParams.get('bookmarkTitle');
   
-      if (bookmarkId && bookmarkTitle) {
+      // Only update if we have both parameters and they're different from current state
+      if (bookmarkId && bookmarkTitle && 
+          (bookmarkId !== selectedBookmarkId || bookmarkTitle !== selectedBookmarkTitle)) {
         setSelectedBookmarkId(bookmarkId);
         setSelectedBookmarkTitle(bookmarkTitle);
       }
+      // If we have a selected bookmark but no URL params, update the URL
+      else if (selectedBookmarkId && selectedBookmarkTitle && (!bookmarkId || !bookmarkTitle)) {
+        handleBookmarkSelect(selectedBookmarkId, selectedBookmarkTitle);
+      }
     }
-  }, [searchParams])
+  }, [searchParams, selectedBookmarkId, selectedBookmarkTitle, router])
   
 
   // Handle authentication
@@ -49,8 +55,10 @@ export default function Home() {
   }
 
   const handleBookmarkSelect = (newBookmarkId: string | null, newBookmarkTitle: string | null) => {
-    setSelectedBookmarkId(newBookmarkId);
-    setSelectedBookmarkTitle(newBookmarkTitle);
+    if (selectedBookmarkId !== newBookmarkId) {
+      setSelectedBookmarkId(newBookmarkId);
+      setSelectedBookmarkTitle(newBookmarkTitle);
+    }
     
     // Update URL query params
     const params = new URLSearchParams(searchParams?.toString() ?? '');

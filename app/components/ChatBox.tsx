@@ -139,15 +139,21 @@ export default function ChatBox({
 
   // When the selected bookmark changes, fetch the responses and scroll when they're loaded
   useEffect(() => {
-    if (selectedBookmarkId && selectedBookmarkId !== "all" && session?.userId) {
-      if (selectedBookmarkTitle === 'daily summary') {
+    // Only proceed if we have a session
+    if (!session?.userId) return;
+
+    // If we have a selected bookmark, fetch its responses
+    if (selectedBookmarkId) {
+      if (selectedBookmarkId === "all") {
+        fetchAllResponses(session.userId);
+      } else if (selectedBookmarkTitle === 'daily summary') {
         handleGenerateSummary(false); // Load latest summary without force refresh
       } else {
         fetchBookmarkResponses(session.userId, selectedBookmarkId);
       }
-    } else if (selectedBookmarkId === "all" && session?.userId) {
-      fetchAllResponses(session.userId);
-    } else {
+    }
+    // Only clear responses if we explicitly don't have a selected bookmark
+    else if (selectedBookmarkId === null) {
       setBookmarkResponses([]);
     }
   }, [selectedBookmarkId, session, selectedLanguage]);
