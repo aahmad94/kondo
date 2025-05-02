@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react";
 import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
@@ -36,6 +36,8 @@ export default function Bookmarks({
   const [bookmarkToDelete, setBookmarkToDelete] = useState<Bookmark | null>(null);
   const { data: session } = useSession();
   const router = useRouter();
+  const touchStartY = useRef<number | null>(null);
+  const touchStartTime = useRef<number | null>(null);
 
   const fetchBookmarks = async (userId: string) => {
     try {
@@ -141,6 +143,29 @@ export default function Bookmarks({
     setIsOpen(!isOpen);
   };
 
+  const handleTouchStart = (e: React.TouchEvent, bookmarkId: string, bookmarkTitle: string) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent, bookmarkId: string, bookmarkTitle: string) => {
+    if (!touchStartY.current || !touchStartTime.current) return;
+
+    const touchEndY = e.changedTouches[0].clientY;
+    const touchEndTime = Date.now();
+    const deltaY = Math.abs(touchEndY - touchStartY.current);
+    const deltaTime = touchEndTime - touchStartTime.current;
+
+    // If it's a quick tap (less than 200ms) and minimal movement (less than 10px)
+    if (deltaTime < 200 && deltaY < 10) {
+      handleBookmarkInteraction(bookmarkId, bookmarkTitle);
+    }
+
+    // Reset touch tracking
+    touchStartY.current = null;
+    touchStartTime.current = null;
+  };
+
   return (
     <>
       {!isOpen && (
@@ -210,7 +235,8 @@ export default function Bookmarks({
                         className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group
                           ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
                         onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
-                        onTouchStart={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
+                        onTouchStart={(e) => handleTouchStart(e, bookmark.id, bookmark.title)}
+                        onTouchEnd={(e) => handleTouchEnd(e, bookmark.id, bookmark.title)}
                       >
                         <span className="text-white">
                           {bookmark.title}
