@@ -14,9 +14,14 @@ export default function Tooltip({ children, content, isVisible, buttonRef }: Too
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const tooltipRef = useRef<HTMLDivElement>(null);
   const dismissTimerRef = useRef<NodeJS.Timeout>();
+  const [localIsVisible, setLocalIsVisible] = useState(isVisible);
 
   useEffect(() => {
-    if (isVisible && buttonRef.current) {
+    setLocalIsVisible(isVisible);
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (localIsVisible && buttonRef.current) {
       const buttonRect = buttonRef.current.getBoundingClientRect();
       const tooltipHeight = tooltipRef.current?.offsetHeight || 0;
       
@@ -25,10 +30,16 @@ export default function Tooltip({ children, content, isVisible, buttonRef }: Too
         left: buttonRect.left + (buttonRect.width / 2)
       });
 
+      // Clear any existing timer
+      if (dismissTimerRef.current) {
+        clearTimeout(dismissTimerRef.current);
+      }
+
       // Set auto-dismiss timer
       dismissTimerRef.current = setTimeout(() => {
+        setLocalIsVisible(false);
         if (buttonRef.current) {
-          // Trigger mouseleave event to hide tooltip
+          // Trigger mouseleave event to update parent state
           const event = new MouseEvent('mouseleave', {
             bubbles: true,
             cancelable: true,
@@ -45,7 +56,7 @@ export default function Tooltip({ children, content, isVisible, buttonRef }: Too
         }
       };
     }
-  }, [isVisible, buttonRef]);
+  }, [localIsVisible, buttonRef]);
 
   // Handle touch events
   useEffect(() => {
@@ -66,6 +77,7 @@ export default function Tooltip({ children, content, isVisible, buttonRef }: Too
            touch.clientY < tooltipRect.top || 
            touch.clientY > tooltipRect.bottom)
         ) {
+          setLocalIsVisible(false);
           const event = new MouseEvent('mouseleave', {
             bubbles: true,
             cancelable: true,
@@ -76,16 +88,16 @@ export default function Tooltip({ children, content, isVisible, buttonRef }: Too
       }
     };
 
-    if (isVisible) {
+    if (localIsVisible) {
       document.addEventListener('touchstart', handleTouchStart);
     }
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
     };
-  }, [isVisible, buttonRef]);
+  }, [localIsVisible, buttonRef]);
 
-  if (!isVisible) return <>{children}</>;
+  if (!localIsVisible) return <>{children}</>;
 
   return (
     <>
