@@ -15,24 +15,28 @@ export default function Home() {
   const [selectedBookmarkTitle, setSelectedBookmarkTitle] = useState<string | null>(null);
   const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary']);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
+  const [isClearingBookmark, setIsClearingBookmark] = useState(false);
 
   useEffect(() => {
     if (searchParams) {
       const bookmarkId = searchParams.get('bookmarkId');
       const bookmarkTitle = searchParams.get('bookmarkTitle');
   
-      // Only update if we have both parameters and they're different from current state
-      if (bookmarkId && bookmarkTitle && 
-          (bookmarkId !== selectedBookmarkId || bookmarkTitle !== selectedBookmarkTitle)) {
+      // if we have url parameters different from current state
+      if ((bookmarkId && bookmarkTitle) && 
+          (bookmarkId !== selectedBookmarkId || bookmarkTitle !== selectedBookmarkTitle) &&
+          !isClearingBookmark) {
         setSelectedBookmarkId(bookmarkId);
         setSelectedBookmarkTitle(bookmarkTitle);
       }
-      // If we have a selected bookmark but no URL params, update the URL
-      else if (selectedBookmarkId && selectedBookmarkTitle && (!bookmarkId || !bookmarkTitle)) {
+      // if we have a selected bookmark in current state but no url params
+      else if (selectedBookmarkId && selectedBookmarkTitle && 
+              (!bookmarkId || !bookmarkTitle) &&
+              !isClearingBookmark) {
         handleBookmarkSelect(selectedBookmarkId, selectedBookmarkTitle);
       }
     }
-  }, [searchParams, selectedBookmarkId, selectedBookmarkTitle, router])
+  }, [searchParams, selectedBookmarkId, selectedBookmarkTitle, isClearingBookmark])
   
 
   // Handle authentication
@@ -55,24 +59,32 @@ export default function Home() {
   }
 
   const handleBookmarkSelect = (newBookmarkId: string | null, newBookmarkTitle: string | null) => {
-    if (selectedBookmarkId !== newBookmarkId) {
+    console.log(`new bookmark: ${newBookmarkTitle}`)
+    if (!newBookmarkId) {
+      setIsClearingBookmark(true);
+      router.push('/');
+      setSelectedBookmarkId(null);
+      setSelectedBookmarkTitle(null);
+      // Reset the flag after a short delay to allow the URL update to complete
+      setTimeout(() => setIsClearingBookmark(false), 100);
+    } else {
       setSelectedBookmarkId(newBookmarkId);
       setSelectedBookmarkTitle(newBookmarkTitle);
+      
+      // Update URL query params
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      if (newBookmarkId) {
+        params.set('bookmarkId', newBookmarkId);
+      } else {
+        params.delete('bookmarkId');
+      }
+      if (newBookmarkTitle) {
+        params.set('bookmarkTitle', newBookmarkTitle);
+      } else {
+        params.delete('bookmarkTitle');
+      }
+      router.push(`/?${params.toString()}`);
     }
-    
-    // Update URL query params
-    const params = new URLSearchParams(searchParams?.toString() ?? '');
-    if (newBookmarkId) {
-      params.set('bookmarkId', newBookmarkId);
-    } else {
-      params.delete('bookmarkId');
-    }
-    if (newBookmarkTitle) {
-      params.set('bookmarkTitle', newBookmarkTitle);
-    } else {
-      params.delete('bookmarkTitle');
-    }
-    router.push(`/?${params.toString()}`);
   };
 
   const handleLanguageChange = (languageCode: string) => {
