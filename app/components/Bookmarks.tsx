@@ -242,7 +242,8 @@ export default function Bookmarks({
                           {bookmark.title}
                         </span>
                         <XCircleIcon
-                          className="h-5 w-5 mr-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          className={`h-5 w-5 mr-1 text-red-500 hover:text-red-700 transition-colors duration-200
+                            ${selectedBookmarkId === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                           onClick={(e) => handleDeleteClick(bookmark, e)}
                         />
                       </div>
