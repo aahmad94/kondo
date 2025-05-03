@@ -8,11 +8,11 @@ import { useRouter } from 'next/navigation';
 import LanguageSelector from './LanguageSelector';
 
 interface MenuBarProps {
-  onBookmarkSelect: (bookmarkId: string | null, bookmarkTitle: string | null) => void;
   onLanguageChange: (languageCode: string) => void;
+  onClearBookmark: () => void;
 }
 
-const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect, onLanguageChange }: MenuBarProps) => {
+const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: MenuBarProps) => {
   const { data: session, status } = useSession()
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -26,11 +26,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect, onLanguageChange }:
     e.preventDefault();
     // Clear the query parameters by pushing to the base path
     router.push('/');
-    onBookmarkSelect(null, null);
-  };
-
-  const handleClearBookmark = () => {
-    onBookmarkSelect(null, null);
+    onClearBookmark();
   };
 
   const handleLogout = async () => {
@@ -48,7 +44,10 @@ const MenuBar: React.FC<MenuBarProps> = ({ onBookmarkSelect, onLanguageChange }:
           Kondo
         </Link>
         <div className="flex items-center gap-4 mr-4">
-          <LanguageSelector onLanguageChange={onLanguageChange} onClearBookmark={handleClearBookmark} />
+          <LanguageSelector 
+            onLanguageChange={onLanguageChange} 
+            onClearBookmark={onClearBookmark}
+          />
           {session?.user?.image && (
             <div className="relative">
               <Image

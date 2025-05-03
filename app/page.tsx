@@ -59,33 +59,31 @@ export default function Home() {
   }
 
   const handleBookmarkSelect = (newBookmarkId: string | null, newBookmarkTitle: string | null) => {
-    console.log(`new bookmark: ${newBookmarkTitle}`)
-    if (!newBookmarkId) {
-      setIsClearingBookmark(true);
-      router.push('/');
-      setSelectedBookmarkId(null);
-      setSelectedBookmarkTitle(null);
-      // Reset the flag after a short delay to allow the URL update to complete
-      setTimeout(() => setIsClearingBookmark(false), 100);
+    setSelectedBookmarkId(newBookmarkId);
+    setSelectedBookmarkTitle(newBookmarkTitle);
+    
+    // Update URL query params
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    if (newBookmarkId) {
+      params.set('bookmarkId', newBookmarkId);
     } else {
-      setSelectedBookmarkId(newBookmarkId);
-      setSelectedBookmarkTitle(newBookmarkTitle);
-      
-      // Update URL query params
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
-      if (newBookmarkId) {
-        params.set('bookmarkId', newBookmarkId);
-      } else {
-        params.delete('bookmarkId');
-      }
-      if (newBookmarkTitle) {
-        params.set('bookmarkTitle', newBookmarkTitle);
-      } else {
-        params.delete('bookmarkTitle');
-      }
-      router.push(`/?${params.toString()}`);
+      params.delete('bookmarkId');
     }
+    if (newBookmarkTitle) {
+      params.set('bookmarkTitle', newBookmarkTitle);
+    } else {
+      params.delete('bookmarkTitle');
+    }
+    router.push(`/?${params.toString()}`);
   };
+
+
+  const handleClearBookmark = () => {
+    setIsClearingBookmark(true);
+    setSelectedBookmarkId(null);
+    setSelectedBookmarkTitle(null);
+    setTimeout(() => setIsClearingBookmark(false), 100);
+  }
 
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
@@ -102,8 +100,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-[#000000]">
-      <MenuBar 
-        onBookmarkSelect={handleBookmarkSelect} 
+      <MenuBar
+        onClearBookmark={handleClearBookmark}
         onLanguageChange={handleLanguageChange}
       />
       <div className="flex flex-1 overflow-hidden bg-[#000000]">
