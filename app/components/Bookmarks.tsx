@@ -59,7 +59,7 @@ export default function Bookmarks({
     if (session?.userId) {
       fetchBookmarks(session.userId);
     }
-  }, [session, selectedLanguage]);
+  }, [selectedLanguage]);
 
   useEffect(() => {
     // Check if window width is less than 768px (mobile)
