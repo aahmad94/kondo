@@ -14,8 +14,7 @@ interface Bookmark {
 
 interface BookmarksProps {
   changeSelectedBookmark: (bookmarkId: string|null, bookmarkTitle: string|null) => void;
-  selectedBookmarkId: string | null;
-  selectedBookmarkTitle: string | null;
+  selectedBookmark: { id: string | null, title: string | null };
   reservedBookmarkTitles: string[];
   onRefetchBookmarks?: () => void;
   selectedLanguage: string;
@@ -23,8 +22,7 @@ interface BookmarksProps {
 
 export default function Bookmarks({ 
   changeSelectedBookmark, 
-  selectedBookmarkId, 
-  selectedBookmarkTitle, 
+  selectedBookmark, 
   reservedBookmarkTitles,
   onRefetchBookmarks,
   selectedLanguage
@@ -56,6 +54,7 @@ export default function Bookmarks({
 
   // Refetch bookmarks when language changes
   useEffect(() => {
+    setBookmarks([]);
     if (session?.userId) {
       fetchBookmarks(session.userId);
     }
@@ -84,6 +83,7 @@ export default function Bookmarks({
   }, []);
 
   const handleBookmarkInteraction = (bookmarkId: string, bookmarkTitle: string) => {
+    console.log('****handleBookmarkInteraction****', { bookmarkId, bookmarkTitle });
     // Update URL with new query parameters using the App Router pattern
     router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
     changeSelectedBookmark(bookmarkId, bookmarkTitle);
@@ -128,7 +128,7 @@ export default function Bookmarks({
         }
 
         setBookmarks(bookmarks.filter(b => b.id !== bookmarkToDelete.id));
-        if (selectedBookmarkId === bookmarkToDelete.id) {
+        if (selectedBookmark.id === bookmarkToDelete.id) {
           changeSelectedBookmark(null, null);
         }
         setIsDeleteModalOpen(false);
@@ -204,7 +204,7 @@ export default function Bookmarks({
 
                 <div 
                   className={`all-responses-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
-                    ${selectedBookmarkId === "all" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    ${selectedBookmark.id === "all" ? 'bg-gray-700 rounded-sm' : ''}`}
                   onClick={() => handleBookmarkInteraction("all", "all responses")}
                   onTouchStart={() => handleBookmarkInteraction("all", "all responses")}
                 >
@@ -214,7 +214,7 @@ export default function Bookmarks({
 
                 <div 
                   className={`daily-summary-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
-                    ${selectedBookmarkTitle === "daily summary" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    ${selectedBookmark.title === "daily summary" ? 'bg-gray-700 rounded-sm' : ''}`}
                   onClick={() => {
                     const dailySummaryBookmark = bookmarks.find(b => b.title === 'daily summary');
                     if (dailySummaryBookmark) {
@@ -233,7 +233,7 @@ export default function Bookmarks({
                       <div
                         key={bookmark.id}
                         className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group
-                          ${selectedBookmarkId === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
+                          ${selectedBookmark.id === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
                         onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                         onTouchStart={(e) => handleTouchStart(e, bookmark.id, bookmark.title)}
                         onTouchEnd={(e) => handleTouchEnd(e, bookmark.id, bookmark.title)}
@@ -243,7 +243,7 @@ export default function Bookmarks({
                         </span>
                         <XCircleIcon
                           className={`h-5 w-5 mr-1 text-red-500 hover:text-red-700 transition-colors duration-200
-                            ${selectedBookmarkId === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                           onClick={(e) => handleDeleteClick(bookmark, e)}
                         />
                       </div>

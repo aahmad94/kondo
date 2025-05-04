@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
+import { useRouter } from 'next/navigation';
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
 import { getLanguageInstructions } from '../../lib/languageService';
 
 interface ChatBoxProps {
-  selectedBookmarkId: string | null;
-  selectedBookmarkTitle: string | null;
+  selectedBookmark: { id: string | null, title: string | null };
   reservedBookmarkTitles: string[];
   selectedLanguage: string;
   onLanguageChange: (languageCode: string) => void;
@@ -54,13 +54,13 @@ const formatStats = (stats: {
 };
 
 export default function ChatBox({ 
-  selectedBookmarkId, 
-  selectedBookmarkTitle, 
+  selectedBookmark, 
   reservedBookmarkTitles,
   selectedLanguage,
   onLanguageChange 
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
+  const router = useRouter();
   const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -75,6 +75,7 @@ export default function ChatBox({
     rank2: { count: number; percentage: number };
     rank3: { count: number; percentage: number };
   } | null>(null);
+  const [dailySummaryCache, setDailySummaryCache] = useState<Response[] | null>(null);
 
   // Add ref to track previous language
   const previousLanguageRef = useRef(selectedLanguage);
@@ -129,7 +130,10 @@ export default function ChatBox({
         setInstructions(languageInstructions);
         // Only clear responses if the language actually changed
         if (selectedLanguage !== previousLanguageRef.current) {
+          // Clear ChatBox responses and URL params
           setResponses([]);
+          router.push('/');
+          // Update the previous language
           previousLanguageRef.current = selectedLanguage;
         }
       }
@@ -142,28 +146,49 @@ export default function ChatBox({
     // Only proceed if we have a session
     if (!session?.userId) return;
 
+    console.log('Bookmark change effect triggered:', {
+      selectedBookmark: selectedBookmark.id,
+      selectedBookmarkTitle: selectedBookmark.title,
+      hasDailySummaryCache: !!dailySummaryCache,
+      currentBookmarkResponses: bookmarkResponses.length
+    });
+
     // If we have a selected bookmark, fetch its responses
-    if (selectedBookmarkId) {
-      if (selectedBookmarkId === "all") {
+    if (selectedBookmark.id) {
+      if (selectedBookmark.id === "all") {
+        console.log('Fetching all responses');
         fetchAllResponses(session.userId);
-      } else if (selectedBookmarkTitle === 'daily summary') {
-        handleGenerateSummary(false); // Load latest summary without force refresh
+      } else if (selectedBookmark.title === 'daily summary') {
+        console.log('Handling daily summary:', {
+          hasCache: !!dailySummaryCache,
+          cacheLength: dailySummaryCache?.length
+        });
+        // Use cached summary if available, otherwise fetch
+        if (dailySummaryCache) {
+          console.log('Using cached daily summary');
+          setBookmarkResponses(dailySummaryCache);
+        } else {
+          console.log('Fetching new daily summary');
+          handleGenerateSummary(false);
+        }
       } else {
-        fetchBookmarkResponses(session.userId, selectedBookmarkId);
+        console.log('Fetching regular bookmark responses');
+        fetchBookmarkResponses(session.userId, selectedBookmark.id);
       }
     }
     // Only clear responses if we explicitly don't have a selected bookmark
-    else if (selectedBookmarkId === null) {
+    else if (selectedBookmark.id === null) {
+      console.log('Clearing bookmark responses');
       setBookmarkResponses([]);
     }
-  }, [selectedBookmarkId, session, selectedLanguage]);
+  }, [selectedBookmark, selectedLanguage]);
 
   // Scroll to bottom when new responses are added or quote is clicked in main chat
   useEffect(() => {
-    if (!selectedBookmarkId && (responses.length > 0 || responseQuote)) {
+    if (!selectedBookmark.id && (responses.length > 0 || responseQuote)) {
       scrollToBottom();
     }
-  }, [responses, responseQuote, selectedBookmarkId]);
+  }, [responses, responseQuote, selectedBookmark.id]);
 
   // Fetch response statistics when component mounts or when responses change
   useEffect(() => {
@@ -186,12 +211,12 @@ export default function ChatBox({
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      if (chatContainerRef.current && selectedBookmarkTitle && !reservedBookmarkTitles.includes(selectedBookmarkTitle)) {
+      if (chatContainerRef.current && selectedBookmark.title && !reservedBookmarkTitles.includes(selectedBookmark.title)) {
         chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
         });
-      } else if (chatContainerRef.current && !selectedBookmarkTitle) {
+      } else if (chatContainerRef.current && !selectedBookmark.title) {
         chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
@@ -419,7 +444,7 @@ export default function ChatBox({
       
       if (data.success) {
         // Update the responses in place with the new isPaused value
-        if (selectedBookmarkId) {
+        if (selectedBookmark.id) {
           // Updating bookmarkResponses with new isPaused value
           setBookmarkResponses(prevResponses => {
             const updatedResponses = prevResponses.map(response => 
@@ -447,6 +472,7 @@ export default function ChatBox({
     
     try {
       setIsLoading(true);
+      console.log('Generating summary, forceRefresh:', forceRefresh);
       const res = await fetch(`/api/getDailySummary?userId=${session.userId}&forceRefresh=${forceRefresh}`);
       
       if (!res.ok) {
@@ -465,20 +491,32 @@ export default function ChatBox({
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
 
-        setBookmarkResponses(sortedResponses.map((response: Response) => ({
+        const transformedResponses = sortedResponses.map((response: Response) => ({
           id: response.id,
           content: response.content,
           rank: response.rank,
           createdAt: new Date(response.createdAt),
           isPaused: response.isPaused,
           bookmarks: response.bookmarks
-        })));
+        }));
+
+        console.log('Setting daily summary cache and responses:', {
+          cacheLength: transformedResponses.length,
+          firstResponse: transformedResponses[0]?.content
+        });
+
+        // Cache the summary data
+        setDailySummaryCache(transformedResponses);
+        setBookmarkResponses(transformedResponses);
       } else {
+        console.log('No summary data available');
         setBookmarkResponses([]);
+        setDailySummaryCache(null);
       }
     } catch (error) {
       console.error('Error generating summary:', error);
       setBookmarkResponses([]);
+      setDailySummaryCache(null);
     } finally {
       setIsLoading(false);
     }
@@ -493,10 +531,10 @@ export default function ChatBox({
       <div 
         ref={chatContainerRef}
         className={`overflow-y-auto relative mb-2 ${
-          selectedBookmarkId ? bookmarkContainerHeight() : ''
+          selectedBookmark.id ? bookmarkContainerHeight() : ''
         }`}
         style={{ 
-          height: selectedBookmarkId ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset}px)`,
+          height: selectedBookmark.id ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset}px)`,
           paddingBottom: 'env(safe-area-inset-bottom)' 
         }}
       >
@@ -506,22 +544,22 @@ export default function ChatBox({
           </div>
         )}
         
-        {!selectedBookmarkId && (
+        {!selectedBookmark.id && (
           <GPTResponse
             type="instruction"
             response={instructions.main}
-            selectedBookmarkId={selectedBookmarkId}
-            selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
+            selectedBookmarkId={selectedBookmark.id}
+            selectedBookmarkTitle={selectedBookmark.title ?? ''}
             reservedBookmarkTitles={reservedBookmarkTitles}
             responseId={null}
           />
         )}
         
-        {selectedBookmarkTitle === 'daily summary' && (
+        {selectedBookmark.title === 'daily summary' && (
           <GPTResponse
             type="instruction"
             response={responseStats ? `${instructions.dailySummary}\n\n${formatStats(responseStats)}` : instructions.dailySummary}
-            selectedBookmarkId={selectedBookmarkId}
+            selectedBookmarkId={selectedBookmark.id}
             selectedBookmarkTitle="daily summary"
             reservedBookmarkTitles={reservedBookmarkTitles}
             onGenerateSummary={handleGenerateSummary}
@@ -531,13 +569,13 @@ export default function ChatBox({
           />
         )}
         
-        {selectedBookmarkId ? (
+        {selectedBookmark.id ? (
           bookmarkResponses.map((response, index) => (
             <GPTResponse
               key={index}
               response={response.content}
-              selectedBookmarkId={selectedBookmarkId}
-              selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
+              selectedBookmarkId={selectedBookmark.id}
+              selectedBookmarkTitle={selectedBookmark.title ?? ''}
               reservedBookmarkTitles={reservedBookmarkTitles}
               responseId={response.id}
               rank={response.rank}
@@ -555,8 +593,8 @@ export default function ChatBox({
             <GPTResponse
               key={index}
               response={response.content}
-              selectedBookmarkId={selectedBookmarkId}
-              selectedBookmarkTitle={selectedBookmarkTitle ?? ''}
+              selectedBookmarkId={selectedBookmark.id}
+              selectedBookmarkTitle={selectedBookmark.title ?? ''}
               reservedBookmarkTitles={reservedBookmarkTitles}
               responseId={response.id}
               isPaused={response.isPaused}
@@ -567,7 +605,7 @@ export default function ChatBox({
           ))
         )}
       </div>
-      {!selectedBookmarkId && (
+      {!selectedBookmark.id && (
         <UserInput 
           onSubmit={handleSubmit} 
           isLoading={isLoading} 

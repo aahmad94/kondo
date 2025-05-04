@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from 'next/navigation';
 import MenuBar from './components/MenuBar';
@@ -11,32 +11,23 @@ export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedBookmarkId, setSelectedBookmarkId] = useState<string | null>(null);
-  const [selectedBookmarkTitle, setSelectedBookmarkTitle] = useState<string | null>(null);
+  const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: null });
   const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary']);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
   const [isClearingBookmark, setIsClearingBookmark] = useState(false);
+  const hasSyncedRef = useRef(false);
 
   useEffect(() => {
-    if (searchParams) {
+    if (searchParams && !hasSyncedRef.current) {
       const bookmarkId = searchParams.get('bookmarkId');
       const bookmarkTitle = searchParams.get('bookmarkTitle');
-  
-      // if we have url parameters different from current state
-      if ((bookmarkId && bookmarkTitle) && 
-          (bookmarkId !== selectedBookmarkId || bookmarkTitle !== selectedBookmarkTitle) &&
-          !isClearingBookmark) {
-        setSelectedBookmarkId(bookmarkId);
-        setSelectedBookmarkTitle(bookmarkTitle);
+      if (bookmarkId && bookmarkTitle) {
+        setSelectedBookmark({ id: bookmarkId, title: bookmarkTitle });
       }
-      // if we have a selected bookmark in current state but no url params
-      else if (selectedBookmarkId && selectedBookmarkTitle && 
-              (!bookmarkId || !bookmarkTitle) &&
-              !isClearingBookmark) {
-        handleBookmarkSelect(selectedBookmarkId, selectedBookmarkTitle);
-      }
+      hasSyncedRef.current = true;
     }
-  }, [searchParams, selectedBookmarkId, selectedBookmarkTitle, isClearingBookmark])
+    // Do NOT sync from URL again after initial load
+  }, [searchParams]);
   
 
   // Handle authentication
@@ -58,42 +49,28 @@ export default function Home() {
     return null
   }
 
-  const handleBookmarkSelect = (newBookmarkId: string | null, newBookmarkTitle: string | null) => {
-    setSelectedBookmarkId(newBookmarkId);
-    setSelectedBookmarkTitle(newBookmarkTitle);
-    
-    // Update URL query params
+  const handleBookmarkSelect = (id: string | null, title: string | null) => {
+    setSelectedBookmark({ id, title });
     const params = new URLSearchParams(searchParams?.toString() ?? '');
-    if (newBookmarkId) {
-      params.set('bookmarkId', newBookmarkId);
-    } else {
-      params.delete('bookmarkId');
-    }
-    if (newBookmarkTitle) {
-      params.set('bookmarkTitle', newBookmarkTitle);
-    } else {
-      params.delete('bookmarkTitle');
-    }
+    if (id) params.set('bookmarkId', id); else params.delete('bookmarkId');
+    if (title) params.set('bookmarkTitle', title); else params.delete('bookmarkTitle');
     router.push(`/?${params.toString()}`);
   };
 
 
   const handleClearBookmark = () => {
     setIsClearingBookmark(true);
-    setSelectedBookmarkId(null);
-    setSelectedBookmarkTitle(null);
+    setSelectedBookmark({ id: null, title: null });
     setTimeout(() => setIsClearingBookmark(false), 100);
   }
 
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
-    // Clear bookmark selection and query params when language changes
     handleBookmarkSelect(null, null);
   };
 
   const handleRefetchBookmarks = () => {
-    // If we're currently viewing a bookmark that no longer exists, clear it
-    if (selectedBookmarkId && selectedBookmarkId !== 'all') {
+    if (selectedBookmark.id && selectedBookmark.id !== 'all') {
       handleBookmarkSelect(null, null);
     }
   };
@@ -107,16 +84,14 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden bg-[#000000]">
         <Bookmarks 
           changeSelectedBookmark={handleBookmarkSelect}
-          selectedBookmarkId={selectedBookmarkId}
-          selectedBookmarkTitle={selectedBookmarkTitle}
+          selectedBookmark={selectedBookmark}
           reservedBookmarkTitles={reservedBookmarkTitles}
           onRefetchBookmarks={handleRefetchBookmarks}
           selectedLanguage={selectedLanguage}
         />
         <div className="flex-1 overflow-hidden bg-[#000000]">
           <ChatBox 
-            selectedBookmarkId={selectedBookmarkId}
-            selectedBookmarkTitle={selectedBookmarkTitle}
+            selectedBookmark={selectedBookmark}
             reservedBookmarkTitles={reservedBookmarkTitles}
             selectedLanguage={selectedLanguage}
             onLanguageChange={handleLanguageChange}
