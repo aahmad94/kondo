@@ -242,6 +242,12 @@ export default function ChatBox({
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
+    // Skip fetching for reserved bookmarks
+    if (reservedBookmarkTitles.includes(bookmarkId)) {
+      setBookmarkResponses([]);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${bookmarkId}`);
       if (!res.ok) {
