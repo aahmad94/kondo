@@ -37,7 +37,7 @@ export default function SearchBar({ onSearch, selectedLanguage }: SearchBarProps
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
         placeholder="Search responses..."
-        className="w-full flex-grow m-2 px-4 py-2 bg-[#111111] text-white border border-gray-700 rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[${textareaMinHeight}px] h-[${textareaMinHeight}px] max-h-[${textareaMaxHeight}px] overflow-y-auto leading-[1.5]"
+        className="w-full flex-grow mx-4 mt-3 px-4 py-2 bg-[#111111] text-white border border-gray-700 rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[${textareaMinHeight}px] h-[${textareaMinHeight}px] max-h-[${textareaMaxHeight}px] overflow-y-auto leading-[1.5]"
       />
     </div>
   );
