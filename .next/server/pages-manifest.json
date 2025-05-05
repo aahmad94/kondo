@@ -6,6 +6,5 @@
   "/api/getLanguages": "pages/api/getLanguages.js",
   "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
   "/api/getUserResponseStats": "pages/api/getUserResponseStats.js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js",
   "/api/getUserResponses": "pages/api/getUserResponses.js"
 }
