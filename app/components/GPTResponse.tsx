@@ -22,7 +22,7 @@ import Tooltip from './Tooltip';
 interface GPTResponseProps {
   response: string;
   selectedBookmarkId: string | null;
-  selectedBookmarkTitle: string;
+  selectedBookmarkTitle: string | null;
   reservedBookmarkTitles: string[];
   responseId?: string | null;
   rank?: number;
@@ -34,6 +34,7 @@ interface GPTResponseProps {
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
+  onBookmarkSelect?: (id: string | null, title: string | null) => void;
   bookmarks?: Record<string, string>;
 }
 
@@ -52,6 +53,7 @@ export default function GPTResponse({
   onRankUpdate,
   onPauseToggle,
   onGenerateSummary,
+  onBookmarkSelect,
   bookmarks
 }: GPTResponseProps) {
   const red = '#d93900'
@@ -135,7 +137,15 @@ export default function GPTResponse({
       
       if (nonReservedBookmarkEntry) {
         const [bookmarkId, bookmarkTitle] = nonReservedBookmarkEntry;
+        // Update URL
         router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
+        // Call the parent's callback to update state
+        onBookmarkSelect?.(bookmarkId, bookmarkTitle);
+      } else {
+        // If no non-reserved bookmark is found, use the first bookmark
+        const [bookmarkId, bookmarkTitle] = Object.entries(bookmarks)[0];
+        router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
+        onBookmarkSelect?.(bookmarkId, bookmarkTitle);
       }
     }
   };
@@ -161,7 +171,7 @@ export default function GPTResponse({
             <>
               {selectedBookmarkId && responseId && (
                 <div className="flex items-center gap-3">
-                  {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses') && bookmarks && Object.keys(bookmarks).length > 0 && (
+                  {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
                     <span 
                       onClick={handleBookmarkClick}
                       className="text-xs px-2 py-0.5 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"

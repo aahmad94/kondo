@@ -6,12 +6,14 @@ import { useRouter } from 'next/navigation';
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
 import { getLanguageInstructions } from '../../lib/languageService';
+import SearchBar from './SearchBar';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
   reservedBookmarkTitles: string[];
   selectedLanguage: string;
   onLanguageChange: (languageCode: string) => void;
+  onBookmarkSelect: (id: string | null, title: string | null) => void;
 }
 
 interface Response {
@@ -57,7 +59,8 @@ export default function ChatBox({
   selectedBookmark, 
   reservedBookmarkTitles,
   selectedLanguage,
-  onLanguageChange 
+  onLanguageChange,
+  onBookmarkSelect 
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
@@ -76,6 +79,8 @@ export default function ChatBox({
     rank3: { count: number; percentage: number };
   } | null>(null);
   const [dailySummaryCache, setDailySummaryCache] = useState<Response[] | null>(null);
+  const [searchResults, setSearchResults] = useState<Response[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Add ref to track previous language
   const previousLanguageRef = useRef(selectedLanguage);
@@ -522,6 +527,36 @@ export default function ChatBox({
     }
   };
 
+  const handleSearch = async (query: string) => {
+    if (!session?.userId || !query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const res = await fetch(`/api/searchResponses?query=${encodeURIComponent(query)}&languageCode=${selectedLanguage}`);
+      if (!res.ok) {
+        throw new Error('Failed to search responses');
+      }
+      const data = await res.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error('Error searching responses:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Add useEffect to clear search results and bookmark responses when entering search bookmark
+  useEffect(() => {
+    if (selectedBookmark.title === 'search') {
+      setSearchResults([]);
+      setBookmarkResponses([]);
+    }
+  }, [selectedBookmark.title]);
+
   if (status === "loading") {
     return <div>Loading...</div>
   }
@@ -544,6 +579,37 @@ export default function ChatBox({
           </div>
         )}
         
+        {selectedBookmark.title === 'search' && (
+          <div>
+            <SearchBar onSearch={handleSearch} selectedLanguage={selectedLanguage} />
+            {isSearching ? (
+              <div className="flex py-4">
+                <div className="animate-spin h-6 w-6 border-3 border-blue-500 border-t-transparent rounded-full"></div>
+              </div>
+            ) : searchResults.length > 0 ? (
+              searchResults.map((response, index) => (
+                <GPTResponse
+                  key={index}
+                  response={response.content}
+                  selectedBookmarkId={response.id}
+                  selectedBookmarkTitle={selectedBookmark.title}
+                  reservedBookmarkTitles={reservedBookmarkTitles}
+                  responseId={response.id}
+                  rank={response.rank}
+                  createdAt={response.createdAt}
+                  isPaused={response.isPaused}
+                  bookmarks={response.bookmarks}
+                  onQuote={handleResponseQuote}
+                  onRankUpdate={handleRankUpdate}
+                  onDelete={handleResponseDelete}
+                  onPauseToggle={handlePauseToggle}
+                  onBookmarkSelect={onBookmarkSelect}
+                />
+              ))
+            ) : null}
+          </div>
+        )}
+        
         {!selectedBookmark.id && (
           <GPTResponse
             type="instruction"
@@ -552,6 +618,7 @@ export default function ChatBox({
             selectedBookmarkTitle={selectedBookmark.title ?? ''}
             reservedBookmarkTitles={reservedBookmarkTitles}
             responseId={null}
+            onBookmarkSelect={onBookmarkSelect}
           />
         )}
         
@@ -566,6 +633,7 @@ export default function ChatBox({
             onRankUpdate={handleRankUpdate}
             onDelete={handleResponseDelete}
             onPauseToggle={handlePauseToggle}
+            onBookmarkSelect={onBookmarkSelect}
           />
         )}
         
@@ -586,6 +654,7 @@ export default function ChatBox({
               onRankUpdate={handleRankUpdate}
               onDelete={handleResponseDelete}
               onPauseToggle={handlePauseToggle}
+              onBookmarkSelect={onBookmarkSelect}
             />
           ))
         ) : (
@@ -601,6 +670,7 @@ export default function ChatBox({
               onDelete={handleResponseDelete}
               onQuote={handleResponseQuote}
               onRankUpdate={handleRankUpdate}
+              onBookmarkSelect={onBookmarkSelect}
             />
           ))
         )}

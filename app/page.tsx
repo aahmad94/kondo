@@ -12,7 +12,7 @@ export default function Home() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: null });
-  const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary']);
+  const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary', 'search']);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
   const [isClearingBookmark, setIsClearingBookmark] = useState(false);
   const hasSyncedRef = useRef(false);
@@ -50,6 +50,7 @@ export default function Home() {
   }
 
   const handleBookmarkSelect = (id: string | null, title: string | null) => {
+    console.log('****handleBookmarkSelect****', { id, title });
     setSelectedBookmark({ id, title });
     const params = new URLSearchParams(searchParams?.toString() ?? '');
     if (id) params.set('bookmarkId', id); else params.delete('bookmarkId');
@@ -61,20 +62,14 @@ export default function Home() {
   const handleClearBookmark = () => {
     setIsClearingBookmark(true);
     setSelectedBookmark({ id: null, title: null });
-    setTimeout(() => setIsClearingBookmark(false), 100);
+    setTimeout(() => setIsClearingBookmark(false), 250);
   }
 
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
     handleBookmarkSelect(null, null);
   };
-
-  const handleRefetchBookmarks = () => {
-    if (selectedBookmark.id && selectedBookmark.id !== 'all') {
-      handleBookmarkSelect(null, null);
-    }
-  };
-
+  
   return (
     <div className="flex flex-col h-screen bg-[#000000]">
       <MenuBar
@@ -86,7 +81,6 @@ export default function Home() {
           changeSelectedBookmark={handleBookmarkSelect}
           selectedBookmark={selectedBookmark}
           reservedBookmarkTitles={reservedBookmarkTitles}
-          onRefetchBookmarks={handleRefetchBookmarks}
           selectedLanguage={selectedLanguage}
         />
         <div className="flex-1 overflow-hidden bg-[#000000]">
@@ -95,6 +89,7 @@ export default function Home() {
             reservedBookmarkTitles={reservedBookmarkTitles}
             selectedLanguage={selectedLanguage}
             onLanguageChange={handleLanguageChange}
+            onBookmarkSelect={handleBookmarkSelect}
           />
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 import { useRouter } from 'next/navigation';
@@ -16,7 +16,6 @@ interface BookmarksProps {
   changeSelectedBookmark: (bookmarkId: string|null, bookmarkTitle: string|null) => void;
   selectedBookmark: { id: string | null, title: string | null };
   reservedBookmarkTitles: string[];
-  onRefetchBookmarks?: () => void;
   selectedLanguage: string;
 }
 
@@ -24,7 +23,6 @@ export default function Bookmarks({
   changeSelectedBookmark, 
   selectedBookmark, 
   reservedBookmarkTitles,
-  onRefetchBookmarks,
   selectedLanguage
 }: BookmarksProps) {
   const [isOpen, setIsOpen] = useState(true);
@@ -46,7 +44,6 @@ export default function Bookmarks({
       const data = await response.json();
       setBookmarks(data);
       // Notify parent that bookmarks were refetched
-      onRefetchBookmarks?.();
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
     }
@@ -200,6 +197,16 @@ export default function Bookmarks({
                 >
                   <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
                   <span className="text-blue-400">add bookmark</span>
+                </div>
+
+                <div 
+                  className={`search-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
+                    ${selectedBookmark.title === "search" ? 'bg-gray-700 rounded-sm' : ''}`}
+                  onClick={() => handleBookmarkInteraction("search", "search")}
+                  onTouchStart={() => handleBookmarkInteraction("search", "search")}
+                >
+                  <MagnifyingGlassIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                  <span className="text-blue-400">search</span>
                 </div>
 
                 <div 
