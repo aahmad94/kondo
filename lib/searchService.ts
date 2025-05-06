@@ -16,12 +16,15 @@ interface SearchResult {
 
 export async function fuzzySearchResponses(query: string, userId: string, languageCode: string): Promise<SearchResult[]> {
   try {
+    console.log('****inside search service****', query);
     // First get the language ID
     const { data: language } = await supabase
       .from('Language')
       .select('id')
       .eq('code', languageCode)
       .single();
+
+    console.log('****language****', language);
 
     if (!language) {
       throw new Error('Language not found');
