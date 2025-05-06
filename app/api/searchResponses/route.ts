@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
     console.log('Session in search API:', session);
 
-    if (!session?.user?.id) {
+    if (!session?.userId) {
       console.log('No user ID in session:', session);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -17,13 +17,13 @@ export async function GET(request: Request) {
     const query = searchParams.get('query');
     const languageCode = searchParams.get('languageCode');
 
-    console.log('Search params:', { query, languageCode, userId: session.user.id });
+    console.log('Search params:', { query, languageCode, userId: session.userId });
 
     if (!query || !languageCode) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const results = await fuzzySearchResponses(query, session.user.id, languageCode);
+    const results = await fuzzySearchResponses(query, session.userId, languageCode);
     return NextResponse.json(results);
   } catch (error) {
     console.error('Error in search API:', error);
