@@ -30,9 +30,9 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
     // Call the Supabase RPC
     const { data, error } = await supabase
       .rpc('fuzzy_search_responses', {
+        language_code: language.id,
         search_query: query,
-        user_id: userId,
-        lang_id: language.id
+        user_id: userId
       });
 
     if (error) {
