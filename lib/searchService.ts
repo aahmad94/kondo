@@ -1,9 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
+import { PrismaClient } from '@prisma/client';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
 const supabase = createClient(supabaseUrl, supabaseKey);
+const prisma = new PrismaClient();
 
 interface SearchResult {
   id: string;
@@ -16,23 +17,17 @@ interface SearchResult {
 
 export async function fuzzySearchResponses(query: string, userId: string, languageCode: string): Promise<SearchResult[]> {
   try {
-    console.log('****inside search service****', query);
-    // First get the language ID
-    const { data: language } = await supabase
-      .from('Language')
-      .select('id')
-      .eq('code', languageCode)
-      .single();
-
-    console.log('****language****', language);
+    // Get the language ID using Prisma
+    const language = await prisma.language.findUnique({
+      where: { code: languageCode },
+      select: { id: true }
+    });
 
     if (!language) {
       throw new Error('Language not found');
     }
 
-    console.log('****language****', language);
-
-    // Perform the fuzzy search using the custom function
+    // Call the Supabase RPC
     const { data, error } = await supabase
       .rpc('fuzzy_search_responses', {
         search_query: query,
