@@ -27,6 +27,8 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       throw new Error('Language not found');
     }
 
+    console.log('****language****', language);
+
     // Perform the fuzzy search using the custom function
     const { data, error } = await supabase
       .rpc('fuzzy_search_responses', {
@@ -36,6 +38,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       });
 
     if (error) {
+      console.error('****error****', error);
       throw error;
     }
 
