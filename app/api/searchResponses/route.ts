@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../pages/api/auth/[...nextauth]';
-import { searchResponses } from '../../../lib/searchService';
+import { fuzzySearchResponses } from '../../../lib/searchService';
 
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.userId) {
+    console.log('Session in search API:', session);
+
+    if (!session?.user?.id) {
+      console.log('No user ID in session:', session);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -14,12 +17,14 @@ export async function GET(request: Request) {
     const query = searchParams.get('query');
     const languageCode = searchParams.get('languageCode');
 
+    console.log('Search params:', { query, languageCode, userId: session.user.id });
+
     if (!query || !languageCode) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const responses = await searchResponses(session.userId, query, languageCode);
-    return NextResponse.json(responses);
+    const results = await fuzzySearchResponses(query, session.user.id, languageCode);
+    return NextResponse.json(results);
   } catch (error) {
     console.error('Error in search API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

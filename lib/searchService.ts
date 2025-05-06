@@ -1,44 +1,55 @@
-import prisma from './prisma';
+import { createClient } from '@supabase/supabase-js';
 
-export async function searchResponses(userId: string, query: string, languageCode: string, limit: number = 10) {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+interface SearchResult {
+  id: string;
+  content: string;
+  rank: number;
+  createdAt: Date;
+  isPaused: boolean;
+  bookmarks: Record<string, string>;
+}
+
+export async function fuzzySearchResponses(query: string, userId: string, languageCode: string): Promise<SearchResult[]> {
   try {
-    // First get the language ID from the code
-    const language = await prisma.language.findUnique({
-      where: { code: languageCode }
-    });
+    // First get the language ID
+    const { data: language } = await supabase
+      .from('Language')
+      .select('id')
+      .eq('code', languageCode)
+      .single();
 
     if (!language) {
       throw new Error('Language not found');
     }
 
-    const responses = await prisma.gPTResponse.findMany({
-      where: {
-        userId,
-        languageId: language.id,
-        content: {
-          contains: query,
-          mode: 'insensitive'
-        }
-      },
-      include: {
-        bookmarks: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: limit
-    });
+    // Perform the fuzzy search using the custom function
+    const { data, error } = await supabase
+      .rpc('fuzzy_search_responses', {
+        search_query: query,
+        user_id: userId,
+        lang_id: language.id
+      });
 
-    // Transform the responses to include bookmarks in the correct format
-    return responses.map(response => ({
-      ...response,
-      bookmarks: response.bookmarks.reduce((acc, bookmark) => ({
-        ...acc,
-        [bookmark.id]: bookmark.title
-      }), {})
+    if (error) {
+      throw error;
+    }
+
+    // Transform the results to match our SearchResult interface
+    return data.map((result: any) => ({
+      id: result.id,
+      content: result.content,
+      rank: result.rank,
+      createdAt: new Date(result.created_at),
+      isPaused: result.is_paused,
+      bookmarks: result.bookmarks || {}
     }));
   } catch (error) {
-    console.error('Error searching responses:', error);
+    console.error('Error in fuzzy search:', error);
     throw error;
   }
 } 

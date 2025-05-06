@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
-import { searchResponses } from '@/lib/searchService';
+import { fuzzySearchResponses } from '../../lib/searchService';
 
 export async function GET(request: Request) {
   try {
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const responses = await searchResponses(session.userId, query, languageId);
+    const responses = await fuzzySearchResponses(query, session.userId, languageId);
     return NextResponse.json(responses);
   } catch (error) {
     console.error('Error in search API:', error);

@@ -3,8 +3,5 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/api/getLanguages": "pages/api/getLanguages.js",
-  "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
-  "/api/getUserResponseStats": "pages/api/getUserResponseStats.js",
-  "/api/getUserResponses": "pages/api/getUserResponses.js"
+  "/auth/signin": "pages/auth/signin.js"
 }
