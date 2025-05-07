@@ -158,6 +158,7 @@ export default function ChatBox({
       } else if (selectedBookmark.title === 'daily summary') {
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
+          console.log('dailySummaryCache', dailySummaryCache);
           setBookmarkResponses(dailySummaryCache);
         } else {
           handleGenerateSummary(false);
