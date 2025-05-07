@@ -18,32 +18,25 @@ interface SearchResult {
 export async function fuzzySearchResponses(query: string, userId: string, languageCode: string): Promise<SearchResult[]> {
   try {
     // Get the language ID using Prisma
-    const language = await prisma.language.findUnique({
-      where: { code: languageCode },
-      select: { id: true }
-    });
 
-    if (!language) {
-      throw new Error('Language not found');
-    }
     console.log('****params****');
     console.log("***query****", query);
     console.log("***userId****", userId);
-    console.log('****language****', language.id);
+    console.log('****language****', languageCode);
 
     // Call the Supabase RPC
     const { data, error } = await supabase
       .rpc('fuzzy_search_responses', {
         search_query: query,
         user_id: userId,
-        language_code: language.id
+        language_code: languageCode
       });
 
     if (error) {
       throw error;
     }
 
-    console.log('****data****', data.length);
+    console.log('****data****', data);
 
     // Transform the results to match our SearchResult interface
     data.forEach((result: any) => {
