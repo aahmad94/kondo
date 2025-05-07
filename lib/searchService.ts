@@ -43,7 +43,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       throw error;
     }
 
-    console.log('****data****', data);
+    console.log('****data****', data.length);
 
     // Transform the results to match our SearchResult interface
     data.forEach((result: any) => {
