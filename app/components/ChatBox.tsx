@@ -79,7 +79,7 @@ export default function ChatBox({
     rank3: { count: number; percentage: number };
   } | null>(null);
   const [dailySummaryCache, setDailySummaryCache] = useState<Response[] | null>(null);
-  const [searchResults, setSearchResults] = useState<Response[]>([]);
+  const [searchResultsCache, setSearchResultsCache] = useState<Response[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
   // Add ref to track previous language
@@ -151,33 +151,25 @@ export default function ChatBox({
     // Only proceed if we have a session
     if (!session?.userId) return;
 
-    console.log('Bookmark change effect triggered:', {
-      selectedBookmark: selectedBookmark.id,
-      selectedBookmarkTitle: selectedBookmark.title,
-      hasDailySummaryCache: !!dailySummaryCache,
-      currentBookmarkResponses: bookmarkResponses.length
-    });
-
     // If we have a selected bookmark, fetch its responses
     if (selectedBookmark.id) {
       if (selectedBookmark.id === "all") {
-        console.log('Fetching all responses');
         fetchAllResponses(session.userId);
       } else if (selectedBookmark.title === 'daily summary') {
-        console.log('Handling daily summary:', {
-          hasCache: !!dailySummaryCache,
-          cacheLength: dailySummaryCache?.length
-        });
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
-          console.log('Using cached daily summary');
           setBookmarkResponses(dailySummaryCache);
         } else {
-          console.log('Fetching new daily summary');
           handleGenerateSummary(false);
         }
+      } else if (selectedBookmark.title === 'search') {
+        // Use cached search results if available, otherwise fetch
+        if (searchResultsCache) {
+          setBookmarkResponses(searchResultsCache);
+        } else {
+          setBookmarkResponses([]);
+        }
       } else {
-        console.log('Fetching regular bookmark responses');
         fetchBookmarkResponses(session.userId, selectedBookmark.id);
       }
     }
@@ -379,10 +371,18 @@ export default function ChatBox({
         throw new Error('Failed to delete response');
       }
 
-      // Update the state locally instead of reloading the page
+      // Update bookmarkResponses
       setBookmarkResponses(prevResponses => 
         prevResponses.filter(response => response.id !== responseId)
       );
+
+      // Update searchResultsCache if we're in search mode
+      if (selectedBookmark.title === 'search') {
+        setSearchResultsCache(bookmarkResponses);
+      }
+      if (selectedBookmark.title === 'daily summary') {
+        setDailySummaryCache(bookmarkResponses);
+      } 
     } catch (error) {
       console.error('Error deleting response:', error);
     }
@@ -424,14 +424,22 @@ export default function ChatBox({
 
       const updatedResponse = await response.json();
 
+      // Update bookmarkResponses
       setBookmarkResponses(prevResponses => {
-        // First update the rank of the modified response
         return prevResponses.map(response => 
           response.id === updatedResponse.id 
             ? { ...response, rank: updatedResponse.rank }
             : response
         );
       });
+
+      // Update searchResultsCache if we're in search mode
+      if (selectedBookmark.title === 'search') {
+        setSearchResultsCache(bookmarkResponses);
+      }
+      if (selectedBookmark.title === 'daily summary') {
+        setDailySummaryCache(bookmarkResponses);
+      }
     } catch (error) {
       console.error('Error updating rank:', error);
     }
@@ -463,6 +471,13 @@ export default function ChatBox({
             );
             return updatedResponses;
           });
+          // Update searchResultsCache if we're in search mode
+          if (selectedBookmark.title === 'search') {
+            setSearchResultsCache(bookmarkResponses);
+          }
+          if (selectedBookmark.title === 'daily summary') {
+            setDailySummaryCache(bookmarkResponses);
+          }
         } else {
           // Updating responses with new isPaused value
           setResponses(prevResponses => {
@@ -535,7 +550,8 @@ export default function ChatBox({
 
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
-      setSearchResults([]);
+      setSearchResultsCache(null);
+      setBookmarkResponses([]);
       return;
     }
 
@@ -549,26 +565,22 @@ export default function ChatBox({
         throw new Error('Failed to search responses');
       }
       const data = await res.json();
-      setSearchResults(data);
+      setSearchResultsCache(data);
+      setBookmarkResponses(data);
     } catch (error) {
       console.error('Error searching responses:', error);
-      setSearchResults([]);
+      setSearchResultsCache(null);
+      setBookmarkResponses([]);
     } finally {
       setIsSearching(false);
     }
   };
 
-  // Add useEffect to clear search results and bookmark responses when entering search bookmark
-  useEffect(() => {
-    if (selectedBookmark.title === 'search') {
-      setSearchResults([]);
-      setBookmarkResponses([]);
-    }
-  }, [selectedBookmark.title]);
 
   if (status === "loading") {
     return <div>Loading...</div>
   }
+  
 
   return (
     <div className="container mx-auto bg-[#000000] h-screen flex flex-col max-w-[calc(100vw-48px)]">
@@ -595,8 +607,8 @@ export default function ChatBox({
               <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-50">
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
-            ) : searchResults.length > 0 ? (
-              searchResults.map((response, index) => (
+            ) : bookmarkResponses.length > 0 ? (
+              bookmarkResponses.map((response, index) => (
                 <GPTResponse
                   key={index}
                   response={response.content}
