@@ -178,7 +178,7 @@ export default function ChatBox({
       console.log('Clearing bookmark responses');
       setBookmarkResponses([]);
     }
-  }, [selectedBookmark, selectedLanguage]);
+  }, [selectedBookmark, selectedLanguage, searchResultsCache]);
 
   // Scroll to bottom when new responses are added or quote is clicked in main chat
   useEffect(() => {
@@ -599,11 +599,9 @@ export default function ChatBox({
       }
       const data = await res.json();
       setSearchResultsCache(data);
-      setBookmarkResponses(data);
     } catch (error) {
       console.error('Error searching responses:', error);
       setSearchResultsCache(null);
-      setBookmarkResponses([]);
     } finally {
       setIsSearching(false);
     }
