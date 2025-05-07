@@ -34,14 +34,21 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
     data.forEach((result: any) => {
       console.log('****result****', result);
     });
-    return data.map((result: any) => ({
-      id: result.id,
-      content: result.content,
-      rank: result.rank,
-      createdAt: new Date(result.created_at),
-      isPaused: result.is_paused,
-      bookmarks: result.bookmarks || {}
-    }));
+
+    // Use a Map to ensure unique responses by ID
+    const uniqueResponses = new Map();
+    data.forEach((result: any) => {
+      uniqueResponses.set(result.id, {
+        id: result.id,
+        content: result.content,
+        rank: result.rank,
+        createdAt: new Date(result.created_at),
+        isPaused: result.is_paused,
+        bookmarks: result.bookmarks || {}
+      });
+    });
+
+    return Array.from(uniqueResponses.values());
   } catch (error) {
     console.error('Error in fuzzy search:', error);
     throw error;
