@@ -372,17 +372,19 @@ export default function ChatBox({
       }
 
       // Update bookmarkResponses
-      setBookmarkResponses(prevResponses => 
-        prevResponses.filter(response => response.id !== responseId)
-      );
+      setBookmarkResponses(prevResponses => {
+        const updatedResponses = prevResponses.filter(response => response.id !== responseId);
+        
+        // Update caches with the latest data
+        if (selectedBookmark.title === 'search') {
+          setSearchResultsCache(updatedResponses);
+        }
+        if (selectedBookmark.title === 'daily summary') {
+          setDailySummaryCache(updatedResponses);
+        }
 
-      // Update searchResultsCache if we're in search mode
-      if (selectedBookmark.title === 'search') {
-        setSearchResultsCache(bookmarkResponses);
-      }
-      if (selectedBookmark.title === 'daily summary') {
-        setDailySummaryCache(bookmarkResponses);
-      } 
+        return updatedResponses;
+      });
     } catch (error) {
       console.error('Error deleting response:', error);
     }
@@ -426,20 +428,22 @@ export default function ChatBox({
 
       // Update bookmarkResponses
       setBookmarkResponses(prevResponses => {
-        return prevResponses.map(response => 
+        const updatedResponses = prevResponses.map(response => 
           response.id === updatedResponse.id 
             ? { ...response, rank: updatedResponse.rank }
             : response
         );
-      });
 
-      // Update searchResultsCache if we're in search mode
-      if (selectedBookmark.title === 'search') {
-        setSearchResultsCache(bookmarkResponses);
-      }
-      if (selectedBookmark.title === 'daily summary') {
-        setDailySummaryCache(bookmarkResponses);
-      }
+        // Update caches with the latest data
+        if (selectedBookmark.title === 'search') {
+          setSearchResultsCache(updatedResponses);
+        }
+        if (selectedBookmark.title === 'daily summary') {
+          setDailySummaryCache(updatedResponses);
+        }
+
+        return updatedResponses;
+      });
     } catch (error) {
       console.error('Error updating rank:', error);
     }
@@ -469,22 +473,23 @@ export default function ChatBox({
             const updatedResponses = prevResponses.map(response => 
               response.id === responseId ? { ...response, isPaused } : response
             );
+
+            // Update caches with the latest data
+            if (selectedBookmark.title === 'search') {
+              setSearchResultsCache(updatedResponses);
+            }
+            if (selectedBookmark.title === 'daily summary') {
+              setDailySummaryCache(updatedResponses);
+            }
+
             return updatedResponses;
           });
-          // Update searchResultsCache if we're in search mode
-          if (selectedBookmark.title === 'search') {
-            setSearchResultsCache(bookmarkResponses);
-          }
-          if (selectedBookmark.title === 'daily summary') {
-            setDailySummaryCache(bookmarkResponses);
-          }
         } else {
           // Updating responses with new isPaused value
           setResponses(prevResponses => {
-            const updatedResponses = prevResponses.map(response => 
+            return prevResponses.map(response => 
               response.id === responseId ? { ...response, isPaused } : response
             );
-            return updatedResponses;
           });
         }
       }
