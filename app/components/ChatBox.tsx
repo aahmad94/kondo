@@ -374,17 +374,23 @@ export default function ChatBox({
       // Update bookmarkResponses
       setBookmarkResponses(prevResponses => {
         const updatedResponses = prevResponses.filter(response => response.id !== responseId);
-        
-        // Update caches with the latest data
-        if (selectedBookmark.title === 'search') {
-          setSearchResultsCache(updatedResponses);
-        }
-        if (selectedBookmark.title === 'daily summary') {
-          setDailySummaryCache(updatedResponses);
-        }
-
         return updatedResponses;
       });
+
+      // Update search results cache
+      setSearchResultsCache(prevResponses => {
+        if (!prevResponses) return prevResponses;
+        const updatedResponses = prevResponses.filter(response => response.id !== responseId);
+        return updatedResponses;
+      });
+
+      // Update daily summary cache
+      setDailySummaryCache(prevResponses => {
+        if (!prevResponses) return prevResponses;
+        const updatedResponses = prevResponses.filter(response => response.id !== responseId);
+        return updatedResponses;
+      });
+      
     } catch (error) {
       console.error('Error deleting response:', error);
     }
@@ -433,15 +439,28 @@ export default function ChatBox({
             ? { ...response, rank: updatedResponse.rank }
             : response
         );
+        return updatedResponses;
+      });
 
-        // Update caches with the latest data
-        if (selectedBookmark.title === 'search') {
-          setSearchResultsCache(updatedResponses);
-        }
-        if (selectedBookmark.title === 'daily summary') {
-          setDailySummaryCache(updatedResponses);
-        }
+      // Update search results cache
+      setSearchResultsCache(prevResponses => {
+        if (!prevResponses) return prevResponses;
+        const updatedResponses = prevResponses.map(response => 
+          response.id === updatedResponse.id 
+            ? { ...response, rank: updatedResponse.rank }
+            : response
+        );
+        return updatedResponses;
+      });
 
+      // Update daily summary cache
+      setDailySummaryCache(prevResponses => {
+        if (!prevResponses) return prevResponses;
+        const updatedResponses = prevResponses.map(response => 
+          response.id === updatedResponse.id 
+            ? { ...response, rank: updatedResponse.rank }
+            : response
+        );
         return updatedResponses;
       });
     } catch (error) {
@@ -473,15 +492,24 @@ export default function ChatBox({
             const updatedResponses = prevResponses.map(response => 
               response.id === responseId ? { ...response, isPaused } : response
             );
+            return updatedResponses;
+          });
 
-            // Update caches with the latest data
-            if (selectedBookmark.title === 'search') {
-              setSearchResultsCache(updatedResponses);
-            }
-            if (selectedBookmark.title === 'daily summary') {
-              setDailySummaryCache(updatedResponses);
-            }
+          // Update search results cache
+          setSearchResultsCache(prevResponses => {
+            if (!prevResponses) return prevResponses;
+            const updatedResponses = prevResponses.map(response => 
+              response.id === responseId ? { ...response, isPaused } : response
+            );
+            return updatedResponses;
+          });
 
+          // Update daily summary cache
+          setDailySummaryCache(prevResponses => {
+            if (!prevResponses) return prevResponses;
+            const updatedResponses = prevResponses.map(response => 
+              response.id === responseId ? { ...response, isPaused } : response
+            );
             return updatedResponses;
           });
         } else {
