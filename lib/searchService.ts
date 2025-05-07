@@ -4,7 +4,6 @@ import { PrismaClient } from '@prisma/client';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
-const prisma = new PrismaClient();
 
 interface SearchResult {
   id: string;
@@ -17,13 +16,6 @@ interface SearchResult {
 
 export async function fuzzySearchResponses(query: string, userId: string, languageCode: string): Promise<SearchResult[]> {
   try {
-    // Get the language ID using Prisma
-
-    console.log('****params****');
-    console.log("***query****", query);
-    console.log("***userId****", userId);
-    console.log('****language****', languageCode);
-
     // Call the Supabase RPC
     const { data, error } = await supabase
       .rpc('fuzzy_search_responses', {

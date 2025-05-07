@@ -539,9 +539,12 @@ export default function ChatBox({
       return;
     }
 
+    // Replace all spaces with ' & ' for to_tsquery compatibility
+    const formattedQuery = query.trim().replace(/\s+/g, ' & ');
+
     try {
       setIsSearching(true);
-      const res = await fetch(`/api/searchResponses?query=${encodeURIComponent(query)}&languageCode=${selectedLanguage}`);
+      const res = await fetch(`/api/searchResponses?query=${encodeURIComponent(formattedQuery)}&languageCode=${selectedLanguage}`);
       if (!res.ok) {
         throw new Error('Failed to search responses');
       }
