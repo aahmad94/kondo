@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const results = await fuzzySearchResponses(query, session.userId, languageCode);
+    const results = await fuzzySearchResponses('kuru', 'cm7fiuv9c0000qt51qv8geliq', 'ja');
     return NextResponse.json(results);
   } catch (error) {
     console.error('Error in search API:', error);
