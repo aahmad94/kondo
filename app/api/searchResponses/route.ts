@@ -17,13 +17,11 @@ export async function GET(request: Request) {
     const query = searchParams.get('query');
     const languageCode = searchParams.get('languageCode');
 
-    console.log('Search params:', { query, languageCode, userId: session.userId });
-
     if (!query || !languageCode) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const results = await fuzzySearchResponses('kuru', 'cm7fiuv9c0000qt51qv8geliq', 'ja');
+    const results = await fuzzySearchResponses(query, session.userId, languageCode);
     return NextResponse.json(results);
   } catch (error) {
     console.error('Error in search API:', error);

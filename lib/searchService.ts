@@ -26,7 +26,9 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
     if (!language) {
       throw new Error('Language not found');
     }
-    console.log('****query****');
+    console.log('****params****');
+    console.log("***query****", query);
+    console.log("***userId****", userId);
     console.log('****language****', language.id);
 
     // Call the Supabase RPC
