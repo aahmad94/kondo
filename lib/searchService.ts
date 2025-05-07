@@ -35,10 +35,10 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       console.log('****result****', result);
     });
 
-    // Use a Map to ensure unique responses by ID
+    // Use a Map to ensure unique responses by content
     const uniqueResponses = new Map();
     data.forEach((result: any) => {
-      uniqueResponses.set(result.id, {
+      uniqueResponses.set(result.content, {
         id: result.id,
         content: result.content,
         rank: result.rank,
