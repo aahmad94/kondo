@@ -78,8 +78,8 @@ export default function ChatBox({
     rank2: { count: number; percentage: number };
     rank3: { count: number; percentage: number };
   } | null>(null);
-  const [dailySummaryCache, setDailySummaryCache] = useState<Response[] | null>(null);
-  const [searchResultsCache, setSearchResultsCache] = useState<Response[] | null>(null);
+  const [dailySummaryCache, setDailySummaryCache] = useState<Record<string, Response> | null>(null);
+  const [searchResultsCache, setSearchResultsCache] = useState<Record<string, Response> | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
   // Add ref to track previous language
@@ -102,6 +102,7 @@ export default function ChatBox({
     };
   }, []);
 
+  // Fetch user's language preference and update language
   useEffect(() => {
     const fetchLanguageData = async () => {
       if (session?.userId) {
@@ -158,21 +159,14 @@ export default function ChatBox({
       } else if (selectedBookmark.title === 'daily summary') {
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
-          console.log('dailySummaryCache', dailySummaryCache);
-          const dict = Object.fromEntries((dailySummaryCache as Response[]).map((r: Response) => [r.id, r]));
-          setBookmarkResponses(dict);
+          setBookmarkResponses(dailySummaryCache);
         } else {
           handleGenerateSummary(false);
         }
       } else if (selectedBookmark.title === 'search') {
-        console.log('***searchResultsCache in effect hook***', searchResultsCache);
-        console.log('***before bookmarkResponses is set***', bookmarkResponses);
-
         // Use cached search results if available, otherwise fetch
         if (searchResultsCache) {
-          const dict = Object.fromEntries((searchResultsCache as Response[]).map((r: Response) => [r.id, r]));
-          setBookmarkResponses(dict);
-          console.log('***after bookmarkResponses is set***', dict);
+          setBookmarkResponses(searchResultsCache);
         } else {
           setBookmarkResponses({});
         }
@@ -248,6 +242,8 @@ export default function ChatBox({
     }
 
     try {
+      setBookmarkResponses({});
+      setIsLoading(true);
       const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${bookmarkId}`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -276,7 +272,9 @@ export default function ChatBox({
       // Convert to dictionary
       const dict = Object.fromEntries((sortedResponses as Response[]).map((r: Response) => [r.id, r]));
       setBookmarkResponses(dict);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error('Error fetching bookmark responses:', error);
     }
   };
@@ -404,17 +402,19 @@ export default function ChatBox({
       });
 
       // Update search results cache
-      setSearchResultsCache(prevResponses => {
-        if (!prevResponses) return prevResponses;
-        const updatedResponses = prevResponses.filter(response => response.id !== responseId);
-        return updatedResponses;
+      setSearchResultsCache(prev => {
+        if (!prev) return prev;
+        const copy = { ...prev };
+        delete copy[responseId];
+        return copy;
       });
 
       // Update daily summary cache
-      setDailySummaryCache(prevResponses => {
-        if (!prevResponses) return prevResponses;
-        const updatedResponses = prevResponses.filter(response => response.id !== responseId);
-        return updatedResponses;
+      setDailySummaryCache(prev => {
+        if (!prev) return prev;
+        const copy = { ...prev };
+        delete copy[responseId];
+        return copy;
       });
       
     } catch (error) {
@@ -465,25 +465,21 @@ export default function ChatBox({
       }));
 
       // Update search results cache
-      setSearchResultsCache(prevResponses => {
-        if (!prevResponses) return prevResponses;
-        const updatedResponses = prevResponses.map(response => 
-          response.id === updatedResponse.id 
-            ? { ...response, rank: updatedResponse.rank }
-            : response
-        );
-        return updatedResponses;
+      setSearchResultsCache(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
+        };
       });
 
       // Update daily summary cache
-      setDailySummaryCache(prevResponses => {
-        if (!prevResponses) return prevResponses;
-        const updatedResponses = prevResponses.map(response => 
-          response.id === updatedResponse.id 
-            ? { ...response, rank: updatedResponse.rank }
-            : response
-        );
-        return updatedResponses;
+      setDailySummaryCache(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
+        };
       });
     } catch (error) {
       console.error('Error updating rank:', error);
@@ -518,21 +514,21 @@ export default function ChatBox({
           });
 
           // Update search results cache
-          setSearchResultsCache(prevResponses => {
-            if (!prevResponses) return prevResponses;
-            const updatedResponses = prevResponses.map(response => 
-              response.id === responseId ? { ...response, isPaused } : response
-            );
-            return updatedResponses;
+          setSearchResultsCache(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              [responseId]: { ...prev[responseId], isPaused }
+            };
           });
 
           // Update daily summary cache
-          setDailySummaryCache(prevResponses => {
-            if (!prevResponses) return prevResponses;
-            const updatedResponses = prevResponses.map(response => 
-              response.id === responseId ? { ...response, isPaused } : response
-            );
-            return updatedResponses;
+          setDailySummaryCache(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              [responseId]: { ...prev[responseId], isPaused }
+            };
           });
         } else {
           setResponses(prevResponses => {
@@ -566,13 +562,10 @@ export default function ChatBox({
       if (data.success && data.responses) {
         // Sort responses by rank (ascending) and then by date (newest first) within each rank
         const sortedResponses = data.responses.sort((a: Response, b: Response) => {
-          // First sort by rank (ascending: 1, 2, 3)
           const rankComparison = a.rank - b.rank;
           if (rankComparison !== 0) return rankComparison;
-          // Within same rank, sort by date (newest first)
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
-
         const transformedResponses = sortedResponses.map((response: Response) => ({
           id: response.id,
           content: response.content,
@@ -581,15 +574,14 @@ export default function ChatBox({
           isPaused: response.isPaused,
           bookmarks: response.bookmarks
         }));
-
         console.log('Setting daily summary cache and responses:', {
           cacheLength: transformedResponses.length,
           firstResponse: transformedResponses[0]?.content
         });
-
-        // Cache the summary data
-        setDailySummaryCache(transformedResponses);
-        setBookmarkResponses(Object.fromEntries(transformedResponses.map((r: Response) => [r.id, r])));
+        // Cache the summary data as a dictionary
+        const dict = Object.fromEntries(transformedResponses.map((r: Response) => [r.id, r]));
+        setDailySummaryCache(dict);
+        setBookmarkResponses(dict);
       } else {
         console.log('No summary data available');
         setBookmarkResponses({});
@@ -621,7 +613,8 @@ export default function ChatBox({
       }
       const data = await res.json();
       console.log('***handleSearch data***', data);
-      setSearchResultsCache(data);
+      const dict = Object.fromEntries(data.map((r: Response) => [r.id, r]));
+      setSearchResultsCache(dict);
     } catch (error) {
       console.error('Error searching responses:', error);
       setSearchResultsCache(null);
@@ -712,7 +705,9 @@ export default function ChatBox({
           />
         )}
         
-        {/* if not in reserved search bookmarks, show responses */}
+        {/* if we're in a selected bookmark, show bookmarkResponses */}
+        {/* don't show bookmarkResponses or responses if we're in 'search' */}
+        {/* only show chatbox responses if we're not in a selected bookmark */}
         {selectedBookmark.id && selectedBookmark.id !== 'search' ? (
           Object.values(bookmarkResponses).map((response: Response, index: number) => (
             <GPTResponse
