@@ -281,6 +281,8 @@ export default function ChatBox({
   };
 
   const fetchAllResponses = async (userId: string) => {
+    setBookmarkResponses({});
+    setIsLoading(true);
     try {
       const res = await fetch(`/api/getUserResponses?userId=${userId}`);
       if (!res.ok) {
@@ -297,7 +299,9 @@ export default function ChatBox({
         bookmarks: response.bookmarks
       }]));
       setBookmarkResponses(dict);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error('Error fetching all responses:', error);
     } finally {
       scrollToBottom();
