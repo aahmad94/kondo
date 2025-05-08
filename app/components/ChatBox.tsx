@@ -712,7 +712,7 @@ export default function ChatBox({
           />
         )}
         
-        {selectedBookmark.id ? (
+        {selectedBookmark.id && selectedBookmark.title !== 'search' ? (
           Object.values(bookmarkResponses).map((response: Response, index: number) => (
             <GPTResponse
               key={response.id || index}
