@@ -599,6 +599,7 @@ export default function ChatBox({
         throw new Error('Failed to search responses');
       }
       const data = await res.json();
+      console.log('***handleSearch data***', data);
       setSearchResultsCache(data);
     } catch (error) {
       console.error('Error searching responses:', error);
