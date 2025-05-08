@@ -712,7 +712,8 @@ export default function ChatBox({
           />
         )}
         
-        {selectedBookmark.id && selectedBookmark.title !== 'search' ? (
+        {/* if not in reserved search bookmarks, show responses */}
+        {selectedBookmark.id && selectedBookmark.id !== 'search' ? (
           Object.values(bookmarkResponses).map((response: Response, index: number) => (
             <GPTResponse
               key={response.id || index}
@@ -732,7 +733,8 @@ export default function ChatBox({
               onBookmarkSelect={onBookmarkSelect}
             />
           ))
-        ) :
+        ) : // show chatbox responses as long as we're not in 'search'
+        selectedBookmark.id !== 'search' ? (
           Object.values(responses).map((response, index) => (
             <GPTResponse
               key={response.id || index}
@@ -748,7 +750,7 @@ export default function ChatBox({
               onBookmarkSelect={onBookmarkSelect}
             />
           ))
-        }
+        ) : null}
       </div>
       {!selectedBookmark.id && (
         <UserInput 
