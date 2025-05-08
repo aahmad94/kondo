@@ -164,9 +164,13 @@ export default function ChatBox({
           handleGenerateSummary(false);
         }
       } else if (selectedBookmark.title === 'search') {
+        console.log('***searchResultsCache in effect hook***', searchResultsCache);
+        console.log('***before bookmarkResponses is set***', bookmarkResponses);
+
         // Use cached search results if available, otherwise fetch
         if (searchResultsCache) {
           setBookmarkResponses(searchResultsCache);
+          console.log('***after bookmarkResponses is set***', bookmarkResponses);
         } else {
           setBookmarkResponses([]);
         }
@@ -585,7 +589,6 @@ export default function ChatBox({
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
       setSearchResultsCache(null);
-      setBookmarkResponses([]);
       return;
     }
 
