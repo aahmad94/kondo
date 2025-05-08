@@ -183,7 +183,7 @@ export default function ChatBox({
       console.log('Clearing bookmark responses');
       setBookmarkResponses({});
     }
-  }, [selectedBookmark, selectedLanguage, searchResultsCache]);
+  }, [selectedBookmark, selectedLanguage]);
 
   // Scroll to bottom when new responses are added or quote is clicked in main chat
   useEffect(() => {
@@ -487,7 +487,7 @@ export default function ChatBox({
           [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
         };
       });
-      
+
       if (selectedBookmark.title === 'daily summary') {
         fetchResponseStats();
       }
