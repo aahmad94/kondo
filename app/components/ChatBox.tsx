@@ -616,7 +616,6 @@ export default function ChatBox({
       console.log('***handleSearch data***', data);
       const dict = Object.fromEntries(data.map((r: Response) => [r.id, r]));
       setSearchResultsCache(dict);
-      setSearchQuery(query);
     } catch (error) {
       console.error('Error searching responses:', error);
       setSearchResultsCache(null);
@@ -655,6 +654,7 @@ export default function ChatBox({
               onSearch={handleSearch}
               selectedLanguage={selectedLanguage}
               value={searchQuery}
+              onChange={setSearchQuery}
             />
             {isSearching ? (
               <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-50">

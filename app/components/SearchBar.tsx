@@ -5,9 +5,10 @@ interface SearchBarProps {
   onSearch: (query: string) => void;
   selectedLanguage: string;
   value: string;
+  onChange: (value: string) => void;
 }
 
-export default function SearchBar({ onSearch, selectedLanguage, value }: SearchBarProps) {
+export default function SearchBar({ onSearch, selectedLanguage, value, onChange }: SearchBarProps) {
   const debounceTimer = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
@@ -18,7 +19,8 @@ export default function SearchBar({ onSearch, selectedLanguage, value }: SearchB
     };
   }, []);
 
-  const handleSearch = (val: string) => {
+  const handleInputChange = (val: string) => {
+    onChange(val);
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
@@ -32,7 +34,7 @@ export default function SearchBar({ onSearch, selectedLanguage, value }: SearchB
       <input
         type="text"
         value={value}
-        onChange={(e) => handleSearch(e.target.value)}
+        onChange={(e) => handleInputChange(e.target.value)}
         placeholder="Search responses..."
         className="w-full flex-grow mx-4 mt-3 px-4 py-2 bg-[#111111] text-white border border-gray-700 rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[${textareaMinHeight}px] h-[${textareaMinHeight}px] max-h-[${textareaMaxHeight}px] overflow-y-auto leading-[1.5]"
       />
