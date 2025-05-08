@@ -65,7 +65,7 @@ export default function ChatBox({
   const { data: session, status } = useSession()
   const router = useRouter();
   const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
-  const [responses, setResponses] = useState<Response[]>([]);
+  const [responses, setResponses] = useState<Record<string, Response>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
@@ -136,7 +136,7 @@ export default function ChatBox({
         // Only clear responses if the language actually changed
         if (selectedLanguage !== previousLanguageRef.current) {
           // Clear ChatBox responses and URL params
-          setResponses([]);
+          setResponses({});
           router.push('/');
           // Update the previous language
           previousLanguageRef.current = selectedLanguage;
@@ -187,7 +187,7 @@ export default function ChatBox({
 
   // Scroll to bottom when new responses are added or quote is clicked in main chat
   useEffect(() => {
-    if (!selectedBookmark.id && (responses.length > 0 || responseQuote)) {
+    if (!selectedBookmark.id && (Object.values(responses).length > 0 || responseQuote)) {
       scrollToBottom();
     }
   }, [responses, responseQuote, selectedBookmark.id]);
@@ -209,7 +209,7 @@ export default function ChatBox({
     };
 
     fetchResponseStats();
-  }, [session, responses, bookmarkResponses]);
+  }, [session, Object.values(responses)]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -320,17 +320,32 @@ export default function ChatBox({
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data: { result: string } = await res.json();
-      setResponses(prevResponses => [...prevResponses, { id: null, content: data.result, rank: 1, createdAt: new Date(), isPaused: false }]);
+      // Generate a temporary id for client-side responses
+      const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setResponses(prevResponses => ({
+        ...prevResponses,
+        [tempId]: {
+          id: tempId,
+          content: data.result,
+          rank: 1,
+          createdAt: new Date(),
+          isPaused: false
+        }
+      }));
       setResponseQuote('');
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResponses(prevResponses => [...prevResponses, { 
-        id: null, 
-        content: 'An error occurred while fetching the response.',
-        rank: 1,
-        createdAt: new Date(),
-        isPaused: false
-      }]);
+      const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setResponses(prevResponses => ({
+        ...prevResponses,
+        [tempId]: {
+          id: tempId,
+          content: 'An error occurred while fetching the response.',
+          rank: 1,
+          createdAt: new Date(),
+          isPaused: false
+        }
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -490,7 +505,6 @@ export default function ChatBox({
       const data = await res.json();
       
       if (data.success) {
-        // Update the responses in place with the new isPaused value
         if (selectedBookmark.id) {
           // Updating bookmarkResponses with new isPaused value
           setBookmarkResponses(prevResponses => {
@@ -518,11 +532,12 @@ export default function ChatBox({
             return updatedResponses;
           });
         } else {
-          // Updating responses with new isPaused value
           setResponses(prevResponses => {
-            return prevResponses.map(response => 
-              response.id === responseId ? { ...response, isPaused } : response
-            );
+            if (!prevResponses[responseId]) return prevResponses;
+            return {
+              ...prevResponses,
+              [responseId]: { ...prevResponses[responseId], isPaused }
+            };
           });
         }
       }
@@ -714,10 +729,10 @@ export default function ChatBox({
               onBookmarkSelect={onBookmarkSelect}
             />
           ))
-        ) : (
-          responses.map((response, index) => (
+        ) :
+          Object.values(responses).map((response, index) => (
             <GPTResponse
-              key={index}
+              key={response.id || index}
               response={response.content}
               selectedBookmarkId={selectedBookmark.id}
               selectedBookmarkTitle={selectedBookmark.title ?? ''}
@@ -730,7 +745,7 @@ export default function ChatBox({
               onBookmarkSelect={onBookmarkSelect}
             />
           ))
-        )}
+        }
       </div>
       {!selectedBookmark.id && (
         <UserInput 
@@ -741,7 +756,7 @@ export default function ChatBox({
           onQuoteToNull={setResponseQuoteToNull}
           selectedLanguage={selectedLanguage}
         />
-    )}
+      )}
     </div>
   );
 }
