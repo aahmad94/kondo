@@ -81,6 +81,7 @@ export default function ChatBox({
   const [dailySummaryCache, setDailySummaryCache] = useState<Record<string, Response> | null>(null);
   const [searchResultsCache, setSearchResultsCache] = useState<Record<string, Response> | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Add ref to track previous language
   const previousLanguageRef = useRef(selectedLanguage);
@@ -615,6 +616,7 @@ export default function ChatBox({
       console.log('***handleSearch data***', data);
       const dict = Object.fromEntries(data.map((r: Response) => [r.id, r]));
       setSearchResultsCache(dict);
+      setSearchQuery(query);
     } catch (error) {
       console.error('Error searching responses:', error);
       setSearchResultsCache(null);
@@ -649,7 +651,11 @@ export default function ChatBox({
         
         {selectedBookmark.title === 'search' && (
           <div>
-            <SearchBar onSearch={handleSearch} selectedLanguage={selectedLanguage} />
+            <SearchBar
+              onSearch={handleSearch}
+              selectedLanguage={selectedLanguage}
+              value={searchQuery}
+            />
             {isSearching ? (
               <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-50">
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
