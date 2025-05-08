@@ -29,15 +29,12 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
     }
 
     // Transform the results to match our SearchResult interface
-    data.forEach((result: any) => {
-      console.log('****result****', result);
-    });
     return data.map((result: any) => ({
       id: result.id,
       content: result.content,
       rank: result.rank,
-      createdAt: new Date(result.created_at),
-      isPaused: result.is_paused,
+      createdAt: new Date(result.createdat),
+      isPaused: result.ispaused,
       bookmarks: result.bookmarks || {}
     }));
   } catch (error) {
