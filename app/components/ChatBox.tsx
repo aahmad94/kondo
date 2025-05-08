@@ -129,6 +129,7 @@ export default function ChatBox({
     fetchLanguageData();
   }, [session]);
 
+
   // Update instructions when language changes
   useEffect(() => {
     const updateInstructions = async () => {
@@ -148,6 +149,7 @@ export default function ChatBox({
     updateInstructions();
   }, [session, selectedLanguage]);
 
+
   // When the selected bookmark changes, fetch the responses
   useEffect(() => {
     // Only proceed if we have a session
@@ -158,6 +160,7 @@ export default function ChatBox({
       if (selectedBookmark.id === "all") {
         fetchAllResponses(session.userId);
       } else if (selectedBookmark.title === 'daily summary') {
+        fetchResponseStats();
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
           setBookmarkResponses(dailySummaryCache);
@@ -189,24 +192,6 @@ export default function ChatBox({
     }
   }, [responses, responseQuote, selectedBookmark.id]);
 
-  // Fetch response statistics when component mounts or when responses change
-  useEffect(() => {
-    const fetchResponseStats = async () => {
-      if (session?.userId) {
-        try {
-          const res = await fetch(`/api/getUserResponseStats?userId=${session.userId}`);
-          if (res.ok) {
-            const stats = await res.json();
-            setResponseStats(stats);
-          }
-        } catch (error) {
-          console.error('Error fetching response stats:', error);
-        }
-      }
-    };
-
-    fetchResponseStats();
-  }, [session, Object.values(responses)]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -225,6 +210,7 @@ export default function ChatBox({
       }, 500);
   }
 
+
   const scrollToTop = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
@@ -233,6 +219,21 @@ export default function ChatBox({
       });
     }
   }
+
+  const fetchResponseStats = async () => {
+    if (session?.userId) {
+      try {
+        const res = await fetch(`/api/getUserResponseStats?userId=${session.userId}`);
+        if (res.ok) {
+          const stats = await res.json();
+          setResponseStats(stats);
+        }
+      } catch (error) {
+        console.error('Error fetching response stats:', error);
+      }
+    }
+  };
+
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
@@ -486,6 +487,10 @@ export default function ChatBox({
           [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
         };
       });
+      
+      if (selectedBookmark.title === 'daily summary') {
+        fetchResponseStats();
+      }
     } catch (error) {
       console.error('Error updating rank:', error);
     }
