@@ -64,7 +64,7 @@ export default function ChatBox({
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
-  const [bookmarkResponses, setBookmarkResponses] = useState<Response[]>([]);
+  const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, Response>>({});
   const [responses, setResponses] = useState<Record<string, Response>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -146,7 +146,7 @@ export default function ChatBox({
     updateInstructions();
   }, [session, selectedLanguage]);
 
-  // When the selected bookmark changes, fetch the responses and scroll when they're loaded
+  // When the selected bookmark changes, fetch the responses
   useEffect(() => {
     // Only proceed if we have a session
     if (!session?.userId) return;
@@ -159,7 +159,8 @@ export default function ChatBox({
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
           console.log('dailySummaryCache', dailySummaryCache);
-          setBookmarkResponses(dailySummaryCache);
+          const dict = Object.fromEntries((dailySummaryCache as Response[]).map((r: Response) => [r.id, r]));
+          setBookmarkResponses(dict);
         } else {
           handleGenerateSummary(false);
         }
@@ -169,10 +170,11 @@ export default function ChatBox({
 
         // Use cached search results if available, otherwise fetch
         if (searchResultsCache) {
-          setBookmarkResponses(searchResultsCache);
-          console.log('***after bookmarkResponses is set***', bookmarkResponses);
+          const dict = Object.fromEntries((searchResultsCache as Response[]).map((r: Response) => [r.id, r]));
+          setBookmarkResponses(dict);
+          console.log('***after bookmarkResponses is set***', dict);
         } else {
-          setBookmarkResponses([]);
+          setBookmarkResponses({});
         }
       } else {
         fetchBookmarkResponses(session.userId, selectedBookmark.id);
@@ -181,7 +183,7 @@ export default function ChatBox({
     // Only clear responses if we explicitly don't have a selected bookmark
     else if (selectedBookmark.id === null) {
       console.log('Clearing bookmark responses');
-      setBookmarkResponses([]);
+      setBookmarkResponses({});
     }
   }, [selectedBookmark, selectedLanguage, searchResultsCache]);
 
@@ -241,7 +243,7 @@ export default function ChatBox({
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
     // Skip fetching for reserved bookmarks
     if (reservedBookmarkTitles.includes(bookmarkId)) {
-      setBookmarkResponses([]);
+      setBookmarkResponses({});
       return;
     }
 
@@ -271,7 +273,9 @@ export default function ChatBox({
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
-      setBookmarkResponses(sortedResponses);
+      // Convert to dictionary
+      const dict = Object.fromEntries((sortedResponses as Response[]).map((r: Response) => [r.id, r]));
+      setBookmarkResponses(dict);
     } catch (error) {
       console.error('Error fetching bookmark responses:', error);
     }
@@ -285,14 +289,15 @@ export default function ChatBox({
       }
       scrollToTop();
       const data = await res.json();
-      setBookmarkResponses(data.map((response: Response) => ({
+      const dict = Object.fromEntries(data.map((response: Response) => [response.id, {
         id: response.id,
         content: response.content,
         rank: response.rank,
         createdAt: new Date(response.createdAt),
         isPaused: response.isPaused,
         bookmarks: response.bookmarks
-      })));
+      }]));
+      setBookmarkResponses(dict);
     } catch (error) {
       console.error('Error fetching all responses:', error);
     } finally {
@@ -391,10 +396,11 @@ export default function ChatBox({
         throw new Error('Failed to delete response');
       }
 
-      // Update bookmarkResponses
-      setBookmarkResponses(prevResponses => {
-        const updatedResponses = prevResponses.filter(response => response.id !== responseId);
-        return updatedResponses;
+      // Update bookmarkResponses (delete single item)
+      setBookmarkResponses(prev => {
+        const copy = { ...prev };
+        delete copy[responseId];
+        return copy;
       });
 
       // Update search results cache
@@ -452,15 +458,11 @@ export default function ChatBox({
 
       const updatedResponse = await response.json();
 
-      // Update bookmarkResponses
-      setBookmarkResponses(prevResponses => {
-        const updatedResponses = prevResponses.map(response => 
-          response.id === updatedResponse.id 
-            ? { ...response, rank: updatedResponse.rank }
-            : response
-        );
-        return updatedResponses;
-      });
+      // Update bookmarkResponses (update single item)
+      setBookmarkResponses(prev => ({
+        ...prev,
+        [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
+      }));
 
       // Update search results cache
       setSearchResultsCache(prevResponses => {
@@ -506,12 +508,13 @@ export default function ChatBox({
       
       if (data.success) {
         if (selectedBookmark.id) {
-          // Updating bookmarkResponses with new isPaused value
-          setBookmarkResponses(prevResponses => {
-            const updatedResponses = prevResponses.map(response => 
-              response.id === responseId ? { ...response, isPaused } : response
-            );
-            return updatedResponses;
+          // Update bookmarkResponses (update single item)
+          setBookmarkResponses(prev => {
+            if (!prev[responseId]) return prev;
+            return {
+              ...prev,
+              [responseId]: { ...prev[responseId], isPaused }
+            };
           });
 
           // Update search results cache
@@ -586,15 +589,15 @@ export default function ChatBox({
 
         // Cache the summary data
         setDailySummaryCache(transformedResponses);
-        setBookmarkResponses(transformedResponses);
+        setBookmarkResponses(Object.fromEntries(transformedResponses.map((r: Response) => [r.id, r])));
       } else {
         console.log('No summary data available');
-        setBookmarkResponses([]);
+        setBookmarkResponses({});
         setDailySummaryCache(null);
       }
     } catch (error) {
       console.error('Error generating summary:', error);
-      setBookmarkResponses([]);
+      setBookmarkResponses({});
       setDailySummaryCache(null);
     } finally {
       setIsLoading(false);
@@ -658,8 +661,8 @@ export default function ChatBox({
               <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-50">
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
-            ) : bookmarkResponses.length > 0 ? (
-              bookmarkResponses.map((response, index) => (
+            ) : Object.values(bookmarkResponses).length > 0 ? (
+              Object.values(bookmarkResponses).map((response: Response, index: number) => (
                 <GPTResponse
                   key={index}
                   response={response.content}
@@ -710,9 +713,9 @@ export default function ChatBox({
         )}
         
         {selectedBookmark.id ? (
-          bookmarkResponses.map((response, index) => (
+          Object.values(bookmarkResponses).map((response: Response, index: number) => (
             <GPTResponse
-              key={index}
+              key={response.id || index}
               response={response.content}
               selectedBookmarkId={selectedBookmark.id}
               selectedBookmarkTitle={selectedBookmark.title ?? ''}
