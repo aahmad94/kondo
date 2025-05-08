@@ -625,9 +625,11 @@ export default function ChatBox({
       console.log('***handleSearch data***', data);
       const dict = Object.fromEntries(data.map((r: Response) => [r.id, r]));
       setSearchResultsCache(dict);
+      setBookmarkResponses(dict);
     } catch (error) {
       console.error('Error searching responses:', error);
       setSearchResultsCache(null);
+      setBookmarkResponses({});
     } finally {
       setIsSearching(false);
     }
