@@ -26,14 +26,13 @@ const testFunction = inngest.createFunction(
         console.log(`[Inngest] Found ${users.length} users with bookmarked responses`);
         return users;
       });
-      // Fan out: send an event for each user
-      await step.run("fan-out-user-summaries", async () => {
-        await Promise.all(users.map(user =>
-          step.sendEvent("generate.user.summary", { 
-            name: "generate.user.summary",
-            data: { userId: user.userId } })
-        ));
-      });
+      // Fan out: send an event for each user (not inside step.run)
+      await Promise.all(users.map(user =>
+        step.sendEvent("generate.user.summary", { 
+          name: "generate.user.summary", 
+          data: { userId: user.userId }
+        })
+      ));
       await prisma.$disconnect();
       console.log("[Inngest] Fan-out completed");
       return { success: true, usersProcessed: users.length };
