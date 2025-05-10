@@ -7,57 +7,58 @@ import { generateUserSummary } from '../../lib/summaryService';
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
 
-// Create a function that can be manually triggered from the Inngest dashboard
+// Main function: fetch users and fan out events
 const testFunction = inngest.createFunction(
   { id: "test-function" },
   { event: "test/manual.trigger" },
   async ({ step, event }) => {
     try {
-      console.log("[Inngest] Starting daily summary generation...");
-      // First, get all unique users who have bookmarked responses
+      console.log("[Inngest] Starting daily summary generation (fan-out)...");
       const users = await step.run("fetch-unique-users", async () => {
         const users = await prisma.gPTResponse.findMany({
-          select: {
-            userId: true,
-          },
+          select: { userId: true },
           distinct: ['userId'],
           where: {
-            userId: {
-              not: ''
-            },
-            bookmarks: {
-              some: {
-                title: {
-                  not: 'daily summary'
-                }
-              }
-            }
+            userId: { not: '' },
+            bookmarks: { some: { title: { not: 'daily summary' } } }
           }
         });
         console.log(`[Inngest] Found ${users.length} users with bookmarked responses`);
         return users;
       });
-      // For each user, generate summary directly
-      await step.run("process-user-responses", async () => {
-        console.log(`[Inngest] Processing ${users.length} users for summary generation`);
-        for (const user of users) {
-          try {
-            console.log(`[Inngest] Generating summary for user ${user.userId}`);
-            const responses = await generateUserSummary(user.userId, true, true);
-            console.log(`[Inngest] Successfully generated summary for user ${user.userId} with ${responses?.length || 0} responses`);
-          } catch (error) {
-            console.error(`[Inngest] Error generating summary for user ${user.userId}:`, error);
-            // Continue with next user even if one fails
-          }
-        }
+      // Fan out: send an event for each user
+      await step.run("fan-out-user-summaries", async () => {
+        await Promise.all(users.map(user =>
+          step.sendEvent("generate.user.summary", { 
+            name: "generate.user.summary",
+            data: { userId: user.userId } })
+        ));
       });
       await prisma.$disconnect();
-      console.log("[Inngest] Daily summary generation completed successfully");
+      console.log("[Inngest] Fan-out completed");
       return { success: true, usersProcessed: users.length };
     } catch (error) {
-      console.error("[Inngest] Error in daily summary generation:", error);
+      console.error("[Inngest] Error in fan-out:", error);
       await prisma.$disconnect();
-      throw error; // Re-throw to mark the function as failed in Inngest
+      throw error;
+    }
+  }
+);
+
+// Worker function: process a single user
+const generateUserSummaryFunction = inngest.createFunction(
+  { id: "generate-user-summary" },
+  { event: "generate.user.summary" },
+  async ({ event }) => {
+    const { userId } = event.data;
+    try {
+      console.log(`[Inngest] Generating summary for user ${userId}`);
+      const responses = await generateUserSummary(userId, true, true);
+      console.log(`[Inngest] Successfully generated summary for user ${userId} with ${responses?.length || 0} responses`);
+      return { success: true, userId, responsesCount: responses?.length || 0 };
+    } catch (error) {
+      console.error(`[Inngest] Error generating summary for user ${userId}:`, error);
+      throw error;
     }
   }
 );
@@ -65,5 +66,5 @@ const testFunction = inngest.createFunction(
 // Export the serve handler with our function
 export default serve({
   client: inngest,
-  functions: [testFunction],
+  functions: [testFunction, generateUserSummaryFunction],
 });
