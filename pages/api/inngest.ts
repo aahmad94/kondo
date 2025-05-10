@@ -7,14 +7,13 @@ import { generateUserSummary } from '../../lib/summaryService';
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
 
-// Create a scheduled function to run every evening at 9 PM EST
-const dailyResponseLogger = inngest.createFunction(
-  { id: "daily-response-logger" },
-  { cron: "TZ=America/New_York 1 0 * * *" },
-  async ({ step }) => {
+// Create a function that can be manually triggered from the Inngest dashboard
+const testFunction = inngest.createFunction(
+  { id: "test-function" },
+  { event: "test/manual.trigger" },
+  async ({ step, event }) => {
     try {
       console.log("[Inngest] Starting daily summary generation...");
-      
       // First, get all unique users who have bookmarked responses
       const users = await step.run("fetch-unique-users", async () => {
         const users = await prisma.gPTResponse.findMany({
@@ -38,7 +37,6 @@ const dailyResponseLogger = inngest.createFunction(
         console.log(`[Inngest] Found ${users.length} users with bookmarked responses`);
         return users;
       });
-
       // For each user, generate summary directly
       await step.run("process-user-responses", async () => {
         console.log(`[Inngest] Processing ${users.length} users for summary generation`);
@@ -53,7 +51,6 @@ const dailyResponseLogger = inngest.createFunction(
           }
         }
       });
-
       await prisma.$disconnect();
       console.log("[Inngest] Daily summary generation completed successfully");
       return { success: true, usersProcessed: users.length };
@@ -68,5 +65,5 @@ const dailyResponseLogger = inngest.createFunction(
 // Export the serve handler with our function
 export default serve({
   client: inngest,
-  functions: [dailyResponseLogger],
+  functions: [testFunction],
 });
