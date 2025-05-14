@@ -16,20 +16,44 @@ interface SearchResult {
 
 export async function fuzzySearchResponses(query: string, userId: string, languageCode: string): Promise<SearchResult[]> {
   try {
-    // Call the Supabase RPC
-    const { data, error } = await supabase
+    // First try fuzzy search
+    const { data: fuzzyData, error: fuzzyError } = await supabase
       .rpc('fuzzy_search_responses', {
         search_query: query,
         user_id: userId,
         language_code: languageCode
       });
 
-    if (error) {
-      throw error;
+    if (fuzzyError) {
+      throw fuzzyError;
     }
 
-    // Transform the results to match our SearchResult interface
-    return data.map((result: any) => ({
+    // If fuzzy search returns results, return them
+    if (fuzzyData && fuzzyData.length > 0) {
+      return fuzzyData.map((result: any) => ({
+        id: result.id,
+        content: result.content,
+        rank: result.rank,
+        createdAt: new Date(result.createdat),
+        isPaused: result.ispaused,
+        bookmarks: result.bookmarks || {}
+      }));
+    }
+
+    // If no results from fuzzy search, try trigram search
+    const { data: trigramData, error: trigramError } = await supabase
+      .rpc('trigram_search_responses', {
+        search_query: query,
+        user_id: userId,
+        language_code: languageCode
+      });
+
+    if (trigramError) {
+      throw trigramError;
+    }
+
+    // Transform and return trigram results
+    return trigramData.map((result: any) => ({
       id: result.id,
       content: result.content,
       rank: result.rank,
@@ -38,7 +62,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       bookmarks: result.bookmarks || {}
     }));
   } catch (error) {
-    console.error('Error in fuzzy search:', error);
+    console.error('Error in search:', error);
     throw error;
   }
 } 
