@@ -40,20 +40,20 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       }));
     }
 
-    // If no results from fuzzy search, try trigram search
-    const { data: trigramData, error: trigramError } = await supabase
-      .rpc('trigram_search_responses', {
+    // If no results from fuzzy search, try ILIKE search
+    const { data: ilikeData, error: ilikeError } = await supabase
+      .rpc('ilike_search_responses', {
         search_query: query,
         user_id: userId,
         language_code: languageCode
       });
 
-    if (trigramError) {
-      throw trigramError;
+    if (ilikeError) {
+      throw ilikeError;
     }
 
-    // Transform and return trigram results
-    return trigramData.map((result: any) => ({
+    // Transform and return ILIKE results
+    return ilikeData.map((result: any) => ({
       id: result.id,
       content: result.content,
       rank: result.rank,
