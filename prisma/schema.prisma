@@ -15,7 +15,7 @@ model User {
   name          String?
   subscribed    Boolean?      @default(false)
   createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   accounts      Account[]
   dailySummaries DailySummary[]
   bookmarks     Bookmark[]
@@ -38,7 +38,7 @@ model Account {
   id_token          String?
   session_state     String?
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
@@ -50,7 +50,7 @@ model Session {
   userId       String
   expires      DateTime
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -59,7 +59,7 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
 }
@@ -70,7 +70,7 @@ model Language {
   name        String   // e.g., "Japanese", "Korean", "Spanish", "Arabic"
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   responses   GPTResponse[]
   bookmarks   Bookmark[]
   dailySummaries DailySummary[]
@@ -82,7 +82,7 @@ model UserLanguagePreference {
   userId      String   @unique
   languageId  String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   language    Language @relation(fields: [languageId], references: [id])
 }
@@ -91,7 +91,7 @@ model GPTResponse {
   id          String     @id @default(cuid())
   content     String
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   userId      String
   languageId  String
   rank        Int?       @default(1)
@@ -109,7 +109,7 @@ model Bookmark {
   languageId  String
   isReserved  Boolean    @default(false)  // For "all responses" and "daily summary"
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   user        User       @relation(fields: [userId], references: [id])
   language    Language   @relation(fields: [languageId], references: [id])
   responses   GPTResponse[] @relation("BookmarksToResponses")
@@ -120,7 +120,7 @@ model DailySummary {
   userId      String
   languageId  String
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   user        User       @relation(fields: [userId], references: [id])
   language    Language   @relation(fields: [languageId], references: [id])
   responses   GPTResponse[] @relation("DailySummaryToResponses")

@@ -63,10 +63,8 @@ const sortResponses = (responses: Response[]): Response[] => {
     // First sort by rank (ascending: 1, 2, 3)
     const rankComparison = a.rank - b.rank;
     if (rankComparison !== 0) return rankComparison;
-    // Within same rank, sort by date (newest first)
-    const updatedAtComparison = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    if (updatedAtComparison !== 0) return updatedAtComparison;
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    // Within same rank, sort by updatedAt (newest first)
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 };
 

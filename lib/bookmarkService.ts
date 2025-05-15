@@ -42,7 +42,8 @@ export async function deleteGptResponse(userId: string, gptResponseId: string, b
           disconnect: {
             id: gptResponseId
           }
-        }
+        },
+        updatedAt: new Date(),
       }
     });
 
