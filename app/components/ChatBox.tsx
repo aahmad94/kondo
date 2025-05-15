@@ -20,9 +20,11 @@ interface Response {
   id: string | null;
   content: string;
   rank: number;
-  createdAt: Date;
   isPaused?: boolean;
   bookmarks?: Record<string, string>;
+  createdAt: Date;
+  updatedAt: Date;
+
 }
 
 interface BookmarkResponse {
@@ -62,11 +64,7 @@ const sortResponses = (responses: Response[]): Response[] => {
     const rankComparison = a.rank - b.rank;
     if (rankComparison !== 0) return rankComparison;
     // Within same rank, sort by date (newest first)
-    if (a.createdAt && b.createdAt) {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    } else {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    }
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 };
 
@@ -346,8 +344,9 @@ export default function ChatBox({
           id: tempId,
           content: data.result,
           rank: 1,
+          isPaused: false,
           createdAt: new Date(),
-          isPaused: false
+          updatedAt: new Date()
         }
       }));
       setResponseQuote('');
@@ -360,8 +359,9 @@ export default function ChatBox({
           id: tempId,
           content: 'An error occurred while fetching the response.',
           rank: 1,
+          isPaused: false,
           createdAt: new Date(),
-          isPaused: false
+          updatedAt: new Date()
         }
       }));
     } finally {
