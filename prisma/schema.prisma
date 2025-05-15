@@ -14,6 +14,8 @@ model User {
   image         String?
   name          String?
   subscribed    Boolean?      @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
   accounts      Account[]
   dailySummaries DailySummary[]
   bookmarks     Bookmark[]
@@ -35,6 +37,8 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
@@ -45,6 +49,8 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -52,6 +58,8 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
 
   @@unique([identifier, token])
 }
@@ -62,6 +70,7 @@ model Language {
   name        String   // e.g., "Japanese", "Korean", "Spanish", "Arabic"
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
   responses   GPTResponse[]
   bookmarks   Bookmark[]
   dailySummaries DailySummary[]
@@ -72,6 +81,7 @@ model UserLanguagePreference {
   id          String   @id @default(cuid())
   userId      String   @unique
   languageId  String
+  createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   language    Language @relation(fields: [languageId], references: [id])
@@ -81,6 +91,7 @@ model GPTResponse {
   id          String     @id @default(cuid())
   content     String
   createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now())
   userId      String
   languageId  String
   rank        Int?       @default(1)
@@ -97,6 +108,8 @@ model Bookmark {
   userId      String
   languageId  String
   isReserved  Boolean    @default(false)  // For "all responses" and "daily summary"
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now())
   user        User       @relation(fields: [userId], references: [id])
   language    Language   @relation(fields: [languageId], references: [id])
   responses   GPTResponse[] @relation("BookmarksToResponses")
@@ -107,6 +120,7 @@ model DailySummary {
   userId      String
   languageId  String
   createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now())
   user        User       @relation(fields: [userId], references: [id])
   language    Language   @relation(fields: [languageId], references: [id])
   responses   GPTResponse[] @relation("DailySummaryToResponses")

@@ -55,6 +55,17 @@ const formatStats = (stats: {
          `${padRight('easy', 15)} ${padLeft(rank3Str, 8)} ${padLeft(pct3Str, 6)}\n`;
 };
 
+// Add sortResponses function
+const sortResponses = (responses: Response[]): Response[] => {
+  return responses.sort((a: Response, b: Response) => {
+    // First sort by rank (ascending: 1, 2, 3)
+    const rankComparison = a.rank - b.rank;
+    if (rankComparison !== 0) return rankComparison;
+    // Within same rank, sort by date (newest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+};
+
 export default function ChatBox({ 
   selectedBookmark, 
   reservedBookmarkTitles,
@@ -253,7 +264,7 @@ export default function ChatBox({
       scrollToTop();
       const data = await res.json();      
       
-      // Transform the response data and sort by rank and date
+      // Transform the response data
       const transformedResponses = data.map((response: BookmarkResponse) => ({
         id: response.id,
         content: response.content,
@@ -262,14 +273,8 @@ export default function ChatBox({
         isPaused: response.isPaused
       }));
 
-      // Sort responses by rank (ascending) and then by date (newest first) within each rank
-      const sortedResponses = transformedResponses.sort((a: Response, b: Response) => {
-        // First sort by rank (ascending: 1, 2, 3)
-        const rankComparison = a.rank - b.rank;
-        if (rankComparison !== 0) return rankComparison;
-        // Within same rank, sort by date (newest first)
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
+      // Sort responses using the new function
+      const sortedResponses = sortResponses(transformedResponses);
 
       // Convert to dictionary
       const dict = Object.fromEntries((sortedResponses as Response[]).map((r: Response) => [r.id, r]));
@@ -570,13 +575,7 @@ export default function ChatBox({
       const data = await res.json();
       
       if (data.success && data.responses) {
-        // Sort responses by rank (ascending) and then by date (newest first) within each rank
-        const sortedResponses = data.responses.sort((a: Response, b: Response) => {
-          const rankComparison = a.rank - b.rank;
-          if (rankComparison !== 0) return rankComparison;
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
-        const transformedResponses = sortedResponses.map((response: Response) => ({
+        const transformedResponses = data.responses.map((response: Response) => ({
           id: response.id,
           content: response.content,
           rank: response.rank,
@@ -584,12 +583,16 @@ export default function ChatBox({
           isPaused: response.isPaused,
           bookmarks: response.bookmarks
         }));
+
+        // Sort responses using the new function
+        const sortedResponses = sortResponses(transformedResponses);
+
         console.log('Setting daily summary cache and responses:', {
-          cacheLength: transformedResponses.length,
-          firstResponse: transformedResponses[0]?.content
+          cacheLength: sortedResponses.length,
+          firstResponse: sortedResponses[0]?.content
         });
         // Cache the summary data as a dictionary
-        const dict = Object.fromEntries(transformedResponses.map((r: Response) => [r.id, r]));
+        const dict = Object.fromEntries(sortedResponses.map((r: Response) => [r.id, r]));
         setDailySummaryCache(dict);
         setBookmarkResponses(dict);
       } else {
