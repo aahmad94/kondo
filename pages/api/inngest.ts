@@ -9,8 +9,8 @@ const inngest = new Inngest({ id: 'Kondo' });
 
 // Main function: fetch users and fan out events
 const testFunction = inngest.createFunction(
-  { id: "test-function" },
-  { event: "test/manual.trigger" },
+  { id: "daily-response-logger" },
+  { cron: "TZ=America/New_York 1 0 * * *" },
   async ({ step, event }) => {
     try {
       console.log("[Inngest] Starting daily summary generation (fan-out)...");
