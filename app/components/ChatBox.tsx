@@ -62,7 +62,11 @@ const sortResponses = (responses: Response[]): Response[] => {
     const rankComparison = a.rank - b.rank;
     if (rankComparison !== 0) return rankComparison;
     // Within same rank, sort by date (newest first)
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    if (a.createdAt && b.createdAt) {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    } else {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
   });
 };
 
