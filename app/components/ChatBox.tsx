@@ -500,9 +500,15 @@ export default function ChatBox({
       // Update daily summary cache
       setDailySummaryCache(prev => {
         if (!prev) return prev;
+        const existingResponse = prev[updatedResponse.id];
+        if (!existingResponse) return prev;
         return {
           ...prev,
-          [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
+          [updatedResponse.id]: { 
+            ...existingResponse,
+            rank: updatedResponse.rank,
+            updatedAt: new Date()
+          }
         };
       });
 
