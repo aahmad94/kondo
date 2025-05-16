@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
+import BreakdownModal from './BreakdownModal';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
@@ -36,6 +37,8 @@ interface GPTResponseProps {
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
   bookmarks?: Record<string, string>;
+  selectedLanguage?: string;
+  onLoadingChange?: (isLoading: boolean) => void;
 }
 
 export default function GPTResponse({ 
@@ -54,7 +57,9 @@ export default function GPTResponse({
   onPauseToggle,
   onGenerateSummary,
   onBookmarkSelect,
-  bookmarks
+  bookmarks,
+  selectedLanguage = 'ja',
+  onLoadingChange
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
@@ -75,6 +80,8 @@ export default function GPTResponse({
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
   const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
+  const [breakdownContent, setBreakdownContent] = useState('');
 
   useEffect(() => {
     handleRankColorChange(rank);
@@ -150,6 +157,34 @@ export default function GPTResponse({
     }
   };
 
+  const handleBreakdownClick = async () => {
+    try {
+      onLoadingChange?.(true);
+      const res = await fetch('/api/openai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          prompt: `* Breakdown the following phrase:\n\n${response}`,
+          languageCode: selectedLanguage,
+          model: 'gpt-4o-mini'
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setBreakdownContent(data.result);
+      setIsBreakdownModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching breakdown:', error);
+    } finally {
+      onLoadingChange?.(false);
+    }
+  };
+
   return (
     <div className="pl-3 pt-3 rounded text-white w-full">
       <div className="header flex justify-between w-[90%] mb-2 pb-1">
@@ -213,7 +248,6 @@ export default function GPTResponse({
                       <ChevronDownIcon className="h-4 w-4" />
                     </button>
                   </div>
-                  
                   {onPauseToggle && (
                     <Tooltip
                       content={isPaused 
@@ -238,6 +272,21 @@ export default function GPTResponse({
                       </button>
                     </Tooltip>
                   )}
+                  <Tooltip
+                    content="Breakdown this response"
+                    isVisible={isBreakdownHovered}
+                    buttonRef={breakdownButtonRef}
+                  >
+                    <button 
+                      ref={breakdownButtonRef}
+                      onClick={handleBreakdownClick}
+                      onMouseEnter={() => setIsBreakdownHovered(true)}
+                      onMouseLeave={() => setIsBreakdownHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+                    >
+                      <LightBulbIcon className="h-6 w-6" />
+                    </button>
+                  </Tooltip>
                 </div>
               )}
 
@@ -270,7 +319,7 @@ export default function GPTResponse({
                       onMouseLeave={() => setIsBreakdownHovered(false)}
                       className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                     >
-                      <LightBulbIcon className="h-5 w-5" />
+                      <LightBulbIcon className="h-6 w-6" />
                     </button>
                   </Tooltip>
                   <Tooltip
@@ -323,6 +372,13 @@ export default function GPTResponse({
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeleteConfirm}
+        />
+      )}
+      {isBreakdownModalOpen && (
+        <BreakdownModal
+          isOpen={isBreakdownModalOpen}
+          onClose={() => setIsBreakdownModalOpen(false)}
+          breakdown={breakdownContent}
         />
       )}
     </div>

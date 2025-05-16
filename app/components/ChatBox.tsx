@@ -726,6 +726,8 @@ export default function ChatBox({
                   onDelete={handleResponseDelete}
                   onPauseToggle={handlePauseToggle}
                   onBookmarkSelect={onBookmarkSelect}
+                  selectedLanguage={selectedLanguage}
+                  onLoadingChange={setIsLoading}
                 />
               ))
             ) : null}
@@ -741,6 +743,8 @@ export default function ChatBox({
             reservedBookmarkTitles={reservedBookmarkTitles}
             responseId={null}
             onBookmarkSelect={onBookmarkSelect}
+            selectedLanguage={selectedLanguage}
+            onLoadingChange={setIsLoading}
           />
         )}
         
@@ -756,6 +760,8 @@ export default function ChatBox({
             onDelete={handleResponseDelete}
             onPauseToggle={handlePauseToggle}
             onBookmarkSelect={onBookmarkSelect}
+            selectedLanguage={selectedLanguage}
+            onLoadingChange={setIsLoading}
           />
         )}
         
@@ -780,6 +786,8 @@ export default function ChatBox({
               onDelete={handleResponseDelete}
               onPauseToggle={handlePauseToggle}
               onBookmarkSelect={onBookmarkSelect}
+              selectedLanguage={selectedLanguage}
+              onLoadingChange={setIsLoading}
             />
           ))
         ) : // show chatbox responses as long as we're not in 'search'
@@ -797,6 +805,8 @@ export default function ChatBox({
               onQuote={handleResponseQuote}
               onRankUpdate={handleRankUpdate}
               onBookmarkSelect={onBookmarkSelect}
+              selectedLanguage={selectedLanguage}
+              onLoadingChange={setIsLoading}
             />
           ))
         ) : null}
