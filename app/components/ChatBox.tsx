@@ -46,9 +46,10 @@ const formatStats = (stats: {
   const padLeft = (str: string, length: number) => str.padStart(length);
   const padRight = (str: string, length: number) => str.padEnd(length);
   
-  const rank1Str = `**${stats.rank1.count}**/**${stats.total}**`;
-  const rank2Str = `**${stats.rank2.count}**/**${stats.total}**`;
-  const rank3Str = `**${stats.rank3.count}**/**${stats.total}**`;
+  const rank1Str = `**${stats.rank1.count}**`;
+  const rank2Str = `**${stats.rank2.count}**`;
+  const rank3Str = `**${stats.rank3.count}**`;
+  const totalStr = `**${stats.total}**`;
   const pct1Str = `**${stats.rank1.percentage}**%`;
   const pct2Str = `**${stats.rank2.percentage}**%`;
   const pct3Str = `**${stats.rank3.percentage}**%`;
@@ -56,7 +57,8 @@ const formatStats = (stats: {
   return `**Current stats**\n` +
          `${padRight('hard', 15)} ${padLeft(rank1Str, 8)} ${padLeft(pct1Str, 6)}\n` +
          `${padRight('medium', 15)} ${padLeft(rank2Str, 8)} ${padLeft(pct2Str, 6)}\n` +
-         `${padRight('easy', 15)} ${padLeft(rank3Str, 8)} ${padLeft(pct3Str, 6)}\n`;
+         `${padRight('easy', 15)} ${padLeft(rank3Str, 8)} ${padLeft(pct3Str, 6)}\n` +
+         `${padRight('total', 15)} ${padLeft(totalStr, 8)}`;
 };
 
 // Add sortResponses function
