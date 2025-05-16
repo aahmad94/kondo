@@ -42,9 +42,10 @@ export default async function handler(
       select: {
         id: true,
         content: true,
-        createdAt: true,
         rank: true,
-        isPaused: true
+        isPaused: true,
+        createdAt: true,
+        updatedAt: true
       },
       orderBy: {
         rank: 'asc'

@@ -42,7 +42,6 @@ export default async function handler(
       select: {
         id: true,
         content: true,
-        createdAt: true,
         rank: true,
         isPaused: true,
         bookmarks: {
@@ -50,7 +49,9 @@ export default async function handler(
             id: true,
             title: true
           }
-        }
+        },
+        createdAt: true,
+        updatedAt: true
       },
       orderBy: {
         createdAt: 'desc'

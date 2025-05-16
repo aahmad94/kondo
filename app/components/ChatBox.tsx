@@ -31,8 +31,9 @@ interface BookmarkResponse {
   id: string;
   content: string;
   rank: number;
-  createdAt: Date;
   isPaused?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const formatStats = (stats: {
@@ -64,7 +65,10 @@ const sortResponses = (responses: Response[]): Response[] => {
     const rankComparison = a.rank - b.rank;
     if (rankComparison !== 0) return rankComparison;
     // Within same rank, sort by updatedAt (newest first)
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    const updatedAtComparison = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    const createdAtComparison = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    if (updatedAtComparison !== 0) return updatedAtComparison;
+    return createdAtComparison;
   });
 };
 
@@ -271,12 +275,17 @@ export default function ChatBox({
         id: response.id,
         content: response.content,
         rank: response.rank,
+        isPaused: response.isPaused,
         createdAt: new Date(response.createdAt),
-        isPaused: response.isPaused
+        updatedAt: new Date(response.updatedAt),
       }));
 
       // Sort responses using the new function
       const sortedResponses = sortResponses(transformedResponses);
+      for (const response of sortedResponses) {
+        console.log(response.content);
+        console.log(response.createdAt, response.updatedAt);
+      }
 
       // Convert to dictionary
       const dict = Object.fromEntries((sortedResponses as Response[]).map((r: Response) => [r.id, r]));
@@ -302,9 +311,10 @@ export default function ChatBox({
         id: response.id,
         content: response.content,
         rank: response.rank,
-        createdAt: new Date(response.createdAt),
         isPaused: response.isPaused,
-        bookmarks: response.bookmarks
+        bookmarks: response.bookmarks,
+        createdAt: new Date(response.createdAt),
+        updatedAt: new Date(response.updatedAt)
       }]));
       setBookmarkResponses(dict);
       setIsLoading(false);
