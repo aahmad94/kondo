@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
 import { getLanguageInstructions } from '../../lib/languageService';
@@ -626,11 +627,13 @@ export default function ChatBox({
   };
 
   // Compiles the instructions for the daily summary
-  const dojoInstructions = (stats: any, timestamp: any) => {
+  const compileDojoInstructions = (stats: any, timestamp: Date | null) => {
+    // modify timestamp format to be more readable (Month Day, Year, hour:minute)
+    const formattedTimestamp = timestamp ? format(new Date(timestamp), 'h:mm a MMMM d, yyyy') : '';
     const compiledInstructions = {
       dailySummary: instructions.dailySummary,
       stats: stats ? formatStats(stats) : undefined,
-      summaryTimestamp: timestamp ? `Summary generated at: ${timestamp.toLocaleString()}` : ''
+      summaryTimestamp: timestamp ? `*Last generated at ${formattedTimestamp}*` : ''
     }
 
     // iterate over compiledInstructions and return all non-undefined values separated by '\n\n'
@@ -742,7 +745,7 @@ export default function ChatBox({
         {selectedBookmark.title === 'daily summary' && (
           <GPTResponse
             type="instruction"
-            response={dojoInstructions(responseStats, summaryTimestamp)}
+            response={compileDojoInstructions(responseStats, summaryTimestamp)}
             selectedBookmarkId={selectedBookmark.id}
             selectedBookmarkTitle="daily summary"
             reservedBookmarkTitles={reservedBookmarkTitles}
