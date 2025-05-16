@@ -52,7 +52,8 @@ const generateUserSummaryFunction = inngest.createFunction(
     const { userId } = event.data;
     try {
       console.log(`[Inngest] Generating summary for user ${userId}`);
-      const responses = await generateUserSummary(userId, true, true);
+      const data = await generateUserSummary(userId, true, true);
+      const { allResponses: responses, createdAt } = data;
       console.log(`[Inngest] Successfully generated summary for user ${userId} with ${responses?.length || 0} responses`);
       return { success: true, userId, responsesCount: responses?.length || 0 };
     } catch (error) {

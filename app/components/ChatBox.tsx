@@ -99,7 +99,7 @@ export default function ChatBox({
   const [searchResultsCache, setSearchResultsCache] = useState<Record<string, Response> | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [summaryTimestamp, setSummaryTimestamp] = useState<Date | null>(null);
   // Add ref to track previous language
   const previousLanguageRef = useRef(selectedLanguage);
 
@@ -282,10 +282,6 @@ export default function ChatBox({
 
       // Sort responses using the new function
       const sortedResponses = sortResponses(transformedResponses);
-      for (const response of sortedResponses) {
-        console.log(response.content);
-        console.log(response.createdAt, response.updatedAt);
-      }
 
       // Convert to dictionary
       const dict = Object.fromEntries((sortedResponses as Response[]).map((r: Response) => [r.id, r]));
@@ -589,6 +585,12 @@ export default function ChatBox({
       const data = await res.json();
       
       if (data.success && data.responses) {
+        // set state for summary timestamp
+        console.log('***data***', data);
+        if (data.createdAt) {
+          setSummaryTimestamp(data.createdAt);      
+        }
+        
         const transformedResponses = data.responses.map((response: Response) => ({
           id: response.id,
           content: response.content,
@@ -622,6 +624,19 @@ export default function ChatBox({
       setIsLoading(false);
     }
   };
+
+  // Compiles the instructions for the daily summary
+  const dojoInstructions = (stats: any, timestamp: any) => {
+    const compiledInstructions = {
+      dailySummary: instructions.dailySummary,
+      stats: stats ? formatStats(stats) : undefined,
+      summaryTimestamp: timestamp ? `Summary generated at: ${timestamp.toLocaleString()}` : ''
+    }
+
+    // iterate over compiledInstructions and return all non-undefined values separated by '\n\n'
+    return Object.values(compiledInstructions).filter(Boolean).join('\n\n');
+  }
+
 
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
@@ -727,7 +742,7 @@ export default function ChatBox({
         {selectedBookmark.title === 'daily summary' && (
           <GPTResponse
             type="instruction"
-            response={responseStats ? `${instructions.dailySummary}\n\n${formatStats(responseStats)}` : instructions.dailySummary}
+            response={dojoInstructions(responseStats, summaryTimestamp)}
             selectedBookmarkId={selectedBookmark.id}
             selectedBookmarkTitle="daily summary"
             reservedBookmarkTitles={reservedBookmarkTitles}

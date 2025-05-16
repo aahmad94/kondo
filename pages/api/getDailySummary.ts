@@ -13,17 +13,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const responses = await generateUserSummary(
+    const data = await generateUserSummary(
       userId, 
       forceRefresh === 'true',
       allLanguages === 'true'
     );
+
+    const { allResponses: responses, createdAt } = data;
     
     if (!responses || responses.length === 0) {
       return res.status(200).json({ success: false, responses: [] });
     }
 
-    return res.status(200).json({ success: true, responses });
+    return res.status(200).json({ success: true, responses, createdAt });
   } catch (error) {
     console.error('Error generating daily summary:', error);
     return res.status(500).json({ message: 'Error generating daily summary' });

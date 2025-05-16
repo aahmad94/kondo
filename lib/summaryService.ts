@@ -48,6 +48,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
       throw new Error('No languages found');
     }
     const allResponses: Response[] = [];
+    let createdAt: Date | null = null;
     for (const languageId of languageIds) {
       try {
         console.log(`[generateUserSummary] Processing language ${languageId} for user ${userId}`);
@@ -55,9 +56,30 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           console.log(`[generateUserSummary] Checking for existing summary for user ${userId}, language ${languageId}`);
           const latestSummary = await prisma.dailySummary.findFirst({
             where: { userId, languageId },
-            include: { responses: { where: { languageId }, select: { id: true, content: true, createdAt: true, rank: true, bookmarks: { select: { id: true, title: true } } } } },
+            select: {
+              id: true,
+              createdAt: true,
+              responses: { 
+                where: { languageId }, 
+                select: { 
+                  id: true, 
+                  content: true, 
+                  createdAt: true, 
+                  rank: true, 
+                  isPaused: true,
+                  bookmarks: { 
+                    select: { 
+                      id: true, 
+                      title: true 
+                    } 
+                  } 
+                } 
+              }
+            },
             orderBy: { createdAt: 'desc' }
           });
+          // when not forceRefresh, also set createdAt to the createdAt of the latestSummary
+          createdAt = latestSummary?.createdAt || null;
           if (latestSummary && latestSummary.responses.length > 0) {
             console.log(`[generateUserSummary] Found existing summary for user ${userId}, language ${languageId}`);
             const transformedResponses = latestSummary.responses.map(response => ({
@@ -96,7 +118,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           console.log(`[generateUserSummary] Fetching responses for user ${userId}, language ${languageId}, rank ${rank}`);
           const query = {
             where: { ...bookmarkFilter, rank: rank },
-            select: { id: true, content: true, createdAt: true, rank: true, bookmarks: { select: { id: true, title: true } } }
+            select: { id: true, content: true, createdAt: true, rank: true, isPaused: true, bookmarks: { select: { id: true, title: true } } }
           };
           const responses = await prisma.gPTResponse.findMany(query);
           console.log(`[generateUserSummary] Found ${responses.length} responses for user ${userId}, language ${languageId}, rank ${rank}`);
@@ -127,6 +149,8 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
             },
             include: { responses: true }
           });
+          // set createdAt to the createdAt of the savedSummary
+          createdAt = savedSummary.createdAt;
           console.log(`[generateUserSummary] Saved new daily summary for user ${userId}, language ${languageId}`);
           await Promise.all(languageResponses.map(response => 
             prisma.gPTResponse.update({
@@ -142,7 +166,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
       }
     }
     console.log(`[generateUserSummary] Returning ${allResponses.length} responses for user ${userId}`);
-    return allResponses;
+    return {allResponses, createdAt};
   } catch (error) {
     console.error(`[generateUserSummary] Error in generateUserSummary for user ${userId}:`, error);
     throw error;

@@ -58,6 +58,14 @@ export async function getUserResponses(userId: string) {
 }
 
 export async function toggleResponsePause(responseId: string, isPaused: boolean) {
+  if (!responseId) {
+    throw new Error('Response ID is required');
+  }
+
+  if (typeof isPaused !== 'boolean') {
+    throw new Error('isPaused must be a boolean value');
+  }
+
   try {
     // Check if the response exists
     const response = await prisma.gPTResponse.findUnique({

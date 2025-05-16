@@ -6,17 +6,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { responseId, isPaused } = req.body;
-
-  if (!responseId) {
-    return res.status(400).json({ message: 'Response ID is required' });
-  }
-
-  if (typeof isPaused !== 'boolean') {
-    return res.status(400).json({ message: 'isPaused must be a boolean value' });
-  }
-
   try {
+    const { responseId, isPaused } = req.body;
     const updatedResponse = await toggleResponsePause(responseId, isPaused);
     return res.status(200).json({ 
       success: true, 
@@ -25,6 +16,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error: any) {
     if (error.message === 'Response not found') {
       return res.status(404).json({ 
+        success: false, 
+        message: error.message 
+      });
+    }
+    if (error.message === 'Response ID is required' || error.message === 'isPaused must be a boolean value') {
+      return res.status(400).json({ 
         success: false, 
         message: error.message 
       });
