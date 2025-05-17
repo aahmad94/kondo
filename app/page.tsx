@@ -79,6 +79,7 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden bg-[#000000]">
         <Bookmarks 
           changeSelectedBookmark={handleBookmarkSelect}
+          onClearBookmark={handleClearBookmark}
           selectedBookmark={selectedBookmark}
           reservedBookmarkTitles={reservedBookmarkTitles}
           selectedLanguage={selectedLanguage}

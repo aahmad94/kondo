@@ -191,7 +191,7 @@ export default function GPTResponse({
         <h2 style={{ color: type === 'instruction' ? 'yellow' : blue }}>
           {type === 'instruction' 
             ? (selectedBookmarkTitle === 'daily summary' ? 'dojo:' : 'Instructions:')
-            : 'KondoAI:'}
+            : 'KondoAI'}
         </h2>
         <div className="button-container flex items-center gap-3">
           {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
