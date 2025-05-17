@@ -483,17 +483,31 @@ export default function ChatBox({
       const updatedResponse = await response.json();
 
       // Update bookmarkResponses (update single item)
-      setBookmarkResponses(prev => ({
-        ...prev,
-        [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
-      }));
+      setBookmarkResponses(prev => {
+        const existingResponse = prev[updatedResponse.id];
+        if (!existingResponse) return prev;
+        return {
+          ...prev,
+          [updatedResponse.id]: { 
+            ...existingResponse,
+            rank: updatedResponse.rank,
+            updatedAt: new Date()
+          }
+        };
+      });
 
       // Update search results cache
       setSearchResultsCache(prev => {
         if (!prev) return prev;
+        const existingResponse = prev[updatedResponse.id];
+        if (!existingResponse) return prev;
         return {
           ...prev,
-          [updatedResponse.id]: { ...prev[updatedResponse.id], rank: updatedResponse.rank }
+          [updatedResponse.id]: { 
+            ...existingResponse,
+            rank: updatedResponse.rank,
+            updatedAt: new Date()
+          }
         };
       });
 
@@ -540,36 +554,58 @@ export default function ChatBox({
         if (selectedBookmark.id) {
           // Update bookmarkResponses (update single item)
           setBookmarkResponses(prev => {
-            if (!prev[responseId]) return prev;
+            const existingResponse = prev[responseId];
+            if (!existingResponse) return prev;
             return {
               ...prev,
-              [responseId]: { ...prev[responseId], isPaused }
+              [responseId]: { 
+                ...existingResponse,
+                isPaused,
+                updatedAt: new Date()
+              }
             };
           });
 
           // Update search results cache
           setSearchResultsCache(prev => {
             if (!prev) return prev;
+            const existingResponse = prev[responseId];
+            if (!existingResponse) return prev;
             return {
               ...prev,
-              [responseId]: { ...prev[responseId], isPaused }
+              [responseId]: { 
+                ...existingResponse,
+                isPaused,
+                updatedAt: new Date()
+              }
             };
           });
 
           // Update daily summary cache
           setDailySummaryCache(prev => {
             if (!prev) return prev;
+            const existingResponse = prev[responseId];
+            if (!existingResponse) return prev;
             return {
               ...prev,
-              [responseId]: { ...prev[responseId], isPaused }
+              [responseId]: { 
+                ...existingResponse,
+                isPaused,
+                updatedAt: new Date()
+              }
             };
           });
         } else {
           setResponses(prevResponses => {
-            if (!prevResponses[responseId]) return prevResponses;
+            const existingResponse = prevResponses[responseId];
+            if (!existingResponse) return prevResponses;
             return {
               ...prevResponses,
-              [responseId]: { ...prevResponses[responseId], isPaused }
+              [responseId]: { 
+                ...existingResponse,
+                isPaused,
+                updatedAt: new Date()
+              }
             };
           });
         }
