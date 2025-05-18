@@ -75,14 +75,14 @@ export default function BookmarksModal({ isOpen, onClose, response, reservedBook
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] flex flex-col">
+        <div className="flex justify-between items-center sticky top-0 bg-gray-800 pb-4">
           <h2 className="text-l text-white">Add to Bookmark</h2>
-          <button onClick={onClose} className="text-white">
+          <button onClick={onClose} className="text-white hover:opacity-70 transition-opacity duration-200">
             <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
-        <ul className="space-y-2">
+        <ul className="space-y-2 overflow-y-auto">
           {bookmarks.map((bookmark) => (
             <li
               key={bookmark.id}
