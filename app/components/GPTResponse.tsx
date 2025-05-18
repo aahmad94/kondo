@@ -63,14 +63,14 @@ export default function GPTResponse({
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
-  const green = '#30642e'
+  const green = '#2ea149'
   const blue = '#3b82f6'
   const white = '#fff'
   const [newRank, setNewRank] = useState(rank);
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [rankContainerBg, setRankContainerBg] = useState(red);
+  const [rankContainerOutline, setRankContainerOutline] = useState(red);
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -90,11 +90,11 @@ export default function GPTResponse({
 
   const handleRankColorChange = (rank: number) => {
     if (rank == 1) {
-      setRankContainerBg(red);
+      setRankContainerOutline(red);
     } else if (rank == 2) {
-      setRankContainerBg(yellow);
+      setRankContainerOutline(yellow);
     } else if (rank == 3) {
-      setRankContainerBg(green);
+      setRankContainerOutline(green);
     }
   }
 
@@ -306,44 +306,30 @@ export default function GPTResponse({
             {selectedBookmarkId && responseId && (
               <div className="flex items-center gap-3">
 
-                {/* Bookmark badge -- show when in reserved bookmark */}
-                {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
-                  <span 
-                    onClick={handleBookmarkClick}
-                    className="text-xs px-2 py-0.5 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
-                  >
-                    {(() => {
-                      const nonReservedTitle = Object.values(bookmarks).find(title => 
-                        !reservedBookmarkTitles.includes(title)
-                      );
-                      if (nonReservedTitle) return nonReservedTitle;
-                      const firstTitle = Object.values(bookmarks)[0];
-                      return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
-                    })()}
-                  </span>
-                )}
-
                 {/* Rank container */}
                 <div 
-                  className={"rank-container flex items-center gap-1 px-1 rounded-sm transition-colors duration-400"}
-                  style={{ backgroundColor: rankContainerBg }}
+                  className={"rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400"}
+                  style={{ 
+                    border: `3px solid ${rankContainerOutline}`,
+                    backgroundColor: '#111111'
+                  }}
                 >
                   <button 
                     onClick={() => onRankClick(true)}
                     disabled={rank >= 3}
-                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
                   >
-                    <ChevronUpIcon className="h-4 w-4" />
+                    <ChevronUpIcon className="h-5 w-5" />
                   </button>
-                  <span className={`text-sm px-1 rounded text-white`}>
+                  <span className={`px-1.5 rounded text-xs text-white`}>
                     {rank}
                   </span>
                   <button 
                     onClick={() => onRankClick(false)}
                     disabled={rank <= 1}
-                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
                   >
-                    <ChevronDownIcon className="h-4 w-4" />
+                    <ChevronDownIcon className="h-5 w-5" />
                   </button>
                 </div>
 
@@ -390,6 +376,23 @@ export default function GPTResponse({
                     <LightBulbIcon className="h-6 w-6" />
                   </button>
                 </Tooltip>
+
+                {/* Bookmark badge -- show when in reserved bookmark */}
+                {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
+                  <span 
+                    onClick={handleBookmarkClick}
+                    className="text-xs px-2 py-0.5 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
+                  >
+                    {(() => {
+                      const nonReservedTitle = Object.values(bookmarks).find(title => 
+                        !reservedBookmarkTitles.includes(title)
+                      );
+                      if (nonReservedTitle) return nonReservedTitle;
+                      const firstTitle = Object.values(bookmarks)[0];
+                      return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
+                    })()}
+                  </span>
+                )}
               </div>
             )}
           </>
