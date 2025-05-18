@@ -80,6 +80,7 @@ export default function GPTResponse({
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
   const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
+  const refreshButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [breakdownContent, setBreakdownContent] = useState('');
 
@@ -198,25 +199,29 @@ export default function GPTResponse({
         <div className="flex items-center gap-3">
           {/* --- Top right buttons for all GPTResponses --- */}
           <>
-          {/* Breakdown button */}
-          <Tooltip
-            content="Breakdown this response"
-            isVisible={isBreakdownHovered}
-            buttonRef={breakdownButtonRef}
-          >
-            <button 
-              ref={breakdownButtonRef}
-              onClick={handleBreakdownClick}
-              onMouseEnter={() => setIsBreakdownHovered(true)}
-              onMouseLeave={() => setIsBreakdownHovered(false)}
-              className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+          {/* Refresh button for Dojo mode */}
+          {type === 'instruction' && selectedBookmarkTitle === 'daily summary' && (
+            <Tooltip
+              content="Refresh dojo summary"
+              isVisible={isHovered}
+              buttonRef={refreshButtonRef}
             >
-              <LightBulbIcon className="h-6 w-6" />
-            </button>
-          </Tooltip>
+              <button
+                ref={refreshButtonRef}
+                onClick={() => onGenerateSummary?.(true)}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+              >
+                <ArrowPathIcon className="h-6 w-6" />
+              </button>
+            </Tooltip>
+          )}
+
+          {/* --- set of top right buttons for responses --- */}
 
           {/* Delete button */}
-          {selectedBookmarkId && responseId && onDelete && (
+          {type !== 'instruction' && selectedBookmarkId && responseId && onDelete && (
             <button 
               onClick={handleDeleteClick}
               disabled={isDeleting}
@@ -228,9 +233,26 @@ export default function GPTResponse({
           </>
 
           {/* --- Top right buttons for chatbox specific GPTResponses --- */}
-          {!selectedBookmarkId && onQuote && (
+          {type !== 'instruction' && !selectedBookmarkId && onQuote && (
             <div className='flex items-center gap-3'>
               
+              {/* Breakdown button */}
+              <Tooltip
+                content="Breakdown this response"
+                isVisible={isBreakdownHovered}
+              buttonRef={breakdownButtonRef}
+            >
+              <button 
+                ref={breakdownButtonRef}
+                onClick={handleBreakdownClick}
+                onMouseEnter={() => setIsBreakdownHovered(true)}
+                onMouseLeave={() => setIsBreakdownHovered(false)}
+                className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+              >
+                  <LightBulbIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+
               {/* Quote button */}
               <Tooltip
                 content="Ask a question about this response"
@@ -276,23 +298,14 @@ export default function GPTResponse({
         </div>
       </div>
 
-      {/* Action buttons below content */}
+      {/* Action buttons below content for when in a bookmark */}
       <div className="button-container flex items-center gap-3 mt-3 pb-2">
-        {/* Generate summary button */}
-        {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
-          <button
-            onClick={() => onGenerateSummary?.(true)}
-            className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-          >
-            <ArrowPathIcon className="h-5 w-5" />
-          </button>
-        )}
-
-        {type === 'response' && (
+        {type === 'response' && selectedBookmarkId && (
           <>
             {/* GPTResponse interactive items */}
             {selectedBookmarkId && responseId && (
               <div className="flex items-center gap-3">
+
                 {/* Bookmark badge -- show when in reserved bookmark */}
                 {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
                   <span 
@@ -359,6 +372,24 @@ export default function GPTResponse({
                     </button>
                   </Tooltip>
                 )}
+
+
+                {/* Breakdown button */}
+                <Tooltip
+                  content="Breakdown this response"
+                  isVisible={isBreakdownHovered}
+                buttonRef={breakdownButtonRef}
+              >
+                <button 
+                  ref={breakdownButtonRef}
+                  onClick={handleBreakdownClick}
+                  onMouseEnter={() => setIsBreakdownHovered(true)}
+                  onMouseLeave={() => setIsBreakdownHovered(false)}
+                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                >
+                    <LightBulbIcon className="h-6 w-6" />
+                  </button>
+                </Tooltip>
               </div>
             )}
           </>
