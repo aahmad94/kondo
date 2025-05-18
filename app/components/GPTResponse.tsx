@@ -186,179 +186,186 @@ export default function GPTResponse({
   };
 
   return (
-    <div className="pl-3 pt-3 rounded text-white w-full">
+    <div className="pl-3 pt-3 rounded text-white w-full border-b border-[#222222]">
       <div className="header flex justify-between w-[90%] mb-2 pb-1">
+        {/* GPTResponse 'user' title */}
         <h2 style={{ color: type === 'instruction' ? 'yellow' : blue }}>
           {type === 'instruction' 
-            ? (selectedBookmarkTitle === 'daily summary' ? 'dojo:' : 'Instructions:')
+            ? (selectedBookmarkTitle === 'daily summary' ? 'dojo' : 'Instructions')
             : 'KondoAI'}
         </h2>
-        <div className="button-container flex items-center gap-3">
-          {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
-            <button
-              onClick={() => onGenerateSummary?.(true)}
-              className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+
+        <div className="flex items-center gap-3">
+          {/* --- Top right buttons for all GPTResponses --- */}
+          <>
+          {/* Breakdown button */}
+          <Tooltip
+            content="Breakdown this response"
+            isVisible={isBreakdownHovered}
+            buttonRef={breakdownButtonRef}
+          >
+            <button 
+              ref={breakdownButtonRef}
+              onClick={handleBreakdownClick}
+              onMouseEnter={() => setIsBreakdownHovered(true)}
+              onMouseLeave={() => setIsBreakdownHovered(false)}
+              className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
             >
-              <ArrowPathIcon className="h-5 w-5" />
+              <LightBulbIcon className="h-6 w-6" />
+            </button>
+          </Tooltip>
+
+          {/* Delete button */}
+          {selectedBookmarkId && responseId && onDelete && (
+            <button 
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
+              className="text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors duration-200"
+            >
+              <XCircleIcon className="h-6 w-6" />
             </button>
           )}
-          {type === 'response' && (
-            <>
-              {selectedBookmarkId && responseId && (
-                <div className="flex items-center gap-3">
-                  {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
-                    <span 
-                      onClick={handleBookmarkClick}
-                      className="text-xs px-2 py-0.5 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
-                    >
-                      {(() => {
-                        // Find a non-reserved bookmark title
-                        const nonReservedTitle = Object.values(bookmarks).find(title => 
-                          !reservedBookmarkTitles.includes(title)
-                        );
-                        
-                        // If found, return it, otherwise check if it's daily summary
-                        if (nonReservedTitle) return nonReservedTitle;
-                        
-                        // Check if the first bookmark is 'daily summary'
-                        const firstTitle = Object.values(bookmarks)[0];
-                        return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
-                      })()}
-                    </span>
-                  )}
-                  <div 
-                    className={"rank-container flex items-center gap-1 px-1 rounded-sm transition-colors duration-400"}
-                    style={{ backgroundColor: rankContainerBg }}
-                  >
-                    <button 
-                      onClick={() => onRankClick(true)}
-                      disabled={rank >= 3}
-                      className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
-                    >
-                      <ChevronUpIcon className="h-4 w-4" />
-                    </button>
-                    <span className={`text-sm px-1 rounded text-white`}>
-                      {rank}
-                    </span>
-                    <button 
-                      onClick={() => onRankClick(false)}
-                      disabled={rank <= 1}
-                      className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
-                    >
-                      <ChevronDownIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                  {onPauseToggle && (
-                    <Tooltip
-                      content={isPaused 
-                        ? "Resume cycling this response in dojo" 
-                        : "Pause cycling this response in dojo"
-                      }
-                      isVisible={isHovered}
-                      buttonRef={pauseButtonRef}
-                    >
-                      <button 
-                        ref={pauseButtonRef}
-                        onClick={() => onPauseToggle(responseId!, !isPaused)}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                        className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-                      >
-                        {isPaused ? (
-                          <PlayCircleIcon className="h-6 w-6" />
-                        ) : (
-                          <PauseCircleIcon className="h-6 w-6" />
-                        )}
-                      </button>
-                    </Tooltip>
-                  )}
-                  <Tooltip
-                    content="Breakdown this response"
-                    isVisible={isBreakdownHovered}
-                    buttonRef={breakdownButtonRef}
-                  >
-                    <button 
-                      ref={breakdownButtonRef}
-                      onClick={handleBreakdownClick}
-                      onMouseEnter={() => setIsBreakdownHovered(true)}
-                      onMouseLeave={() => setIsBreakdownHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-                    >
-                      <LightBulbIcon className="h-6 w-6" />
-                    </button>
-                  </Tooltip>
-                </div>
-              )}
+          </>
 
-              {!selectedBookmarkId && onQuote && (
-                <div className='flex items-center gap-3'>
-                  <Tooltip
-                    content="Ask a question about this response"
-                    isVisible={isQuoteHovered}
-                    buttonRef={quoteButtonRef}
-                  >
-                    <button 
-                      ref={quoteButtonRef}
-                      onClick={() => onQuote(response, 'input')} 
-                      onMouseEnter={() => setIsQuoteHovered(true)}
-                      onMouseLeave={() => setIsQuoteHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                    >
-                      <ChatBubbleLeftEllipsisIcon className="h-5 w-5" />
-                    </button>
-                  </Tooltip>
-                  <Tooltip
-                    content="Breakdown this response"
-                    isVisible={isBreakdownHovered}
-                    buttonRef={breakdownButtonRef}
-                  >
-                    <button 
-                      ref={breakdownButtonRef}
-                      onClick={() => onQuote(response, 'breakdown')} 
-                      onMouseEnter={() => setIsBreakdownHovered(true)}
-                      onMouseLeave={() => setIsBreakdownHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                    >
-                      <LightBulbIcon className="h-6 w-6" />
-                    </button>
-                  </Tooltip>
-                  <Tooltip
-                    content="Add to bookmark"
-                    isVisible={isBookmarkHovered}
-                    buttonRef={bookmarkButtonRef}
-                  >
-                    <button 
-                      ref={bookmarkButtonRef}
-                      onClick={() => setIsBookmarkModalOpen(true)} 
-                      onMouseEnter={() => setIsBookmarkHovered(true)}
-                      onMouseLeave={() => setIsBookmarkHovered(false)}
-                      className="text-white relative group"
-                    >
-                      <PlusIcon className="h-5 w-5" />
-                    </button>
-                  </Tooltip>
-                </div>
-              )}
-
-              {selectedBookmarkId && responseId && onDelete && (
+          {/* --- Top right buttons for chatbox specific GPTResponses --- */}
+          {!selectedBookmarkId && onQuote && (
+            <div className='flex items-center gap-3'>
+              
+              {/* Quote button */}
+              <Tooltip
+                content="Ask a question about this response"
+                isVisible={isQuoteHovered}
+                buttonRef={quoteButtonRef}
+              >
                 <button 
-                  onClick={handleDeleteClick}
-                  disabled={isDeleting}
-                  className="text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors duration-200"
+                  ref={quoteButtonRef}
+                  onClick={() => onQuote(response, 'input')} 
+                  onMouseEnter={() => setIsQuoteHovered(true)}
+                  onMouseLeave={() => setIsQuoteHovered(false)}
+                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                 >
-                  <XCircleIcon className="h-6 w-6" />
+                  <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
                 </button>
-              )}
-            </>
+              </Tooltip>
+
+              {/* Add to bookmark button */}
+              <Tooltip
+                content="Add to bookmark"
+                isVisible={isBookmarkHovered}
+                buttonRef={bookmarkButtonRef}
+              >
+                <button 
+                  ref={bookmarkButtonRef}
+                  onClick={() => setIsBookmarkModalOpen(true)} 
+                  onMouseEnter={() => setIsBookmarkHovered(true)}
+                  onMouseLeave={() => setIsBookmarkHovered(false)}
+                  className="text-white relative group"
+                >
+                  <PlusIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            </div>
           )}
         </div>
       </div>
-      {/* GPT Response content */}
+
+      {/* GPTResponse content */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
         <div className="pr-3" style={{ color: yellow }}>
           <Markdown remarkPlugins={[remarkGfm]} className="overflow-hidden">{cleanResponse}</Markdown>
         </div>
       </div>
+
+      {/* Action buttons below content */}
+      <div className="button-container flex items-center gap-3 mt-3 pb-2">
+        {/* Generate summary button */}
+        {selectedBookmarkTitle === 'daily summary' && type === 'instruction' && (
+          <button
+            onClick={() => onGenerateSummary?.(true)}
+            className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+          >
+            <ArrowPathIcon className="h-5 w-5" />
+          </button>
+        )}
+
+        {type === 'response' && (
+          <>
+            {/* GPTResponse interactive items */}
+            {selectedBookmarkId && responseId && (
+              <div className="flex items-center gap-3">
+                {/* Bookmark badge -- show when in reserved bookmark */}
+                {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
+                  <span 
+                    onClick={handleBookmarkClick}
+                    className="text-xs px-2 py-0.5 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
+                  >
+                    {(() => {
+                      const nonReservedTitle = Object.values(bookmarks).find(title => 
+                        !reservedBookmarkTitles.includes(title)
+                      );
+                      if (nonReservedTitle) return nonReservedTitle;
+                      const firstTitle = Object.values(bookmarks)[0];
+                      return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
+                    })()}
+                  </span>
+                )}
+
+                {/* Rank container */}
+                <div 
+                  className={"rank-container flex items-center gap-1 px-1 rounded-sm transition-colors duration-400"}
+                  style={{ backgroundColor: rankContainerBg }}
+                >
+                  <button 
+                    onClick={() => onRankClick(true)}
+                    disabled={rank >= 3}
+                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                  >
+                    <ChevronUpIcon className="h-4 w-4" />
+                  </button>
+                  <span className={`text-sm px-1 rounded text-white`}>
+                    {rank}
+                  </span>
+                  <button 
+                    onClick={() => onRankClick(false)}
+                    disabled={rank <= 1}
+                    className="text-white hover:text-gray-200 disabled:opacity-50 transition-colors duration-400 font-bold"
+                  >
+                    <ChevronDownIcon className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Pause button */}
+                {onPauseToggle && (
+                  <Tooltip
+                    content={isPaused 
+                      ? "Resume cycling this response in dojo" 
+                      : "Pause cycling this response in dojo"
+                    }
+                    isVisible={isHovered}
+                    buttonRef={pauseButtonRef}
+                  >
+                    <button 
+                      ref={pauseButtonRef}
+                      onClick={() => onPauseToggle(responseId!, !isPaused)}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                      className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+                    >
+                      {isPaused ? (
+                        <PlayCircleIcon className="h-6 w-6" />
+                      ) : (
+                        <PauseCircleIcon className="h-6 w-6" />
+                      )}
+                    </button>
+                  </Tooltip>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Modals */}
       {isBookmarkModalOpen && (
         <BookmarksModal
           isOpen={isBookmarkModalOpen}
