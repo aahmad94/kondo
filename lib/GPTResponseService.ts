@@ -156,9 +156,9 @@ export async function convertTextToSpeech(text: string, language: string) {
     // Select voice model based on language
     const voiceId = (() => {
       switch (language) {
-        case 'ja': return 'pNInz6obpgDQGcFmaJgB'; // Japanese voice
-        case 'ko': return '21m00Tcm4TlvDq8ikWAM'; // Korean voice
-        case 'es': return '21m00Tcm4TlvDq8ikWAM'; // Spanish voice
+        case 'ja': return 'Mv8AjrYZCBkdsmDHNwcB'; // Japanese voice
+        case 'ko': return 'z6Kj0hecH20CdetSElRT'; // Korean voice
+        case 'es': return 'l1zE9xgNpUTaQCZzpNJa'; // Spanish voice
         case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
         default: return 'pNInz6obpgDQGcFmaJgB';  // Default to Japanese
       }
@@ -174,10 +174,11 @@ export async function convertTextToSpeech(text: string, language: string) {
         text: content,
         model_id: 'eleven_multilingual_v2',
         voice_settings: {
-          stability: 0.75,        // Increased from 0.5 for more stable/slower speech
-          similarity_boost: 0.5,  // Decreased from 0.75 to allow for slower pacing
-          style: 0.0,            // Added style parameter
-          use_speaker_boost: true // Added speaker boost for clarity
+          speed: 0.80,
+          stability: 0.50,        // Increased from 0.75 for even slower speech
+          similarity_boost: 0.75, // Decreased from 0.5 for more natural pacing
+          style: 0.0,            // Keep style neutral
+          use_speaker_boost: true // Keep speaker boost for clarity
         },
       }),
     });
