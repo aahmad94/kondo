@@ -133,4 +133,63 @@ export async function getUserResponseStats(userId: string) {
     console.error('Error fetching user response stats:', error);
     throw error;
   }
+}
+
+export async function convertTextToSpeech(text: string, language: string) {
+  if (!text) {
+    throw new Error('Text content is required');
+  }
+
+  if (!language) {
+    throw new Error('Language is required');
+  }
+
+  try {
+    // Extract content between 1/ and 2/ using regex
+    const match = text.match(/1\/\s*([\s\S]*?)\s*2\//);
+    if (!match || !match[1]) {
+      throw new Error('Could not extract content for text-to-speech');
+    }
+
+    const content = match[1].trim();
+    
+    // Select voice model based on language
+    const voiceId = (() => {
+      switch (language) {
+        case 'ja': return 'pNInz6obpgDQGcFmaJgB'; // Japanese voice
+        case 'ko': return '21m00Tcm4TlvDq8ikWAM'; // Korean voice
+        case 'es': return '21m00Tcm4TlvDq8ikWAM'; // Spanish voice
+        case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
+        default: return 'pNInz6obpgDQGcFmaJgB';  // Default to Japanese
+      }
+    })();
+
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'xi-api-key': process.env.ELEVENLABS_API_KEY || '',
+      },
+      body: JSON.stringify({
+        text: content,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.75,        // Increased from 0.5 for more stable/slower speech
+          similarity_boost: 0.5,  // Decreased from 0.75 to allow for slower pacing
+          style: 0.0,            // Added style parameter
+          use_speaker_boost: true // Added speaker boost for clarity
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to convert text to speech');
+    }
+
+    const audioBlob = await response.blob();
+    return audioBlob;
+  } catch (error) {
+    console.error('Error converting text to speech:', error);
+    throw error;
+  }
 } 

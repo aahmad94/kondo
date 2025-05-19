@@ -11,11 +11,13 @@ import {
   ArrowPathIcon, 
   LightBulbIcon,
   PauseCircleIcon,
-  PlayCircleIcon 
+  PlayCircleIcon,
+  SpeakerWaveIcon
 } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import BreakdownModal from './BreakdownModal';
+import ErrorModal from './ErrorModal';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
@@ -40,6 +42,9 @@ interface GPTResponseProps {
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
 }
+
+// Create a cache outside the component to persist across renders
+const audioCache = new Map<string, { audio: string, mimeType: string }>();
 
 export default function GPTResponse({ 
   response, 
@@ -73,7 +78,9 @@ export default function GPTResponse({
   const [rankContainerOutline, setRankContainerOutline] = useState(red);
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
+  const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
+  const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
   const [isBreakdownHovered, setIsBreakdownHovered] = useState(false);
   const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
@@ -83,6 +90,10 @@ export default function GPTResponse({
   const refreshButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [breakdownContent, setBreakdownContent] = useState('');
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     handleRankColorChange(rank);
@@ -186,6 +197,91 @@ export default function GPTResponse({
     }
   };
 
+  const handleTextToSpeech = async () => {
+    if (!responseId) return;
+
+    let cachedAudio;
+    try {
+      // Check cache first
+      const cacheKey = `${responseId}-${selectedLanguage}`;
+      cachedAudio = audioCache.get(cacheKey);
+      let audioData;
+
+      if (cachedAudio) {
+        audioData = cachedAudio;
+      } else {
+        // Only show loading spinner when fetching from API
+        onLoadingChange?.(true);
+        
+        // If not in cache, fetch from API
+        const res = await fetch('/api/textToSpeech', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            text: response,
+            language: selectedLanguage
+          }),
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || 'Failed to convert text to speech');
+        }
+
+        audioData = await res.json();
+        
+        // Store in cache
+        audioCache.set(cacheKey, {
+          audio: audioData.audio,
+          mimeType: audioData.mimeType
+        });
+      }
+      
+      // Create audio element if it doesn't exist
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+      }
+
+      // Set up audio source
+      const audioBlob = new Blob(
+        [Buffer.from(audioData.audio, 'base64')],
+        { type: audioData.mimeType }
+      );
+      const audioUrl = URL.createObjectURL(audioBlob);
+      audioRef.current.src = audioUrl;
+
+      // Play audio
+      await audioRef.current.play();
+      setIsPlaying(true);
+
+      // Clean up URL when audio ends
+      audioRef.current.onended = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Failed to convert text to speech');
+      setIsErrorModalOpen(true);
+    } finally {
+      // Only hide loading spinner if we were showing it
+      if (!cachedAudio) {
+        onLoadingChange?.(false);
+      }
+    }
+  };
+
+  // Clean up audio element on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
+
   return (
     <div className="pl-3 pt-3 rounded text-white w-full border-b border-[#222222]">
       <div className="header flex justify-between w-[90%] mb-2 pb-1">
@@ -250,6 +346,23 @@ export default function GPTResponse({
                 className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
               >
                   <LightBulbIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+
+              {/* Text-to-speech button */}
+              <Tooltip
+                content="Listen to pronunciation"
+                isVisible={isSpeakerHovered}
+                buttonRef={speakerButtonRef}
+              >
+                <button 
+                  ref={speakerButtonRef}
+                  onClick={handleTextToSpeech}
+                  onMouseEnter={() => setIsSpeakerHovered(true)}
+                  onMouseLeave={() => setIsSpeakerHovered(false)}
+                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                >
+                  <SpeakerWaveIcon className="h-6 w-6" />
                 </button>
               </Tooltip>
 
@@ -377,6 +490,23 @@ export default function GPTResponse({
                   </button>
                 </Tooltip>
 
+                {/* Text-to-speech button */}
+                <Tooltip
+                  content="Listen to pronunciation"
+                  isVisible={isSpeakerHovered}
+                  buttonRef={speakerButtonRef}
+                >
+                  <button 
+                    ref={speakerButtonRef}
+                    onClick={handleTextToSpeech}
+                    onMouseEnter={() => setIsSpeakerHovered(true)}
+                    onMouseLeave={() => setIsSpeakerHovered(false)}
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <SpeakerWaveIcon className="h-6 w-6" />
+                  </button>
+                </Tooltip>
+
                 {/* Bookmark badge -- show when in reserved bookmark */}
                 {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
                   <span 
@@ -422,6 +552,13 @@ export default function GPTResponse({
           breakdown={breakdownContent}
         />
       )}
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        error={errorMessage}
+      />
     </div>
   );
 }
