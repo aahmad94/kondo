@@ -93,7 +93,7 @@ export default function GPTResponse({
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   // Add check for text between 1/ and 2/
-  const hasTextToSpeech = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
+  const hasExpression = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
 
   useEffect(() => {
     handleRankColorChange(rank);
@@ -312,24 +312,26 @@ export default function GPTResponse({
             <div className='flex items-center gap-3'>
               
               {/* Breakdown button */}
-              <Tooltip
-                content="Breakdown this response"
-                isVisible={isBreakdownHovered}
-              buttonRef={breakdownButtonRef}
-            >
-              <button 
-                ref={breakdownButtonRef}
-                onClick={handleBreakdownClick}
-                onMouseEnter={() => setIsBreakdownHovered(true)}
-                onMouseLeave={() => setIsBreakdownHovered(false)}
-                className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-              >
-                  <LightBulbIcon className="h-6 w-6" />
-                </button>
-              </Tooltip>
+              {hasExpression && (
+                <Tooltip
+                  content="Breakdown this response"
+                  isVisible={isBreakdownHovered}
+                  buttonRef={breakdownButtonRef}
+                >
+                  <button 
+                    ref={breakdownButtonRef}
+                    onClick={handleBreakdownClick}
+                    onMouseEnter={() => setIsBreakdownHovered(true)}
+                    onMouseLeave={() => setIsBreakdownHovered(false)}
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <LightBulbIcon className="h-6 w-6" />
+                  </button>
+                </Tooltip>
+              )}
 
               {/* Text-to-speech button */}
-              {hasTextToSpeech && (
+              {hasExpression && (
                 <Tooltip
                   content="Listen to pronunciation"
                   isVisible={isSpeakerHovered}
@@ -453,26 +455,27 @@ export default function GPTResponse({
                   </Tooltip>
                 )}
 
-
                 {/* Breakdown button */}
-                <Tooltip
-                  content="Breakdown this response"
-                  isVisible={isBreakdownHovered}
-                buttonRef={breakdownButtonRef}
-              >
-                <button 
-                  ref={breakdownButtonRef}
-                  onClick={handleBreakdownClick}
-                  onMouseEnter={() => setIsBreakdownHovered(true)}
-                  onMouseLeave={() => setIsBreakdownHovered(false)}
-                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                >
-                    <LightBulbIcon className="h-6 w-6" />
-                  </button>
-                </Tooltip>
+                {hasExpression && (
+                  <Tooltip
+                    content="Breakdown this response"
+                    isVisible={isBreakdownHovered}
+                    buttonRef={breakdownButtonRef}
+                  >
+                    <button 
+                      ref={breakdownButtonRef}
+                      onClick={handleBreakdownClick}
+                      onMouseEnter={() => setIsBreakdownHovered(true)}
+                      onMouseLeave={() => setIsBreakdownHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    >
+                      <LightBulbIcon className="h-6 w-6" />
+                    </button>
+                  </Tooltip>
+                )}
 
                 {/* Text-to-speech button */}
-                {hasTextToSpeech && (
+                {hasExpression && (
                   <Tooltip
                     content="Listen to pronunciation"
                     isVisible={isSpeakerHovered}
