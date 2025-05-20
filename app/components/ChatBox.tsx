@@ -160,6 +160,10 @@ export default function ChatBox({
         if (selectedLanguage !== previousLanguageRef.current) {
           // Clear ChatBox responses and URL params
           setResponses({});
+          // Clear search and dojo caches
+          setSearchResultsCache(null);
+          setDailySummaryCache(null);
+          setSearchQuery('');
           router.push('/');
           // Update the previous language
           previousLanguageRef.current = selectedLanguage;
