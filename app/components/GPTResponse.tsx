@@ -92,7 +92,6 @@ export default function GPTResponse({
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  // Add check for text between 1/ and 2/
   const hasExpression = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
 
   useEffect(() => {
@@ -429,6 +428,23 @@ export default function GPTResponse({
                   </button>
                 </div>
 
+                {/* Bookmark badge -- show when in reserved bookmark */}
+                {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
+                  <span 
+                    onClick={handleBookmarkClick}
+                    className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[110px] truncate"
+                  >
+                    {(() => {
+                      const nonReservedTitle = Object.values(bookmarks).find(title => 
+                        !reservedBookmarkTitles.includes(title)
+                      );
+                      if (nonReservedTitle) return nonReservedTitle;
+                      const firstTitle = Object.values(bookmarks)[0];
+                      return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
+                    })()}
+                  </span>
+                )}
+
                 {/* Pause button */}
                 {onPauseToggle && (
                   <Tooltip
@@ -491,23 +507,6 @@ export default function GPTResponse({
                       <SpeakerWaveIcon className="h-6 w-6" />
                     </button>
                   </Tooltip>
-                )}
-
-                {/* Bookmark badge -- show when in reserved bookmark */}
-                {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
-                  <span 
-                    onClick={handleBookmarkClick}
-                    className="text-xs px-2 py-0.5 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700"
-                  >
-                    {(() => {
-                      const nonReservedTitle = Object.values(bookmarks).find(title => 
-                        !reservedBookmarkTitles.includes(title)
-                      );
-                      if (nonReservedTitle) return nonReservedTitle;
-                      const firstTitle = Object.values(bookmarks)[0];
-                      return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
-                    })()}
-                  </span>
                 )}
               </div>
             )}
