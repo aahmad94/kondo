@@ -92,6 +92,9 @@ export default function GPTResponse({
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
+  // Add check for text between 1/ and 2/
+  const hasTextToSpeech = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
+
   useEffect(() => {
     handleRankColorChange(rank);
   }, [rank]);
@@ -326,21 +329,23 @@ export default function GPTResponse({
               </Tooltip>
 
               {/* Text-to-speech button */}
-              <Tooltip
-                content="Listen to pronunciation"
-                isVisible={isSpeakerHovered}
-                buttonRef={speakerButtonRef}
-              >
-                <button 
-                  ref={speakerButtonRef}
-                  onClick={handleTextToSpeech}
-                  onMouseEnter={() => setIsSpeakerHovered(true)}
-                  onMouseLeave={() => setIsSpeakerHovered(false)}
-                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+              {hasTextToSpeech && (
+                <Tooltip
+                  content="Listen to pronunciation"
+                  isVisible={isSpeakerHovered}
+                  buttonRef={speakerButtonRef}
                 >
-                  <SpeakerWaveIcon className="h-6 w-6" />
-                </button>
-              </Tooltip>
+                  <button 
+                    ref={speakerButtonRef}
+                    onClick={handleTextToSpeech}
+                    onMouseEnter={() => setIsSpeakerHovered(true)}
+                    onMouseLeave={() => setIsSpeakerHovered(false)}
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <SpeakerWaveIcon className="h-6 w-6" />
+                  </button>
+                </Tooltip>
+              )}
 
               {/* Quote button */}
               <Tooltip
@@ -467,21 +472,23 @@ export default function GPTResponse({
                 </Tooltip>
 
                 {/* Text-to-speech button */}
-                <Tooltip
-                  content="Listen to pronunciation"
-                  isVisible={isSpeakerHovered}
-                  buttonRef={speakerButtonRef}
-                >
-                  <button 
-                    ref={speakerButtonRef}
-                    onClick={handleTextToSpeech}
-                    onMouseEnter={() => setIsSpeakerHovered(true)}
-                    onMouseLeave={() => setIsSpeakerHovered(false)}
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                {hasTextToSpeech && (
+                  <Tooltip
+                    content="Listen to pronunciation"
+                    isVisible={isSpeakerHovered}
+                    buttonRef={speakerButtonRef}
                   >
-                    <SpeakerWaveIcon className="h-6 w-6" />
-                  </button>
-                </Tooltip>
+                    <button 
+                      ref={speakerButtonRef}
+                      onClick={handleTextToSpeech}
+                      onMouseEnter={() => setIsSpeakerHovered(true)}
+                      onMouseLeave={() => setIsSpeakerHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    >
+                      <SpeakerWaveIcon className="h-6 w-6" />
+                    </button>
+                  </Tooltip>
+                )}
 
                 {/* Bookmark badge -- show when in reserved bookmark */}
                 {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
