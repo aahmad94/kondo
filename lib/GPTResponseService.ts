@@ -135,17 +135,13 @@ export async function getUserResponseStats(userId: string) {
   }
 }
 
-export async function convertTextToSpeech(text: string, language: string, responseId: string) {
+export async function convertTextToSpeech(text: string, language: string, responseId?: string) {
   if (!text) {
     throw new Error('Text content is required');
   }
 
   if (!language) {
     throw new Error('Language is required');
-  }
-
-  if (!responseId) {
-    throw new Error('Response ID is required');
   }
 
   try {
@@ -157,18 +153,20 @@ export async function convertTextToSpeech(text: string, language: string, respon
 
     const content = match[1].trim();
     
-    // Check if audio exists in database
-    const existingResponse = await prisma.gPTResponse.findUnique({
-      where: { id: responseId },
-      select: { audio: true, audioMimeType: true }
-    });
+    // Only check database if we have a responseId
+    if (responseId) {
+      const existingResponse = await prisma.gPTResponse.findUnique({
+        where: { id: responseId },
+        select: { audio: true, audioMimeType: true }
+      });
 
-    if (existingResponse?.audio && existingResponse?.audioMimeType) {
-      // Return existing audio from database
-      return {
-        audio: existingResponse.audio,
-        mimeType: existingResponse.audioMimeType
-      };
+      if (existingResponse?.audio && existingResponse?.audioMimeType) {
+        // Return existing audio from database
+        return {
+          audio: existingResponse.audio,
+          mimeType: existingResponse.audioMimeType
+        };
+      }
     }
 
     // Select voice model based on language
@@ -209,14 +207,22 @@ export async function convertTextToSpeech(text: string, language: string, respon
     const audioArrayBuffer = await audioBlob.arrayBuffer();
     const audioBase64 = Buffer.from(audioArrayBuffer).toString('base64');
 
-    // Save audio to database
-    await prisma.gPTResponse.update({
-      where: { id: responseId },
-      data: {
-        audio: audioBase64,
-        audioMimeType: audioBlob.type
+    // Only save to database if we have a responseId and the response exists
+    if (responseId) {
+      const responseExists = await prisma.gPTResponse.findUnique({
+        where: { id: responseId }
+      });
+
+      if (responseExists) {
+        await prisma.gPTResponse.update({
+          where: { id: responseId },
+          data: {
+            audio: audioBase64,
+            audioMimeType: audioBlob.type
+          }
+        });
       }
-    });
+    }
 
     return {
       audio: audioBase64,
