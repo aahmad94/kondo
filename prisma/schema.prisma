@@ -8,24 +8,24 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  email         String?       @unique
-  emailVerified DateTime?
-  image         String?
-  name          String?
-  subscribed    Boolean?      @default(false)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  accounts      Account[]
-  dailySummaries DailySummary[]
-  bookmarks     Bookmark[]
-  responses     GPTResponse[]
-  sessions      Session[]
+  id                 String                  @id @default(cuid())
+  email              String?                 @unique
+  emailVerified      DateTime?
+  image              String?
+  name               String?
+  subscribed         Boolean?                @default(false)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  accounts           Account[]
+  bookmarks          Bookmark[]
+  dailySummaries     DailySummary[]
+  responses          GPTResponse[]
+  sessions           Session[]
   languagePreference UserLanguagePreference?
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String   @id @default(cuid())
   userId            String
   type              String
   provider          String
@@ -39,7 +39,7 @@ model Account {
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -65,63 +65,65 @@ model VerificationToken {
 }
 
 model Language {
-  id          String   @id @default(cuid())
-  code        String   @unique // e.g., "ja", "ko", "es", "ar"
-  name        String   // e.g., "Japanese", "Korean", "Spanish", "Arabic"
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  responses   GPTResponse[]
-  bookmarks   Bookmark[]
-  dailySummaries DailySummary[]
+  id              String                   @id @default(cuid())
+  code            String                   @unique
+  name            String
+  isActive        Boolean                  @default(true)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  bookmarks       Bookmark[]
+  dailySummaries  DailySummary[]
+  responses       GPTResponse[]
   userPreferences UserLanguagePreference[]
 }
 
 model UserLanguagePreference {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  languageId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  language    Language @relation(fields: [languageId], references: [id])
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  languageId String
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  language   Language @relation(fields: [languageId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model GPTResponse {
-  id          String     @id @default(cuid())
-  content     String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  userId      String
-  languageId  String
-  rank        Int?       @default(1)
-  isPaused    Boolean    @default(false)  // Whether this response should be excluded from summary service
-  user        User       @relation(fields: [userId], references: [id])
-  language    Language   @relation(fields: [languageId], references: [id])
-  bookmarks   Bookmark[] @relation("BookmarksToResponses")
+  id             String         @id @default(cuid())
+  content        String
+  createdAt      DateTime       @default(now())
+  userId         String
+  rank           Int?           @default(1)
+  languageId     String
+  isPaused       Boolean        @default(false)
+  updatedAt      DateTime       @updatedAt
+  audio          String?
+  audioMimeType  String?
+  language       Language       @relation(fields: [languageId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+  bookmarks      Bookmark[]     @relation("BookmarksToResponses")
   dailySummaries DailySummary[] @relation("DailySummaryToResponses")
 }
 
 model Bookmark {
-  id          String     @id @default(cuid())
-  title       String
-  userId      String
-  languageId  String
-  isReserved  Boolean    @default(false)  // For "all responses" and "daily summary"
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  user        User       @relation(fields: [userId], references: [id])
-  language    Language   @relation(fields: [languageId], references: [id])
-  responses   GPTResponse[] @relation("BookmarksToResponses")
+  id         String        @id @default(cuid())
+  title      String
+  userId     String
+  languageId String
+  isReserved Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  language   Language      @relation(fields: [languageId], references: [id])
+  user       User          @relation(fields: [userId], references: [id])
+  responses  GPTResponse[] @relation("BookmarksToResponses")
 }
 
 model DailySummary {
-  id          String     @id @default(cuid())
-  userId      String
-  languageId  String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  user        User       @relation(fields: [userId], references: [id])
-  language    Language   @relation(fields: [languageId], references: [id])
-  responses   GPTResponse[] @relation("DailySummaryToResponses")
+  id         String        @id @default(cuid())
+  userId     String
+  languageId String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  language   Language      @relation(fields: [languageId], references: [id])
+  user       User          @relation(fields: [userId], references: [id])
+  responses  GPTResponse[] @relation("DailySummaryToResponses")
 }

@@ -3,25 +3,21 @@ import { convertTextToSpeech } from '@/lib/GPTResponseService';
 
 export async function POST(request: Request) {
   try {
-    const { text, language } = await request.json();
+    const { text, language, responseId } = await request.json();
 
-    if (!text || !language) {
+    if (!text || !language || !responseId) {
       return NextResponse.json(
-        { error: 'Text and language are required' },
+        { error: 'Text, language, and responseId are required' },
         { status: 400 }
       );
     }
 
-    const audioBlob = await convertTextToSpeech(text, language);
+    const result = await convertTextToSpeech(text, language, responseId);
     
-    // Convert blob to base64
-    const arrayBuffer = await audioBlob.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString('base64');
-
     return NextResponse.json({ 
       success: true,
-      audio: base64,
-      mimeType: audioBlob.type
+      audio: result.audio,
+      mimeType: result.mimeType
     });
   } catch (error: any) {
     console.error('Error in text-to-speech API:', error);

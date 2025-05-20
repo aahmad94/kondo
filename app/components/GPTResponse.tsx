@@ -43,9 +43,6 @@ interface GPTResponseProps {
   onLoadingChange?: (isLoading: boolean) => void;
 }
 
-// Create a cache outside the component to persist across renders
-const audioCache = new Map<string, { audio: string, mimeType: string }>();
-
 export default function GPTResponse({ 
   response, 
   selectedBookmarkId, 
@@ -200,44 +197,26 @@ export default function GPTResponse({
   const handleTextToSpeech = async () => {
     if (!responseId) return;
 
-    let cachedAudio;
     try {
-      // Check cache first
-      const cacheKey = `${responseId}-${selectedLanguage}`;
-      cachedAudio = audioCache.get(cacheKey);
-      let audioData;
+      onLoadingChange?.(true);
+      const res = await fetch('/api/textToSpeech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          text: response,
+          language: selectedLanguage,
+          responseId: responseId
+        }),
+      });
 
-      if (cachedAudio) {
-        audioData = cachedAudio;
-      } else {
-        // Only show loading spinner when fetching from API
-        onLoadingChange?.(true);
-        
-        // If not in cache, fetch from API
-        const res = await fetch('/api/textToSpeech', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            text: response,
-            language: selectedLanguage
-          }),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || 'Failed to convert text to speech');
-        }
-
-        audioData = await res.json();
-        
-        // Store in cache
-        audioCache.set(cacheKey, {
-          audio: audioData.audio,
-          mimeType: audioData.mimeType
-        });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to convert text to speech');
       }
+
+      const data = await res.json();
       
       // Create audio element if it doesn't exist
       if (!audioRef.current) {
@@ -246,8 +225,8 @@ export default function GPTResponse({
 
       // Set up audio source
       const audioBlob = new Blob(
-        [Buffer.from(audioData.audio, 'base64')],
-        { type: audioData.mimeType }
+        [Buffer.from(data.audio, 'base64')],
+        { type: data.mimeType }
       );
       const audioUrl = URL.createObjectURL(audioBlob);
       audioRef.current.src = audioUrl;
@@ -265,10 +244,7 @@ export default function GPTResponse({
       setErrorMessage(error.message || 'Failed to convert text to speech');
       setIsErrorModalOpen(true);
     } finally {
-      // Only hide loading spinner if we were showing it
-      if (!cachedAudio) {
-        onLoadingChange?.(false);
-      }
+      onLoadingChange?.(false);
     }
   };
 

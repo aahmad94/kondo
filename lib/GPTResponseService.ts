@@ -135,13 +135,17 @@ export async function getUserResponseStats(userId: string) {
   }
 }
 
-export async function convertTextToSpeech(text: string, language: string) {
+export async function convertTextToSpeech(text: string, language: string, responseId: string) {
   if (!text) {
     throw new Error('Text content is required');
   }
 
   if (!language) {
     throw new Error('Language is required');
+  }
+
+  if (!responseId) {
+    throw new Error('Response ID is required');
   }
 
   try {
@@ -153,6 +157,20 @@ export async function convertTextToSpeech(text: string, language: string) {
 
     const content = match[1].trim();
     
+    // Check if audio exists in database
+    const existingResponse = await prisma.gPTResponse.findUnique({
+      where: { id: responseId },
+      select: { audio: true, audioMimeType: true }
+    });
+
+    if (existingResponse?.audio && existingResponse?.audioMimeType) {
+      // Return existing audio from database
+      return {
+        audio: existingResponse.audio,
+        mimeType: existingResponse.audioMimeType
+      };
+    }
+
     // Select voice model based on language
     const voiceId = (() => {
       switch (language) {
@@ -175,10 +193,10 @@ export async function convertTextToSpeech(text: string, language: string) {
         model_id: 'eleven_multilingual_v2',
         voice_settings: {
           speed: 0.80,
-          stability: 0.50,        // Increased from 0.75 for even slower speech
-          similarity_boost: 0.75, // Decreased from 0.5 for more natural pacing
-          style: 0.0,            // Keep style neutral
-          use_speaker_boost: true // Keep speaker boost for clarity
+          stability: 0.50,
+          similarity_boost: 0.75,
+          style: 0.0,
+          use_speaker_boost: true
         },
       }),
     });
@@ -188,7 +206,22 @@ export async function convertTextToSpeech(text: string, language: string) {
     }
 
     const audioBlob = await response.blob();
-    return audioBlob;
+    const audioArrayBuffer = await audioBlob.arrayBuffer();
+    const audioBase64 = Buffer.from(audioArrayBuffer).toString('base64');
+
+    // Save audio to database
+    await prisma.gPTResponse.update({
+      where: { id: responseId },
+      data: {
+        audio: audioBase64,
+        audioMimeType: audioBlob.type
+      }
+    });
+
+    return {
+      audio: audioBase64,
+      mimeType: audioBlob.type
+    };
   } catch (error) {
     console.error('Error converting text to speech:', error);
     throw error;
