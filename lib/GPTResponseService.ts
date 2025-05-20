@@ -2,8 +2,6 @@ import prisma from './prisma';
 
 type ValidRank = 1 | 2 | 3;
 
-const appUrl = process.env.VERCEL_URL ?? 'http://localhost:3000';
-
 export async function updateGPTResponseRank(gptResponseId: string, rank: number) {
   // Validate rank
   if (![1, 2, 3].includes(rank)) {
@@ -268,7 +266,7 @@ export async function getBreakdown(text: string, language: string, responseId?: 
     }
 
     // Generate new breakdown
-    const response = await fetch(`${appUrl}/api/openai`, {
+    const response = await fetch(`/api/openai`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
