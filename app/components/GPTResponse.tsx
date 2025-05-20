@@ -435,7 +435,7 @@ export default function GPTResponse({
                 {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
                   <span 
                     onClick={handleBookmarkClick}
-                    className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[110px] truncate"
+                    className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[100px] truncate"
                   >
                     {(() => {
                       const nonReservedTitle = Object.values(bookmarks).find(title => 
