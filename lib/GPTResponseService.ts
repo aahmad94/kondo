@@ -2,6 +2,8 @@ import prisma from './prisma';
 
 type ValidRank = 1 | 2 | 3;
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+
 export async function updateGPTResponseRank(gptResponseId: string, rank: number) {
   // Validate rank
   if (![1, 2, 3].includes(rank)) {
@@ -230,6 +232,78 @@ export async function convertTextToSpeech(text: string, language: string, respon
     };
   } catch (error) {
     console.error('Error converting text to speech:', error);
+    throw error;
+  }
+}
+
+export async function getBreakdown(text: string, language: string, responseId?: string) {
+  if (!text) {
+    throw new Error('Text content is required');
+  }
+
+  if (!language) {
+    throw new Error('Language is required');
+  }
+
+  try {
+    // Extract content between 1/ and 2/ using regex
+    const match = text.match(/1\/\s*([\s\S]*?)\s*2\//);
+    if (!match || !match[1]) {
+      throw new Error('Could not extract content for breakdown');
+    }
+
+    const content = match[1].trim();
+    
+    // Only check database if we have a responseId
+    if (responseId) {
+      const existingResponse = await prisma.gPTResponse.findUnique({
+        where: { id: responseId },
+        select: { breakdown: true }
+      });
+
+      if (existingResponse?.breakdown) {
+        // Return existing breakdown from database
+        return existingResponse.breakdown;
+      }
+    }
+
+    // Generate new breakdown
+    const response = await fetch(`${appUrl}/api/openai`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        prompt: `* Breakdown the following phrase:\n\n${content}`,
+        languageCode: language,
+        model: 'gpt-4o-mini'
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate breakdown');
+    }
+
+    const data = await response.json();
+    const breakdown = data.result;
+
+    // Only save to database if we have a responseId and the response exists
+    if (responseId) {
+      const responseExists = await prisma.gPTResponse.findUnique({
+        where: { id: responseId }
+      });
+
+      if (responseExists) {
+        await prisma.gPTResponse.update({
+          where: { id: responseId },
+          data: { breakdown }
+        });
+      }
+    }
+
+    return breakdown;
+  } catch (error) {
+    console.error('Error generating breakdown:', error);
     throw error;
   }
 } 

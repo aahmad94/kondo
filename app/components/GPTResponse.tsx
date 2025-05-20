@@ -171,26 +171,29 @@ export default function GPTResponse({
   const handleBreakdownClick = async () => {
     try {
       onLoadingChange?.(true);
-      const res = await fetch('/api/openai', {
+      const res = await fetch('/api/breakdown', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          prompt: `* Breakdown the following phrase:\n\n${response}`,
-          languageCode: selectedLanguage,
-          model: 'gpt-4o-mini'
+          text: response,
+          language: selectedLanguage,
+          responseId: responseId
         }),
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to generate breakdown');
       }
+
       const data = await res.json();
-      setBreakdownContent(data.result);
+      setBreakdownContent(data.breakdown);
       setIsBreakdownModalOpen(true);
-    } catch (error) {
-      console.error('Error fetching breakdown:', error);
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Failed to generate breakdown');
+      setIsErrorModalOpen(true);
     } finally {
       onLoadingChange?.(false);
     }
