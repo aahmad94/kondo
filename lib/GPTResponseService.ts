@@ -2,7 +2,7 @@ import prisma from './prisma';
 
 type ValidRank = 1 | 2 | 3;
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+const appUrl = process.env.VERCEL_URL ?? 'http://localhost:3000';
 
 export async function updateGPTResponseRank(gptResponseId: string, rank: number) {
   // Validate rank
