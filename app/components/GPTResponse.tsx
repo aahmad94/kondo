@@ -91,6 +91,10 @@ export default function GPTResponse({
   const [errorMessage, setErrorMessage] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const upChevronRef = React.useRef<HTMLButtonElement>(null);
+  const downChevronRef = React.useRef<HTMLButtonElement>(null);
+  const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
+  const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
 
   const hasExpression = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
 
@@ -407,30 +411,48 @@ export default function GPTResponse({
               <div className="flex items-center gap-3">
 
                 {/* Rank container */}
-                <div 
+                <div
                   className={"rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400"}
-                  style={{ 
+                  style={{
                     border: `3px solid ${rankContainerOutline}`,
                     backgroundColor: '#111111'
                   }}
                 >
-                  <button 
-                    onClick={() => onRankClick(true)}
-                    disabled={rank >= 3}
-                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                  <Tooltip
+                    content="Rank higher to surface less"
+                    isVisible={isUpChevronHovered}
+                    buttonRef={upChevronRef}
                   >
-                    <ChevronUpIcon className="h-5 w-5" />
-                  </button>
+                    <button
+                      ref={upChevronRef}
+                      onClick={() => onRankClick(true)}
+                      disabled={rank >= 3}
+                      className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                      onMouseEnter={() => setIsUpChevronHovered(true)}
+                      onMouseLeave={() => setIsUpChevronHovered(false)}
+                    >
+                      <ChevronUpIcon className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
                   <span className={`px-1.5 rounded text-xs text-white`}>
                     {rank}
                   </span>
-                  <button 
-                    onClick={() => onRankClick(false)}
-                    disabled={rank <= 1}
-                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                  <Tooltip
+                    content="Rank lower to surface more"
+                    isVisible={isDownChevronHovered}
+                    buttonRef={downChevronRef}
                   >
-                    <ChevronDownIcon className="h-5 w-5" />
-                  </button>
+                    <button
+                      ref={downChevronRef}
+                      onClick={() => onRankClick(false)}
+                      disabled={rank <= 1}
+                      className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                      onMouseEnter={() => setIsDownChevronHovered(true)}
+                      onMouseLeave={() => setIsDownChevronHovered(false)}
+                    >
+                      <ChevronDownIcon className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
                 </div>
 
                 {/* Bookmark badge -- show when in reserved bookmark */}

@@ -7,15 +7,7 @@ interface LanguageInstructions {
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Japanese; use the **reply button** on a response to get a more detailed breakdown.\n\n 
-  
-  **Response features:**
-  💡 - breakdown response
-  💬 - quote response in input field
-
-  **Bookmark features:**
-  ➕ - add response to a bookmark
-  ⬆️/⬇️ - rank each response in a bookmark\n\n
+  Enter a phrase or sentence to translate into Japanese; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
 
   **Additional commands:**
   1 - **"random"** + (optional topic) + (optional difficulty level)
@@ -33,16 +25,7 @@ Click the 🔄 button above to manually create a new report.
 
 const KOREAN_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Korean; use the **reply button** on a response to get a more detailed breakdown.\n\n 
-  
-  **Response features:**
-  💡 - breakdown response
-  💬 - quote response in input field
-
-  **Bookmark features:**
-  ➕ - add response to a bookmark
-  ⬆️/⬇️ - rank each response in a bookmark\n\n
-
+  Enter a phrase or sentence to translate into Korean; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
 
   **Additional commands:**
   1 - **"random"** + (optional topic) + (optional difficulty level)
@@ -60,7 +43,7 @@ Click the 🔄 button above to manually create a new report.
 
 const SPANISH_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Spanish; use the **reply button** on a response to get a more detailed breakdown.\n\n 
+  Enter a phrase or sentence to translate into Spanish; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
   
   **Response features:**
   💡 - breakdown response
@@ -85,15 +68,7 @@ Click the 🔄 button above to manually create a new report.
 
 const ARABIC_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Arabic; use the **reply button** on a response to get a more detailed breakdown.\n\n 
-  
-  **Response features:**
-  💡 - breakdown response
-  💬 - quote response in input field
-
-  **Bookmark features:**
-  ➕ - add response to a bookmark
-  ⬆️/⬇️ - rank each response in a bookmark\n\n
+  Enter a phrase or sentence to translate into Arabic; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
 
   **Additional commands:**
   1 - **"random"** + (optional topic) + (optional difficulty level)
