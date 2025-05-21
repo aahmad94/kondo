@@ -392,7 +392,9 @@ export default function GPTResponse({
       {/* GPTResponse content */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
         <div className="pr-3" style={{ color: yellow }}>
-          <Markdown remarkPlugins={[remarkGfm]} className="overflow-hidden">{cleanResponse}</Markdown>
+          <div className="overflow-x-auto w-full">
+            <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
+          </div>
         </div>
       </div>
 
