@@ -40,11 +40,6 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   const upChevronRef = React.useRef<HTMLButtonElement>(null);
   const downChevronRef = React.useRef<HTMLButtonElement>(null);
 
-  // console log responseId
-  React.useEffect(() => {
-    console.log('responseId', responseId);
-  }, [responseId]);
-
   React.useEffect(() => {
     if (rank === 1) {
       setRankContainerOutline(red);

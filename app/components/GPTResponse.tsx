@@ -95,6 +95,7 @@ export default function GPTResponse({
   const downChevronRef = React.useRef<HTMLButtonElement>(null);
   const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
   const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
+  const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
 
   const hasExpression = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
 
@@ -174,6 +175,12 @@ export default function GPTResponse({
 
   const handleBreakdownClick = async () => {
     try {
+      if (breakdownContent) {
+        setBreakdownContent(breakdownContent);
+        setIsBreakdownModalOpen(true);
+        return;
+      }
+
       onLoadingChange?.(true);
       const res = await fetch('/api/breakdown', {
         method: 'POST',
@@ -207,6 +214,28 @@ export default function GPTResponse({
     if (!responseId) return;
 
     try {
+      if (cachedAudio) {
+        if (!audioRef.current) {
+          audioRef.current = new Audio();
+        }
+
+        const audioBlob = new Blob(
+          [Buffer.from(cachedAudio.audio, 'base64')],
+          { type: cachedAudio.mimeType }
+        );
+        const audioUrl = URL.createObjectURL(audioBlob);
+        audioRef.current.src = audioUrl;
+
+        await audioRef.current.play();
+        setIsPlaying(true);
+
+        audioRef.current.onended = () => {
+          setIsPlaying(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        return;
+      }
+
       onLoadingChange?.(true);
       const res = await fetch('/api/textToSpeech', {
         method: 'POST',
@@ -227,7 +256,12 @@ export default function GPTResponse({
 
       const data = await res.json();
       
-      // Create audio element if it doesn't exist
+      // Cache audio
+      setCachedAudio({
+        audio: data.audio,
+        mimeType: data.mimeType
+      });
+      
       if (!audioRef.current) {
         audioRef.current = new Audio();
       }
