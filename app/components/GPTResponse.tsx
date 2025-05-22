@@ -402,7 +402,7 @@ export default function GPTResponse({
         </div>
       </div>
 
-      {/* Action buttons below content for when in a bookmark */}
+      {/* Bottom action buttons for when in a bookmark */}
       <div className="button-container flex items-center gap-3 mt-3 pb-2">
         {type === 'response' && selectedBookmarkId && (
           <>
@@ -562,7 +562,13 @@ export default function GPTResponse({
           isOpen={isBreakdownModalOpen}
           onClose={() => setIsBreakdownModalOpen(false)}
           breakdown={breakdownContent}
-        />
+          rank={rank}
+          isPaused={isPaused}
+          responseId={responseId ?? null}
+          onRankUpdate={onRankUpdate}
+          onPauseToggle={onPauseToggle}
+          onTextToSpeech={handleTextToSpeech}
+      />
       )}
 
       {/* Error Modal */}

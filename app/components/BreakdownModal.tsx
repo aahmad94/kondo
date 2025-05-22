@@ -1,15 +1,68 @@
 import React from 'react';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, ChevronUpIcon, ChevronDownIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon } from '@heroicons/react/24/solid';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Tooltip from './Tooltip';
 
 interface BreakdownModalProps {
   isOpen: boolean;
   onClose: () => void;
   breakdown: string;
+  rank?: number;
+  isPaused?: boolean;
+  responseId?: string | null;
+  onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
+  onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
+  onTextToSpeech?: () => Promise<void>;
 }
 
-const BreakdownModal: React.FC<BreakdownModalProps> = ({ isOpen, onClose, breakdown }) => {
+const BreakdownModal: React.FC<BreakdownModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  breakdown,
+  rank = 1,
+  isPaused = false,
+  responseId,
+  onRankUpdate,
+  onPauseToggle,
+  onTextToSpeech
+}) => {
+  const red = '#d93900'
+  const yellow = '#b59f3b'
+  const green = '#2ea149'
+  const [rankContainerOutline, setRankContainerOutline] = React.useState(red);
+  const [isHovered, setIsHovered] = React.useState(false);
+  const [isSpeakerHovered, setIsSpeakerHovered] = React.useState(false);
+  const [isUpChevronHovered, setIsUpChevronHovered] = React.useState(false);
+  const [isDownChevronHovered, setIsDownChevronHovered] = React.useState(false);
+  const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
+  const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
+  const upChevronRef = React.useRef<HTMLButtonElement>(null);
+  const downChevronRef = React.useRef<HTMLButtonElement>(null);
+
+  // console log responseId
+  React.useEffect(() => {
+    console.log('responseId', responseId);
+  }, [responseId]);
+
+  React.useEffect(() => {
+    if (rank === 1) {
+      setRankContainerOutline(red);
+    } else if (rank === 2) {
+      setRankContainerOutline(yellow);
+    } else if (rank === 3) {
+      setRankContainerOutline(green);
+    }
+  }, [rank]);
+
+  const onRankClick = async (increment: boolean) => {
+    if (!responseId || !onRankUpdate) return;
+    const newRank = increment ? rank + 1 : rank - 1;
+    if (newRank >= 1 && newRank <= 3) {
+      await onRankUpdate(responseId, newRank);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -25,6 +78,101 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({ isOpen, onClose, breakd
           <Markdown remarkPlugins={[remarkGfm]} className="overflow-hidden">
             {breakdown}
           </Markdown>
+        </div>
+
+      {/* Bottom action buttons */}
+        <div className="flex items-center gap-3 mt-3 pt-2">
+          {/* Rank container */}
+          { responseId && !responseId.startsWith('temp_') && onRankUpdate && (
+            <div
+              className={"rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400"}
+              style={{
+                border: `3px solid ${rankContainerOutline}`,
+                backgroundColor: '#111111'
+              }}
+            >
+              <Tooltip
+                content="Rank higher to surface less"
+                isVisible={isUpChevronHovered}
+                buttonRef={upChevronRef}
+              >
+                <button
+                  ref={upChevronRef}
+                  onClick={() => onRankClick(true)}
+                  disabled={rank >= 3}
+                  className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                  onMouseEnter={() => setIsUpChevronHovered(true)}
+                  onMouseLeave={() => setIsUpChevronHovered(false)}
+                >
+                  <ChevronUpIcon className="h-5 w-5" />
+                </button>
+              </Tooltip>
+              <span className={`px-1.5 rounded text-xs text-white`}>
+                {rank}
+              </span>
+              <Tooltip
+                content="Rank lower to surface more"
+                isVisible={isDownChevronHovered}
+                buttonRef={downChevronRef}
+              >
+                <button
+                  ref={downChevronRef}
+                  onClick={() => onRankClick(false)}
+                  disabled={rank <= 1}
+                  className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                  onMouseEnter={() => setIsDownChevronHovered(true)}
+                  onMouseLeave={() => setIsDownChevronHovered(false)}
+                >
+                  <ChevronDownIcon className="h-5 w-5" />
+                </button>
+              </Tooltip>
+            </div>
+          )}
+
+          {/* Pause button */}
+          {responseId && !responseId.startsWith('temp_') && onPauseToggle && (
+            <Tooltip
+              content={isPaused 
+                ? "Resume cycling this response in dojo" 
+                : "Pause cycling this response in dojo"
+              }
+              isVisible={isHovered}
+              buttonRef={pauseButtonRef}
+            >
+              <button 
+                ref={pauseButtonRef}
+                onClick={() => onPauseToggle(responseId, !isPaused)}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+              >
+                {isPaused ? (
+                  <PlayCircleIcon className="h-6 w-6" />
+                ) : (
+                  <PauseCircleIcon className="h-6 w-6" />
+                )}
+              </button>
+            </Tooltip>
+          )}
+
+          {/* Text-to-speech button */}
+          {onTextToSpeech && (
+            <Tooltip
+              content="Listen to pronunciation"
+              isVisible={isSpeakerHovered}
+              buttonRef={speakerButtonRef}
+            >
+              <button 
+                ref={speakerButtonRef}
+                onClick={onTextToSpeech}
+                onMouseEnter={() => setIsSpeakerHovered(true)}
+                onMouseLeave={() => setIsSpeakerHovered(false)}
+                className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+              >
+                <SpeakerWaveIcon className="h-6 w-6" />
+              </button>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>
