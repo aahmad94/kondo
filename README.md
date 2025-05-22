@@ -1,9 +1,9 @@
 # Kondo
 
 ## generate material to organize into bookmarks and cycle in dojo
-![screenshot](/assets/kondo_chat.jpeg)
+![screenshot](/assets/kondo_landing_05-22-2025.png)
 ## daily summary (dojo) w/ inngest scheduled jobs
-![screenshot](/assets/kondo_dojo.jpeg)
+![screenshot](/assets/kondo_05-22-2025.png)
 
 ## Generate and organize study material to learn new languages
 - Use commands and phrases to generate study material: 
