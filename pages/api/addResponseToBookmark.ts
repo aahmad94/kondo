@@ -3,10 +3,12 @@ import prisma from '../../lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { bookmarkId, gptResponseContent, userId } = req.body as {
+    const { bookmarkId, gptResponseContent, userId, cachedAudio, breakdownContent } = req.body as {
       bookmarkId: string;
       gptResponseContent: string;
       userId: string;
+      cachedAudio?: { audio: string; mimeType: string } | null;
+      breakdownContent?: string | null;
     };
 
     try {
@@ -29,6 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           bookmarks: {
             connect: { id: bookmarkId },
           },
+          // Add cached data if available
+          ...(cachedAudio && {
+            audio: cachedAudio.audio,
+            audioMimeType: cachedAudio.mimeType
+          }),
+          ...(breakdownContent && {
+            breakdown: breakdownContent
+          })
         },
       });
 

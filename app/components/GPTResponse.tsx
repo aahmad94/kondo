@@ -582,6 +582,8 @@ export default function GPTResponse({
           onClose={() => setIsBookmarkModalOpen(false)}
           response={response}
           reservedBookmarkTitles={reservedBookmarkTitles}
+          cachedAudio={cachedAudio}
+          breakdownContent={breakdownContent}
         />
       )}
       {isDeleteModalOpen && (

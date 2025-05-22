@@ -12,9 +12,18 @@ interface BookmarksModalProps {
   onClose: () => void;
   response: string;
   reservedBookmarkTitles: string[];
+  cachedAudio?: { audio: string; mimeType: string } | null;
+  breakdownContent?: string | null;
 }
 
-export default function BookmarksModal({ isOpen, onClose, response, reservedBookmarkTitles }: BookmarksModalProps) {
+export default function BookmarksModal({ 
+  isOpen, 
+  onClose, 
+  response, 
+  reservedBookmarkTitles,
+  cachedAudio,
+  breakdownContent 
+}: BookmarksModalProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const { data: session } = useSession();
 
@@ -57,6 +66,8 @@ export default function BookmarksModal({ isOpen, onClose, response, reservedBook
           bookmarkId,
           gptResponseContent: response,
           userId: session.userId,
+          cachedAudio,
+          breakdownContent
         }),
       });
 
