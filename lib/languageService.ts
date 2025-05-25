@@ -10,11 +10,11 @@ const JAPANESE_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Japanese; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
 
   **Additional commands:**
-  1 - **"random"** + (optional topic) + (optional difficulty level)
-  2 - **"verb" +** (eng/jpn) **verb** - get a table for all verb tenses.
-  3 - **"terms" + topic** - list of related words in Japanese.
-  4 - **"alphabet"** - phonetic table of hiragana/katakana and romaji.
-  5 - **"asterisk (*)" + question** - inquire about anything else.
+  1 - **random** + (optional topic) + (optional difficulty level)
+  2 - **verb** + (verb): get a table for all verb tenses.
+  3 - **terms** + (topic): list of related words in Japanese.
+  4 - **alphabet**: phonetic table of hiragana/katakana and romaji.
+  5 - asterisk **(*)** + (question): inquire about anything else.
 `,
   dailySummary: `
 This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
@@ -28,11 +28,11 @@ const KOREAN_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Korean; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
 
   **Additional commands:**
-  1 - **"random"** + (optional topic) + (optional difficulty level)
-  2 - **"verb" +** (eng/kor) **verb** - get a table for all verb tenses.
-  3 - **"terms" + topic** - list of related words in Korean.
-  4 - **"alphabet"** - phonetic table of Hangul and romanization.
-  5 - **"asterisk (*)" + question** - inquire about anything else.
+  1 - **random** + (optional topic) + (optional difficulty level)
+  2 - **verb** + (verb): get a table for all verb tenses.
+  3 - **terms** + (topic): list of related words in Korean.
+  4 - **alphabet**: phonetic table of Hangul and romanization.
+  5 - asterisk **(*)** + (question): inquire about anything else.
 `,
   dailySummary: `
 This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
@@ -54,10 +54,10 @@ const SPANISH_INSTRUCTIONS = {
   ⬆️/⬇️ - rank each response in a bookmark\n\n
 
   **Additional commands:**
-  1 - **"random"** + (optional topic) + (optional difficulty level)
-  2 - **"verb" +** (eng/esp) **verb** - get a table for all verb tenses.
-  3 - **"terms" + topic** - list of related words in Spanish.
-  4 - **"asterisk (*)" + question** - inquire about anything else.
+  1 - **random** + (optional topic) + (optional difficulty level)
+  2 - **verb** + (verb): get a table for all verb tenses.
+  3 - **terms** + (topic): list of related words in Spanish.
+  4 - asterisk **(*)** + (question): inquire about anything else.
 `,
   dailySummary: `
 This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
@@ -71,11 +71,11 @@ const ARABIC_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Arabic; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
 
   **Additional commands:**
-  1 - **"random"** + (optional topic) + (optional difficulty level)
-  2 - **"verb" +** (eng/ar) **verb** - get a table for all verb tenses.
-  3 - **"terms" + topic** - list of related words in Arabic.
-  4 - **"alphabet"** - phonetic table of Arabic script and romanization.
-  5 - **"asterisk (*)" + question** - inquire about anything else.
+  1 - **random** + (optional topic) + (optional difficulty level)
+  2 - **verb** + (verb): get a table for all verb tenses.
+  3 - **terms** + (topic): list of related words in Arabic.
+  4 - **alphabet**: phonetic table of Arabic script and romanization.
+  5 - asterisk **(*)** + (question): inquire about anything else.
 `,
   dailySummary: `
 This tool creates a new report (3 easy, 2 medium, 1 easy) daily at 12:01 AM Eastern Standard Time.
