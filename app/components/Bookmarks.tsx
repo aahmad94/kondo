@@ -48,10 +48,47 @@ export default function Bookmarks({
       }
       const data = await response.json();
       setBookmarks(data);
+
+      // If no bookmarks exist, create default ones
+      if (data.length === 0) {
+        await createDefaultBookmarks(userId);
+      }
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const createDefaultBookmarks = async (userId: string) => {
+    const defaultBookmarks = ['counting', 'verbs', 'introductions'];
+    
+    try {
+      for (const title of defaultBookmarks) {
+        const response = await fetch('/api/createBookmark', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title,
+            userId,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to create default bookmark: ${title}`);
+        }
+
+        const newBookmark = await response.json();
+        // Track bookmark creation
+        await trackCreateBookmark(newBookmark.id, newBookmark.title);
+      }
+
+      // After creating all default bookmarks, refetch the complete list
+      await fetchBookmarks(userId);
+    } catch (error) {
+      console.error('Error creating default bookmarks:', error);
     }
   };
 
