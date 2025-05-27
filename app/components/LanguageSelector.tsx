@@ -5,6 +5,7 @@ import { Listbox, Transition } from '@headlessui/react'
 import { ChevronUpDownIcon } from '@heroicons/react/24/solid'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { trackLanguageChange } from '../../lib/amplitudeService';
 
 interface Language {
   id: string;
@@ -76,6 +77,8 @@ export default function LanguageSelector({ onClearBookmark, onLanguageChange }: 
       });
 
       if (response.ok) {
+        // Track language change before updating state
+        await trackLanguageChange(selectedLanguage?.code || 'ja', language.code);
         setSelectedLanguage(language);
         // Clear the bookmark selection
         onClearBookmark();

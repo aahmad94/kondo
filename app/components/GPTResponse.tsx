@@ -21,6 +21,7 @@ import ErrorModal from './ErrorModal';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
+import { trackBreakdownClick, trackSpeakerClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
 
 interface GPTResponseProps {
   response: string;
@@ -41,6 +42,8 @@ interface GPTResponseProps {
   bookmarks?: Record<string, string>;
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
+  onBreakdownClick?: () => void;
+  onSpeakerClick?: () => void;
 }
 
 export default function GPTResponse({ 
@@ -61,7 +64,9 @@ export default function GPTResponse({
   onBookmarkSelect,
   bookmarks,
   selectedLanguage = 'ja',
-  onLoadingChange
+  onLoadingChange,
+  onBreakdownClick,
+  onSpeakerClick
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
@@ -125,6 +130,7 @@ export default function GPTResponse({
     const newRank = increment ? rank + 1 : rank - 1;
     if (newRank >= 1 && newRank <= 3) {
       await onRankUpdate(responseId, newRank);
+      await trackChangeRank(responseId, rank, newRank);
     }
   };
   
@@ -178,6 +184,7 @@ export default function GPTResponse({
       if (breakdownContent) {
         setBreakdownContent(breakdownContent);
         setIsBreakdownModalOpen(true);
+        if (responseId) await trackBreakdownClick(responseId);
         return;
       }
 
@@ -202,6 +209,7 @@ export default function GPTResponse({
       const data = await res.json();
       setBreakdownContent(data.breakdown);
       setIsBreakdownModalOpen(true);
+      if (responseId) await trackBreakdownClick(responseId);
     } catch (error: any) {
       setErrorMessage(error.message || 'Failed to generate breakdown');
       setIsErrorModalOpen(true);
@@ -228,6 +236,7 @@ export default function GPTResponse({
 
         await audioRef.current.play();
         setIsPlaying(true);
+        await trackSpeakerClick(responseId);
 
         audioRef.current.onended = () => {
           setIsPlaying(false);
@@ -251,22 +260,16 @@ export default function GPTResponse({
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to convert text to speech');
+        throw new Error(error.error || 'Failed to generate speech');
       }
 
       const data = await res.json();
-      
-      // Cache audio
-      setCachedAudio({
-        audio: data.audio,
-        mimeType: data.mimeType
-      });
-      
+      setCachedAudio(data);
+
       if (!audioRef.current) {
         audioRef.current = new Audio();
       }
 
-      // Set up audio source
       const audioBlob = new Blob(
         [Buffer.from(data.audio, 'base64')],
         { type: data.mimeType }
@@ -274,20 +277,31 @@ export default function GPTResponse({
       const audioUrl = URL.createObjectURL(audioBlob);
       audioRef.current.src = audioUrl;
 
-      // Play audio
       await audioRef.current.play();
       setIsPlaying(true);
+      await trackSpeakerClick(responseId);
 
-      // Clean up URL when audio ends
       audioRef.current.onended = () => {
         setIsPlaying(false);
         URL.revokeObjectURL(audioUrl);
       };
     } catch (error: any) {
-      setErrorMessage(error.message || 'Failed to convert text to speech');
+      setErrorMessage(error.message || 'Failed to generate speech');
       setIsErrorModalOpen(true);
     } finally {
       onLoadingChange?.(false);
+    }
+  };
+
+  const handlePauseToggle = async () => {
+    if (!responseId || !onPauseToggle) return;
+    await onPauseToggle(responseId, !isPaused);
+    await trackPauseToggle(!isPaused);
+  };
+
+  const handleAddToBookmark = async (bookmarkId: string, bookmarkTitle: string) => {
+    if (responseId) {
+      await trackAddToBookmark(responseId, bookmarkId, bookmarkTitle);
     }
   };
 
@@ -518,7 +532,7 @@ export default function GPTResponse({
                   >
                     <button 
                       ref={pauseButtonRef}
-                      onClick={() => onPauseToggle(responseId!, !isPaused)}
+                      onClick={handlePauseToggle}
                       onMouseEnter={() => setIsHovered(true)}
                       onMouseLeave={() => setIsHovered(false)}
                       className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}

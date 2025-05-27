@@ -8,6 +8,7 @@ import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
 import { getLanguageInstructions } from '../../lib/languageService';
 import SearchBar from './SearchBar';
+import { trackBreakdownClick, trackSpeakerClick, trackPauseToggle, trackChangeRank } from '../../lib/amplitudeService';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -467,71 +468,35 @@ export default function ChatBox({
 
   const handleRankUpdate = async (responseId: string, newRank: number) => {
     if (!session?.userId) return;
+    
+    const oldRank = responses[responseId]?.rank;
+    if (oldRank === undefined) return;
 
     try {
-      const response = await fetch('/api/updateGPTResponseRank', {
-        method: 'PATCH',
+      const response = await fetch('/api/updateResponseRank', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          gptResponseId: responseId,
-          rank: newRank
+          userId: session.userId,
+          responseId,
+          newRank,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update rank');
-      }
-
-      const updatedResponse = await response.json();
-
-      // Update bookmarkResponses (update single item)
-      setBookmarkResponses(prev => {
-        const existingResponse = prev[updatedResponse.id];
-        if (!existingResponse) return prev;
-        return {
-          ...prev,
-          [updatedResponse.id]: { 
-            ...existingResponse,
-            rank: updatedResponse.rank,
-            updatedAt: new Date()
+      if (response.ok) {
+        setResponses(prev => {
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              rank: newRank,
+            };
           }
-        };
-      });
-
-      // Update search results cache
-      setSearchResultsCache(prev => {
-        if (!prev) return prev;
-        const existingResponse = prev[updatedResponse.id];
-        if (!existingResponse) return prev;
-        return {
-          ...prev,
-          [updatedResponse.id]: { 
-            ...existingResponse,
-            rank: updatedResponse.rank,
-            updatedAt: new Date()
-          }
-        };
-      });
-
-      // Update daily summary cache
-      setDailySummaryCache(prev => {
-        if (!prev) return prev;
-        const existingResponse = prev[updatedResponse.id];
-        if (!existingResponse) return prev;
-        return {
-          ...prev,
-          [updatedResponse.id]: { 
-            ...existingResponse,
-            rank: updatedResponse.rank,
-            updatedAt: new Date()
-          }
-        };
-      });
-
-      if (selectedBookmark.title === 'daily summary') {
-        fetchResponseStats();
+          return updated;
+        });
+        trackChangeRank(responseId, oldRank, newRank);
       }
     } catch (error) {
       console.error('Error updating rank:', error);
@@ -539,83 +504,36 @@ export default function ChatBox({
   };
 
   const handlePauseToggle = async (responseId: string, isPaused: boolean) => {    
+    if (!session?.userId) return;
+
     try {
-      const res = await fetch('/api/toggleResponsePause', {
+      const response = await fetch('/api/toggleResponsePause', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ responseId, isPaused }),
+        body: JSON.stringify({
+          userId: session.userId,
+          responseId,
+          isPaused,
+        }),
       });
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-      
-      if (data.success) {
-        if (selectedBookmark.id) {
-          // Update bookmarkResponses (update single item)
-          setBookmarkResponses(prev => {
-            const existingResponse = prev[responseId];
-            if (!existingResponse) return prev;
-            return {
-              ...prev,
-              [responseId]: { 
-                ...existingResponse,
-                isPaused,
-                updatedAt: new Date()
-              }
+      if (response.ok) {
+        setResponses(prev => {
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              isPaused,
             };
-          });
-
-          // Update search results cache
-          setSearchResultsCache(prev => {
-            if (!prev) return prev;
-            const existingResponse = prev[responseId];
-            if (!existingResponse) return prev;
-            return {
-              ...prev,
-              [responseId]: { 
-                ...existingResponse,
-                isPaused,
-                updatedAt: new Date()
-              }
-            };
-          });
-
-          // Update daily summary cache
-          setDailySummaryCache(prev => {
-            if (!prev) return prev;
-            const existingResponse = prev[responseId];
-            if (!existingResponse) return prev;
-            return {
-              ...prev,
-              [responseId]: { 
-                ...existingResponse,
-                isPaused,
-                updatedAt: new Date()
-              }
-            };
-          });
-        } else {
-          setResponses(prevResponses => {
-            const existingResponse = prevResponses[responseId];
-            if (!existingResponse) return prevResponses;
-            return {
-              ...prevResponses,
-              [responseId]: { 
-                ...existingResponse,
-                isPaused,
-                updatedAt: new Date()
-              }
-            };
-          });
-        }
+          }
+          return updated;
+        });
+        trackPauseToggle(isPaused);
       }
     } catch (error) {
-      console.error('Error toggling response pause state:', error);
+      console.error('Error toggling pause:', error);
     }
   };
 
@@ -774,6 +692,8 @@ export default function ChatBox({
                   onBookmarkSelect={onBookmarkSelect}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
+                  onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                  onSpeakerClick={() => trackSpeakerClick(response.id!)}
                 />
               ))
             ) : null}
@@ -834,6 +754,8 @@ export default function ChatBox({
               onBookmarkSelect={onBookmarkSelect}
               selectedLanguage={selectedLanguage}
               onLoadingChange={setIsLoading}
+              onBreakdownClick={() => trackBreakdownClick(response.id!)}
+              onSpeakerClick={() => trackSpeakerClick(response.id!)}
             />
           ))
         ) : // show chatbox responses as long as we're not in 'search'

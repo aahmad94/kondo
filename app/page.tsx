@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import MenuBar from './components/MenuBar';
 import ChatBox from './components/ChatBox';
 import Bookmarks from './components/Bookmarks';
+import { initAmplitude, trackLanguageChange, trackClearBookmark, trackBookmarkSelect } from '../lib/amplitudeService';
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -16,6 +17,15 @@ export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
   const [isClearingBookmark, setIsClearingBookmark] = useState(false);
   const hasSyncedRef = useRef(false);
+
+  // Initialize Amplitude
+  useEffect(() => {
+    if (session?.user?.email) {
+      initAmplitude(session.user.email);
+    } else {
+      initAmplitude();
+    }
+  }, [session]);
 
   useEffect(() => {
     if (searchParams && !hasSyncedRef.current) {
@@ -52,6 +62,7 @@ export default function Home() {
   const handleBookmarkSelect = (id: string | null, title: string | null) => {
     console.log('****handleBookmarkSelect****', { id, title });
     setSelectedBookmark({ id, title });
+    trackBookmarkSelect(id, title);
     const params = new URLSearchParams(searchParams?.toString() ?? '');
     if (id) params.set('bookmarkId', id); else params.delete('bookmarkId');
     if (title) params.set('bookmarkTitle', title); else params.delete('bookmarkTitle');
@@ -62,10 +73,12 @@ export default function Home() {
   const handleClearBookmark = () => {
     setIsClearingBookmark(true);
     setSelectedBookmark({ id: null, title: null });
+    trackClearBookmark();
     setTimeout(() => setIsClearingBookmark(false), 250);
   }
 
   const handleLanguageChange = (languageCode: string) => {
+    trackLanguageChange(selectedLanguage, languageCode);
     setSelectedLanguage(languageCode);
     handleBookmarkSelect(null, null);
   };

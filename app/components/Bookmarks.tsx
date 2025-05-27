@@ -6,6 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCirc
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 import { useRouter } from 'next/navigation';
+import { trackBookmarkSelect, trackClearBookmark, trackCreateBookmark } from '../../lib/amplitudeService';
 
 interface Bookmark {
   id: string;
@@ -84,8 +85,10 @@ export default function Bookmarks({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleBookmarkInteraction = (bookmarkId: string, bookmarkTitle: string) => {
+  const handleBookmarkInteraction = async (bookmarkId: string, bookmarkTitle: string) => {
     console.log('****handleBookmarkInteraction****', { bookmarkId, bookmarkTitle });
+    // Track bookmark selection
+    await trackBookmarkSelect(bookmarkId, bookmarkTitle);
     // Update URL with new query parameters using the App Router pattern
     router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
     changeSelectedBookmark(bookmarkId, bookmarkTitle);
@@ -100,9 +103,11 @@ export default function Bookmarks({
     setIsCreateModalOpen(true);
   };
 
-  const handleBookmarkCreated = (newBookmark: Bookmark) => {
+  const handleBookmarkCreated = async (newBookmark: Bookmark) => {
     setBookmarks([...bookmarks, newBookmark]);
     setIsCreateModalOpen(false);
+    // Track bookmark creation
+    await trackCreateBookmark(newBookmark.id, newBookmark.title);
   };
 
   const handleDeleteClick = (bookmark: Bookmark, e: React.MouseEvent) => {
@@ -132,6 +137,8 @@ export default function Bookmarks({
         setBookmarks(bookmarks.filter(b => b.id !== bookmarkToDelete.id));
         if (selectedBookmark.id === bookmarkToDelete.id) {
           changeSelectedBookmark(null, null);
+          // Track bookmark clearing
+          await trackClearBookmark();
         }
         setIsDeleteModalOpen(false);
         setBookmarkToDelete(null);
@@ -141,10 +148,12 @@ export default function Bookmarks({
     }
   };
 
-  const handleChatClick = (e: React.MouseEvent) => {
+  const handleChatClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     router.push('/');
     onClearBookmark();
+    // Track bookmark clearing when clicking chat
+    await trackClearBookmark();
   };
 
   const handleToggleOpen = () => {
