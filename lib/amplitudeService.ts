@@ -39,8 +39,6 @@ const getUserProperties = async () => {
 
 // Event tracking functions
 export const trackBreakdownClick = async (responseId: string) => {
-  console.log('trackBreakdownClick', responseId);
-  console.log(await getUserProperties());
   const userProps = await getUserProperties();
   amplitude.track(AmplitudeEvents.BREAKDOWN_CLICK, { 
     responseId,
