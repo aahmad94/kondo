@@ -32,6 +32,7 @@ export default function Bookmarks({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [bookmarkToDelete, setBookmarkToDelete] = useState<Bookmark | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
   const touchStartY = useRef<number | null>(null);
@@ -39,15 +40,17 @@ export default function Bookmarks({
 
   const fetchBookmarks = async (userId: string) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`/api/getBookmarks?userId=${userId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch bookmarks');
       }
       const data = await response.json();
       setBookmarks(data);
-      // Notify parent that bookmarks were refetched
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -250,27 +253,39 @@ export default function Bookmarks({
                 </div>
 
                 <div className="overflow-y-auto max-h-[50vh] bookmark-list">
-                  {bookmarks
-                    .filter(bookmark => !reservedBookmarkTitles.includes(bookmark.title))
-                    .map((bookmark) => (
+                  {isLoading ? (
+                    // Skeleton loading state
+                    Array.from({ length: 10 }).map((_, index) => (
                       <div
-                        key={bookmark.id}
-                        className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group
-                          ${selectedBookmark.id === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
-                        onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
-                        onTouchStart={(e) => handleTouchStart(e, bookmark.id, bookmark.title)}
-                        onTouchEnd={(e) => handleTouchEnd(e, bookmark.id, bookmark.title)}
+                        key={index}
+                        className="mb-2 pl-2 py-1 flex justify-between items-center"
                       >
-                        <span className="text-white">
-                          {bookmark.title}
-                        </span>
-                        <XCircleIcon
-                          className={`h-5 w-5 mr-1 text-red-500 hover:text-red-700 transition-colors duration-200
-                            ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                          onClick={(e) => handleDeleteClick(bookmark, e)}
-                        />
+                        <div className="h-5 w-3/4 bg-gray-700 rounded-sm animate-pulse-fast"></div>
                       </div>
-                    ))}
+                    ))
+                  ) : (
+                    bookmarks
+                      .filter(bookmark => !reservedBookmarkTitles.includes(bookmark.title))
+                      .map((bookmark) => (
+                        <div
+                          key={bookmark.id}
+                          className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group
+                            ${selectedBookmark.id === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
+                          onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
+                          onTouchStart={(e) => handleTouchStart(e, bookmark.id, bookmark.title)}
+                          onTouchEnd={(e) => handleTouchEnd(e, bookmark.id, bookmark.title)}
+                        >
+                          <span className="text-white">
+                            {bookmark.title}
+                          </span>
+                          <XCircleIcon
+                            className={`h-5 w-5 mr-1 text-red-500 hover:text-red-700 transition-colors duration-200
+                              ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            onClick={(e) => handleDeleteClick(bookmark, e)}
+                          />
+                        </div>
+                      ))
+                  )}
                 </div>
               </div>
             </>
