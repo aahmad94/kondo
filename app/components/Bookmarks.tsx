@@ -215,7 +215,7 @@ export default function Bookmarks({
                   onClick={handleCreateNewBookmark}
                 >
                   <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                  <span className="text-blue-400">add bookmark</span>
+                  <span className="text-blue-400">new bookmark</span>
                 </div>
 
                 <div 

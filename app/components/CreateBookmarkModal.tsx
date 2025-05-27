@@ -56,7 +56,7 @@ export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[60]">
       <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-l text-white">Create New Bookmark</h2>

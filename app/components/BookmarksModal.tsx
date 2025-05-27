@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { useSession } from 'next-auth/react';
+import CreateBookmarkModal from './CreateBookmarkModal';
 
 interface Bookmark {
   id: string;
@@ -26,6 +27,7 @@ export default function BookmarksModal({
 }: BookmarksModalProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -86,41 +88,64 @@ export default function BookmarksModal({
     }
   };
 
+  const handleBookmarkCreated = (newBookmark: Bookmark) => {
+    setBookmarks([...bookmarks, newBookmark]);
+    setIsCreateModalOpen(false);
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] flex flex-col">
-        <div className="flex justify-between items-center sticky top-0 bg-gray-800 pb-4">
-          <h2 className="text-l text-white">Add to Bookmark</h2>
-          <button onClick={onClose} className="text-white hover:opacity-70 transition-opacity duration-200">
-            <XMarkIcon className="h-6 w-6" />
-          </button>
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] flex flex-col">
+          <div className="flex justify-between items-center sticky top-0 bg-gray-800 pb-4">
+            <h2 className="text-l text-white">Add to Bookmark</h2>
+            <button onClick={onClose} className="text-white hover:opacity-70 transition-opacity duration-200">
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+          </div>
+          <ul className="space-y-2 overflow-y-auto">
+            <li
+              className="cursor-pointer text-blue-400 hover:bg-gray-700 p-2 rounded-sm flex items-center"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <PlusCircleIcon className="h-4 w-4 mr-2" />
+              <span>new bookmark</span>
+            </li>
+            {isLoading ? (
+              // Skeleton loading state
+              Array.from({ length: 7 }).map((_, index) => (
+                <li
+                  key={index}
+                  className="p-2"
+                >
+                  <div className="h-6 bg-gray-700 rounded-sm animate-pulse-fast"></div>
+                </li>
+              ))
+            ) : (
+              bookmarks.map((bookmark) => (
+                <li
+                  key={bookmark.id}
+                  className="cursor-pointer text-white hover:bg-gray-700 p-2 rounded-sm"
+                  onClick={() => handleAddToBookmark(bookmark.id)}
+                >
+                  {bookmark.title}
+                </li>
+              ))
+            )}
+          </ul>
         </div>
-        <ul className="space-y-2 overflow-y-auto">
-          {isLoading ? (
-            // Skeleton loading state
-            Array.from({ length: 7 }).map((_, index) => (
-              <li
-                key={index}
-                className="p-2"
-              >
-                <div className="h-6 bg-gray-700 rounded-sm animate-pulse-fast"></div>
-              </li>
-            ))
-          ) : (
-            bookmarks.map((bookmark) => (
-              <li
-                key={bookmark.id}
-                className="cursor-pointer text-white hover:bg-gray-700 p-2 rounded-sm"
-                onClick={() => handleAddToBookmark(bookmark.id)}
-              >
-                {bookmark.title}
-              </li>
-            ))
-          )}
-        </ul>
       </div>
-    </div>
+
+      {isCreateModalOpen && (
+        <CreateBookmarkModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onBookmarkCreated={handleBookmarkCreated}
+          reservedBookmarkTitles={reservedBookmarkTitles}
+        />
+      )}
+    </>
   );
 }
