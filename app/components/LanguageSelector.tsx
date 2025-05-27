@@ -92,7 +92,13 @@ export default function LanguageSelector({ onClearBookmark, onLanguageChange }: 
   };
 
   if (isLoading || !selectedLanguage) {
-    return <div className="w-32 h-10"></div>; // Placeholder to maintain layout
+    return (
+      <div className="relative w-32">
+        <div className="w-full cursor-pointer rounded-sm bg-gray-700 py-2 pl-3 pr-10 text-left">
+          <div className="h-5 w-20 bg-gray-600 rounded-sm animate-pulse-fast"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
