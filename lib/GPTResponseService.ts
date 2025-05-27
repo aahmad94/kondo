@@ -192,7 +192,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
         text: content,
         model_id: 'eleven_multilingual_v2',
         voice_settings: {
-          speed: 0.80,
+          speed: 0.70,
           stability: 0.50,
           similarity_boost: 0.75,
           style: 0.0,

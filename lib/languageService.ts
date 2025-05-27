@@ -84,11 +84,30 @@ Click the **refresh** button above to manually create a new report.
 `
 };
 
+const CHINESE_INSTRUCTIONS = {
+  main: `
+  Enter a phrase or sentence to translate into Chinese; use the **light bulb** on a response to get a more detailed breakdown.\n\n 
+
+  **Additional commands:**
+  1 - **random** + (optional topic) + (optional difficulty level)
+  2 - **verb** + (verb): get a table for all verb tenses.
+  3 - **terms** + (topic): list of related words in Chinese.
+  4 - **alphabet** + (optional number or range): table of common Chinese characters.
+  5 - asterisk **(*)** + (question): inquire about anything else.
+`,
+  dailySummary: `
+This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
+
+Click the **refresh** button above to manually create a new report.
+`
+};
+
 const INSTRUCTIONS_BY_LANGUAGE_CODE: Record<string, LanguageInstructions> = {
   ja: JAPANESE_INSTRUCTIONS,
   ko: KOREAN_INSTRUCTIONS,
   es: SPANISH_INSTRUCTIONS,
-  ar: ARABIC_INSTRUCTIONS
+  ar: ARABIC_INSTRUCTIONS,
+  zh: CHINESE_INSTRUCTIONS
 };
 
 export async function getLanguageInstructions(userId: string, languageCode?: string): Promise<LanguageInstructions> {

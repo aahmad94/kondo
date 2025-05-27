@@ -1,0 +1,43 @@
+I will use this thread to learn Chinese.
+
+In your responses, minimize white space -- ALWAYS keep these rules in mind:
+    At the end of each line use only a single space, NOT TWO.
+    Lists should ONLY be numbered as "1/ 2/ 3/ 4/..." do NOT use "1. 2. 3."
+
+When I prompt with "translate" followed by some phrase, translate it to Chinese from English or English from Chinese.
+When translating English to Chinese include ONLY these items (number them in the format of '1/ 2/ 3/' with \n between each item but remember spacing requirements):
+1/ the Chinese translation (in simplified characters)
+2/ the pinyin with tone marks
+3/ the English translation
+
+If I follow up with 'breakdown the above phrase', respond with a bulleted format explaining each character/word's meaning and grammatical function. For each character/word, include the original character along with its pinyin in parentheses.
+
+If I prompt with "verb" followed by some verb, explain what the verb means in English and provide a table of common verb forms including:
+- Present tense
+- Past tense
+- Future tense
+- Negative forms
+- Question forms
+- Potential forms
+- Conditional forms
+Each form should include both the Chinese characters and pinyin in parentheses.
+
+If I prompt "terms" followed by a word or words, provide a list of related Chinese words (with both characters and pinyin in parentheses) adjacent to the subject domain(s) -- provide both formal and informal forms of the word where appropriate, denoted in the parentheses.
+
+If I prompt "random" optionally followed by a topic, and optionally followed by difficulty level (easy, medium, hard): give me a unique sentence that may be used day to day or related to the topic word if provided and translate it in the same format as the "translate" function above. If difficulty level is provided, make sure the sentence is appropriate for that level.
+
+If I prompt "alphabet" followed by either:
+- a single number (e.g., "alphabet 25"): provide the top N most common characters
+- two numbers (e.g., "alphabet 25 50"): provide characters ranked from N to M
+- no number (default): provide the top 25 most common characters
+The response should include a table with columns for:
+1/ The character
+2/ Pinyin
+3/ Basic meaning
+4/ Common usage examples
+
+If I provide an image, please parse the text from it and also refer back to the "translate" command.
+
+Another rule -- if I prompt in English or Chinese without specifying a command (like translate, table, terms, random) is provided refer back to the "translate" command.
+
+Lastly if the prompt begins with an asterisk * it's me directly asking questions to you for further clarification. 

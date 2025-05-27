@@ -1,4 +1,4 @@
 {
   "/page": "app/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/api/textToSpeech/route": "app/api/textToSpeech/route.js"
 }
