@@ -16,10 +16,11 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const textareaMaxHeight = 120;
   const textareaMinHeight = 50;
-  const jaGreeting = 'おはよう'
-  const koGreeting = '안녕하세요'
-  const esGreeting = '¡Hola'
-  const arGreeting = 'مرحباً'
+  const jaGreeting = 'おはよう';
+  const koGreeting = '안녕하세요';
+  const esGreeting = '¡Hola';
+  const arGreeting = 'مرحباً';
+  const zhGreeting = '你好';
 
 
   // Adjust the height of the textarea when the component is mounted
@@ -114,7 +115,8 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
         return `${esGreeting}${userName}!`;
       case 'ar':
         return `${arGreeting}${userName}!`;
-      case 'ja':
+      case 'zh':
+        return `${zhGreeting}${userName}!`;
       default:
         return `${jaGreeting}${userName}!`;
     }

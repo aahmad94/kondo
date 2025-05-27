@@ -34,7 +34,6 @@ The response should include a table with columns for:
 1/ The character
 2/ Pinyin
 3/ Basic meaning
-4/ Common usage examples
 
 If I provide an image, please parse the text from it and also refer back to the "translate" command.
 
