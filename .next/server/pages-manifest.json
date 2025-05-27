@@ -6,5 +6,6 @@
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
   "/api/getLanguages": "pages/api/getLanguages.js",
   "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
+  "/api/openai": "pages/api/openai.js",
   "/api/getBookmarks": "pages/api/getBookmarks.js"
 }

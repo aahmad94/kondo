@@ -25,6 +25,7 @@ export default function BookmarksModal({
   breakdownContent 
 }: BookmarksModalProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function BookmarksModal({
 
   const fetchBookmarks = async (userId: string) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`/api/getBookmarks?userId=${userId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch bookmarks');
@@ -47,6 +49,8 @@ export default function BookmarksModal({
       setBookmarks(nonReservedBookmarks);
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -94,15 +98,27 @@ export default function BookmarksModal({
           </button>
         </div>
         <ul className="space-y-2 overflow-y-auto">
-          {bookmarks.map((bookmark) => (
-            <li
-              key={bookmark.id}
-              className="cursor-pointer text-white hover:bg-gray-700 p-2 rounded-sm"
-              onClick={() => handleAddToBookmark(bookmark.id)}
-            >
-              {bookmark.title}
-            </li>
-          ))}
+          {isLoading ? (
+            // Skeleton loading state
+            Array.from({ length: 7 }).map((_, index) => (
+              <li
+                key={index}
+                className="p-2"
+              >
+                <div className="h-6 bg-gray-700 rounded-sm animate-pulse-fast"></div>
+              </li>
+            ))
+          ) : (
+            bookmarks.map((bookmark) => (
+              <li
+                key={bookmark.id}
+                className="cursor-pointer text-white hover:bg-gray-700 p-2 rounded-sm"
+                onClick={() => handleAddToBookmark(bookmark.id)}
+              >
+                {bookmark.title}
+              </li>
+            ))
+          )}
         </ul>
       </div>
     </div>
