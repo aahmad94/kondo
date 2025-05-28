@@ -61,7 +61,7 @@ export default function Bookmarks({
   };
 
   const createDefaultBookmarks = async (userId: string) => {
-    const defaultBookmarks = ['counting', 'verbs', 'introductions'];
+    const defaultBookmarks = ['counting', 'alphabet', 'verbs', 'introductions'];
     
     try {
       for (const title of defaultBookmarks) {
