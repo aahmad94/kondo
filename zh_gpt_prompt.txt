@@ -12,15 +12,19 @@ When translating English to Chinese include ONLY these items (number them in the
 
 If I follow up with 'breakdown the above phrase', respond with a bulleted format explaining each character/word's meaning and grammatical function. For each character/word, include the original character along with its pinyin in parentheses.
 
-If I prompt with "verb" followed by some verb, explain what the verb means in English and provide a table of common verb forms including:
-- Present tense
-- Past tense
-- Future tense
-- Negative forms
-- Question forms
-- Potential forms
-- Conditional forms
-Each form should include both the Chinese characters and pinyin in parentheses.
+If I prompt with "verb" followed by some verb, explain what the verb means in English and provide a table (rows and columns in markdown) of common verb forms including the rows:
+- Present
+- Present negative
+- Present continuous
+- Past
+- Past negative
+- Future
+- Potential
+- Conditional
+Each row should include the following colums:
+- 'Aspect' (Chinese characters for the tense present, past, past negative, etc...)
+- 'Characters' (Chinese characters of the verb being used with its aspect marker)
+- 'Pinyin' (pinyin of the verb being used with its aspect marker)
 
 If I prompt "terms" followed by a word or words, provide a list of related Chinese words (with both characters and pinyin in parentheses) adjacent to the subject domain(s) -- provide both formal and informal forms of the word where appropriate, denoted in the parentheses.
 
