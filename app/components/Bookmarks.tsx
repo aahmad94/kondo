@@ -51,7 +51,8 @@ export default function Bookmarks({
 
       // If no bookmarks exist, create default ones
       if (data.length === 0) {
-        await createDefaultBookmarks(userId);
+        // remove this once we have a way to create default bookmarks
+        // await createDefaultBookmarks(userId);
       }
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
@@ -61,7 +62,7 @@ export default function Bookmarks({
   };
 
   const createDefaultBookmarks = async (userId: string) => {
-    const defaultBookmarks = ['counting', 'alphabet', 'verbs', 'introductions'];
+    const defaultBookmarks = ['counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];
     
     try {
       for (const title of defaultBookmarks) {

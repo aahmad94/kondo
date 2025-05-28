@@ -30,6 +30,31 @@ export default async function handler(
       },
     });
 
+    // Check if user has any bookmarks for this language
+    const existingBookmarks = await prisma.bookmark.findMany({
+      where: {
+        userId: userId,
+        languageId: languageId,
+      },
+    });
+
+    // If no bookmarks exist for this language, create default ones
+    if (existingBookmarks.length === 0) {
+      const defaultBookmarks = ['counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];
+      await Promise.all(
+        defaultBookmarks.map(title =>
+          prisma.bookmark.create({
+            data: {
+              title,
+              userId: userId,
+              languageId: languageId,
+              isReserved: title === 'daily summary' || title === 'all responses'
+            }
+          })
+        )
+      );
+    }
+
     return res.status(200).json(preference);
   } catch (error) {
     console.error('Error updating language preference:', error);
