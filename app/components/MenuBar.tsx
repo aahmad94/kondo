@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSession, signOut } from "next-auth/react"
 import Link from 'next/link'
 import Image from 'next/image'
@@ -17,6 +17,20 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   if (status === "loading") {
     return <div className="text-white">Loading...</div>
@@ -49,7 +63,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
             onClearBookmark={onClearBookmark}
           />
           {session?.user?.image && (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <Image
                 className="rounded-full m-2 border-2 border-blue-500 cursor-pointer"
                 src={session.user.image}
