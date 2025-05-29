@@ -22,6 +22,7 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackSpeakerClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface GPTResponseProps {
   response: string;
@@ -101,6 +102,7 @@ export default function GPTResponse({
   const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
   const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
+  const isMobile = useIsMobile();
 
   const hasExpression = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
 
@@ -330,21 +332,31 @@ export default function GPTResponse({
           <>
           {/* Refresh button for Dojo mode */}
           {type === 'instruction' && selectedBookmarkTitle === 'daily summary' && (
-            <Tooltip
-              content="Refresh dojo summary"
-              isVisible={isHovered}
-              buttonRef={refreshButtonRef}
-            >
+            !isMobile ? (
+              <Tooltip
+                content="Refresh dojo summary"
+                isVisible={isHovered}
+                buttonRef={refreshButtonRef}
+              >
+                <button
+                  ref={refreshButtonRef}
+                  onClick={() => onGenerateSummary?.(true)}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+                >
+                  <ArrowPathIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
               <button
                 ref={refreshButtonRef}
                 onClick={() => onGenerateSummary?.(true)}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
                 className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
               >
                 <ArrowPathIcon className="h-6 w-6" />
               </button>
-            </Tooltip>
+            )
           )}
 
           {/* --- set of top right buttons for responses --- */}
@@ -367,75 +379,115 @@ export default function GPTResponse({
               
               {/* Breakdown button */}
               {hasExpression && (
-                <Tooltip
-                  content="Breakdown this response"
-                  isVisible={isBreakdownHovered}
-                  buttonRef={breakdownButtonRef}
-                >
+                !isMobile ? (
+                  <Tooltip
+                    content="Breakdown this response"
+                    isVisible={isBreakdownHovered}
+                    buttonRef={breakdownButtonRef}
+                  >
+                    <button 
+                      ref={breakdownButtonRef}
+                      onClick={handleBreakdownClick}
+                      onMouseEnter={() => setIsBreakdownHovered(true)}
+                      onMouseLeave={() => setIsBreakdownHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    >
+                      <LightBulbIcon className="h-6 w-6" />
+                    </button>
+                  </Tooltip>
+                ) : (
                   <button 
                     ref={breakdownButtonRef}
                     onClick={handleBreakdownClick}
-                    onMouseEnter={() => setIsBreakdownHovered(true)}
-                    onMouseLeave={() => setIsBreakdownHovered(false)}
                     className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                   >
                     <LightBulbIcon className="h-6 w-6" />
                   </button>
-                </Tooltip>
+                )
               )}
 
               {/* Text-to-speech button */}
               {hasExpression && (
-                <Tooltip
-                  content="Listen to pronunciation"
-                  isVisible={isSpeakerHovered}
-                  buttonRef={speakerButtonRef}
-                >
+                !isMobile ? (
+                  <Tooltip
+                    content="Listen to pronunciation"
+                    isVisible={isSpeakerHovered}
+                    buttonRef={speakerButtonRef}
+                  >
+                    <button 
+                      ref={speakerButtonRef}
+                      onClick={handleTextToSpeech}
+                      onMouseEnter={() => setIsSpeakerHovered(true)}
+                      onMouseLeave={() => setIsSpeakerHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    >
+                      <SpeakerWaveIcon className="h-6 w-6" />
+                    </button>
+                  </Tooltip>
+                ) : (
                   <button 
                     ref={speakerButtonRef}
                     onClick={handleTextToSpeech}
-                    onMouseEnter={() => setIsSpeakerHovered(true)}
-                    onMouseLeave={() => setIsSpeakerHovered(false)}
                     className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                   >
                     <SpeakerWaveIcon className="h-6 w-6" />
                   </button>
-                </Tooltip>
+                )
               )}
 
               {/* Quote button */}
-              <Tooltip
-                content="Ask a question about this response"
-                isVisible={isQuoteHovered}
-                buttonRef={quoteButtonRef}
-              >
+              {!isMobile ? (
+                <Tooltip
+                  content="Ask a question about this response"
+                  isVisible={isQuoteHovered}
+                  buttonRef={quoteButtonRef}
+                >
+                  <button 
+                    ref={quoteButtonRef}
+                    onClick={() => onQuote(response, 'input')} 
+                    onMouseEnter={() => setIsQuoteHovered(true)}
+                    onMouseLeave={() => setIsQuoteHovered(false)}
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
+                  </button>
+                </Tooltip>
+              ) : (
                 <button 
                   ref={quoteButtonRef}
                   onClick={() => onQuote(response, 'input')} 
-                  onMouseEnter={() => setIsQuoteHovered(true)}
-                  onMouseLeave={() => setIsQuoteHovered(false)}
                   className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                 >
                   <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
                 </button>
-              </Tooltip>
+              )}
 
               {/* Add to bookmark button */}
-              <Tooltip
-                content="Add to bookmark"
-                isVisible={isBookmarkHovered}
-                buttonRef={bookmarkButtonRef}
-              >
+              {!isMobile ? (
+                <Tooltip
+                  content="Add to bookmark"
+                  isVisible={isBookmarkHovered}
+                  buttonRef={bookmarkButtonRef}
+                >
+                  <button 
+                    ref={bookmarkButtonRef}
+                    onClick={() => setIsBookmarkModalOpen(true)} 
+                    onMouseEnter={() => setIsBookmarkHovered(true)}
+                    onMouseLeave={() => setIsBookmarkHovered(false)}
+                    className="text-white relative group"
+                  >
+                    <PlusIcon className="h-6 w-6" />
+                  </button>
+                </Tooltip>
+              ) : (
                 <button 
                   ref={bookmarkButtonRef}
                   onClick={() => setIsBookmarkModalOpen(true)} 
-                  onMouseEnter={() => setIsBookmarkHovered(true)}
-                  onMouseLeave={() => setIsBookmarkHovered(false)}
                   className="text-white relative group"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
-              </Tooltip>
+              )}
             </div>
           )}
         </div>
@@ -466,41 +518,63 @@ export default function GPTResponse({
                     backgroundColor: '#111111'
                   }}
                 >
-                  <Tooltip
-                    content="Rank higher to surface less"
-                    isVisible={isUpChevronHovered}
-                    buttonRef={upChevronRef}
-                  >
+                  {!isMobile ? (
+                    <Tooltip
+                      content="Rank higher to surface less"
+                      isVisible={isUpChevronHovered}
+                      buttonRef={upChevronRef}
+                    >
+                      <button
+                        ref={upChevronRef}
+                        onClick={() => onRankClick(true)}
+                        disabled={rank >= 3}
+                        className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                        onMouseEnter={() => setIsUpChevronHovered(true)}
+                        onMouseLeave={() => setIsUpChevronHovered(false)}
+                      >
+                        <ChevronUpIcon className="h-5 w-5" />
+                      </button>
+                    </Tooltip>
+                  ) : (
                     <button
                       ref={upChevronRef}
                       onClick={() => onRankClick(true)}
                       disabled={rank >= 3}
                       className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                      onMouseEnter={() => setIsUpChevronHovered(true)}
-                      onMouseLeave={() => setIsUpChevronHovered(false)}
                     >
                       <ChevronUpIcon className="h-5 w-5" />
                     </button>
-                  </Tooltip>
+                  )}
                   <span className={`px-1.5 rounded text-xs text-white`}>
                     {rank}
                   </span>
-                  <Tooltip
-                    content="Rank lower to surface more"
-                    isVisible={isDownChevronHovered}
-                    buttonRef={downChevronRef}
-                  >
+                  {!isMobile ? (
+                    <Tooltip
+                      content="Rank lower to surface more"
+                      isVisible={isDownChevronHovered}
+                      buttonRef={downChevronRef}
+                    >
+                      <button
+                        ref={downChevronRef}
+                        onClick={() => onRankClick(false)}
+                        disabled={rank <= 1}
+                        className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                        onMouseEnter={() => setIsDownChevronHovered(true)}
+                        onMouseLeave={() => setIsDownChevronHovered(false)}
+                      >
+                        <ChevronDownIcon className="h-5 w-5" />
+                      </button>
+                    </Tooltip>
+                  ) : (
                     <button
                       ref={downChevronRef}
                       onClick={() => onRankClick(false)}
                       disabled={rank <= 1}
                       className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                      onMouseEnter={() => setIsDownChevronHovered(true)}
-                      onMouseLeave={() => setIsDownChevronHovered(false)}
                     >
                       <ChevronDownIcon className="h-5 w-5" />
                     </button>
-                  </Tooltip>
+                  )}
                 </div>
 
                 {/* Bookmark badge -- show when in reserved bookmark */}
@@ -522,19 +596,33 @@ export default function GPTResponse({
 
                 {/* Pause button */}
                 {onPauseToggle && (
-                  <Tooltip
-                    content={isPaused 
-                      ? "Resume cycling this response in dojo" 
-                      : "Pause cycling this response in dojo"
-                    }
-                    isVisible={isHovered}
-                    buttonRef={pauseButtonRef}
-                  >
+                  !isMobile ? (
+                    <Tooltip
+                      content={isPaused 
+                        ? "Resume cycling this response in dojo" 
+                        : "Pause cycling this response in dojo"
+                      }
+                      isVisible={isHovered}
+                      buttonRef={pauseButtonRef}
+                    >
+                      <button 
+                        ref={pauseButtonRef}
+                        onClick={handlePauseToggle}
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                        className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+                      >
+                        {isPaused ? (
+                          <PlayCircleIcon className="h-6 w-6" />
+                        ) : (
+                          <PauseCircleIcon className="h-6 w-6" />
+                        )}
+                      </button>
+                    </Tooltip>
+                  ) : (
                     <button 
                       ref={pauseButtonRef}
                       onClick={handlePauseToggle}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
                       className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
                     >
                       {isPaused ? (
@@ -543,45 +631,65 @@ export default function GPTResponse({
                         <PauseCircleIcon className="h-6 w-6" />
                       )}
                     </button>
-                  </Tooltip>
+                  )
                 )}
 
                 {/* Breakdown button */}
                 {hasExpression && (
-                  <Tooltip
-                    content="Breakdown this response"
-                    isVisible={isBreakdownHovered}
-                    buttonRef={breakdownButtonRef}
-                  >
+                  !isMobile ? (
+                    <Tooltip
+                      content="Breakdown this response"
+                      isVisible={isBreakdownHovered}
+                      buttonRef={breakdownButtonRef}
+                    >
+                      <button 
+                        ref={breakdownButtonRef}
+                        onClick={handleBreakdownClick}
+                        onMouseEnter={() => setIsBreakdownHovered(true)}
+                        onMouseLeave={() => setIsBreakdownHovered(false)}
+                        className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                      >
+                        <LightBulbIcon className="h-6 w-6" />
+                      </button>
+                    </Tooltip>
+                  ) : (
                     <button 
                       ref={breakdownButtonRef}
                       onClick={handleBreakdownClick}
-                      onMouseEnter={() => setIsBreakdownHovered(true)}
-                      onMouseLeave={() => setIsBreakdownHovered(false)}
                       className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                     >
                       <LightBulbIcon className="h-6 w-6" />
                     </button>
-                  </Tooltip>
+                  )
                 )}
 
                 {/* Text-to-speech button */}
                 {hasExpression && (
-                  <Tooltip
-                    content="Listen to pronunciation"
-                    isVisible={isSpeakerHovered}
-                    buttonRef={speakerButtonRef}
-                  >
+                  !isMobile ? (
+                    <Tooltip
+                      content="Listen to pronunciation"
+                      isVisible={isSpeakerHovered}
+                      buttonRef={speakerButtonRef}
+                    >
+                      <button 
+                        ref={speakerButtonRef}
+                        onClick={handleTextToSpeech}
+                        onMouseEnter={() => setIsSpeakerHovered(true)}
+                        onMouseLeave={() => setIsSpeakerHovered(false)}
+                        className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                      >
+                        <SpeakerWaveIcon className="h-6 w-6" />
+                      </button>
+                    </Tooltip>
+                  ) : (
                     <button 
                       ref={speakerButtonRef}
                       onClick={handleTextToSpeech}
-                      onMouseEnter={() => setIsSpeakerHovered(true)}
-                      onMouseLeave={() => setIsSpeakerHovered(false)}
                       className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                     >
                       <SpeakerWaveIcon className="h-6 w-6" />
                     </button>
-                  </Tooltip>
+                  )
                 )}
               </div>
             )}
