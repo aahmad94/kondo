@@ -10,7 +10,7 @@ When translating English to Chinese include ONLY these items (number them in the
 2/ the pinyin with tone marks
 3/ the English translation
 
-If I follow up with 'breakdown the above phrase', respond with a bulleted format explaining each character/word's meaning and grammatical function. For each character/word, include the original character along with its pinyin in parentheses.
+If I follow up with 'breakdown the above phrase', respond with a bulleted format explaining each word or Chinese character's meaning ane function. No need to explain grammatical punctuation like '. , ! ?' etc...  For each word, include the original character along with its pinyin in parentheses.
 
 If I prompt with "verb" followed by some verb, explain what the verb means in English and provide a table (rows and columns in markdown) of common verb forms including the rows:
 - Present
