@@ -469,23 +469,23 @@ export default function ChatBox({
   const handleRankUpdate = async (responseId: string, newRank: number) => {
     if (!session?.userId) return;
     
-    const oldRank = responses[responseId]?.rank;
+    const oldRank = responses[responseId]?.rank || bookmarkResponses[responseId]?.rank;
     if (oldRank === undefined) return;
 
     try {
-      const response = await fetch('/api/updateResponseRank', {
-        method: 'POST',
+      const response = await fetch('/api/updateGPTResponseRank', {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: session.userId,
-          responseId,
-          newRank,
+          gptResponseId: responseId,
+          rank: newRank,
         }),
       });
 
       if (response.ok) {
+        // Update responses state
         setResponses(prev => {
           const updated = { ...prev };
           if (updated[responseId]) {
@@ -496,6 +496,19 @@ export default function ChatBox({
           }
           return updated;
         });
+
+        // Update bookmarkResponses state
+        setBookmarkResponses(prev => {
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              rank: newRank,
+            };
+          }
+          return updated;
+        });
+
         trackChangeRank(responseId, oldRank, newRank);
       }
     } catch (error) {

@@ -121,9 +121,10 @@ export default function GPTResponse({
   }
 
   const onRankClick = async (increment: boolean) => {
+    const calculatedNewRank = increment ? rank + 1 : rank - 1;
     await handleRankClick(increment);
-    setNewRank(increment ? rank + 1 : rank - 1);
-    handleRankColorChange(newRank);
+    setNewRank(calculatedNewRank);
+    handleRankColorChange(calculatedNewRank);
   };
   
   const handleRankClick = async (increment: boolean) => {
