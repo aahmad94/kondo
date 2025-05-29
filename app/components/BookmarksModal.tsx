@@ -27,6 +27,7 @@ export default function BookmarksModal({
 }: BookmarksModalProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddingToBookmark, setIsAddingToBookmark] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: session } = useSession();
 
@@ -57,12 +58,12 @@ export default function BookmarksModal({
   };
 
   const handleAddToBookmark = async (bookmarkId: string) => {
-    if (!session?.userId) {
-      console.error('User not authenticated');
+    if (!session?.userId || isAddingToBookmark) {
       return;
     }
 
     try {
+      setIsAddingToBookmark(true);
       const res = await fetch('/api/addResponseToBookmark', {
         method: 'POST',
         headers: {
@@ -85,6 +86,8 @@ export default function BookmarksModal({
       onClose();
     } catch (error) {
       console.error('Error adding response to bookmark:', error);
+    } finally {
+      setIsAddingToBookmark(false);
     }
   };
 
@@ -101,14 +104,18 @@ export default function BookmarksModal({
         <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] flex flex-col">
           <div className="flex justify-between items-center sticky top-0 bg-gray-800 pb-4">
             <h2 className="text-l text-white">Add to Bookmark</h2>
-            <button onClick={onClose} className="text-white hover:opacity-70 transition-opacity duration-200">
+            <button 
+              onClick={onClose} 
+              className="text-white hover:opacity-70 transition-opacity duration-200"
+              disabled={isAddingToBookmark}
+            >
               <XMarkIcon className="h-6 w-6" />
             </button>
           </div>
           <ul className="space-y-2 overflow-y-auto">
             <li
-              className="cursor-pointer text-blue-400 hover:bg-gray-700 p-2 rounded-sm flex items-center"
-              onClick={() => setIsCreateModalOpen(true)}
+              className={`cursor-pointer text-blue-400 hover:bg-gray-700 p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => !isAddingToBookmark && setIsCreateModalOpen(true)}
             >
               <PlusCircleIcon className="h-4 w-4 mr-2" />
               <span>new bookmark</span>
@@ -127,8 +134,8 @@ export default function BookmarksModal({
               bookmarks.map((bookmark) => (
                 <li
                   key={bookmark.id}
-                  className="cursor-pointer text-white hover:bg-gray-700 p-2 rounded-sm"
-                  onClick={() => handleAddToBookmark(bookmark.id)}
+                  className={`cursor-pointer text-white hover:bg-gray-700 p-2 rounded-sm ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={() => !isAddingToBookmark && handleAddToBookmark(bookmark.id)}
                 >
                   {bookmark.title}
                 </li>

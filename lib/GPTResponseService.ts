@@ -178,7 +178,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
         case 'ko': return 'z6Kj0hecH20CdetSElRT'; // Korean voice
         case 'es': return 'l1zE9xgNpUTaQCZzpNJa'; // Spanish voice
         case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
-        // case 'zh': return 'FjfxJryh105iTLL4ktHB'; // Chinese voice
+        case 'zh': return 'GgmlugwQ4LYXBbEXENWm'; // Chinese voice
         default: return 'pNInz6obpgDQGcFmaJgB';  // Default
       }
     })();
