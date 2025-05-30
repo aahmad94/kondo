@@ -7,9 +7,10 @@ interface CreateBookmarkModalProps {
   onClose: () => void;
   onBookmarkCreated: (newBookmark: { id: string; title: string }) => void;
   reservedBookmarkTitles: string[];
+  optionalCopy?: string;
 }
 
-export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated, reservedBookmarkTitles }: CreateBookmarkModalProps) {
+export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated, reservedBookmarkTitles, optionalCopy }: CreateBookmarkModalProps) {
   const [bookmarkTitle, setBookmarkTitle] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { data: session } = useSession();
@@ -81,7 +82,7 @@ export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600"
           >
-            Create Bookmark
+            {optionalCopy || 'Create Bookmark'}
           </button>
         </form>
       </div>

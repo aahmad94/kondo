@@ -106,7 +106,7 @@ export default function BookmarksModal({
     }
   };
 
-  const handleBookmarkCreated = (newBookmark: Bookmark) => {
+  const handleCreateAndAddToBookmark = async (newBookmark: Bookmark) => {
     setBookmarks([...bookmarks, newBookmark]);
 
     // call parent component callback function to update the bookmarks.tsx list
@@ -114,12 +114,14 @@ export default function BookmarksModal({
       onBookmarkCreated(newBookmark);
     }
 
-    // Update URL with new query parameters
-    router.push(`/?bookmarkId=${newBookmark.id}&bookmarkTitle=${encodeURIComponent(newBookmark.title)}`);
+    if (!isAddingToBookmark) {
+      await handleAddToBookmark(newBookmark.id);
+    }
+
+    setIsCreateModalOpen(false);
+    
     // Notify parent component of bookmark selection
     onBookmarkSelect?.(newBookmark.id, newBookmark.title);
-    router.refresh();
-    setIsCreateModalOpen(false);
   };
 
   if (!isOpen) return null;
@@ -175,8 +177,9 @@ export default function BookmarksModal({
         <CreateBookmarkModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
-          onBookmarkCreated={handleBookmarkCreated}
+          onBookmarkCreated={handleCreateAndAddToBookmark}
           reservedBookmarkTitles={reservedBookmarkTitles}
+          optionalCopy='Add to New Bookmark'
         />
       )}
     </>
