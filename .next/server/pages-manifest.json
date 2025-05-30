@@ -4,13 +4,9 @@
   "/_document": "pages/_document.js",
   "/auth/signin": "pages/auth/signin.js",
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
-  "/api/getLanguages": "pages/api/getLanguages.js",
   "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
-  "/api/getUserResponseStats": "pages/api/getUserResponseStats.js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js",
-  "/api/getDailySummary": "pages/api/getDailySummary.js",
+  "/api/getLanguages": "pages/api/getLanguages.js",
   "/api/openai": "pages/api/openai.js",
-  "/api/addResponseToBookmark": "pages/api/addResponseToBookmark.js",
-  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
-  "/api/toggleResponsePause": "pages/api/toggleResponsePause.js"
+  "/api/updateLanguagePreference": "pages/api/updateLanguagePreference.js",
+  "/api/getBookmarks": "pages/api/getBookmarks.js"
 }

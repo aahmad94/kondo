@@ -17,7 +17,7 @@ const JAPANESE_INSTRUCTIONS = {
   Additional commands:
   1/ **random** + (optional topic) + (optional difficulty level)
   2/ **verb** + (verb): get a table for all verb tenses
-  3/ **terms** + (topic): list of related words in Japanese
+  3/ **terms** + (topic) + (optional number): list of related words in Japanese
   4/ **alphabet**: phonetic table of hiragana/katakana and romaji
   5/ **asterisk** (*) + (question): inquire about anything else
 `,
@@ -40,7 +40,7 @@ const KOREAN_INSTRUCTIONS = {
   Additional commands:
   1/ **random** + (optional topic) + (optional difficulty level)
   2/ **verb** + (verb): get a table for all verb tenses
-  3/ **terms** + (topic): list of related words in Korean
+  3/ **terms** + (topic) + (optional number): list of related words in Korean
   4/ **alphabet**: phonetic table of Hangul and romanization
   5/ **asterisk** (*) + (question): inquire about anything else
 `,
@@ -63,7 +63,7 @@ const SPANISH_INSTRUCTIONS = {
   Additional commands:
   1/ **random** + (optional topic) + (optional difficulty level)
   2/ **verb** + (verb): get a table for all verb tenses
-  3/ **terms** + (topic): list of related words in Spanish
+  3/ **terms** + (topic) + (optional number): list of related words in Spanish
   4/ **asterisk** (*) + (question): inquire about anything else
 `,
   dailySummary: `
@@ -85,7 +85,7 @@ const ARABIC_INSTRUCTIONS = {
   Additional commands:
   1/ **random** + (optional topic) + (optional difficulty level)
   2/ **verb** + (verb): get a table for all verb tenses
-  3/ **terms** + (topic): list of related words in Arabic
+  3/ **terms** + (topic) + (optional number): list of related words in Arabic
   4/ **alphabet**: phonetic table of Arabic script and romanization
   5/ **asterisk** (*) + (question): inquire about anything else
 `,
@@ -108,7 +108,7 @@ const CHINESE_INSTRUCTIONS = {
   Additional commands:
   1/ **random** + (optional topic) + (optional difficulty level)
   2/ **verb** + (verb): get a table for all verb tenses
-  3/ **terms** + (topic): list of related words in Chinese
+  3/ **terms** + (topic) + (optional number): list of related words in Chinese
   4/ **alphabet**: table of common Chinese characters
   5/ **asterisk** (*) + (question): inquire about anything else
 `,

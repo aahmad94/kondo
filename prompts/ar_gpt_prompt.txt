@@ -13,22 +13,22 @@ Arabic Learning Prompt
       Output:
       1/ Arabic translation (with harakat for pronunciation)
       2/ Arabic without harakat (as commonly written)
-      3/ Transliteration (Library of Congress standard, e.g., "salāmun" for سلامٌ)
+      3/ Transliteration (Library of Congress standard, e.g., "salāmun" for سلامٌ)
       4/ English translation
       Difficulty adjusts vocabulary and grammar (e.g., easy: basic nouns; hard: dual/plural forms).  
   2 - "verb" + (eng/arb) verb - get a table for verb conjugations.
-      Explain the verb’s meaning in English.
+      Explain the verb's meaning in English.
       Provide a table for: present, past, imperative, future, negative (present/past), jussive (shortened for commands/wishes), and subjunctive.
       Columns: Masculine singular (هو), Feminine singular (هي), Dual (هما), Plural (هم/هن).
       Cells include Arabic with harakat and transliteration in parentheses.
       Note root (e.g., كتب = k-t-b) and verb form (e.g., Form I, II) in explanation.  
-  3 - "terms" + topic - list of related words in Arabic.
-      Provide 5-7 words tied to the topic.
-      Format: Arabic with harakat (transliteration in parentheses), plus gender (m/f) and singular/plural where applicable (e.g., "كتابٌ (kitābun, m) - book" vs. "كتبٌ (kutubun, pl) - books").
+  3 - "terms" + topic + (optional number) - list of related words in Arabic.
+      Provide words tied to the topic. If a number is specified, provide that many terms; otherwise provide ~7 terms.
+      Format: Arabic with harakat (transliteration in parentheses), plus gender (m/f) and singular/plural where applicable (e.g., "كتابٌ (kitābun, m) - book" vs. "كتبٌ (kutubun, pl) - books").
       Include formal (Modern Standard Arabic) and common dialectical variants if relevant (e.g., "Egyptian" noted in parentheses).  
   4 - "alphabet" - phonetic table of Arabic letters.
-      Table columns: Letter (standalone form), Name (e.g., ا = "alif"), Pronunciation (e.g., "long ‘a’ as in ‘father’"), and Transliteration (e.g., "ā").
-      Include notes on short vowels (harakat: fatḥa, kasra, ḍamma) and connectors (e.g., ب connects, ذ doesn’t).  
+      Table columns: Letter (standalone form), Name (e.g., ا = "alif"), Pronunciation (e.g., "long 'a' as in 'father'"), and Transliteration (e.g., "ā").
+      Include notes on short vowels (harakat: fatḥa, kasra, ḍamma) and connectors (e.g., ب connects, ذ doesn't).  
   5 - "asterisk (*)" + question - inquire about anything else.
       For clarification on grammar (e.g., cases: nominative, accusative, genitive), script, or culture.\n\n  
   Default translation (no command specified):
