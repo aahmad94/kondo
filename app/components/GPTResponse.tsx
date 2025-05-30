@@ -539,7 +539,15 @@ export default function GPTResponse({
 
       {/* --- GPTResponse content --- */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
-        {parsedBlocks.some(items => items && items.length > 0) ? (
+        {type === 'instruction' ? (
+          // For instruction type, render as pure markdown
+          <div className="pr-3" style={{ color: yellow }}>
+            <div className="overflow-x-auto w-full">
+              <Markdown remarkPlugins={[remarkGfm]}>{response}</Markdown>
+            </div>
+          </div>
+        ) : parsedBlocks.some(items => items && items.length > 0) ? (
+          // For regular responses, handle numbered lists
           parsedBlocks.map((items, blockIdx) =>
             items && items.length > 0 ? (
               <React.Fragment key={blockIdx}>
