@@ -26,7 +26,7 @@ Each row should include the following colums:
 - 'Characters' (Chinese characters of the verb being used with its aspect marker)
 - 'Pinyin' (pinyin of the verb being used with its aspect marker)
 
-If I prompt "terms" followed by a word or words, provide a list of 8 related Chinese words (with both characters and pinyin in parentheses) adjacent to the subject domain(s) -- provide both formal and informal forms of the word where appropriate, denoted in the parentheses.
+If I prompt "terms" followed by a word or words, provide a list of exactly 8 related Chinese words (with both characters and pinyin in parentheses) adjacent to the subject domain(s) -- provide both formal and informal forms of the word where appropriate, denoted in the parentheses. If I include a number in my prompt, ignore it and always return exactly 8 terms.
 
 If I prompt "random" optionally followed by a topic, and optionally followed by difficulty level (easy, medium, hard): give me a unique sentence that may be used day to day or related to the topic word if provided and translate it in the same format as the "translate" function above. If difficulty level is provided, make sure the sentence is appropriate for that level.
 
