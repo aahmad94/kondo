@@ -125,13 +125,7 @@ export default function GPTResponse({
   }
 
   const expressions = extractExpressions(response);
-  console.log('---- response -----')
-  console.log(response)
-  console.log('---- response -----')
-  console.log('---- expressions -----')
-  console.log(expressions)
-  console.log('---- expressions -----')
-
+  
   const hasExpression = expressions.length > 0;
   
   const cleanResponse = response
