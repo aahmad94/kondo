@@ -71,6 +71,7 @@ export default function GPTResponse({
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
+  const brightYellow = '#ecc94b'
   const green = '#2ea149'
   const blue = '#3b82f6'
   const white = '#fff'
@@ -104,12 +105,59 @@ export default function GPTResponse({
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
   const isMobile = useIsMobile();
 
-  const hasExpression = response.match(/1\/\s*([\s\S]*?)\s*2\//) !== null;
+  // Extract expressions for voice and breakdown logic
+  function extractExpressions(response: string): string[] {
+    // Find all numbered items (e.g., 1/ ... 2/ ... 3/ ...)
+    const numberedItems: RegExpMatchArray[] = [...response.matchAll(/^\d+\/\s*(.*)$/gm)];
+    const notStandardList = numberedItems.some(item => item[0].includes('5/'));
+    let expressions: string[] = [];
+    // If 5 or more, return all content after each number-slash
+    if (notStandardList) {
+      expressions = numberedItems
+        .map((match: RegExpMatchArray) => match[1].trim())
+        .filter((item: string) => !!item);
+    } else {
+      expressions = numberedItems
+        .map((match: RegExpMatchArray) => (match[0].includes('1/') ? match[1].trim() : undefined))
+        .filter((item: string | undefined): item is string => !!item);
+    }
+    return expressions.filter(Boolean);
+  }
+
+  const expressions = extractExpressions(response);
+
+  const hasExpression = expressions.length > 0;
+  
+  const cleanResponse = response
+    .replace(/^\s*<>\s*/gm, '• ')
+    .replace(/^\s*-\s*/gm, '• ')
+    .replace(/ {2,}$/gm, '');
+
+  // Prepare custom list items for numbered lists, restarting numbering for each block
+  const blocks = response
+    .split(/\r?\n\s*\r?\n/)
+    .map(block => block.trim())
+    .filter(Boolean);
+
+  // Extract numbered lines from each block
+  const parsedBlocks = blocks.map((block, blockIdx) => {
+    const lines = block.split(/\r?\n/);
+    const numberedLines = lines
+      .map(line => {
+        const match = line.match(/^\s*\d+\/\s*(.*)$/);
+        return match && typeof match[1] === 'string' ? match[1].trim() : null;
+      })
+      .filter((item): item is string => !!item);
+    return numberedLines.length >= 2 ? numberedLines : null;
+  });
+
+  // For fallback Markdown rendering, convert 1/ 2/ ... to 1. 2. ...
+  const numberedPeriodResponse = cleanResponse.replace(/^(\d+)\/\s*/gm, '$1. ');
 
   useEffect(() => {
     handleRankColorChange(rank);
   }, [rank]);
-
+  
   const handleRankColorChange = (rank: number) => {
     if (rank == 1) {
       setRankContainerOutline(red);
@@ -136,11 +184,6 @@ export default function GPTResponse({
       await trackChangeRank(responseId, rank, newRank);
     }
   };
-  
-  const cleanResponse = response
-    .replace(/^\s*<>\s*/gm, '• ')
-    .replace(/^\s*-\s*/gm, '• ')
-    .replace(/ {2,}$/gm, '');
 
   const handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
@@ -255,7 +298,7 @@ export default function GPTResponse({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          text: response,
+          text: expressions.join('\n'),
           language: selectedLanguage,
           responseId: responseId
         }),
@@ -494,13 +537,45 @@ export default function GPTResponse({
         </div>
       </div>
 
-      {/* GPTResponse content */}
+      {/* --- GPTResponse content --- */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
-        <div className="pr-3" style={{ color: yellow }}>
-          <div className="overflow-x-auto w-full">
-            <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
+        {parsedBlocks.some(items => items && items.length > 0) ? (
+          parsedBlocks.map((items, blockIdx) =>
+            items && items.length > 0 ? (
+              <React.Fragment key={blockIdx}>
+                <ol
+                  style={{ margin: 0, paddingLeft: 0, lineHeight: 1.2, color: yellow }}
+                >
+                  {/* --- List items --- */}
+                  {items.map((item, idx) => (
+                    <li key={idx} style={{ margin: 0, padding: 0, color: yellow }}>
+                      <span style={{ color: brightYellow }}>{`${idx + 1}.`}</span>{' '}
+                      {item.replace(/^\d+\/\s*/, '')}
+                    </li>
+                  ))}
+                </ol>
+                {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
+              </React.Fragment>
+            ) : (
+              // Fallback to Markdown for non-list blocks
+              <React.Fragment key={blockIdx}>
+                <div className="pr-3" style={{ color: yellow }}>
+                  <div className="overflow-x-auto w-full">
+                    <Markdown remarkPlugins={[remarkGfm]}>{blocks[blockIdx]}</Markdown>
+                  </div>
+                </div>
+                {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
+              </React.Fragment>
+            )
+          )
+        ) : (
+          // Fallback to Markdown for non-list blocks
+          <div className="pr-3" style={{ color: yellow }}>
+            <div className="overflow-x-auto w-full">
+              <Markdown remarkPlugins={[remarkGfm]}>{numberedPeriodResponse}</Markdown>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Bottom action buttons for when in a bookmark */}

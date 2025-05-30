@@ -48,4 +48,4 @@ A summary includes the following:\n\n
 
 3 less familiar responses
 
-Click the  button above to manually create a new summary.
+Click the  button above to manually create a new summary -- if I ask for more examples, for each example I want you to start the numbering at 1/

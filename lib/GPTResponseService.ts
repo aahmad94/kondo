@@ -137,6 +137,7 @@ export async function getUserResponseStats(userId: string) {
   }
 }
 
+
 export async function convertTextToSpeech(text: string, language: string, responseId?: string) {
   if (!text) {
     throw new Error('Text content is required');
@@ -147,14 +148,6 @@ export async function convertTextToSpeech(text: string, language: string, respon
   }
 
   try {
-    // Extract content between 1/ and 2/ using regex
-    const match = text.match(/1\/\s*([\s\S]*?)\s*2\//);
-    if (!match || !match[1]) {
-      throw new Error('Could not extract content for text-to-speech');
-    }
-
-    const content = match[1].trim();
-    
     // Only check database if we have a responseId
     if (responseId) {
       const existingResponse = await prisma.gPTResponse.findUnique({
@@ -190,7 +183,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
         'xi-api-key': process.env.ELEVENLABS_API_KEY || '',
       },
       body: JSON.stringify({
-        text: content,
+        text,
         model_id: 'eleven_multilingual_v2',
         voice_settings: {
           speed: 0.70,

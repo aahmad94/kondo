@@ -7,7 +7,5 @@
   "/api/getLanguages": "pages/api/getLanguages.js",
   "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
   "/api/getBookmarks": "pages/api/getBookmarks.js",
-  "/api/getDailySummary": "pages/api/getDailySummary.js",
-  "/api/getUserResponseStats": "pages/api/getUserResponseStats.js",
-  "/api/updateGPTResponseRank": "pages/api/updateGPTResponseRank.js"
+  "/api/openai": "pages/api/openai.js"
 }

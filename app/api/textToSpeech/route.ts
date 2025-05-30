@@ -4,6 +4,12 @@ import { convertTextToSpeech } from '@/lib/GPTResponseService';
 export async function POST(request: Request) {
   try {
     const { text, language, responseId } = await request.json();
+    
+    console.log('--------------------------------');
+    console.log('text', text);
+    console.log('language', language);
+    console.log('responseId', responseId);
+    console.log('--------------------------------');
 
     if (!text || !language || !responseId) {
       return NextResponse.json(

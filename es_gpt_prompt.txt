@@ -18,4 +18,4 @@ If I prompt "terms" followed by a word or words, provide a list of 5-7 Spanish w
 
 If I prompt "random" optionally followed by a topic and/or difficulty level (easy, medium, hard), give me a unique, everyday Spanish sentence (or topic-related if specified) and translate it using the "translate" format. Adjust complexity for difficulty if provided.
 
-If I prompt with an asterisk * it's me directly asking questions to you for further clarification.
+If I prompt with an asterisk * it's me directly asking questions to you for further clarification -- if I ask for more examples, for each example I want you to start the numbering at 1/
