@@ -9,7 +9,7 @@ const openai = new OpenAI({
 
 // Read prompts from files
 const getPromptFromFile = (languageCode: string): string => {
-  const promptPath = path.join(process.cwd(), `${languageCode}_gpt_prompt.txt`);
+  const promptPath = path.join(process.cwd(), 'prompts', `${languageCode}_gpt_prompt.txt`);
   return fs.readFileSync(promptPath, 'utf8');
 };
 
