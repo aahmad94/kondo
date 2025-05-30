@@ -14,6 +14,7 @@ export default function Home() {
   const searchParams = useSearchParams()
   const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: null });
   const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary', 'search']);
+  const [newBookmark, setNewBookmark] = useState<{ id: string, title: string } | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
   const [isClearingBookmark, setIsClearingBookmark] = useState(false);
   const hasSyncedRef = useRef(false);
@@ -77,6 +78,11 @@ export default function Home() {
     setTimeout(() => setIsClearingBookmark(false), 250);
   }
 
+  const handleBookmarkCreated = (newBookmark: { id: string, title: string }) => {
+    console.log('****handleBookmarkCreated****', { newBookmark });
+    setNewBookmark(newBookmark);
+  }
+
   const handleLanguageChange = (languageCode: string) => {
     trackLanguageChange(selectedLanguage, languageCode);
     setSelectedLanguage(languageCode);
@@ -96,6 +102,7 @@ export default function Home() {
           selectedBookmark={selectedBookmark}
           reservedBookmarkTitles={reservedBookmarkTitles}
           selectedLanguage={selectedLanguage}
+          newBookmark={newBookmark}
         />
         <div className="flex-1 overflow-hidden bg-[#000000]">
           <ChatBox 
@@ -104,6 +111,7 @@ export default function Home() {
             selectedLanguage={selectedLanguage}
             onLanguageChange={handleLanguageChange}
             onBookmarkSelect={handleBookmarkSelect}
+            onBookmarkCreated={handleBookmarkCreated}
           />
         </div>
       </div>

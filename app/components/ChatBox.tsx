@@ -16,6 +16,7 @@ interface ChatBoxProps {
   selectedLanguage: string;
   onLanguageChange: (languageCode: string) => void;
   onBookmarkSelect: (id: string | null, title: string | null) => void;
+  onBookmarkCreated: (newBookmark: { id: string, title: string }) => void;
 }
 
 interface Response {
@@ -26,6 +27,7 @@ interface Response {
   bookmarks?: Record<string, string>;
   createdAt: Date;
   updatedAt: Date;
+  onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
 
 }
 
@@ -81,7 +83,8 @@ export default function ChatBox({
   reservedBookmarkTitles,
   selectedLanguage,
   onLanguageChange,
-  onBookmarkSelect 
+  onBookmarkSelect,
+  onBookmarkCreated
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
@@ -788,6 +791,7 @@ export default function ChatBox({
               onBookmarkSelect={onBookmarkSelect}
               selectedLanguage={selectedLanguage}
               onLoadingChange={setIsLoading}
+              onBookmarkCreated={onBookmarkCreated}
             />
           ))
         ) : null}

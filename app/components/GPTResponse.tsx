@@ -36,6 +36,7 @@ interface GPTResponseProps {
   isPaused?: boolean;
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
+  onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
@@ -67,7 +68,8 @@ export default function GPTResponse({
   selectedLanguage = 'ja',
   onLoadingChange,
   onBreakdownClick,
-  onSpeakerClick
+  onSpeakerClick,
+  onBookmarkCreated
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
@@ -770,6 +772,8 @@ export default function GPTResponse({
           reservedBookmarkTitles={reservedBookmarkTitles}
           cachedAudio={cachedAudio}
           breakdownContent={breakdownContent}
+          onBookmarkCreated={onBookmarkCreated}
+          onBookmarkSelect={onBookmarkSelect}
         />
       )}
       {isDeleteModalOpen && (

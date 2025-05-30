@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { useSession } from 'next-auth/react';
 import CreateBookmarkModal from './CreateBookmarkModal';
+import { useRouter } from 'next/navigation';
 
 interface Bookmark {
   id: string;
@@ -15,6 +16,8 @@ interface BookmarksModalProps {
   reservedBookmarkTitles: string[];
   cachedAudio?: { audio: string; mimeType: string } | null;
   breakdownContent?: string | null;
+  onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
+  onBookmarkSelect?: (id: string | null, title: string | null) => void;
 }
 
 export default function BookmarksModal({ 
@@ -23,13 +26,16 @@ export default function BookmarksModal({
   response, 
   reservedBookmarkTitles,
   cachedAudio,
-  breakdownContent 
+  breakdownContent,
+  onBookmarkCreated,
+  onBookmarkSelect
 }: BookmarksModalProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingToBookmark, setIsAddingToBookmark] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: session } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (isOpen && session?.userId) {
@@ -82,6 +88,15 @@ export default function BookmarksModal({
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
+      // Find the bookmark title
+      const bookmark = bookmarks.find(b => b.id === bookmarkId);
+      if (bookmark) {
+        // Update URL with new query parameters
+        router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmark.title)}`);
+        // Notify parent component of bookmark selection
+        onBookmarkSelect?.(bookmarkId, bookmark.title);
+      }
+
       // Close the modal after successful addition
       onClose();
     } catch (error) {
@@ -93,6 +108,17 @@ export default function BookmarksModal({
 
   const handleBookmarkCreated = (newBookmark: Bookmark) => {
     setBookmarks([...bookmarks, newBookmark]);
+
+    // call parent component callback function to update the bookmarks.tsx list
+    if (onBookmarkCreated) {
+      onBookmarkCreated(newBookmark);
+    }
+
+    // Update URL with new query parameters
+    router.push(`/?bookmarkId=${newBookmark.id}&bookmarkTitle=${encodeURIComponent(newBookmark.title)}`);
+    // Notify parent component of bookmark selection
+    onBookmarkSelect?.(newBookmark.id, newBookmark.title);
+    router.refresh();
     setIsCreateModalOpen(false);
   };
 
