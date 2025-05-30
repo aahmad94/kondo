@@ -167,7 +167,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
     // Select voice model based on language
     const voiceId = (() => {
       switch (language) {
-        case 'ja': return 'MlgbiBnm4o8N3DaDzblH'; // Japanese voice
+        case 'ja': return 'b34JylakFZPlGS0BnwyY'; // Japanese voice
         case 'ko': return 'z6Kj0hecH20CdetSElRT'; // Korean voice
         case 'es': return 'l1zE9xgNpUTaQCZzpNJa'; // Spanish voice
         case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
