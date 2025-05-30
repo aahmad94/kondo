@@ -150,11 +150,6 @@ export default function GPTResponse({
     .map(block => block.trim())
     .filter(Boolean);
 
-  console.log('------------- blocks -------------')
-  console.log(blocks)
-  console.log('------------- response -------------')
-  console.log(response)
-
   // Extract numbered lines from each block
   const parsedBlocks = blocks.map((block, blockIdx) => {
     const lines = block.split(/\r?\n/);
