@@ -110,6 +110,14 @@ export default function GPTResponse({
 
   // Extract expressions for voice and breakdown logic
   function extractExpressions(response: string): string[] {
+    // If the first line doesn't include a number, return an empty array
+    // hasExpression will be false, and the response will be rendered as a regular text
+    // speaker and breakdown buttons will not be shown
+    const firstLineIncludesNumber = response.split('\n')[0].includes('1/');
+    if (!firstLineIncludesNumber) {
+      return [];
+    }
+
     // Find all numbered items (e.g., 1/ ... 2/ ... 3/ ...)
     const numberedItems: RegExpMatchArray[] = [...response.matchAll(/^\d+\/\s*(.*)$/gm)];
     const notStandardList = numberedItems.some(item => item[0].includes('5/'));
