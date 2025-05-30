@@ -15,13 +15,7 @@ export default function Home() {
   const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: null });
   const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary', 'search']);
   const [newBookmark, setNewBookmark] = useState<{ id: string, title: string } | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(() => {
-    // Initialize from localStorage if available, otherwise default to 'ja'
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('selectedLanguage') || 'ja';
-    }
-    return 'ja';
-  });
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
   const [isClearingBookmark, setIsClearingBookmark] = useState(false);
   const hasSyncedRef = useRef(false);
 
@@ -34,7 +28,6 @@ export default function Home() {
     }
   }, [session]);
 
-  // Sync URL params immediately since we're not waiting for API calls
   useEffect(() => {
     if (searchParams && !hasSyncedRef.current) {
       const bookmarkId = searchParams.get('bookmarkId');
@@ -46,6 +39,7 @@ export default function Home() {
     }
     // Do NOT sync from URL again after initial load
   }, [searchParams]);
+  
 
   // Handle authentication
   useEffect(() => {
@@ -92,7 +86,6 @@ export default function Home() {
   const handleLanguageChange = (languageCode: string) => {
     trackLanguageChange(selectedLanguage, languageCode);
     setSelectedLanguage(languageCode);
-    localStorage.setItem('selectedLanguage', languageCode);
     handleBookmarkSelect(null, null);
   };
   
