@@ -124,9 +124,10 @@ export default function GPTResponse({
     let expressions: string[] = [];
     // If 5 or more, return all content after each number-slash
     if (notStandardList) {
-      expressions = numberedItems
-        .map((match: RegExpMatchArray) => match[1].trim())
-        .filter((item: string) => !!item);
+      // expressions = numberedItems
+      //   .map((match: RegExpMatchArray) => match[1].trim())
+      //   .filter((item: string) => !!item);
+      return [];
     } else {
       expressions = numberedItems
         .map((match: RegExpMatchArray) => (match[0].includes('1/') ? match[1].trim() : undefined))

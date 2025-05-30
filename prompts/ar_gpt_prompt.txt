@@ -22,8 +22,8 @@ Arabic Learning Prompt
       Columns: Masculine singular (هو), Feminine singular (هي), Dual (هما), Plural (هم/هن).
       Cells include Arabic with harakat and transliteration in parentheses.
       Note root (e.g., كتب = k-t-b) and verb form (e.g., Form I, II) in explanation.  
-  3 - "terms" + topic + (optional number) - list of related words in Arabic.
-      Provide words tied to the topic. If a number is specified, provide that many terms; otherwise provide ~7 terms.
+  3 - "terms" + topic - list of related words in Arabic.
+      Provide 8 words tied to the topic.
       Format: Arabic with harakat (transliteration in parentheses), plus gender (m/f) and singular/plural where applicable (e.g., "كتابٌ (kitābun, m) - book" vs. "كتبٌ (kutubun, pl) - books").
       Include formal (Modern Standard Arabic) and common dialectical variants if relevant (e.g., "Egyptian" noted in parentheses).  
   4 - "alphabet" - phonetic table of Arabic letters.
