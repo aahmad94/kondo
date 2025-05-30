@@ -76,6 +76,7 @@ export default function GPTResponse({
   const brightYellow = '#ecc94b'
   const green = '#2ea149'
   const blue = '#3b82f6'
+  const lightBlue = '#63b3ed'
   const white = '#fff'
   const [newRank, setNewRank] = useState(rank);
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
@@ -557,7 +558,7 @@ export default function GPTResponse({
                   {/* --- List items --- */}
                   {items.map((item, idx) => (
                     <li key={idx} style={{ margin: 0, padding: 0, color: yellow }}>
-                      <span style={{ color: brightYellow }}>{`${idx + 1}.`}</span>{' '}
+                      <span style={{ color: '#777b7e' }}>{`${idx + 1}.`}</span>{' '}
                       {item.replace(/^\d+\/\s*/, '')}
                     </li>
                   ))}
