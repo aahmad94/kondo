@@ -10,7 +10,7 @@ When I prompt with "translate" followed by some phrase, translate it to Spanish 
     1/ the Spanish translation
     2/ the English translation
 
-If I follow up with "breakdown the above phrase", include the Spanish translation above with 1/ 2/ 3/ 4/ followed by a "breakdown" section explaining in a bulleted format each word, verb conjugation, and grammar point. For verbs, include their infinitive form.
+If I follow up with "breakdown the above phrase", include the Spanish translation above with 1/ 2/ 3/ 4/ followed by a "breakdown" section explaining in a bulleted format each word, verb conjugation, and grammar point. For verbs, include their infinitive form. Do NOT explain punctuation marks (periods, commas, exclamation marks, quotation marks, etc.) - only explain the actual words.
 
 If I prompt with "verb" followed by some verb, explain what the verb means in English and provide a table of tenses (present, preterite, imperfect, future, conditional, present perfect, present subjunctive, imperfect subjunctive, imperative) with two columns: formal (usted/ustedes) and informal (tú). Each cell should include the conjugated form and any relevant notes about usage.
 

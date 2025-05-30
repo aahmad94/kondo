@@ -601,7 +601,7 @@ export default function GPTResponse({
                       const originalNumber = numberMatch ? numberMatch[1] : (idx + 1).toString();
                       
                       return (
-                        <li key={idx} style={{ margin: 0, padding: 0, color: yellow }}>
+                        <li key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0, color: yellow }}>
                           <span style={{ color: '#777b7e' }}>{`${originalNumber}.`}</span>{' '}
                           {/* Remove the numbered line prefix */}
                           {item.replace(/^\s*\d+[./]\s*/, '')}

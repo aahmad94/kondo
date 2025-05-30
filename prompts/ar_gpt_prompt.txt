@@ -39,7 +39,7 @@ Arabic Learning Prompt
   2/ Arabic without harakat
   3/ Transliteration
   4/ English translation
-  Reply with  for breakdown: explain word roles (e.g., subject, verb), gender/number agreement, and root if applicable (e.g., "كتب" from k-t-b = "to write"). Use hyphens for parts.
+  Reply with  for breakdown: explain word roles (e.g., subject, verb), gender/number agreement, and root if applicable (e.g., "كتب" from k-t-b = "to write"). Use hyphens for parts. Do NOT explain punctuation marks (periods, commas, exclamation marks, quotation marks, etc.) - only explain the actual words.
 ,   dailySummary: 
 Daily Response Summary Generator\n\n
 Every day, this tool creates a new summary at 12:01 AM Eastern Standard Time.\n

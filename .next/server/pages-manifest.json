@@ -5,5 +5,8 @@
   "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
   "/api/getLanguages": "pages/api/getLanguages.js",
   "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
-  "/api/toggleResponsePause": "pages/api/toggleResponsePause.js"
+  "/api/openai": "pages/api/openai.js",
+  "/api/getBookmarkResponses": "pages/api/getBookmarkResponses.js",
+  "/api/getBookmarks": "pages/api/getBookmarks.js",
+  "/api/addResponseToBookmark": "pages/api/addResponseToBookmark.js"
 }
