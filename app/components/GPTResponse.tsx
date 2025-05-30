@@ -157,8 +157,6 @@ export default function GPTResponse({
     return numberedLines.length >= 2 ? numberedLines : null;
   });
 
-  // For fallback Markdown rendering, convert 1/ 2/ ... to 1. 2. ...
-  const numberedPeriodResponse = cleanResponse.replace(/^(\d+)\/\s*/gm, '$1. ');
 
   useEffect(() => {
     handleRankColorChange(rank);
@@ -568,7 +566,7 @@ export default function GPTResponse({
           // Fallback to Markdown for non-list blocks
           <div className="pr-3" style={{ color: yellow }}>
             <div className="overflow-x-auto w-full">
-              <Markdown remarkPlugins={[remarkGfm]}>{numberedPeriodResponse}</Markdown>
+              <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
             </div>
           </div>
         )}
