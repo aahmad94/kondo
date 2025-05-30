@@ -536,6 +536,7 @@ export default function ChatBox({
       });
 
       if (response.ok) {
+        // Update responses state
         setResponses(prev => {
           const updated = { ...prev };
           if (updated[responseId]) {
@@ -546,6 +547,19 @@ export default function ChatBox({
           }
           return updated;
         });
+
+        // Update bookmarkResponses state
+        setBookmarkResponses(prev => {
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              isPaused,
+            };
+          }
+          return updated;
+        });
+
         trackPauseToggle(isPaused);
       }
     } catch (error) {
