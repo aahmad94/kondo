@@ -167,7 +167,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
     // Select voice model based on language
     const voiceId = (() => {
       switch (language) {
-        case 'ja': return 'RBnMinrYKeccY3vaUxlZ'; // Japanese voice
+        case 'ja': return 'MlgbiBnm4o8N3DaDzblH'; // Japanese voice
         case 'ko': return 'z6Kj0hecH20CdetSElRT'; // Korean voice
         case 'es': return 'l1zE9xgNpUTaQCZzpNJa'; // Spanish voice
         case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
@@ -184,7 +184,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
       },
       body: JSON.stringify({
         text,
-        model_id: 'eleven_multilingual_v2',
+        model_id: 'eleven_flash_v2_5',
         voice_settings: {
           speed: 0.70,
           stability: 0.50,
