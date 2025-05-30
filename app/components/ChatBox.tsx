@@ -127,33 +127,6 @@ export default function ChatBox({
     };
   }, []);
 
-  // Fetch user's language preference and update language
-  useEffect(() => {
-    const fetchLanguageData = async () => {
-      if (session?.userId) {
-        try {
-          // Get user's current language preference
-          const preferenceResponse = await fetch(`/api/getUserLanguagePreference?userId=${session.userId}`);
-          if (preferenceResponse.ok) {
-            const { languageId } = await preferenceResponse.json();
-            const languageResponse = await fetch(`/api/getLanguages`);
-            if (languageResponse.ok) {
-              const languages = await languageResponse.json();
-              const language = languages.find((lang: any) => lang.id === languageId);
-              if (language && language.code !== selectedLanguage) {
-                onLanguageChange(language.code);
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching language data:', error);
-        }
-      }
-    };
-    fetchLanguageData();
-  }, [session]);
-
-
   // Update instructions when language changes
   useEffect(() => {
     const updateInstructions = async () => {
@@ -251,7 +224,7 @@ export default function ChatBox({
   const fetchResponseStats = async () => {
     if (session?.userId) {
       try {
-        const res = await fetch(`/api/getUserResponseStats?userId=${session.userId}`);
+        const res = await fetch(`/api/getUserResponseStats?userId=${session.userId}&language=${selectedLanguage}`);
         if (res.ok) {
           const stats = await res.json();
           setResponseStats(stats);

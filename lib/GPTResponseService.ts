@@ -92,12 +92,15 @@ export async function toggleResponsePause(responseId: string, isPaused: boolean)
   }
 }
 
-export async function getUserResponseStats(userId: string) {
+export async function getUserResponseStats(userId: string, language: string) {
   try {
     // First, get all responses without any filtering
     const allResponses = await prisma.gPTResponse.findMany({
       where: {
-        userId: userId
+        userId: userId,
+        language: {
+          code: language
+        }
       },
       select: {
         rank: true,
