@@ -560,6 +560,19 @@ export default function ChatBox({
           return updated;
         });
 
+        // Update dailySummaryCache if it exists
+        setDailySummaryCache(prev => {
+          if (!prev) return prev;
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              isPaused,
+            };
+          }
+          return updated;
+        });
+
         trackPauseToggle(isPaused);
       }
     } catch (error) {
