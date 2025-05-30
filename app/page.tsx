@@ -15,7 +15,7 @@ export default function Home() {
   const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: null });
   const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary', 'search']);
   const [newBookmark, setNewBookmark] = useState<{ id: string, title: string } | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('ja');
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [isClearingBookmark, setIsClearingBookmark] = useState(false);
   const hasSyncedRef = useRef(false);
 
@@ -47,6 +47,54 @@ export default function Home() {
       router.push('/api/auth/signin')
     }
   }, [status, router])
+
+  // Add this useEffect after the other useEffects
+  useEffect(() => {
+    if (session?.userId) {
+      // First check local storage
+      const storedLanguage = localStorage.getItem('preferredLanguage');
+      if (storedLanguage) {
+        try {
+          const { code } = JSON.parse(storedLanguage);
+          setSelectedLanguage(code);
+          return; // Exit early if we found a stored language
+        } catch (error) {
+          console.error('Error parsing stored language:', error);
+          // Continue to fetch from DB if parsing fails
+        }
+      }
+
+      // If no stored language or parsing failed, fetch from DB
+      fetch(`/api/getUserLanguagePreference?userId=${session.userId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.languageId) {
+            // Fetch the language code for this ID
+            fetch('/api/getLanguages')
+              .then(res => res.json())
+              .then(languages => {
+                const userLanguage = languages.find((lang: any) => lang.id === data.languageId);
+                if (userLanguage) {
+                  setSelectedLanguage(userLanguage.code);
+                  // Store the fetched language in local storage
+                  localStorage.setItem('preferredLanguage', JSON.stringify({
+                    code: userLanguage.code,
+                    id: userLanguage.id,
+                    name: userLanguage.name
+                  }));
+                } else {
+                  setSelectedLanguage('ja'); // Fallback to Japanese if language not found
+                }
+              });
+          } else {
+            setSelectedLanguage('ja'); // Fallback to Japanese if no preference found
+          }
+        })
+        .catch(() => {
+          setSelectedLanguage('ja'); // Fallback to Japanese on error
+        });
+    }
+  }, [session]);
 
   if (status === "loading") {
     return (
@@ -84,7 +132,7 @@ export default function Home() {
   }
 
   const handleLanguageChange = (languageCode: string) => {
-    trackLanguageChange(selectedLanguage, languageCode);
+    trackLanguageChange(selectedLanguage || 'ja', languageCode);
     setSelectedLanguage(languageCode);
     handleBookmarkSelect(null, null);
   };
@@ -101,14 +149,14 @@ export default function Home() {
           onClearBookmark={handleClearBookmark}
           selectedBookmark={selectedBookmark}
           reservedBookmarkTitles={reservedBookmarkTitles}
-          selectedLanguage={selectedLanguage}
+          selectedLanguage={selectedLanguage || 'ja'}
           newBookmark={newBookmark}
         />
         <div className="flex-1 overflow-hidden bg-[#000000]">
           <ChatBox 
             selectedBookmark={selectedBookmark}
             reservedBookmarkTitles={reservedBookmarkTitles}
-            selectedLanguage={selectedLanguage}
+            selectedLanguage={selectedLanguage || 'ja'}
             onLanguageChange={handleLanguageChange}
             onBookmarkSelect={handleBookmarkSelect}
             onBookmarkCreated={handleBookmarkCreated}

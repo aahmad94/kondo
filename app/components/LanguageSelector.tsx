@@ -80,6 +80,12 @@ export default function LanguageSelector({ onClearBookmark, onLanguageChange }: 
         // Track language change before updating state
         await trackLanguageChange(selectedLanguage?.code || 'ja', language.code);
         setSelectedLanguage(language);
+        // Store language in local storage
+        localStorage.setItem('preferredLanguage', JSON.stringify({
+          code: language.code,
+          id: language.id,
+          name: language.name
+        }));
         // Clear the bookmark selection
         onClearBookmark();
         // Update the language in the parent component
