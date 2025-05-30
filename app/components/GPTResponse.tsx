@@ -301,13 +301,33 @@ export default function GPTResponse({
       }
 
       onLoadingChange?.(true);
+      
+      // Extract only Japanese terms for text-to-speech
+      let textToSpeak = expressions.join('\n');
+      if (response.includes(' - ')) {
+        // This is a terms function output:
+            // 1/ ウェブサイト (うぇぶさいと, uebusaito) - website
+            // 2/ インターネット (いんたーねっと, intānetto) - internet
+        // modify to extract only the Japanese terms:
+            // 1/ ウェブサイト
+            // 2/ インターネット
+        textToSpeak = response
+          .split('\n')
+          .map(line => {
+            const match = line.match(/^([^（(]+)/);
+            return match ? match[1].trim() : '';
+          })
+          .filter(Boolean)
+          .join('\n');
+      }
+
       const res = await fetch('/api/textToSpeech', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          text: expressions.join('\n'),
+          text: textToSpeak,
           language: selectedLanguage,
           responseId: responseId
         }),
