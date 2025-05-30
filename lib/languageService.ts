@@ -15,11 +15,11 @@ const JAPANESE_INSTRUCTIONS = {
   ⬆️ ⬇️ rank each response in a bookmark\n\n
 
   Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Japanese
-  4/ alphabet: phonetic table of hiragana/katakana and romaji
-  5/ asterisk (*) + (question): inquire about anything else
+  1/ **random** + (optional topic) + (optional difficulty level)
+  2/ **verb** + (verb): get a table for all verb tenses
+  3/ **terms** + (topic): list of related words in Japanese
+  4/ **alphabet**: phonetic table of hiragana/katakana and romaji
+  5/ **asterisk** (*) + (question): inquire about anything else
 `,
   dailySummary: `
 This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
@@ -38,11 +38,11 @@ const KOREAN_INSTRUCTIONS = {
   ⬆️ ⬇️ rank each response in a bookmark\n\n
 
   Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Korean
-  4/ alphabet: phonetic table of Hangul and romanization
-  5/ asterisk (*) + (question): inquire about anything else
+  1/ **random** + (optional topic) + (optional difficulty level)
+  2/ **verb** + (verb): get a table for all verb tenses
+  3/ **terms** + (topic): list of related words in Korean
+  4/ **alphabet**: phonetic table of Hangul and romanization
+  5/ **asterisk** (*) + (question): inquire about anything else
 `,
   dailySummary: `
 This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
@@ -61,10 +61,10 @@ const SPANISH_INSTRUCTIONS = {
   ⬆️ ⬇️ rank each response in a bookmark\n\n
 
   Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Spanish
-  4/ asterisk (*) + (question): inquire about anything else
+  1/ **random** + (optional topic) + (optional difficulty level)
+  2/ **verb** + (verb): get a table for all verb tenses
+  3/ **terms** + (topic): list of related words in Spanish
+  4/ **asterisk** (*) + (question): inquire about anything else
 `,
   dailySummary: `
 This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
@@ -83,11 +83,11 @@ const ARABIC_INSTRUCTIONS = {
   ⬆️ ⬇️ rank each response in a bookmark\n\n
 
   Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Arabic
-  4/ alphabet: phonetic table of Arabic script and romanization
-  5/ asterisk (*) + (question): inquire about anything else
+  1/ **random** + (optional topic) + (optional difficulty level)
+  2/ **verb** + (verb): get a table for all verb tenses
+  3/ **terms** + (topic): list of related words in Arabic
+  4/ **alphabet**: phonetic table of Arabic script and romanization
+  5/ **asterisk** (*) + (question): inquire about anything else
 `,
   dailySummary: `
 This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
@@ -106,11 +106,11 @@ const CHINESE_INSTRUCTIONS = {
   ⬆️ ⬇️ rank each response in a bookmark\n\n
 
   Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Chinese
-  4/ alphabet: table of common Chinese characters
-  5/ asterisk (*) + (question): inquire about anything else
+  1/ **random** + (optional topic) + (optional difficulty level)
+  2/ **verb** + (verb): get a table for all verb tenses
+  3/ **terms** + (topic): list of related words in Chinese
+  4/ **alphabet**: table of common Chinese characters
+  5/ **asterisk** (*) + (question): inquire about anything else
 `,
   dailySummary: `
 This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
