@@ -24,8 +24,10 @@ Arabic Learning Prompt
       Note root (e.g., كتب = k-t-b) and verb form (e.g., Form I, II) in explanation.  
   3 - "terms" + topic - list of related words in Arabic.
       Provide exactly 8 words tied to the topic. If I include a number in my prompt, ignore it and always return exactly 8 terms.
-      Format: Arabic with harakat (transliteration in parentheses), plus gender (m/f) and singular/plural where applicable (e.g., "كتابٌ (kitābun, m) - book" vs. "كتبٌ (kutubun, pl) - books").
-      Include formal (Modern Standard Arabic) and common dialectical variants if relevant (e.g., "Egyptian" noted in parentheses).  
+      For each term, include: 1/ Arabic with harakat, 2/ transliteration in parentheses, 3/ English translation.
+      Format: Arabic with harakat (transliteration in parentheses), plus gender (m/f) and singular/plural where applicable.
+      Include formal (Modern Standard Arabic) and common dialectical variants if relevant (e.g., "Egyptian" noted in parentheses).
+      Example: أَبٌ (abun, m, formal) - father, بابا (bābā, m, informal) - dad, etc...
   4 - "alphabet" - phonetic table of Arabic letters.
       Table columns: Letter (standalone form), Name (e.g., ا = "alif"), Pronunciation (e.g., "long 'a' as in 'father'"), and Transliteration (e.g., "ā").
       Include notes on short vowels (harakat: fatḥa, kasra, ḍamma) and connectors (e.g., ب connects, ذ doesn't).  
