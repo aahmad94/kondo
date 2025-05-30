@@ -150,16 +150,29 @@ export default function GPTResponse({
     .map(block => block.trim())
     .filter(Boolean);
 
+  console.log('------------- blocks -------------')
+  console.log(blocks)
+  console.log('------------- response -------------')
+  console.log(response)
+
   // Extract numbered lines from each block
   const parsedBlocks = blocks.map((block, blockIdx) => {
     const lines = block.split(/\r?\n/);
     const numberedLines = lines
       .map(line => {
         const match = line.match(/^\s*\d+\/\s*(.*)$/);
-        return match && typeof match[1] === 'string' ? match[1].trim() : null;
+        // Return the full line if it matches the pattern, null otherwise
+        return match ? line.trim() : null;
       })
       .filter((item): item is string => !!item);
-    return numberedLines.length >= 2 ? numberedLines : null;
+    
+    // If we have numbered lines, return them
+    if (numberedLines.length >= 2) {
+      return numberedLines;
+    }
+    
+    // Otherwise, return the original block text
+    return [block];
   });
 
 
@@ -566,7 +579,7 @@ export default function GPTResponse({
         </div>
       </div>
 
-      {/* --- GPTResponse content --- */}
+      {/* ------------ GPTResponse content ------------ */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
         {type === 'instruction' ? (
           // For instruction type, render as pure markdown
@@ -580,17 +593,37 @@ export default function GPTResponse({
           parsedBlocks.map((items, blockIdx) =>
             items && items.length > 0 ? (
               <React.Fragment key={blockIdx}>
-                <ol
-                  style={{ margin: 0, paddingLeft: 0, lineHeight: 1.2, color: yellow }}
-                >
-                  {/* --- List items --- */}
-                  {items.map((item, idx) => (
-                    <li key={idx} style={{ margin: 0, padding: 0, color: yellow }}>
-                      <span style={{ color: '#777b7e' }}>{`${idx + 1}.`}</span>{' '}
-                      {item.replace(/^\d+\/\s*/, '')}
-                    </li>
-                  ))}
-                </ol>
+                {/* Check if the first item is a numbered list (either 1/ or 1. format) */}
+                {items[0].match(/^\s*\d+[./]\s*/) ? (
+                  // If first item matches numbered list pattern, render as ordered list
+                  <ol
+                    style={{ margin: 0, paddingLeft: 0, lineHeight: 1.2, color: yellow }}
+                  >
+                    {items.map((item, idx) => {
+                      // Extract the number from the original item
+                      const numberMatch = item.match(/^\s*(\d+)[./]\s*/);
+                      const originalNumber = numberMatch ? numberMatch[1] : (idx + 1).toString();
+                      
+                      return (
+                        <li key={idx} style={{ margin: 0, padding: 0, color: yellow }}>
+                          <span style={{ color: '#777b7e' }}>{`${originalNumber}.`}</span>{' '}
+                          {/* Remove the numbered line prefix */}
+                          {item.replace(/^\s*\d+[./]\s*/, '')}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                ) : (
+                  // If not a numbered list, render as Markdown
+                  <div className="pr-3" style={{ color: yellow }}>
+                    <div className="overflow-x-auto w-full">
+                      <Markdown remarkPlugins={[remarkGfm]}>
+                        {items.join('\n')}
+                      </Markdown>
+                    </div>
+                  </div>
+                )}
+                {/* Add a line break between blocks */}
                 {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
               </React.Fragment>
             ) : null
