@@ -125,6 +125,12 @@ export default function GPTResponse({
   }
 
   const expressions = extractExpressions(response);
+  console.log('---- response -----')
+  console.log(response)
+  console.log('---- response -----')
+  console.log('---- expressions -----')
+  console.log(expressions)
+  console.log('---- expressions -----')
 
   const hasExpression = expressions.length > 0;
   
@@ -556,17 +562,7 @@ export default function GPTResponse({
                 </ol>
                 {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
               </React.Fragment>
-            ) : (
-              // Fallback to Markdown for non-list blocks
-              <React.Fragment key={blockIdx}>
-                <div className="pr-3" style={{ color: yellow }}>
-                  <div className="overflow-x-auto w-full">
-                    <Markdown remarkPlugins={[remarkGfm]}>{blocks[blockIdx]}</Markdown>
-                  </div>
-                </div>
-                {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
-              </React.Fragment>
-            )
+            ) : null
           )
         ) : (
           // Fallback to Markdown for non-list blocks

@@ -234,7 +234,7 @@ export default function Bookmarks({
         </div>
       )}
       
-      <div className={`flex-none bg-gray-800 transition-[width] duration-300 ease-in-out ${isOpen ? 'w-48' : 'w-0'} h-[calc(100vh-50px)] overflow-hidden`}>
+      <div className={`flex-none bg-gray-900 transition-[width] duration-300 ease-in-out ${isOpen ? 'w-48' : 'w-0'} h-[calc(100vh-50px)] overflow-hidden`}>
         <div className="w-48 h-full">
           {isOpen && (
             <>

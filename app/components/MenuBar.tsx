@@ -49,7 +49,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
 
   return (
     <>
-      <nav className="bg-gray-800 shadow-md flex justify-between items-center w-full">
+      <nav className="bg-gray-900 shadow-md flex justify-between items-center w-full">
         <Link 
           className="text-2xl pt-2 pl-4 text-white"
           href="/"
