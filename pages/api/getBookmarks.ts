@@ -36,9 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           userId: userId,
           languageId: languageId
         },
-        include: {
-          responses: true,
-        },
       });
       res.status(200).json(bookmarks);
     } catch (error) {
