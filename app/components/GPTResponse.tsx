@@ -585,32 +585,37 @@ export default function GPTResponse({
       {/* ------------ GPTResponse content ------------ */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
         {parsedBlocks.some(items => items && items.length > 0) ? (
-          // For regular responses, handle numbered lists
+          // For all responses, handle numbered lists specially, use Markdown for others
           parsedBlocks.map((items, blockIdx) =>
             items && items.length > 0 ? (
               <React.Fragment key={blockIdx}>
-                {/* Check if the first item is a numbered list (either 1/ or 1. format) */}
-                {items[0].match(/^\s*\d+[./]\s*/) ? (
-                  // If first item matches numbered list pattern, render as ordered list
-                  <ol
-                    style={{ margin: 0, paddingLeft: 0, lineHeight: 1.2, color: yellow }}
-                  >
+                {/* Check if this block contains numbered items that we want to render specially */}
+                {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
+                  // If block contains numbered items with "/" format, render with custom logic
+                  <div className="pr-3" style={{ color: yellow }}>
                     {items.map((item, idx) => {
-                      // Extract the number from the original item
-                      const numberMatch = item.match(/^\s*(\d+)[./]\s*/);
-                      const originalNumber = numberMatch ? numberMatch[1] : (idx + 1).toString();
-                      
-                      return (
-                        <li key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0, color: yellow }}>
-                          <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
-                          {/* Remove the numbered line prefix */}
-                          {item.replace(/^\s*\d+[./]\s*/, '')}
-                        </li>
-                      );
+                      const numberMatch = item.match(/^\s*(\d+)\/\s*/);
+                      if (numberMatch) {
+                        // This is a numbered item with "/" - convert to "." format
+                        const originalNumber = numberMatch[1];
+                        return (
+                          <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
+                            <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
+                            {item.replace(/^\s*\d+\/\s*/, '')}
+                          </div>
+                        );
+                      } else {
+                        // This is regular text (like headers) - render as-is
+                        return (
+                          <div key={idx} style={{ marginBottom: '0.5em' }}>
+                            {item}
+                          </div>
+                        );
+                      }
                     })}
-                  </ol>
+                  </div>
                 ) : (
-                  // If not a numbered list, render as Markdown
+                  // For all other content (tables, regular text, etc.), use Markdown
                   <div className="pr-3" style={{ color: yellow }}>
                     <div className="overflow-x-auto w-full">
                       <Markdown remarkPlugins={[remarkGfm]}>
