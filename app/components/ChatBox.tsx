@@ -109,6 +109,8 @@ export default function ChatBox({
   const [summaryTimestamp, setSummaryTimestamp] = useState<Date | null>(null);
   // Add ref to track previous language
   const previousLanguageRef = useRef(selectedLanguage);
+  // Add ref to track ongoing rank updates to prevent duplicates
+  const ongoingRankUpdatesRef = useRef<Set<string>>(new Set());
 
   const bookmarkContainerHeight = () => {
     return window.innerWidth < 768 ? 'h-[80%]' : 'h-[91%]';
@@ -181,7 +183,6 @@ export default function ChatBox({
     }
     // Only clear responses if we explicitly don't have a selected bookmark
     else if (selectedBookmark.id === null) {
-      console.log('Clearing bookmark responses');
       setBookmarkResponses({});
     }
   }, [selectedBookmark, selectedLanguage]);
@@ -448,6 +449,17 @@ export default function ChatBox({
     const oldRank = responses[responseId]?.rank || bookmarkResponses[responseId]?.rank;
     if (oldRank === undefined) return;
 
+    // Create a unique key for this rank update operation
+    const updateKey = `${responseId}-${oldRank}-${newRank}`;
+    
+    // Check if this exact update is already in progress
+    if (ongoingRankUpdatesRef.current.has(updateKey)) {
+      return;
+    }
+
+    // Mark this update as in progress
+    ongoingRankUpdatesRef.current.add(updateKey);
+
     try {
       const response = await fetch('/api/updateGPTResponseRank', {
         method: 'PATCH',
@@ -460,7 +472,7 @@ export default function ChatBox({
         }),
       });
 
-      if (response.ok) {
+      if (response.ok) {        
         // Update responses state
         setResponses(prev => {
           const updated = { ...prev };
@@ -485,10 +497,50 @@ export default function ChatBox({
           return updated;
         });
 
+        // Update local stats to reflect the rank change
+        setResponseStats(prev => {
+          if (!prev) return prev;
+          const updated = { ...prev };
+          
+          // Decrease count for old rank
+          if (oldRank === 1) {
+            updated.rank1.count = Math.max(0, updated.rank1.count - 1);
+          } else if (oldRank === 2) {
+            updated.rank2.count = Math.max(0, updated.rank2.count - 1);
+          } else if (oldRank === 3) {
+            updated.rank3.count = Math.max(0, updated.rank3.count - 1);
+          }
+          
+          // Increase count for new rank
+          if (newRank === 1) {
+            updated.rank1.count = updated.rank1.count + 1;
+          } else if (newRank === 2) {
+            updated.rank2.count = updated.rank2.count + 1;
+          } else if (newRank === 3) {
+            updated.rank3.count = updated.rank3.count + 1;
+          }
+          
+          // Recalculate percentages
+          const total = updated.total;
+          if (total > 0) {
+            updated.rank1.percentage = Math.round((updated.rank1.count / total) * 100);
+            updated.rank2.percentage = Math.round((updated.rank2.count / total) * 100);
+            updated.rank3.percentage = Math.round((updated.rank3.count / total) * 100);
+          }
+          
+          return updated;
+        });
+
+        // Track the change (moved outside of state setter to avoid duplicates)
         trackChangeRank(responseId, oldRank, newRank);
       }
     } catch (error) {
       console.error('Error updating rank:', error);
+    } finally {
+      // Remove the update from the ongoing set after a short delay
+      setTimeout(() => {
+        ongoingRankUpdatesRef.current.delete(updateKey);
+      }, 1000);
     }
   };
 
@@ -558,7 +610,6 @@ export default function ChatBox({
     
     try {
       setIsLoading(true);
-      console.log('Generating summary, forceRefresh:', forceRefresh);
       const res = await fetch(`/api/getDailySummary?userId=${session.userId}&forceRefresh=${forceRefresh}`);
       
       if (!res.ok) {
@@ -569,7 +620,6 @@ export default function ChatBox({
       
       if (data.success && data.responses) {
         // set state for summary timestamp
-        console.log('***data***', data);
         if (data.createdAt) {
           setSummaryTimestamp(data.createdAt);      
         }
@@ -586,16 +636,11 @@ export default function ChatBox({
         // Sort responses using the new function
         const sortedResponses = sortResponses(transformedResponses);
 
-        console.log('Setting daily summary cache and responses:', {
-          cacheLength: sortedResponses.length,
-          firstResponse: sortedResponses[0]?.content
-        });
         // Cache the summary data as a dictionary
         const dict = Object.fromEntries(sortedResponses.map((r: Response) => [r.id, r]));
         setDailySummaryCache(dict);
         setBookmarkResponses(dict);
       } else {
-        console.log('No summary data available');
         setBookmarkResponses({});
         setDailySummaryCache(null);
       }
@@ -639,7 +684,6 @@ export default function ChatBox({
         throw new Error('Failed to search responses');
       }
       const data = await res.json();
-      console.log('***handleSearch data***', data);
       const dict = Object.fromEntries(data.map((r: Response) => [r.id, r]));
       setSearchResultsCache(dict);
       setBookmarkResponses(dict);
