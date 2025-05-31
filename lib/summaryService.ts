@@ -135,9 +135,9 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           }
           return transformedResponses.slice(0, take);
         };
-        const rank1Responses = await getRandomUserResponses(1, 3);
-        const rank2Responses = await getRandomUserResponses(2, 2);
-        const rank3Responses = await getRandomUserResponses(3, 1);
+        const rank1Responses = await getRandomUserResponses(1, 4);
+        const rank2Responses = await getRandomUserResponses(2, 3);
+        const rank3Responses = await getRandomUserResponses(3, 2);
         const languageResponses = [...rank1Responses, ...rank2Responses, ...rank3Responses];
         console.log(`[generateUserSummary] Total responses to save for user ${userId}, language ${languageId}: ${languageResponses.length}`);
         if (languageResponses.length > 0) {

@@ -5,6 +5,12 @@ interface LanguageInstructions {
   dailySummary: string;
 }
 
+const DOJO_INSTRUCTIONS = `
+  This tool creates material to review daily after 12:00 EST.
+
+  1/ There are 10 responses: 4 hard, 3 medium, 2 easy.
+  2/Click the refresh (🔄) button above to manually generate new material.`
+
 const JAPANESE_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate into Japanese.
@@ -21,11 +27,7 @@ const JAPANESE_INSTRUCTIONS = {
   4/ alphabet: phonetic table of hiragana/katakana and romaji
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `
-This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
-
-Click the **refresh** button above to manually create a new report.
-`
+  dailySummary: DOJO_INSTRUCTIONS
 };
 
 const KOREAN_INSTRUCTIONS = {
@@ -44,11 +46,7 @@ const KOREAN_INSTRUCTIONS = {
   4/ alphabet: phonetic table of Hangul and romanization
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `
-This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
-
-Click the **refresh** button above to manually create a new report.
-`
+  dailySummary: DOJO_INSTRUCTIONS,
 };
 
 const SPANISH_INSTRUCTIONS = {
@@ -66,11 +64,7 @@ const SPANISH_INSTRUCTIONS = {
   3/ terms + (topic): list of related words in Spanish
   4/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `
-This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
-
-Click the **refresh** button above to manually create a new report.
-`
+  dailySummary: DOJO_INSTRUCTIONS,
 };
 
 const ARABIC_INSTRUCTIONS = {
@@ -89,11 +83,7 @@ const ARABIC_INSTRUCTIONS = {
   4/ alphabet: phonetic table of Arabic script and romanization
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `
-This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
-
-Click the **refresh** button above to manually create a new report.
-`
+  dailySummary: DOJO_INSTRUCTIONS,
 };
 
 const CHINESE_INSTRUCTIONS = {
@@ -112,11 +102,7 @@ const CHINESE_INSTRUCTIONS = {
   4/ alphabet + (optional # or range): table of common Chinese characters
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `
-This tool creates a new report (3 hard, 2 medium, 1 easy) daily at 12:01 AM EST.
-
-Click the **refresh** button above to manually create a new report.
-`
+  dailySummary: DOJO_INSTRUCTIONS,
 };
 
 const INSTRUCTIONS_BY_LANGUAGE_CODE: Record<string, LanguageInstructions> = {
