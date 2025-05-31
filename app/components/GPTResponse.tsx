@@ -162,8 +162,15 @@ export default function GPTResponse({
       })
       .filter((item): item is string => !!item);
     
-    // If we have numbered lines, return them
+    // If we have numbered lines, include any non-numbered lines that come before them
     if (numberedLines.length >= 2) {
+      const firstNumberedIndex = lines.findIndex(line => line.match(/^\s*\d+\/\s*(.*)$/));
+      const nonNumberedPrefix = lines.slice(0, firstNumberedIndex).filter(line => line.trim());
+      
+      // Return both the non-numbered prefix and the numbered lines
+      if (nonNumberedPrefix.length > 0) {
+        return [...nonNumberedPrefix, ...numberedLines];
+      }
       return numberedLines;
     }
     
