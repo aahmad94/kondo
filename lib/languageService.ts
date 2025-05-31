@@ -109,7 +109,7 @@ const CHINESE_INSTRUCTIONS = {
   1/ random + (optional topic) + (optional difficulty level)
   2/ verb + (verb): get a table for all verb tenses
   3/ terms + (topic): list of related words in Chinese
-  4/ alphabet: table of common Chinese characters
+  4/ alphabet + (optional # or range): table of common Chinese characters
   5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: `
