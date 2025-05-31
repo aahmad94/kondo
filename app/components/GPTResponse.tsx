@@ -577,14 +577,7 @@ export default function GPTResponse({
 
       {/* ------------ GPTResponse content ------------ */}
       <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
-        {type === 'instruction' ? (
-          // For instruction type, render as pure markdown
-          <div className="pr-3" style={{ color: yellow }}>
-            <div className="overflow-x-auto w-full">
-              <Markdown remarkPlugins={[remarkGfm]}>{response}</Markdown>
-            </div>
-          </div>
-        ) : parsedBlocks.some(items => items && items.length > 0) ? (
+        {parsedBlocks.some(items => items && items.length > 0) ? (
           // For regular responses, handle numbered lists
           parsedBlocks.map((items, blockIdx) =>
             items && items.length > 0 ? (
@@ -602,7 +595,7 @@ export default function GPTResponse({
                       
                       return (
                         <li key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0, color: yellow }}>
-                          <span style={{ color: '#777b7e' }}>{`${originalNumber}.`}</span>{' '}
+                          <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
                           {/* Remove the numbered line prefix */}
                           {item.replace(/^\s*\d+[./]\s*/, '')}
                         </li>
