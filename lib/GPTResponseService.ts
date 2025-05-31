@@ -170,7 +170,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
     // Select voice model based on language
     const voiceId = (() => {
       switch (language) {
-        case 'ja': return 'Mv8AjrYZCBkdsmDHNwcB'; // Japanese voice
+        case 'ja': return 'b34JylakFZPlGS0BnwyY'; // Japanese voice
         case 'ko': return 'z6Kj0hecH20CdetSElRT'; // Korean voice
         case 'es': return 'l1zE9xgNpUTaQCZzpNJa'; // Spanish voice
         case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
@@ -178,6 +178,11 @@ export async function convertTextToSpeech(text: string, language: string, respon
         default: return 'pNInz6obpgDQGcFmaJgB';  // Default
       }
     })();
+
+    let speed = 0.70;
+    if (language === 'ja') {
+      speed = 0.75;
+    }
 
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
@@ -189,7 +194,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
         text,
         model_id: 'eleven_flash_v2_5',
         voice_settings: {
-          speed: 0.70,
+          speed,
           stability: 0.50,
           similarity_boost: 0.75,
           style: 0.0,
