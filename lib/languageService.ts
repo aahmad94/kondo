@@ -7,7 +7,7 @@ interface LanguageInstructions {
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Japanese/
+  Enter a phrase or sentence to translate into Japanese.
   Use the light bulb (💡) on a response to get a more detailed breakdown.\n\n
 
   Bookmark features:
