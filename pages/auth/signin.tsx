@@ -76,7 +76,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                     <div key={provider.id} className="mb-3">
                       <button
                         onClick={() => signIn(provider.id, { callbackUrl: '/' })}
-                        className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-4 rounded-sm transition-colors"
+                        className="w-full flex items-center justify-center gap-3 bg-[#ffffff] hover:bg-[#eeeeee] text-gray-800 font-semibold py-3 px-4 rounded-sm transition-colors"
                       >
                         {provider.id === 'google' && (
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
@@ -98,21 +98,24 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 2: GPT Response Image */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#111111'}}>
+          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#000000'}}>
             <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
               <p
                 className="text-white text-xl overflow-hidden text-ellipsis mt-4"
                 style={{color: yellow, minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
-                Easily generate study material
+                Easily generate study material:
               </p>
-              <div className="m-4 w-full max-w-[600px]">
+              <div 
+                className="m-4 w-full max-w-[600px] rounded-sm"
+                style={{borderBottom: `1px solid ${yellow}`, borderTop: `1px solid ${yellow}`}}
+              >
                 <Image
                   src="/assets/GPTResponse_05-31-2025.png"
                   alt="Generate study material with AI"
                   width={654}
                   height={822}
-                  className="w-full h-auto border-2 border-black rounded-sm"
+                  className="w-full h-auto border-2 border-black"
                 />
               </div>
             </div>
@@ -121,15 +124,18 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 3: Breakdown Image */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#111111'}}>
+          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#000000'}}>
             <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
               <p
                 className="text-white text-xl overflow-hidden text-ellipsis mt-4"
                 style={{color: yellow, minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
-                Every translation automatically includes a text and audio guide
+                Every translation automatically includes a text and audio guide:
               </p>
-              <div className="m-4 w-full max-w-[600px]">
+              <div 
+                className="m-4 w-full max-w-[600px] rounded-sm"
+                style={{borderBottom: `1px solid ${yellow}`, borderTop: `1px solid ${yellow}`}}
+              >
                 <Image
                   src="/assets/breakdown_clipped_05-31-2025.png"
                   alt="Automated breakdown generated material"
@@ -150,7 +156,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
             <div key={provider.id} className="mb-3">
               <button
                 onClick={() => signIn(provider.id, { callbackUrl: '/' })}
-                className="w-full flex items-center justify-center gap-3 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-sm transition-colors shadow-lg"
+                className="text-gray-300 w-full flex items-center justify-center gap-3 bg-[#111111] hover:bg-[#222222] py-3 px-4 rounded-sm transition-colors"
               >
                 {provider.id === 'google' && (
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
