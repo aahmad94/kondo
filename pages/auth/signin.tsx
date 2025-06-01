@@ -97,10 +97,10 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 2: GPT Response Image */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-black relative swiper-nested">
+          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-gray-900 relative swiper-nested">
             <div className="w-full max-w-6xl flex flex-col items-center p-8">
               <p
-                className="text-center whitespace-nowrap text-xl overflow-hidden text-ellipsis mt-4"
+                className="text-center text-xl overflow-hidden text-ellipsis mt-4"
                 style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
                 Easily generate study material
@@ -111,8 +111,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                   alt="Generate study material with AI"
                   width={654}
                   height={822}
-                  className="w-full h-auto border-2 rounded-sm"
-                  style={{ borderColor: '#ae9b4a' }}
+                  className="w-full h-auto"
                 />
               </div>
             </div>
@@ -121,13 +120,13 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 3: Breakdown Image */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-black relative swiper-nested">
+          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-gray-900 relative swiper-nested">
             <div className="w-full max-w-6xl flex flex-col items-center p-8">
               <p
                 className="text-center text-xl overflow-hidden text-ellipsis mt-4"
                 style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
-                Every translation includes an audio and text guide
+                Every translation automatically includes a text and audio guide
               </p>
               <div className="m-4 w-full max-w-[545px]">
                 <Image
@@ -135,8 +134,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                   alt="Automated breakdown generated material"
                   width={654}
                   height={822}
-                  className="w-full h-auto border-2 rounded-sm"
-                  style={{ borderColor: '#ae9b4a' }}
+                  className="w-full h-auto"
                 />
               </div>
             </div>
