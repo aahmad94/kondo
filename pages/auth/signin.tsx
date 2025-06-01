@@ -98,14 +98,14 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
         {/* Slide 2: GPT Response Image */}
         <SwiperSlide>
           <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-gray-900 relative swiper-nested">
-            <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[580px]">
+            <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
               <p
-                className="text-white text-center text-xl overflow-hidden text-ellipsis mt-4"
+                className="text-white text-xl overflow-hidden text-ellipsis mt-4"
                 style={{minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
                 Easily generate study material
               </p>
-              <div className="m-4 w-full max-w-[580px]">
+              <div className="m-4 w-full max-w-[600px]">
                 <Image
                   src="/assets/GPTResponse_05-31-2025.png"
                   alt="Generate study material with AI"
@@ -121,14 +121,14 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
         {/* Slide 3: Breakdown Image */}
         <SwiperSlide>
           <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-gray-900 relative swiper-nested">
-            <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[580px]">
+            <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
               <p
-                className="text-white text-center text-xl overflow-hidden text-ellipsis mt-4"
+                className="text-white text-xl overflow-hidden text-ellipsis mt-4"
                 style={{minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
                 Every translation automatically includes a text and audio guide
               </p>
-              <div className="m-4 w-full max-w-[580px]">
+              <div className="m-4 w-full max-w-[600px]">
                 <Image
                   src="/assets/breakdown_clipped_05-31-2025.png"
                   alt="Automated breakdown generated material"
