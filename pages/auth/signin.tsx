@@ -92,13 +92,6 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                 </div>
               </div>
             </div>
-            {/* Animated down arrow cue */}
-            <div className="absolute md:bottom-24 bottom-32 md:left-1/2 left-[43%] transform -translate-x-1/2 flex flex-col items-center opacity-80 animate-bounce">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-              <span className="text-white text-sm mt-1">Scroll down</span>
-            </div>
           </div>
         </SwiperSlide>
 
@@ -107,7 +100,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
           <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-black relative swiper-nested">
             <div className="w-full max-w-6xl flex flex-col items-center p-8">
               <p
-                className="text-center text-l whitespace-nowrap overflow-hidden text-ellipsis mt-4"
+                className="text-center whitespace-nowrap overflow-hidden text-ellipsis mt-4"
                 style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
                 Easily generate study material
@@ -116,8 +109,8 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                 <Image
                   src="/assets/GPTResponse_05-31-2025.png"
                   alt="Generate study material with AI"
-                  width={545}
-                  height={685}
+                  width={627}
+                  height={788}
                   className="w-full h-auto border-2 rounded-sm"
                   style={{ borderColor: '#ae9b4a' }}
                 />
@@ -131,17 +124,17 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
           <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-black relative swiper-nested">
             <div className="w-full max-w-6xl flex flex-col items-center p-8">
               <p
-                className="text-center text-l whitespace-nowrap overflow-hidden text-ellipsis mt-4"
+                className="text-center overflow-hidden text-ellipsis mt-4"
                 style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
-                Generated material includes breakdown and audio
+                Generated material includes audio and a separate breakdown section
               </p>
               <div className="m-4 w-full max-w-[545px]">
                 <Image
                   src="/assets/breakdown_clipped_05-31-2025.png"
                   alt="Automated breakdown generated material"
-                  width={545}
-                  height={685}
+                  width={627}
+                  height={788}
                   className="w-full h-auto border-2 rounded-sm"
                   style={{ borderColor: '#ae9b4a' }}
                 />
@@ -172,6 +165,16 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Animated down arrow cue: only show on first slide */}
+      {activeIndex === 0 && (
+        <div className="fixed left-[calc(50%-46.35px)] bottom-24 md:bottom-12 flex flex-col items-center opacity-80 animate-bounce z-40">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+          <span className="text-white text-sm mt-1">Scroll down</span>
         </div>
       )}
     </div>
