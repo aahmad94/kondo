@@ -2,12 +2,12 @@ import { GetServerSideProps } from 'next';
 import { getProviders, signIn, getCsrfToken } from 'next-auth/react';
 import { InferGetServerSidePropsType } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Mousewheel } from 'swiper/modules';
 import 'swiper/css';
 import { useRef, useEffect, useState } from 'react';
 import type { Swiper as SwiperType } from 'swiper';
+import KondoDemo from '../../app/components/KondoDemo';
 
 export default function SignIn({ providers, csrfToken }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
@@ -96,61 +96,20 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
           </div>
         </SwiperSlide>
 
-        {/* Slide 2: GPT Response Image */}
+        {/* Slide 2: Interactive Demo */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#000000'}}>
-            <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
-              <p
-                className="text-white text-xl overflow-hidden text-ellipsis mt-4"
-                style={{color: yellow, minHeight: '32px', width: '100%', maxWidth: '100%' }}
-              >
-                Easily generate study material:
-              </p>
-              <div 
-                className="m-4 w-full max-w-[600px] rounded-sm"
-                style={{borderBottom: `1px solid ${yellow}`, borderTop: `1px solid ${yellow}`}}
-              >
-                <Image
-                  src="/assets/GPTResponse_05-31-2025.png"
-                  alt="Generate study material with AI"
-                  width={654}
-                  height={822}
-                  className="w-full h-auto border-2 border-black"
-                />
-              </div>
-            </div>
-          </div>
-        </SwiperSlide>
-
-        {/* Slide 3: Breakdown Image */}
-        <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#000000'}}>
-            <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
-              <p
-                className="text-white text-xl overflow-hidden text-ellipsis mt-4"
-                style={{color: yellow, minHeight: '32px', width: '100%', maxWidth: '100%' }}
-              >
-                Every translation automatically includes a text and audio guide:
-              </p>
-              <div 
-                className="m-4 w-full max-w-[600px] rounded-sm"
-                style={{borderBottom: `1px solid ${yellow}`, borderTop: `1px solid ${yellow}`}}
-              >
-                <Image
-                  src="/assets/breakdown_clipped_05-31-2025.png"
-                  alt="Automated breakdown generated material"
-                  width={654}
-                  height={822}
-                  className="w-full h-auto border-2 border-black rounded-sm"
-                />
+          <div ref={scrollableRef} className="h-screen overflow-hidden flex flex-col items-center relative swiper-nested bg-gray-900">
+            <div className="w-full max-w-6xl flex flex-col items-center p-8 h-full justify-center">
+              <div className="w-full">
+                <KondoDemo />
               </div>
             </div>
           </div>
         </SwiperSlide>
       </Swiper>
 
-      {/* Fixed sign-in button at bottom right, only on slides 2 and 3 */}
-      {(activeIndex === 1 || activeIndex === 2) && (
+      {/* Fixed sign-in button at bottom right, only on slide 2 */}
+      {activeIndex === 1 && (
         <div className="fixed bottom-8 right-8 z-50">
           {Object.values(providers || {}).map((provider: any) => (
             <div key={provider.id} className="mb-3">

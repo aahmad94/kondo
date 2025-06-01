@@ -294,6 +294,8 @@ export default function GPTResponse({
 
     try {
       if (cachedAudio) {
+        console.log('---cachedAudio---');
+        console.log(cachedAudio);
         if (!audioRef.current) {
           audioRef.current = new Audio();
         }
