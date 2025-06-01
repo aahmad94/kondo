@@ -93,7 +93,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
               </div>
             </div>
             {/* Animated down arrow cue */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-80 animate-bounce">
+            <div className="absolute md:bottom-24 bottom-32 md:left-1/2 left-[43%] transform -translate-x-1/2 flex flex-col items-center opacity-80 animate-bounce">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -101,52 +101,58 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
             </div>
           </div>
         </SwiperSlide>
-        {/* Slide 2: Images + fixed sign-in button at bottom right */}
+
+        {/* Slide 2: GPT Response Image */}
         <SwiperSlide>
           <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-black relative swiper-nested">
-            <div className="w-full max-w-6xl flex flex-col md:flex-row gap-8 p-8">
-              <div className="flex flex-col items-center w-full md:w-1/2">
-                <p
-                  className="text-center text-l whitespace-nowrap overflow-hidden text-ellipsis"
-                  style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
-                >
-                  Easily generate study material
-                </p>
-                <div className="m-4 w-full max-w-[545px]">
-                  <Image
-                    src="/assets/GPTResponse_05-31-2025.png"
-                    alt="Generate study material with AI"
-                    width={545}
-                    height={685}
-                    className="w-full h-auto border-2 rounded-sm"
-                    style={{ borderColor: '#ae9b4a' }}
-                  />
-                </div>
+            <div className="w-full max-w-6xl flex flex-col items-center p-8">
+              <p
+                className="text-center text-l whitespace-nowrap overflow-hidden text-ellipsis mt-4"
+                style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
+              >
+                Easily generate study material
+              </p>
+              <div className="m-4 w-full max-w-[545px]">
+                <Image
+                  src="/assets/GPTResponse_05-31-2025.png"
+                  alt="Generate study material with AI"
+                  width={545}
+                  height={685}
+                  className="w-full h-auto border-2 rounded-sm"
+                  style={{ borderColor: '#ae9b4a' }}
+                />
               </div>
-              <div className="flex flex-col items-center w-full md:w-1/2">
-                <p
-                  className="text-center text-l whitespace-nowrap overflow-hidden text-ellipsis"
-                  style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
-                >
-                  Generated material includes breakdown and audio
-                </p>
-                <div className="m-4 w-full max-w-[545px]">
-                  <Image
-                    src="/assets/breakdown_clipped_05-31-2025.png"
-                    alt="Automated breakdown generated material"
-                    width={545}
-                    height={685}
-                    className="w-full h-auto border-2 rounded-sm"
-                    style={{ borderColor: '#ae9b4a' }}
-                  />
-                </div>
+            </div>
+          </div>
+        </SwiperSlide>
+
+        {/* Slide 3: Breakdown Image */}
+        <SwiperSlide>
+          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-black relative swiper-nested">
+            <div className="w-full max-w-6xl flex flex-col items-center p-8">
+              <p
+                className="text-center text-l whitespace-nowrap overflow-hidden text-ellipsis mt-4"
+                style={{ color: '#ae9b4a', minHeight: '32px', width: '100%', maxWidth: '100%' }}
+              >
+                Generated material includes breakdown and audio
+              </p>
+              <div className="m-4 w-full max-w-[545px]">
+                <Image
+                  src="/assets/breakdown_clipped_05-31-2025.png"
+                  alt="Automated breakdown generated material"
+                  width={545}
+                  height={685}
+                  className="w-full h-auto border-2 rounded-sm"
+                  style={{ borderColor: '#ae9b4a' }}
+                />
               </div>
             </div>
           </div>
         </SwiperSlide>
       </Swiper>
-      {/* Fixed sign-in button at bottom right, only on slide two */}
-      {activeIndex === 1 && (
+
+      {/* Fixed sign-in button at bottom right, only on slides 2 and 3 */}
+      {(activeIndex === 1 || activeIndex === 2) && (
         <div className="fixed bottom-8 right-8 z-50">
           {Object.values(providers || {}).map((provider: any) => (
             <div key={provider.id} className="mb-3">
