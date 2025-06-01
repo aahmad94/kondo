@@ -13,6 +13,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const yellow = '#b59f3b'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,11 +98,11 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 2: GPT Response Image */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-gray-900 relative swiper-nested">
+          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#111111'}}>
             <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
               <p
                 className="text-white text-xl overflow-hidden text-ellipsis mt-4"
-                style={{minHeight: '32px', width: '100%', maxWidth: '100%' }}
+                style={{color: yellow, minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
                 Easily generate study material
               </p>
@@ -120,11 +121,11 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 3: Breakdown Image */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center bg-gray-900 relative swiper-nested">
+          <div ref={scrollableRef} className="h-screen overflow-y-auto flex flex-col items-center relative swiper-nested" style={{backgroundColor: '#111111'}}>
             <div className="w-full max-w-6xl flex flex-col items-center p-8 max-w-[600px]">
               <p
                 className="text-white text-xl overflow-hidden text-ellipsis mt-4"
-                style={{minHeight: '32px', width: '100%', maxWidth: '100%' }}
+                style={{color: yellow, minHeight: '32px', width: '100%', maxWidth: '100%' }}
               >
                 Every translation automatically includes a text and audio guide
               </p>
