@@ -409,247 +409,22 @@ export default function GPTResponse({
   }, []);
 
   return (
-    <div className="pl-3 pt-3 rounded text-white w-full border-b border-[#222222]">
-      <div className="header flex justify-between w-[90%] mb-2 pb-1">
-        {/* GPTResponse 'user' title */}
-        <h2 style={{ color: type === 'instruction' ? 'yellow' : blue }}>
-          {type === 'instruction' 
-            ? (selectedBookmarkTitle === 'daily summary' ? 'dojo' : 'Instructions')
-            : 'KondoAI'}
-        </h2>
-
-        <div className="flex items-center gap-3">
-          {/* --- Top right buttons for all GPTResponses --- */}
-          <>
-          {/* Refresh button for Dojo mode */}
-          {type === 'instruction' && selectedBookmarkTitle === 'daily summary' && (
-            !isMobile ? (
-              <Tooltip
-                content="Refresh dojo summary"
-                isVisible={isHovered}
-                buttonRef={refreshButtonRef}
-              >
-                <button
-                  ref={refreshButtonRef}
-                  onClick={() => onGenerateSummary?.(true)}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-                >
-                  <ArrowPathIcon className="h-6 w-6" />
-                </button>
-              </Tooltip>
-            ) : (
-              <button
-                ref={refreshButtonRef}
-                onClick={() => onGenerateSummary?.(true)}
-                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-              >
-                <ArrowPathIcon className="h-6 w-6" />
-              </button>
-            )
+    <div className="pl-3 py-3 rounded text-white w-full border-b border-[#222222]">
+      <div className="header flex justify-between w-[85%] mb-2 pb-1">
+        {/* Left side */}
+        <div className="flex pt-2 pb-1  items-center gap-3">
+          {/* Header text for instruction type */}
+          {type === 'instruction' && (
+            <h2 style={{ color: 'yellow' }}>
+              {selectedBookmarkTitle === 'daily summary' ? 'dojo' : 'Instructions'}
+            </h2>
           )}
 
-          {/* --- set of top right buttons for responses --- */}
-
-          {/* Delete button */}
-          {type !== 'instruction' && selectedBookmarkId && responseId && onDelete && (
-            <button 
-              onClick={handleDeleteClick}
-              disabled={isDeleting}
-              className="text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors duration-200"
-            >
-              <XCircleIcon className="h-6 w-6" />
-            </button>
-          )}
-          </>
-
-          {/* --- Top right buttons for chatbox specific GPTResponses --- */}
-          {type !== 'instruction' && !selectedBookmarkId && onQuote && (
-            <div className='flex items-center gap-3'>
-              
-              {/* Breakdown button */}
-              {hasExpression && (
-                !isMobile ? (
-                  <Tooltip
-                    content="Breakdown this response"
-                    isVisible={isBreakdownHovered}
-                    buttonRef={breakdownButtonRef}
-                  >
-                    <button 
-                      ref={breakdownButtonRef}
-                      onClick={handleBreakdownClick}
-                      onMouseEnter={() => setIsBreakdownHovered(true)}
-                      onMouseLeave={() => setIsBreakdownHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                    >
-                      <LightBulbIcon className="h-6 w-6" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button 
-                    ref={breakdownButtonRef}
-                    onClick={handleBreakdownClick}
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                  >
-                    <LightBulbIcon className="h-6 w-6" />
-                  </button>
-                )
-              )}
-
-              {/* Text-to-speech button */}
-              {hasExpression && (
-                !isMobile ? (
-                  <Tooltip
-                    content="Listen to pronunciation"
-                    isVisible={isSpeakerHovered}
-                    buttonRef={speakerButtonRef}
-                  >
-                    <button 
-                      ref={speakerButtonRef}
-                      onClick={handleTextToSpeech}
-                      onMouseEnter={() => setIsSpeakerHovered(true)}
-                      onMouseLeave={() => setIsSpeakerHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                    >
-                      <SpeakerWaveIcon className="h-6 w-6" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button 
-                    ref={speakerButtonRef}
-                    onClick={handleTextToSpeech}
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                  >
-                    <SpeakerWaveIcon className="h-6 w-6" />
-                  </button>
-                )
-              )}
-
-              {/* Quote button */}
-              {!isMobile ? (
-                <Tooltip
-                  content="Ask a question about this response"
-                  isVisible={isQuoteHovered}
-                  buttonRef={quoteButtonRef}
-                >
-                  <button 
-                    ref={quoteButtonRef}
-                    onClick={() => onQuote(response, 'input')} 
-                    onMouseEnter={() => setIsQuoteHovered(true)}
-                    onMouseLeave={() => setIsQuoteHovered(false)}
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                  >
-                    <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
-                  </button>
-                </Tooltip>
-              ) : (
-                <button 
-                  ref={quoteButtonRef}
-                  onClick={() => onQuote(response, 'input')} 
-                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                >
-                  <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
-                </button>
-              )}
-
-              {/* Add to bookmark button */}
-              {!isMobile ? (
-                <Tooltip
-                  content="Add to bookmark"
-                  isVisible={isBookmarkHovered}
-                  buttonRef={bookmarkButtonRef}
-                >
-                  <button 
-                    ref={bookmarkButtonRef}
-                    onClick={() => setIsBookmarkModalOpen(true)} 
-                    onMouseEnter={() => setIsBookmarkHovered(true)}
-                    onMouseLeave={() => setIsBookmarkHovered(false)}
-                    className="text-white relative group"
-                  >
-                    <PlusIcon className="h-6 w-6" />
-                  </button>
-                </Tooltip>
-              ) : (
-                <button 
-                  ref={bookmarkButtonRef}
-                  onClick={() => setIsBookmarkModalOpen(true)} 
-                  className="text-white relative group"
-                >
-                  <PlusIcon className="h-6 w-6" />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ------------ GPTResponse content ------------ */}
-      <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
-        {parsedBlocks.some(items => items && items.length > 0) ? (
-          // For all responses, handle numbered lists specially, use Markdown for others
-          parsedBlocks.map((items, blockIdx) =>
-            items && items.length > 0 ? (
-              <React.Fragment key={blockIdx}>
-                {/* Check if this block contains numbered items that we want to render specially */}
-                {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
-                  // If block contains numbered items with "/" format, render with custom logic
-                  <div className="pr-3" style={{ color: yellow }}>
-                    {items.map((item, idx) => {
-                      const numberMatch = item.match(/^\s*(\d+)\/\s*/);
-                      if (numberMatch) {
-                        // This is a numbered item with "/" - convert to "." format
-                        const originalNumber = numberMatch[1];
-                        return (
-                          <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
-                            <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
-                            {item.replace(/^\s*\d+\/\s*/, '')}
-                          </div>
-                        );
-                      } else {
-                        // This is regular text (like headers) - render as-is
-                        return (
-                          <div key={idx} style={{ marginBottom: '0.5em' }}>
-                            {item}
-                          </div>
-                        );
-                      }
-                    })}
-                  </div>
-                ) : (
-                  // For all other content (tables, regular text, etc.), use Markdown
-                  <div className="pr-3" style={{ color: yellow }}>
-                    <div className="overflow-x-auto w-full">
-                      <Markdown remarkPlugins={[remarkGfm]}>
-                        {items.join('\n')}
-                      </Markdown>
-                    </div>
-                  </div>
-                )}
-                {/* Add a line break between blocks */}
-                {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
-              </React.Fragment>
-            ) : null
-          )
-        ) : (
-          // Fallback to Markdown for non-list blocks
-          <div className="pr-3" style={{ color: yellow }}>
-            <div className="overflow-x-auto w-full">
-              <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Bottom action buttons for when in a bookmark */}
-      <div className="button-container flex items-center gap-3 mt-3 pb-2">
-        {type === 'response' && selectedBookmarkId && (
-          <>
-            {/* GPTResponse interactive items */}
-            {selectedBookmarkId && responseId && (
-              <div className="flex items-center gap-3">
-
-                {/* Rank container */}
+          {/* Action buttons for non-instruction type */}
+          {type !== 'instruction' && (
+            <>
+              {/* Rank container */}
+              {selectedBookmarkId && responseId && (
                 <div
                   className={"rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400"}
                   style={{
@@ -715,53 +490,41 @@ export default function GPTResponse({
                     </button>
                   )}
                 </div>
+              )}
 
-                {/* Bookmark badge -- show when in reserved bookmark */}
-                {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
-                  <span 
-                    onClick={handleBookmarkClick}
-                    className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[100px] truncate"
+              {/* Bookmark badge -- show when in reserved bookmark */}
+              {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
+                <span 
+                  onClick={handleBookmarkClick}
+                  className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[100px] truncate"
+                >
+                  {(() => {
+                    const nonReservedTitle = Object.values(bookmarks).find(title => 
+                      !reservedBookmarkTitles.includes(title)
+                    );
+                    if (nonReservedTitle) return nonReservedTitle;
+                    const firstTitle = Object.values(bookmarks)[0];
+                    return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
+                  })()}
+                </span>
+              )}
+
+              {/* Pause button */}
+              {selectedBookmarkId && responseId && onPauseToggle && (
+                !isMobile ? (
+                  <Tooltip
+                    content={isPaused 
+                      ? "Resume cycling this response in dojo" 
+                      : "Pause cycling this response in dojo"
+                    }
+                    isVisible={isHovered}
+                    buttonRef={pauseButtonRef}
                   >
-                    {(() => {
-                      const nonReservedTitle = Object.values(bookmarks).find(title => 
-                        !reservedBookmarkTitles.includes(title)
-                      );
-                      if (nonReservedTitle) return nonReservedTitle;
-                      const firstTitle = Object.values(bookmarks)[0];
-                      return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
-                    })()}
-                  </span>
-                )}
-
-                {/* Pause button */}
-                {onPauseToggle && (
-                  !isMobile ? (
-                    <Tooltip
-                      content={isPaused 
-                        ? "Resume cycling this response in dojo" 
-                        : "Pause cycling this response in dojo"
-                      }
-                      isVisible={isHovered}
-                      buttonRef={pauseButtonRef}
-                    >
-                      <button 
-                        ref={pauseButtonRef}
-                        onClick={handlePauseToggle}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                        className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-                      >
-                        {isPaused ? (
-                          <PlayCircleIcon className="h-6 w-6" />
-                        ) : (
-                          <PauseCircleIcon className="h-6 w-6" />
-                        )}
-                      </button>
-                    </Tooltip>
-                  ) : (
                     <button 
                       ref={pauseButtonRef}
                       onClick={handlePauseToggle}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
                       className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
                     >
                       {isPaused ? (
@@ -770,69 +533,239 @@ export default function GPTResponse({
                         <PauseCircleIcon className="h-6 w-6" />
                       )}
                     </button>
-                  )
-                )}
+                  </Tooltip>
+                ) : (
+                  <button 
+                    ref={pauseButtonRef}
+                    onClick={handlePauseToggle}
+                    className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+                  >
+                    {isPaused ? (
+                      <PlayCircleIcon className="h-6 w-6" />
+                    ) : (
+                      <PauseCircleIcon className="h-6 w-6" />
+                    )}
+                  </button>
+                )
+              )}
 
-                {/* Breakdown button */}
-                {hasExpression && (
-                  !isMobile ? (
-                    <Tooltip
-                      content="Breakdown this response"
-                      isVisible={isBreakdownHovered}
-                      buttonRef={breakdownButtonRef}
-                    >
-                      <button 
-                        ref={breakdownButtonRef}
-                        onClick={handleBreakdownClick}
-                        onMouseEnter={() => setIsBreakdownHovered(true)}
-                        onMouseLeave={() => setIsBreakdownHovered(false)}
-                        className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                      >
-                        <LightBulbIcon className="h-6 w-6" />
-                      </button>
-                    </Tooltip>
-                  ) : (
+              {/* Breakdown button */}
+              {hasExpression && (
+                !isMobile ? (
+                  <Tooltip
+                    content="Breakdown this response"
+                    isVisible={isBreakdownHovered}
+                    buttonRef={breakdownButtonRef}
+                  >
                     <button 
                       ref={breakdownButtonRef}
                       onClick={handleBreakdownClick}
+                      onMouseEnter={() => setIsBreakdownHovered(true)}
+                      onMouseLeave={() => setIsBreakdownHovered(false)}
                       className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                     >
                       <LightBulbIcon className="h-6 w-6" />
                     </button>
-                  )
-                )}
+                  </Tooltip>
+                ) : (
+                  <button 
+                    ref={breakdownButtonRef}
+                    onClick={handleBreakdownClick}
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <LightBulbIcon className="h-6 w-6" />
+                  </button>
+                )
+              )}
 
-                {/* Text-to-speech button */}
-                {hasExpression && (
-                  !isMobile ? (
-                    <Tooltip
-                      content="Listen to pronunciation"
-                      isVisible={isSpeakerHovered}
-                      buttonRef={speakerButtonRef}
-                    >
-                      <button 
-                        ref={speakerButtonRef}
-                        onClick={handleTextToSpeech}
-                        onMouseEnter={() => setIsSpeakerHovered(true)}
-                        onMouseLeave={() => setIsSpeakerHovered(false)}
-                        className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                      >
-                        <SpeakerWaveIcon className="h-6 w-6" />
-                      </button>
-                    </Tooltip>
-                  ) : (
+              {/* Text-to-speech button */}
+              {hasExpression && (
+                !isMobile ? (
+                  <Tooltip
+                    content="Listen to pronunciation"
+                    isVisible={isSpeakerHovered}
+                    buttonRef={speakerButtonRef}
+                  >
                     <button 
                       ref={speakerButtonRef}
                       onClick={handleTextToSpeech}
+                      onMouseEnter={() => setIsSpeakerHovered(true)}
+                      onMouseLeave={() => setIsSpeakerHovered(false)}
                       className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
                     >
                       <SpeakerWaveIcon className="h-6 w-6" />
                     </button>
-                  )
+                  </Tooltip>
+                ) : (
+                  <button 
+                    ref={speakerButtonRef}
+                    onClick={handleTextToSpeech}
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <SpeakerWaveIcon className="h-6 w-6" />
+                  </button>
+                )
+              )}
+
+              {/* Quote button - only show when not in a bookmark */}
+              {!selectedBookmarkId && onQuote && (
+                !isMobile ? (
+                  <Tooltip
+                    content="Ask a question about this response"
+                    isVisible={isQuoteHovered}
+                    buttonRef={quoteButtonRef}
+                  >
+                    <button 
+                      ref={quoteButtonRef}
+                      onClick={() => onQuote(response, 'input')} 
+                      onMouseEnter={() => setIsQuoteHovered(true)}
+                      onMouseLeave={() => setIsQuoteHovered(false)}
+                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    >
+                      <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
+                    </button>
+                  </Tooltip>
+                ) : (
+                  <button 
+                    ref={quoteButtonRef}
+                    onClick={() => onQuote(response, 'input')} 
+                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  >
+                    <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
+                  </button>
+                )
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+          {/* Refresh button for Dojo mode */}
+          {type === 'instruction' && selectedBookmarkTitle === 'daily summary' && (
+            !isMobile ? (
+              <Tooltip
+                content="Refresh dojo summary"
+                isVisible={isHovered}
+                buttonRef={refreshButtonRef}
+              >
+                <button
+                  ref={refreshButtonRef}
+                  onClick={() => onGenerateSummary?.(true)}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+                >
+                  <ArrowPathIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button
+                ref={refreshButtonRef}
+                onClick={() => onGenerateSummary?.(true)}
+                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+              >
+                <ArrowPathIcon className="h-6 w-6" />
+              </button>
+            )
+          )}
+
+          {/* Delete button */}
+          {type !== 'instruction' && selectedBookmarkId && responseId && onDelete && (
+            <button 
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
+              className="text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors duration-200"
+            >
+              <XCircleIcon className="h-6 w-6" />
+            </button>
+          )}
+
+          {/* Add to bookmark button - only show when not in a bookmark */}
+          {type !== 'instruction' && !selectedBookmarkId && (
+            !isMobile ? (
+              <Tooltip
+                content="Add to bookmark"
+                isVisible={isBookmarkHovered}
+                buttonRef={bookmarkButtonRef}
+              >
+                <button 
+                  ref={bookmarkButtonRef}
+                  onClick={() => setIsBookmarkModalOpen(true)} 
+                  onMouseEnter={() => setIsBookmarkHovered(true)}
+                  onMouseLeave={() => setIsBookmarkHovered(false)}
+                  className="text-white relative group"
+                >
+                  <PlusIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={bookmarkButtonRef}
+                onClick={() => setIsBookmarkModalOpen(true)} 
+                className="text-white relative group"
+              >
+                <PlusIcon className="h-6 w-6" />
+              </button>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* ------------ GPTResponse content ------------ */}
+      <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
+        {parsedBlocks.some(items => items && items.length > 0) ? (
+          // For all responses, handle numbered lists specially, use Markdown for others
+          parsedBlocks.map((items, blockIdx) =>
+            items && items.length > 0 ? (
+              <React.Fragment key={blockIdx}>
+                {/* Check if this block contains numbered items that we want to render specially */}
+                {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
+                  // If block contains numbered items with "/" format, render with custom logic
+                  <div className="pr-3" style={{ color: yellow }}>
+                    {items.map((item, idx) => {
+                      const numberMatch = item.match(/^\s*(\d+)\/\s*/);
+                      if (numberMatch) {
+                        // This is a numbered item with "/" - convert to "." format
+                        const originalNumber = numberMatch[1];
+                        return (
+                          <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
+                            <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
+                            {item.replace(/^\s*\d+\/\s*/, '')}
+                          </div>
+                        );
+                      } else {
+                        // This is regular text (like headers) - render as-is
+                        return (
+                          <div key={idx} style={{ marginBottom: '0.5em' }}>
+                            {item}
+                          </div>
+                        );
+                      }
+                    })}
+                  </div>
+                ) : (
+                  // For all other content (tables, regular text, etc.), use Markdown
+                  <div className="pr-3" style={{ color: yellow }}>
+                    <div className="overflow-x-auto w-full">
+                      <Markdown remarkPlugins={[remarkGfm]}>
+                        {items.join('\n')}
+                      </Markdown>
+                    </div>
+                  </div>
                 )}
-              </div>
-            )}
-          </>
+                {/* Add a line break between blocks */}
+                {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
+              </React.Fragment>
+            ) : null
+          )
+        ) : (
+          // Fallback to Markdown for non-list blocks
+          <div className="pr-3" style={{ color: yellow }}>
+            <div className="overflow-x-auto w-full">
+              <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
+            </div>
+          </div>
         )}
       </div>
 
