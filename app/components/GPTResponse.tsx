@@ -297,9 +297,14 @@ export default function GPTResponse({
     if (!responseId) return;
 
     try {
+      // If already playing, pause and reset
+      if (isPlaying && audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        return;
+      }
+
       if (cachedAudio) {
-        console.log('---cachedAudio---');
-        console.log(cachedAudio);
         if (!audioRef.current) {
           audioRef.current = new Audio();
         }
@@ -318,6 +323,11 @@ export default function GPTResponse({
         audioRef.current.onended = () => {
           setIsPlaying(false);
           URL.revokeObjectURL(audioUrl);
+        };
+        audioRef.current.onerror = () => {
+          setIsPlaying(false);
+          URL.revokeObjectURL(audioUrl);
+          setErrorMessage('Error playing audio');
         };
         return;
       }
@@ -382,6 +392,11 @@ export default function GPTResponse({
         setIsPlaying(false);
         URL.revokeObjectURL(audioUrl);
       };
+      audioRef.current.onerror = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+        setErrorMessage('Error playing audio');
+      };
     } catch (error: any) {
       setErrorMessage(error.message || 'Failed to generate speech');
       setIsErrorModalOpen(true);
@@ -402,15 +417,35 @@ export default function GPTResponse({
     }
   };
 
-  // Clean up audio element on unmount
+  // Clean up audio element on unmount and reset isPlaying, matching GPTResponseDemo
   useEffect(() => {
+    let isUnmounted = false;
+    const audio = audioRef.current;
+
+    if (audio) {
+      const handleEnded = () => {
+        if (!isUnmounted) setIsPlaying(false);
+      };
+      const handleError = () => {
+        if (!isUnmounted) {
+          setIsPlaying(false);
+          setErrorMessage('Error playing audio');
+        }
+      };
+      audio.onended = handleEnded;
+      audio.onerror = handleError;
+    }
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
+      isUnmounted = true;
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+        audio.onended = null;
+        audio.onerror = null;
       }
     };
-  }, []);
+  }, [response]);
 
   return (
     <div className="pl-3 py-3 rounded text-white w-full border-b border-[#222222]">
@@ -578,7 +613,11 @@ export default function GPTResponse({
                       onClick={handleTextToSpeech}
                       onMouseEnter={() => setIsSpeakerHovered(true)}
                       onMouseLeave={() => setIsSpeakerHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                      className={`transition-colors duration-200 ${
+                        isPlaying
+                          ? 'text-green-400 hover:text-green-600'
+                          : 'text-blue-400 hover:text-blue-700'
+                      } relative group`}
                     >
                       <SpeakerWaveIcon className="h-6 w-6" />
                     </button>
@@ -587,7 +626,11 @@ export default function GPTResponse({
                   <button 
                     ref={speakerButtonRef}
                     onClick={handleTextToSpeech}
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    className={`transition-colors duration-200 ${
+                      isPlaying
+                        ? 'text-green-400 hover:text-green-600'
+                        : 'text-blue-400 hover:text-blue-700'
+                    } relative group`}
                   >
                     <SpeakerWaveIcon className="h-6 w-6" />
                   </button>
