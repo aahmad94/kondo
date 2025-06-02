@@ -15,6 +15,7 @@ interface BreakdownModalProps {
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onTextToSpeech?: () => Promise<void>;
+  isPlaying?: boolean;
 }
 
 const BreakdownModal: React.FC<BreakdownModalProps> = ({ 
@@ -26,7 +27,8 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   responseId,
   onRankUpdate,
   onPauseToggle,
-  onTextToSpeech
+  onTextToSpeech,
+  isPlaying
 }) => {
   const red = '#d93900'
   const yellow = '#b59f3b'
@@ -190,7 +192,11 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                     onClick={onTextToSpeech}
                     onMouseEnter={() => setIsSpeakerHovered(true)}
                     onMouseLeave={() => setIsSpeakerHovered(false)}
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                    className={`transition-colors duration-200 ${
+                      isPlaying
+                        ? 'text-green-400 hover:text-green-600'
+                        : 'text-blue-400 hover:text-blue-700'
+                    } relative group`}
                   >
                     <SpeakerWaveIcon className="h-6 w-6" />
                   </button>
@@ -199,7 +205,11 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                 <button 
                   ref={speakerButtonRef}
                   onClick={onTextToSpeech}
-                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
+                  className={`transition-colors duration-200 ${
+                    isPlaying
+                      ? 'text-green-400 hover:text-green-600'
+                      : 'text-blue-400 hover:text-blue-700'
+                  } relative group`}
                 >
                   <SpeakerWaveIcon className="h-6 w-6" />
                 </button>

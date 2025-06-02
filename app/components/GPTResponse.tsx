@@ -449,7 +449,7 @@ export default function GPTResponse({
 
   return (
     <div className="pl-3 py-3 rounded text-white w-full border-b border-[#222222]">
-      <div className="header flex justify-between w-[90%] md:w-[85%] mb-2">
+      <div className="header flex justify-between mb-2">
         {/* Left side */}
         <div className="flex pt-2 pb-1 items-center gap-3">
           {/* Header text for instruction type */}
@@ -854,7 +854,8 @@ export default function GPTResponse({
           onRankUpdate={onRankUpdate}
           onPauseToggle={onPauseToggle}
           onTextToSpeech={handleTextToSpeech}
-      />
+          isPlaying={isPlaying}
+        />
       )}
 
       {/* Error Modal */}

@@ -733,12 +733,85 @@ export default function ChatBox({
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
             ) : Object.values(bookmarkResponses).length > 0 ? (
-              Object.values(bookmarkResponses).map((response: Response, index: number) => (
+              <div className="w-full md:flex md:justify-center">
+                <div className="w-full md:max-w-2xl">
+                  {Object.values(bookmarkResponses).map((response: Response, index: number) => (
+                    <GPTResponse
+                      key={index}
+                      response={response.content}
+                      selectedBookmarkId={response.id}
+                      selectedBookmarkTitle={selectedBookmark.title}
+                      reservedBookmarkTitles={reservedBookmarkTitles}
+                      responseId={response.id}
+                      rank={response.rank}
+                      createdAt={response.createdAt}
+                      isPaused={response.isPaused}
+                      bookmarks={response.bookmarks}
+                      onQuote={handleResponseQuote}
+                      onRankUpdate={handleRankUpdate}
+                      onDelete={handleResponseDelete}
+                      onPauseToggle={handlePauseToggle}
+                      onBookmarkSelect={onBookmarkSelect}
+                      selectedLanguage={selectedLanguage}
+                      onLoadingChange={setIsLoading}
+                      onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                      onSpeakerClick={() => trackSpeakerClick(response.id!)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
+        
+        {!selectedBookmark.id && (
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
+              <GPTResponse
+                type="instruction"
+                response={instructions.main}
+                selectedBookmarkId={selectedBookmark.id}
+                selectedBookmarkTitle={selectedBookmark.title ?? ''}
+                reservedBookmarkTitles={reservedBookmarkTitles}
+                responseId={null}
+                onBookmarkSelect={onBookmarkSelect}
+                selectedLanguage={selectedLanguage}
+                onLoadingChange={setIsLoading}
+              />
+            </div>
+          </div>
+        )}
+        
+        {selectedBookmark.title === 'daily summary' && (
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
+              <GPTResponse
+                type="instruction"
+                response={compileDojoInstructions(responseStats, summaryTimestamp)}
+                selectedBookmarkId={selectedBookmark.id}
+                selectedBookmarkTitle="daily summary"
+                reservedBookmarkTitles={reservedBookmarkTitles}
+                onGenerateSummary={handleGenerateSummary}
+                onRankUpdate={handleRankUpdate}
+                onDelete={handleResponseDelete}
+                onPauseToggle={handlePauseToggle}
+                onBookmarkSelect={onBookmarkSelect}
+                selectedLanguage={selectedLanguage}
+                onLoadingChange={setIsLoading}
+              />
+            </div>
+          </div>
+        )}
+        
+        {selectedBookmark.id && selectedBookmark.id !== 'search' ? (
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
+              {Object.values(bookmarkResponses).map((response: Response, index: number) => (
                 <GPTResponse
-                  key={index}
+                  key={response.id || index}
                   response={response.content}
-                  selectedBookmarkId={response.id}
-                  selectedBookmarkTitle={selectedBookmark.title}
+                  selectedBookmarkId={selectedBookmark.id}
+                  selectedBookmarkTitle={selectedBookmark.title ?? ''}
                   reservedBookmarkTitles={reservedBookmarkTitles}
                   responseId={response.id}
                   rank={response.rank}
@@ -755,89 +828,33 @@ export default function ChatBox({
                   onBreakdownClick={() => trackBreakdownClick(response.id!)}
                   onSpeakerClick={() => trackSpeakerClick(response.id!)}
                 />
-              ))
-            ) : null}
+              ))}
+            </div>
           </div>
-        )}
-        
-        {!selectedBookmark.id && (
-          <GPTResponse
-            type="instruction"
-            response={instructions.main}
-            selectedBookmarkId={selectedBookmark.id}
-            selectedBookmarkTitle={selectedBookmark.title ?? ''}
-            reservedBookmarkTitles={reservedBookmarkTitles}
-            responseId={null}
-            onBookmarkSelect={onBookmarkSelect}
-            selectedLanguage={selectedLanguage}
-            onLoadingChange={setIsLoading}
-          />
-        )}
-        
-        {selectedBookmark.title === 'daily summary' && (
-          <GPTResponse
-            type="instruction"
-            response={compileDojoInstructions(responseStats, summaryTimestamp)}
-            selectedBookmarkId={selectedBookmark.id}
-            selectedBookmarkTitle="daily summary"
-            reservedBookmarkTitles={reservedBookmarkTitles}
-            onGenerateSummary={handleGenerateSummary}
-            onRankUpdate={handleRankUpdate}
-            onDelete={handleResponseDelete}
-            onPauseToggle={handlePauseToggle}
-            onBookmarkSelect={onBookmarkSelect}
-            selectedLanguage={selectedLanguage}
-            onLoadingChange={setIsLoading}
-          />
-        )}
-        
-        {/* if we're in a selected bookmark, show bookmarkResponses */}
-        {/* don't show bookmarkResponses or responses if we're in 'search' */}
-        {/* only show chatbox responses if we're not in a selected bookmark */}
-        {selectedBookmark.id && selectedBookmark.id !== 'search' ? (
-          Object.values(bookmarkResponses).map((response: Response, index: number) => (
-            <GPTResponse
-              key={response.id || index}
-              response={response.content}
-              selectedBookmarkId={selectedBookmark.id}
-              selectedBookmarkTitle={selectedBookmark.title ?? ''}
-              reservedBookmarkTitles={reservedBookmarkTitles}
-              responseId={response.id}
-              rank={response.rank}
-              createdAt={response.createdAt}
-              isPaused={response.isPaused}
-              bookmarks={response.bookmarks}
-              onQuote={handleResponseQuote}
-              onRankUpdate={handleRankUpdate}
-              onDelete={handleResponseDelete}
-              onPauseToggle={handlePauseToggle}
-              onBookmarkSelect={onBookmarkSelect}
-              selectedLanguage={selectedLanguage}
-              onLoadingChange={setIsLoading}
-              onBreakdownClick={() => trackBreakdownClick(response.id!)}
-              onSpeakerClick={() => trackSpeakerClick(response.id!)}
-            />
-          ))
-        ) : // show chatbox responses as long as we're not in 'search'
+        ) :
         selectedBookmark.id !== 'search' ? (
-          Object.values(responses).map((response, index) => (
-            <GPTResponse
-              key={response.id || index}
-              response={response.content}
-              selectedBookmarkId={selectedBookmark.id}
-              selectedBookmarkTitle={selectedBookmark.title ?? ''}
-              reservedBookmarkTitles={reservedBookmarkTitles}
-              responseId={response.id}
-              isPaused={response.isPaused}
-              onDelete={handleResponseDelete}
-              onQuote={handleResponseQuote}
-              onRankUpdate={handleRankUpdate}
-              onBookmarkSelect={onBookmarkSelect}
-              selectedLanguage={selectedLanguage}
-              onLoadingChange={setIsLoading}
-              onBookmarkCreated={onBookmarkCreated}
-            />
-          ))
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
+              {Object.values(responses).map((response, index) => (
+                <GPTResponse
+                  key={response.id || index}
+                  response={response.content}
+                  selectedBookmarkId={selectedBookmark.id}
+                  selectedBookmarkTitle={selectedBookmark.title ?? ''}
+                  reservedBookmarkTitles={reservedBookmarkTitles}
+                  responseId={response.id}
+                  isPaused={response.isPaused}
+                  onDelete={handleResponseDelete}
+                  onQuote={handleResponseQuote}
+                  onRankUpdate={handleRankUpdate}
+                  onBookmarkSelect={onBookmarkSelect}
+                  selectedLanguage={selectedLanguage}
+                  onLoadingChange={setIsLoading}
+                  onBookmarkCreated={onBookmarkCreated}
+                />
+              ))}
+            </div>
+          </div>
         ) : null}
       </div>
       {!selectedBookmark.id && (
