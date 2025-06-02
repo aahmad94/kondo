@@ -102,13 +102,33 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
   // Clean up audio on unmount
   useEffect(() => {
+    let isUnmounted = false;
+    const audio = audioRef.current;
+
+    if (audio) {
+      const handleEnded = () => {
+        if (!isUnmounted) setIsPlaying(false);
+      };
+      const handleError = () => {
+        if (!isUnmounted) {
+          setIsPlaying(false);
+          alert('Error playing audio');
+        }
+      };
+      audio.onended = handleEnded;
+      audio.onerror = handleError;
+    }
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
+      isUnmounted = true;
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+        audio.onended = null;
+        audio.onerror = null;
       }
     };
-  }, []);
+  }, [response]);
 
   // Extract Japanese expressions for highlighting
   function extractExpressions(response: string): string[] {
@@ -131,7 +151,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
     <>
       <div className="pl-3 pt-3 rounded text-white w-full border-b border-[#222222]" style={{ backgroundColor: '#000000' }}>
         {/* Header */}
-        <div className="header flex justify-between w-[90%] mb-2 pb-1">
+        <div className="header flex justify-between w-[90%] mb-2 pb-1">          
           <div className="flex items-center gap-3">
             {/* Rank container */}
             <div
@@ -197,13 +217,10 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
               <SpeakerWaveIcon className="h-6 w-6" />
             </button>
           </div>
-          
-          {/* Empty div to maintain flex layout */}
-          <div></div>
         </div>
 
         {/* Response content */}
-        <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
+        <div className="whitespace-pre-wrap overflow-x-auto w-[95%]">
           <div className="pr-3" style={{ color: '#b59f3b' }}>
             <div className="space-y-2">
               {/* Japanese text */}

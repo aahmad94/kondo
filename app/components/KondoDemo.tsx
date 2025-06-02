@@ -82,16 +82,15 @@ export default function KondoDemo() {
 
   return (
     <div className="w-full max-w-4xl mx-auto h-screen flex flex-col">
-
       {/* Centered carousel and navigation */}
       <div className="flex-1 flex flex-col items-center justify-center min-h-0">
         {/* Demo header */}
-        <div className="text-center mb-4 pt-8">
-          <h2 className="text-2xl font-bold text-white mb-2">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4">
             Interactive Demo
           </h2>
           <p className="text-gray-300 text-sm">
-            Try out the features below - click the lightbulb for breakdowns and speaker for audio
+            Try out the features below - click the lightbulb for grammer insights
           </p>
         </div>
         {/* Carousel navigation and GPT response */}
@@ -106,8 +105,8 @@ export default function KondoDemo() {
             <ChevronLeftIcon className="h-7 w-7" />
           </button>
 
-          {/* GPT response - smaller */}
-          <div className="flex-1 px-2 md:px-8 max-w-lg mx-auto">
+          {/* GPT response - add horizontal padding so arrows never overlap */}
+          <div className="flex-1 px-10 mx-auto">
             <div className="scale-95 md:scale-100">
               <GPTResponseDemo 
                 key={responses[currentIndex].id}

@@ -3,6 +3,7 @@
 import { Fragment, useRef, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, ChevronUpIcon, ChevronDownIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon } from '@heroicons/react/24/solid';
+import Markdown from 'react-markdown';
 
 interface BreakdownModalDemoProps {
   isOpen: boolean;
@@ -145,15 +146,8 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
             >
               <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-sm bg-[#111111] p-6 text-left align-middle shadow-xl transition-all">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <Dialog.Title
-                    as="h3"
-                    className="text-lg font-medium leading-6"
-                    style={{ color: '#b59f3b' }}
-                  >
-                    Breakdown
-                  </Dialog.Title>
-                  
+                <div className="flex justify-between items-center mb-4">
+                  {/* Left: action icons */}
                   <div className="flex items-center space-x-3">
                     {/* Rank container */}
                     {responseId && onRankUpdate && (
@@ -214,8 +208,9 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                     >
                       <SpeakerWaveIcon className="h-6 w-6" />
                     </button>
-
-                    {/* Close button */}
+                  </div>
+                  {/* Right: X button */}
+                  <div>
                     <button
                       type="button"
                       className="text-white hover:opacity-70 transition-opacity duration-200"
@@ -229,19 +224,8 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                 {/* Breakdown content */}
                 <div className="mt-4">
                   <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto max-h-96" style={{ color: '#b59f3b' }}>
-                    {breakdown}
+                    <Markdown>{breakdown}</Markdown>
                   </div>
-                </div>
-
-                {/* Footer */}
-                <div className="mt-6 flex justify-end">
-                  <button
-                    type="button"
-                    className="inline-flex justify-center rounded-sm border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
-                    onClick={onClose}
-                  >
-                    Close
-                  </button>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
