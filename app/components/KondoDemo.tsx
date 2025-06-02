@@ -89,8 +89,11 @@ export default function KondoDemo() {
           <h2 className="text-2xl font-bold text-white mb-4">
             Interactive Demo
           </h2>
-          <p className="text-gray-300 text-sm">
-            Try out the features below - click through the icons for grammer and audio guides
+          <p className="text-gray-300 text-sm max-w-xl">
+            Easily generate study material for many languages.
+          </p>
+          <p className="text-gray-300 text-sm max-w-xl">
+            Try out the features below - hover and click through the icons for grammar and audio guides
           </p>
         </div>
         {/* Carousel navigation and GPT response */}

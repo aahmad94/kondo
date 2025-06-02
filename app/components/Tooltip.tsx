@@ -105,7 +105,7 @@ export default function Tooltip({ children, content, isVisible, buttonRef }: Too
       {createPortal(
         <div
           ref={tooltipRef}
-          className="fixed bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-100 transition-opacity whitespace-nowrap z-[100]"
+          className="fixed bg-[#1F2937]/95 text-white text-xs px-2 py-1.5 rounded opacity-100 transition-opacity whitespace-pre-line leading-tight z-[100] max-w-[200px] text-center border border-[#1f2937] font-mono"
           style={{
             top: `${position.top}px`,
             left: `${position.left}px`,

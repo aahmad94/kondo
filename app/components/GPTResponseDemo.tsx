@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
+import { useIsMobile } from '../hooks/useIsMobile';
+import Tooltip from './Tooltip';
 
 interface DemoResponse {
   id: string;
@@ -33,6 +35,19 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { isMobile } = useIsMobile();
+  const [isPauseHovered, setIsPauseHovered] = useState(false);
+  const [isBreakdownHovered, setIsBreakdownHovered] = useState(false);
+  const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
+  const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
+  const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
+  const [isPlusHovered, setIsPlusHovered] = useState(false);
+  const pauseButtonRef = useRef<HTMLButtonElement>(null);
+  const breakdownButtonRef = useRef<HTMLButtonElement>(null);
+  const speakerButtonRef = useRef<HTMLButtonElement>(null);
+  const upChevronRef = useRef<HTMLButtonElement>(null);
+  const downChevronRef = useRef<HTMLButtonElement>(null);
+  const plusButtonRef = useRef<HTMLButtonElement>(null);
 
   // Handle rank color changes based on rank value
   const getRankBorderColor = (rank: number) => {
@@ -151,7 +166,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
     <>
       <div className="pl-3 pt-3 rounded text-white w-full border-b border-[#222222]" style={{ backgroundColor: '#000000' }}>
         {/* Header */}
-        <div className="header flex justify-between w-[90%] mb-2 pb-1">          
+        <div className="header flex justify-between mb-2 pb-1">          
           <div className="flex items-center gap-3">
             {/* Rank container */}
             <div
@@ -161,61 +176,201 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                 backgroundColor: '#111111'
               }}
             >
-              <button
-                onClick={() => onRankClick(true)}
-                disabled={rank >= 3}
-                className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-              >
-                <ChevronUpIcon className="h-5 w-5" />
-              </button>
+              {!isMobile ? (
+                <Tooltip
+                  content="Rank higher - higher ranked content will surface less"
+                  isVisible={isUpChevronHovered}
+                  buttonRef={upChevronRef}
+                >
+                  <button
+                    ref={upChevronRef}
+                    onClick={() => onRankClick(true)}
+                    disabled={rank >= 3}
+                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                    onMouseEnter={() => setIsUpChevronHovered(true)}
+                    onMouseLeave={() => setIsUpChevronHovered(false)}
+                  >
+                    <ChevronUpIcon className="h-5 w-5" />
+                  </button>
+                </Tooltip>
+              ) : (
+                <button
+                  ref={upChevronRef}
+                  onClick={() => onRankClick(true)}
+                  disabled={rank >= 3}
+                  className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                >
+                  <ChevronUpIcon className="h-5 w-5" />
+                </button>
+              )}
               <span className="px-1.5 rounded text-xs text-white">
                 {rank}
               </span>
-              <button
-                onClick={() => onRankClick(false)}
-                disabled={rank <= 1}
-                className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-              >
-                <ChevronDownIcon className="h-5 w-5" />
-              </button>
+              {!isMobile ? (
+                <Tooltip
+                  content="Rank lower - lower ranked content will surface more"
+                  isVisible={isDownChevronHovered}
+                  buttonRef={downChevronRef}
+                >
+                  <button
+                    ref={downChevronRef}
+                    onClick={() => onRankClick(false)}
+                    disabled={rank <= 1}
+                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                    onMouseEnter={() => setIsDownChevronHovered(true)}
+                    onMouseLeave={() => setIsDownChevronHovered(false)}
+                  >
+                    <ChevronDownIcon className="h-5 w-5" />
+                  </button>
+                </Tooltip>
+              ) : (
+                <button
+                  ref={downChevronRef}
+                  onClick={() => onRankClick(false)}
+                  disabled={rank <= 1}
+                  className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                >
+                  <ChevronDownIcon className="h-5 w-5" />
+                </button>
+              )}
             </div>
 
             {/* Pause button */}
-            <button 
-              onClick={handlePauseToggle}
-              className={`transition-colors duration-200 ${
-                isPaused 
-                  ? 'text-green-500 hover:text-green-700' 
-                  : 'text-yellow-500 hover:text-yellow-700'
-              }`}
-            >
-              {isPaused ? (
-                <PlayCircleIcon className="h-6 w-6" />
-              ) : (
-                <PauseCircleIcon className="h-6 w-6" />
-              )}
-            </button>
+            {!isMobile ? (
+              <Tooltip
+                content={isPaused 
+                  ? "Resume cycling this response in dojo" 
+                  : "Pause cycling this response in dojo"
+                }
+                isVisible={isPauseHovered}
+                buttonRef={pauseButtonRef}
+              >
+                <button 
+                  ref={pauseButtonRef}
+                  onClick={handlePauseToggle}
+                  onMouseEnter={() => setIsPauseHovered(true)}
+                  onMouseLeave={() => setIsPauseHovered(false)}
+                  className={`transition-colors duration-200 ${
+                    isPaused 
+                      ? 'text-green-500 hover:text-green-700' 
+                      : 'text-yellow-500 hover:text-yellow-700'
+                  }`}
+                >
+                  {isPaused ? (
+                    <PlayCircleIcon className="h-6 w-6" />
+                  ) : (
+                    <PauseCircleIcon className="h-6 w-6" />
+                  )}
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={pauseButtonRef}
+                onClick={handlePauseToggle}
+                className={`transition-colors duration-200 ${
+                  isPaused 
+                    ? 'text-green-500 hover:text-green-700' 
+                    : 'text-yellow-500 hover:text-yellow-700'
+                }`}
+              >
+                {isPaused ? (
+                  <PlayCircleIcon className="h-6 w-6" />
+                ) : (
+                  <PauseCircleIcon className="h-6 w-6" />
+                )}
+              </button>
+            )}
 
             {/* Breakdown button */}
-            <button 
-              onClick={handleBreakdownClick}
-              className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-            >
-              <MagnifyingGlassIcon className="h-6 w-6" />
-            </button>
+            {!isMobile ? (
+              <Tooltip
+                content="Analyze content and generate grammar walkthrough"
+                isVisible={isBreakdownHovered}
+                buttonRef={breakdownButtonRef}
+              >
+                <button 
+                  ref={breakdownButtonRef}
+                  onClick={handleBreakdownClick}
+                  onMouseEnter={() => setIsBreakdownHovered(true)}
+                  onMouseLeave={() => setIsBreakdownHovered(false)}
+                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+                >
+                  <MagnifyingGlassIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={breakdownButtonRef}
+                onClick={handleBreakdownClick}
+                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
+              >
+                <MagnifyingGlassIcon className="h-6 w-6" />
+              </button>
+            )}
 
             {/* Speaker button */}
-            <button 
-              onClick={handleSpeakerClick}
-              className={`transition-colors duration-200 ${
-                isPlaying 
-                  ? 'text-green-400 hover:text-green-600' 
-                  : 'text-blue-400 hover:text-blue-700'
-              }`}
-              disabled={!response.audio?.success}
-            >
-              <SpeakerWaveIcon className="h-6 w-6" />
-            </button>
+            {!isMobile ? (
+              <Tooltip
+                content="Listen to pronunciation"
+                isVisible={isSpeakerHovered}
+                buttonRef={speakerButtonRef}
+              >
+                <button 
+                  ref={speakerButtonRef}
+                  onClick={handleSpeakerClick}
+                  onMouseEnter={() => setIsSpeakerHovered(true)}
+                  onMouseLeave={() => setIsSpeakerHovered(false)}
+                  className={`transition-colors duration-200 ${
+                    isPlaying 
+                      ? 'text-green-400 hover:text-green-600' 
+                      : 'text-blue-400 hover:text-blue-700'
+                  }`}
+                  disabled={!response.audio?.success}
+                >
+                  <SpeakerWaveIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={speakerButtonRef}
+                onClick={handleSpeakerClick}
+                className={`transition-colors duration-200 ${
+                  isPlaying 
+                    ? 'text-green-400 hover:text-green-600' 
+                    : 'text-blue-400 hover:text-blue-700'
+                }`}
+                disabled={!response.audio?.success}
+              >
+                <SpeakerWaveIcon className="h-6 w-6" />
+              </button>
+            )}
+          </div>
+
+          {/* Right side - Plus button */}
+          <div className="flex items-center">
+            {!isMobile ? (
+              <Tooltip
+                content="Add to a bookmark to organize study material"
+                isVisible={isPlusHovered}
+                buttonRef={plusButtonRef}
+              >
+                <button 
+                  ref={plusButtonRef}
+                  onMouseEnter={() => setIsPlusHovered(true)}
+                  onMouseLeave={() => setIsPlusHovered(false)}
+                  className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
+                >
+                  <PlusIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={plusButtonRef}
+                className="text-white hover:text-blue-400 transition-colors duration-200"
+              >
+                <PlusIcon className="h-6 w-6" />
+              </button>
+            )}
           </div>
         </div>
 

@@ -4,6 +4,8 @@ import { Fragment, useRef, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, ChevronUpIcon, ChevronDownIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Markdown from 'react-markdown';
+import { useIsMobile } from '../hooks/useIsMobile';
+import Tooltip from './Tooltip';
 
 interface BreakdownModalDemoProps {
   isOpen: boolean;
@@ -34,6 +36,15 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { isMobile } = useIsMobile();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
+  const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
+  const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
+  const pauseButtonRef = useRef<HTMLButtonElement>(null);
+  const speakerButtonRef = useRef<HTMLButtonElement>(null);
+  const upChevronRef = useRef<HTMLButtonElement>(null);
+  const downChevronRef = useRef<HTMLButtonElement>(null);
 
   // Handle rank color changes based on rank value
   const getRankBorderColor = (rank: number) => {
@@ -158,56 +169,150 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                           backgroundColor: '#111111'
                         }}
                       >
-                        <button
-                          onClick={() => onRankClick(false)}
-                          disabled={rank <= 1}
-                          className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                        >
-                          <ChevronDownIcon className="h-5 w-5" />
-                        </button>
+                        {!isMobile ? (
+                          <Tooltip
+                            content="Rank higher - higher ranked content will surface less"
+                            isVisible={isUpChevronHovered}
+                            buttonRef={upChevronRef}
+                          >
+                            <button
+                              ref={upChevronRef}
+                              onClick={() => onRankClick(true)}
+                              disabled={rank >= 3}
+                              className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                              onMouseEnter={() => setIsUpChevronHovered(true)}
+                              onMouseLeave={() => setIsUpChevronHovered(false)}
+                            >
+                              <ChevronUpIcon className="h-5 w-5" />
+                            </button>
+                          </Tooltip>
+                        ) : (
+                          <button
+                            ref={upChevronRef}
+                            onClick={() => onRankClick(true)}
+                            disabled={rank >= 3}
+                            className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                          >
+                            <ChevronUpIcon className="h-5 w-5" />
+                          </button>
+                        )}
                         <span className="px-1.5 rounded text-xs text-white">
                           {rank}
                         </span>
-                        <button
-                          onClick={() => onRankClick(true)}
-                          disabled={rank >= 3}
-                          className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                        >
-                          <ChevronUpIcon className="h-5 w-5" />
-                        </button>
+                        {!isMobile ? (
+                          <Tooltip
+                            content="Rank lower - lower ranked content will surface more"
+                            isVisible={isDownChevronHovered}
+                            buttonRef={downChevronRef}
+                          >
+                            <button
+                              ref={downChevronRef}
+                              onClick={() => onRankClick(false)}
+                              disabled={rank <= 1}
+                              className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                              onMouseEnter={() => setIsDownChevronHovered(true)}
+                              onMouseLeave={() => setIsDownChevronHovered(false)}
+                            >
+                              <ChevronDownIcon className="h-5 w-5" />
+                            </button>
+                          </Tooltip>
+                        ) : (
+                          <button
+                            ref={downChevronRef}
+                            onClick={() => onRankClick(false)}
+                            disabled={rank <= 1}
+                            className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+                          >
+                            <ChevronDownIcon className="h-5 w-5" />
+                          </button>
+                        )}
                       </div>
                     )}
 
                     {/* Pause/Play button */}
                     {responseId && onPauseToggle && (
-                      <button
-                        onClick={handlePauseToggle}
-                        className={`transition-colors duration-200 ${
-                          isPaused 
-                            ? 'text-green-500 hover:text-green-700' 
-                            : 'text-yellow-500 hover:text-yellow-700'
-                        }`}
-                      >
-                        {isPaused ? (
-                          <PlayCircleIcon className="h-6 w-6" />
-                        ) : (
-                          <PauseCircleIcon className="h-6 w-6" />
-                        )}
-                      </button>
+                      !isMobile ? (
+                        <Tooltip
+                          content={isPaused 
+                            ? "Resume cycling this response in dojo" 
+                            : "Pause cycling this response in dojo"
+                          }
+                          isVisible={isHovered}
+                          buttonRef={pauseButtonRef}
+                        >
+                          <button
+                            ref={pauseButtonRef}
+                            onClick={handlePauseToggle}
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                            className={`transition-colors duration-200 ${
+                              isPaused 
+                                ? 'text-green-500 hover:text-green-700' 
+                                : 'text-yellow-500 hover:text-yellow-700'
+                            }`}
+                          >
+                            {isPaused ? (
+                              <PlayCircleIcon className="h-6 w-6" />
+                            ) : (
+                              <PauseCircleIcon className="h-6 w-6" />
+                            )}
+                          </button>
+                        </Tooltip>
+                      ) : (
+                        <button
+                          ref={pauseButtonRef}
+                          onClick={handlePauseToggle}
+                          className={`transition-colors duration-200 ${
+                            isPaused 
+                              ? 'text-green-500 hover:text-green-700' 
+                              : 'text-yellow-500 hover:text-yellow-700'
+                          }`}
+                        >
+                          {isPaused ? (
+                            <PlayCircleIcon className="h-6 w-6" />
+                          ) : (
+                            <PauseCircleIcon className="h-6 w-6" />
+                          )}
+                        </button>
+                      )
                     )}
 
                     {/* Text to Speech button */}
-                    <button
-                      onClick={handleTextToSpeech}
-                      className={`transition-colors duration-200 ${
-                        isPlaying 
-                          ? 'text-green-400 hover:text-green-600' 
-                          : 'text-blue-400 hover:text-blue-700'
-                      }`}
-                      disabled={!audio?.success}
-                    >
-                      <SpeakerWaveIcon className="h-6 w-6" />
-                    </button>
+                    {!isMobile ? (
+                      <Tooltip
+                        content="Listen to pronunciation"
+                        isVisible={isSpeakerHovered}
+                        buttonRef={speakerButtonRef}
+                      >
+                        <button
+                          ref={speakerButtonRef}
+                          onClick={handleTextToSpeech}
+                          onMouseEnter={() => setIsSpeakerHovered(true)}
+                          onMouseLeave={() => setIsSpeakerHovered(false)}
+                          className={`transition-colors duration-200 ${
+                            isPlaying 
+                              ? 'text-green-400 hover:text-green-600' 
+                              : 'text-blue-400 hover:text-blue-700'
+                          }`}
+                          disabled={!audio?.success}
+                        >
+                          <SpeakerWaveIcon className="h-6 w-6" />
+                        </button>
+                      </Tooltip>
+                    ) : (
+                      <button
+                        ref={speakerButtonRef}
+                        onClick={handleTextToSpeech}
+                        className={`transition-colors duration-200 ${
+                          isPlaying 
+                            ? 'text-green-400 hover:text-green-600' 
+                            : 'text-blue-400 hover:text-blue-700'
+                        }`}
+                        disabled={!audio?.success}
+                      >
+                        <SpeakerWaveIcon className="h-6 w-6" />
+                      </button>
+                    )}
                   </div>
                   {/* Right: X button */}
                   <div>

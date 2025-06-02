@@ -473,7 +473,7 @@ export default function GPTResponse({
                 >
                   {!isMobile ? (
                     <Tooltip
-                      content="Rank higher to surface less"
+                      content="Rank higher"
                       isVisible={isUpChevronHovered}
                       buttonRef={upChevronRef}
                     >
@@ -503,7 +503,7 @@ export default function GPTResponse({
                   </span>
                   {!isMobile ? (
                     <Tooltip
-                      content="Rank lower to surface more"
+                      content="Rank lower"
                       isVisible={isDownChevronHovered}
                       buttonRef={downChevronRef}
                     >
@@ -575,7 +575,7 @@ export default function GPTResponse({
               {hasExpression && (
                 !isMobile ? (
                   <Tooltip
-                    content="Breakdown this response"
+                    content="Analyze content and generate grammar walkthrough"
                     isVisible={isBreakdownHovered}
                     buttonRef={breakdownButtonRef}
                   >
@@ -719,12 +719,13 @@ export default function GPTResponse({
                 isVisible={isBookmarkHovered}
                 buttonRef={bookmarkButtonRef}
               >
+                {/* Plus button with smooth blue hover effect */}
                 <button 
                   ref={bookmarkButtonRef}
                   onClick={() => setIsBookmarkModalOpen(true)} 
                   onMouseEnter={() => setIsBookmarkHovered(true)}
                   onMouseLeave={() => setIsBookmarkHovered(false)}
-                  className="text-white relative group"
+                  className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
@@ -733,7 +734,7 @@ export default function GPTResponse({
               <button 
                 ref={bookmarkButtonRef}
                 onClick={() => setIsBookmarkModalOpen(true)} 
-                className="text-white relative group"
+                className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
               >
                 <PlusIcon className="h-6 w-6" />
               </button>

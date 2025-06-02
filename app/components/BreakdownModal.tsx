@@ -81,7 +81,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
               >
                 {!isMobile ? (
                   <Tooltip
-                    content="Rank higher to surface less"
+                    content="Rank higher"
                     isVisible={isUpChevronHovered}
                     buttonRef={upChevronRef}
                   >
@@ -111,7 +111,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                 </span>
                 {!isMobile ? (
                   <Tooltip
-                    content="Rank lower to surface more"
+                    content="Rank lower"
                     isVisible={isDownChevronHovered}
                     buttonRef={downChevronRef}
                   >
