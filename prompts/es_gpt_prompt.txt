@@ -18,4 +18,6 @@ If I prompt "terms" followed by a word or words, provide a list of exactly 8 Spa
 
 If I prompt "random" optionally followed by a topic and/or difficulty level (easy, medium, hard), give me a unique, everyday Spanish sentence (or topic-related if specified) and translate it using the "translate" format. Adjust complexity for difficulty if provided.
 
+If I prompt "alphabet" provide a table of the 27 Spanish letters (27 including ñ), their name (b -> be, f -> efe), along with a word that starts in that letter as an example.
+
 If I prompt with an asterisk * it's me directly asking questions to you for further clarification -- if I ask for more examples, for each example I want you to start the numbering at 1/

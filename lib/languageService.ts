@@ -8,8 +8,8 @@ interface LanguageInstructions {
 const DOJO_INSTRUCTIONS = `
   This tool creates material to review daily after 12:00 EST.
 
-  1/ There are 10 responses: 4 hard, 3 medium, 2 easy.
-  2/Click the refresh (🔄) button above to manually generate new material.`
+  There are 10 responses: 4 hard, 3 medium, 2 easy.
+  Click the refresh (🔄) button above to manually generate new material.`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
@@ -62,7 +62,8 @@ const SPANISH_INSTRUCTIONS = {
   1/ random + (optional topic) + (optional difficulty level)
   2/ verb + (verb): get a table for all verb tenses
   3/ terms + (topic): list of related words in Spanish
-  4/ asterisk (*) + (question): inquire about anything else
+  4/ alphabet: phonetic table of Spanish script and romanization
+  5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
 };

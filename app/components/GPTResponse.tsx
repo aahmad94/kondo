@@ -23,6 +23,7 @@ import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackSpeakerClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
 import { useIsMobile } from '../hooks/useIsMobile';
+import StandardResponse from './StandardResponse';
 
 interface GPTResponseProps {
   response: string;
@@ -108,6 +109,9 @@ export default function GPTResponse({
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
   const isMobile = useIsMobile();
 
+  // Helper to check if a block should use StandardResponse styling
+  const isStandardResponse = (items: string[]) => [2, 3, 4].includes(items.filter(item => item.match(/^\s*\d+\/\s*/)).length);
+
   // Extract expressions for voice and breakdown logic
   function extractExpressions(response: string): string[] {
     // If the first line doesn't include a number, return an empty array
@@ -161,7 +165,7 @@ export default function GPTResponse({
         return match ? line.trim() : null;
       })
       .filter((item): item is string => !!item);
-    
+
     // If we have numbered lines, include any non-numbered lines that come before them
     if (numberedLines.length >= 2) {
       const firstNumberedIndex = lines.findIndex(line => line.match(/^\s*\d+\/\s*(.*)$/));
@@ -410,9 +414,9 @@ export default function GPTResponse({
 
   return (
     <div className="pl-3 py-3 rounded text-white w-full border-b border-[#222222]">
-      <div className="header flex justify-between w-[85%] mb-2 pb-1">
+      <div className="header flex justify-between w-[90%] md:w-[85%] mb-2">
         {/* Left side */}
-        <div className="flex pt-2 pb-1  items-center gap-3">
+        <div className="flex pt-2 pb-1 items-center gap-3">
           {/* Header text for instruction type */}
           {type === 'instruction' && (
             <h2 style={{ color: 'yellow' }}>
@@ -721,29 +725,34 @@ export default function GPTResponse({
               <React.Fragment key={blockIdx}>
                 {/* Check if this block contains numbered items that we want to render specially */}
                 {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
-                  // If block contains numbered items with "/" format, render with custom logic
-                  <div className="pr-3" style={{ color: yellow }}>
-                    {items.map((item, idx) => {
-                      const numberMatch = item.match(/^\s*(\d+)\/\s*/);
-                      if (numberMatch) {
-                        // This is a numbered item with "/" - convert to "." format
-                        const originalNumber = numberMatch[1];
-                        return (
-                          <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
-                            <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
-                            {item.replace(/^\s*\d+\/\s*/, '')}
-                          </div>
-                        );
-                      } else {
-                        // This is regular text (like headers) - render as-is
-                        return (
-                          <div key={idx} style={{ marginBottom: '0.5em' }}>
-                            {item}
-                          </div>
-                        );
-                      }
-                    })}
-                  </div>
+                  // If block contains exactly 2, 3, or 4 numbered items with "/" format, use StandardResponse
+                  isStandardResponse(items) ? (
+                    <StandardResponse items={items.filter(item => item.match(/^\s*\d+\/\s*/))} />
+                  ) : (
+                    // Otherwise use the existing custom logic for other numbered items
+                    <div className="pr-3" style={{ color: yellow }}>
+                      {items.map((item, idx) => {
+                        const numberMatch = item.match(/^\s*(\d+)\/\s*/);
+                        if (numberMatch) {
+                          // This is a numbered item with "/" - convert to "." format
+                          const originalNumber = numberMatch[1];
+                          return (
+                            <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
+                              <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
+                              {item.replace(/^\s*\d+\/\s*/, '')}
+                            </div>
+                          );
+                        } else {
+                          // This is regular text (like headers) - render as-is
+                          return (
+                            <div key={idx} style={{ marginBottom: '0.5em' }}>
+                              {item}
+                            </div>
+                          );
+                        }
+                      })}
+                    </div>
+                  )
                 ) : (
                   // For all other content (tables, regular text, etc.), use Markdown
                   <div className="pr-3" style={{ color: yellow }}>

@@ -2,16 +2,17 @@ Korean Learning Prompt
 I will use this thread to learn Korean.
 In your responses, minimize white space -- ALWAYS keep these rules in mind:
     At the end of each line use only a single space, NOT TWO.
-    Lists should ONLY be numbered as "1/ 2/ 3/ 4/..."
+    Lists should ONLY be numbered as "1/ 2/ 3/..."
 When I prompt with "translate" followed by some phrase, translate it to Korean from English or English from Korean.
-    When translating English to Korean include ONLY these items:
+When translating English to Korean include ONLY these items:
     1/ the Korean translation (in Hangul)
     2/ translation with only romanization (standard romanization rules)
     3/ the English translation
+Double check that after the translation command the output has 3 list items numbered with the EXACT syntax 1/... 2/... 3/... -- it should only be up to 3/ with the content above. Do not include any text before 1/ for the translation -- I shouldn't see the same translated hangul twice.
 If I follow up with 'breakdown the above phrase', respond with a bulleted format what purpose each word and particle serves -- for verbs, include the verb stem in the explanation. For each word/particle, include the original hangeul along a pair of parentheses containing the romanization/phonetic form. Do NOT explain punctuation marks (periods, commas, exclamation marks, quotation marks, etc.) - only explain the actual words and particles.
 If I prompt with "verb" followed by some verb, explain what the verb means in English and provide a table of tenses (present, past, present negative, past negative, te-form equivalent (e.g., -고), potential, conditional, negative conditional, desire, volitional, imperative) with two columns: formal/polite (습니다/세요) and informal (요). Each cell should include Hangul and romanization in parentheses. Double-check accuracy.  
 If I prompt "terms" followed by a word or words, provide a list of exactly 8 Korean words (in Hangul with romanization in parentheses) related to the subject domain(s)—include both informal and formal/polite forms where applicable, denoted in parentheses. If I include a number in my prompt, ignore it and always return exactly 8 terms. For each term, include: 1/ Hangul, 2/ romanization in parentheses, 3/ English translation. For example: 아빠 (appa, informal) - dad, 아버지 (abeoji, formal) - father, etc...
 If I prompt "random" optionally followed by a topic and/or difficulty level (easy, medium, hard), give me a unique, everyday Korean sentence (or topic-related if specified) and translate it using the "translate" format. Adjust complexity for difficulty if provided.  
-If I prompt "hangul" provide a table of basic Hangul consonants and vowels with columns for the character, its name (e.g., ㄱ = "gi-yeok"), and romanization. If I provide an image, parse the text and refer to the "translate" command.  
+If I prompt "hangul" or "alphabet" provide a table of basic Hangul consonants and vowels with columns for the character, its name (e.g., ㄱ = "gi-yeok"), and romanization. If I provide an image, parse the text and refer to the "translate" command.  
 If I prompt in English or Korean without a command, default to "translate".
 If the prompt begins with an asterisk *, it's a direct question for clarification -- if I ask for more examples, for each example I want you to start the numbering at 1/
