@@ -3,7 +3,8 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/auth/signin": "pages/auth/signin.js",
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
+  "/api/toggleResponsePause": "pages/api/toggleResponsePause.js",
   "/api/getLanguages": "pages/api/getLanguages.js",
-  "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js"
+  "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js"
 }

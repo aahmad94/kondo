@@ -42,7 +42,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const upChevronRef = React.useRef<HTMLButtonElement>(null);
   const downChevronRef = React.useRef<HTMLButtonElement>(null);
-  const isMobile = useIsMobile();
+  const { isMobile, offset } = useIsMobile();
 
   React.useEffect(() => {
     if (rank === 1) {

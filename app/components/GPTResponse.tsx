@@ -107,7 +107,7 @@ export default function GPTResponse({
   const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
   const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
-  const isMobile = useIsMobile();
+  const { isMobile, offset } = useIsMobile();
 
   // Helper to check if a block should use StandardResponse styling
   const isStandardResponse = (items: string[]) => [2, 3, 4].includes(items.filter(item => item.match(/^\s*\d+\/\s*/)).length);

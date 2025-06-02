@@ -8,11 +8,13 @@ import 'swiper/css';
 import { useRef, useEffect, useState } from 'react';
 import type { Swiper as SwiperType } from 'swiper';
 import KondoDemo from '../../app/components/KondoDemo';
+import { useIsMobile } from '../../app/hooks/useIsMobile';
 
 export default function SignIn({ providers, csrfToken }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const { isMobile, offset } = useIsMobile();
   const yellow = '#b59f3b'
 
   useEffect(() => {
@@ -104,7 +106,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                 <KondoDemo />
               </div>
               {/* Relative sign-in button at bottom right, after demo and dots */}
-              <div className="flex justify-end items-end mt-auto pr-4">
+              <div className="flex justify-end items-end mt-auto pr-4" style={{ marginBottom: isMobile ? offset : 0 }}>
                 {Object.values(providers || {}).map((provider: any) => (
                   <div key={provider.id} className="mb-3">
                     <button
