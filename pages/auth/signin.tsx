@@ -99,12 +99,12 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
         {/* Slide 2: Interactive Demo */}
         <SwiperSlide>
           <div ref={scrollableRef} className="h-screen overflow-hidden flex flex-col items-center relative swiper-nested bg-gray-900">
-            <div className="w-full flex flex-col items-center p-3 h-[100vh] justify-center">
+            <div className="w-full h-[100vh] flex flex-col items-end justify-end">
               <div className="w-full">
                 <KondoDemo />
               </div>
               {/* Relative sign-in button at bottom right, after demo and dots */}
-              <div className="flex justify-end items-end mt-auto pr-4 mb-8 pb-8 w-[100%]">
+              <div className="flex justify-end items-end mt-auto pr-4">
                 {Object.values(providers || {}).map((provider: any) => (
                   <div key={provider.id} className="mb-3">
                     <button

@@ -90,7 +90,7 @@ export default function KondoDemo() {
             Interactive Demo
           </h2>
           <p className="text-gray-300 text-sm">
-            Try out the features below - click the lightbulb for grammer insights
+            Try out the features below - click through the icons for grammer and audio guides
           </p>
         </div>
         {/* Carousel navigation and GPT response */}

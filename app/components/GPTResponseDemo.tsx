@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronUpIcon, ChevronDownIcon, LightBulbIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
 
 interface DemoResponse {
@@ -201,7 +201,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
               onClick={handleBreakdownClick}
               className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
             >
-              <LightBulbIcon className="h-6 w-6" />
+              <MagnifyingGlassIcon className="h-6 w-6" />
             </button>
 
             {/* Speaker button */}

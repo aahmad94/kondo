@@ -2,7 +2,7 @@
 
 import { Fragment, useRef, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, ChevronUpIcon, ChevronDownIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, ChevronUpIcon, ChevronDownIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Markdown from 'react-markdown';
 
 interface BreakdownModalDemoProps {
@@ -146,7 +146,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
             >
               <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-sm bg-[#111111] p-6 text-left align-middle shadow-xl transition-all">
                 {/* Header */}
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-2">
                   {/* Left: action icons */}
                   <div className="flex items-center space-x-3">
                     {/* Rank container */}
@@ -222,7 +222,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                 </div>
 
                 {/* Breakdown content */}
-                <div className="mt-4">
+                <div className="pt-2">
                   <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto max-h-96" style={{ color: '#b59f3b' }}>
                     <Markdown>{breakdown}</Markdown>
                   </div>
