@@ -806,7 +806,7 @@ export default function GPTResponse({
 
       {/* Bookmark badge -- show when in reserved bookmark, now below the content */}
       {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
-        <div className="mt-2 flex items-start">
+        <div className="mt-2 pt-1flex items-start">
           <span 
             onClick={handleBookmarkClick}
             className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[120px] truncate"
