@@ -2,7 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
 body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -131,4 +152,28 @@ html, body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.animate-pulse-fast {
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Furigana styles */
+.furigana-text ruby {
+  ruby-align: center;
+  ruby-position: over;
+}
+
+.furigana-text rt {
+  font-size: 0.6em;
+  line-height: 1;
+  color: rgb(181, 159, 59, 0.80); /* text-blue-400 - furigana text (hiragana above kanji) */
+  font-weight: normal;
+}
+
+.furigana-text rb {
+  font-size: 1em;
+  line-height: 1.5;
+  color: inherit; /* inherit the yellow color from parent */
+  font-weight: 500;
 }

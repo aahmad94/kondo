@@ -754,7 +754,10 @@ export default function GPTResponse({
                 {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
                   // If block contains exactly 2, 3, or 4 numbered items with "/" format, use StandardResponse
                   isStandardResponse(items) ? (
-                    <StandardResponse items={items.filter(item => item.match(/^\s*\d+\/\s*/))} />
+                    <StandardResponse 
+                      items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
+                      selectedLanguage={selectedLanguage}
+                    />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
                     <div className="pr-3" style={{ color: yellow }}>

@@ -7,6 +7,7 @@ import MenuBar from './components/MenuBar';
 import ChatBox from './components/ChatBox';
 import Bookmarks from './components/Bookmarks';
 import { initAmplitude, trackLanguageChange, trackClearBookmark, trackBookmarkSelect } from '../lib/amplitudeService';
+import { preloadKuroshiro } from '../lib/furiganaService';
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -27,6 +28,11 @@ export default function Home() {
       initAmplitude();
     }
   }, [session]);
+
+  // Preload Kuroshiro for better furigana performance
+  useEffect(() => {
+    preloadKuroshiro();
+  }, []);
 
   useEffect(() => {
     if (searchParams && !hasSyncedRef.current) {
