@@ -14,11 +14,7 @@ const DOJO_INSTRUCTIONS = `
 const JAPANESE_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate into Japanese.
-  Use the light bulb (💡) on a response to get a more detailed breakdown.\n\n
-
-  Bookmark features:
-  ➕ add response to a bookmark
-  ⬆️ ⬇️ rank each response in a bookmark\n\n
+  Organize and rank content in bookmarks.
 
   Additional commands:
   1/ random + (optional topic) + (optional difficulty level)
@@ -33,11 +29,7 @@ const JAPANESE_INSTRUCTIONS = {
 const KOREAN_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate into Korean.
-  Use the light bulb (💡) on a response to get a more detailed breakdown.\n\n
-
-  Bookmark features:
-  ➕ add response to a bookmark
-  ⬆️ ⬇️ rank each response in a bookmark\n\n
+  Organize and rank content in bookmarks.
 
   Additional commands:
   1/ random + (optional topic) + (optional difficulty level)
@@ -52,11 +44,7 @@ const KOREAN_INSTRUCTIONS = {
 const SPANISH_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate into Spanish.
-  Use the light bulb (💡) on a response to get a more detailed breakdown.\n\n 
-
-  Bookmark features:
-  ➕ add response to a bookmark
-  ⬆️ ⬇️ rank each response in a bookmark\n\n
+  Organize and rank content in bookmarks.
 
   Additional commands:
   1/ random + (optional topic) + (optional difficulty level)
@@ -71,11 +59,7 @@ const SPANISH_INSTRUCTIONS = {
 const ARABIC_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate into Arabic.
-  Use the light bulb (💡) on a response to get a more detailed breakdown.\n\n 
-
-  Bookmark features:
-  ➕ add response to a bookmark
-  ⬆️ ⬇️ rank each response in a bookmark\n\n
+  Organize and rank content in bookmarks.
 
   Additional commands:
   1/ random + (optional topic) + (optional difficulty level)
@@ -90,11 +74,7 @@ const ARABIC_INSTRUCTIONS = {
 const CHINESE_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate into Chinese.
-  Use the light bulb (💡) on a response to get a more detailed breakdown.\n\n 
-
-  Bookmark features:
-  ➕ add response to a bookmark
-  ⬆️ ⬇️ rank each response in a bookmark\n\n
+  Organize and rank content in bookmarks.
 
   Additional commands:
   1/ random + (optional topic) + (optional difficulty level)
