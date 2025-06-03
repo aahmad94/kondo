@@ -347,7 +347,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
           </div>
 
           {/* Right side - Plus button */}
-          <div className="flex items-center">
+          <div className="flex items-center px-3">
             {!isMobile ? (
               <Tooltip
                 content="Add to a bookmark to organize study material"
@@ -358,7 +358,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                   ref={plusButtonRef}
                   onMouseEnter={() => setIsPlusHovered(true)}
                   onMouseLeave={() => setIsPlusHovered(false)}
-                  className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
+                  className="text-white hover:text-blue-400 transition-colors duration-200"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
