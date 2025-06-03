@@ -40,7 +40,8 @@ export default function StandardResponse({ items, selectedLanguage = 'ja' }: Sta
         setFuriganaText(furiganaResult);
       } catch (error) {
         console.error('Error generating furigana:', error);
-        setFuriganaText(processedItems[0]); // Fallback to original text
+        // On error, don't use furigana - this will cause the component to fall back to the original 4-line format
+        setFuriganaText(''); 
       } finally {
         setIsLoading(false);
       }
@@ -50,17 +51,38 @@ export default function StandardResponse({ items, selectedLanguage = 'ja' }: Sta
   }, [shouldUseFurigana, processedItems[0], processedItems[1]]);
 
   // If this is a Japanese 4-line response with kanji, render the furigana version
-  if (shouldUseFurigana) {
+  // But only if furigana was successfully generated
+  if (shouldUseFurigana && furiganaText && !isLoading) {
     return (
       <div className="pr-3" style={{ color: '#b59f3b' }}>
         <div className="space-y-2">
           {/* First line - Japanese with furigana (larger text for better furigana spacing) */}
           <div className="text-xl font-medium">
-            {isLoading ? (
-              <div className="animate-pulse">Loading furigana...</div>
-            ) : (
-              <FuriganaText furiganaHtml={furiganaText} fontSize="1.15rem" />
-            )}
+            <FuriganaText furiganaHtml={furiganaText} fontSize="1.15rem" />
+          </div>
+
+          {/* Second line - Romaji pronunciation */}
+          <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+            {processedItems[2]}
+          </div>
+
+          {/* Third line - English translation */}
+          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+            {processedItems[3]}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state only if we're trying to generate furigana
+  if (shouldUseFurigana && isLoading) {
+    return (
+      <div className="pr-3" style={{ color: '#b59f3b' }}>
+        <div className="space-y-2">
+          {/* First line - Loading state */}
+          <div className="text-xl font-medium">
+            <div className="animate-pulse">Loading furigana...</div>
           </div>
 
           {/* Second line - Romaji pronunciation */}

@@ -67,7 +67,8 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
         setFuriganaText(furiganaResult);
       } catch (error) {
         console.error('Error generating furigana:', error);
-        setFuriganaText(response.content.japanese); // Fallback to original text
+        // On error, don't use furigana - fall back to original 4-line format
+        setFuriganaText('');
       } finally {
         setIsLoadingFurigana(false);
       }

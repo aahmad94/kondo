@@ -18,11 +18,32 @@ async function initKuroshiro(): Promise<Kuroshiro> {
   // Start initialization
   initializationPromise = (async () => {
     kuroshiro = new Kuroshiro();
-    // Specify the dictionary path to work from any route
-    await kuroshiro.init(new KuromojiAnalyzer({
-      dictPath: "/node_modules/kuromoji/dict/"
-    }));
-    return kuroshiro;
+    
+    // Try different dictionary paths for different environments
+    const dictPaths = [
+      "/node_modules/kuromoji/dict/", // Original path for local development
+      "./node_modules/kuromoji/dict/", // Relative path
+      "/public/node_modules/kuromoji/dict/", // Public directory path
+      undefined // Let kuromoji use default path
+    ];
+    
+    let lastError: Error | null = null;
+    
+    for (const dictPath of dictPaths) {
+      try {
+        console.log(`Attempting to initialize Kuroshiro with dictPath: ${dictPath || 'default'}`);
+        await kuroshiro.init(new KuromojiAnalyzer(dictPath ? { dictPath } : {}));
+        console.log(`Successfully initialized Kuroshiro with dictPath: ${dictPath || 'default'}`);
+        return kuroshiro;
+      } catch (error) {
+        console.warn(`Failed to initialize with dictPath ${dictPath || 'default'}:`, error);
+        lastError = error as Error;
+        continue;
+      }
+    }
+    
+    // If all paths failed, throw the last error
+    throw new Error(`Failed to initialize Kuroshiro with any dictionary path. Last error: ${lastError?.message}`);
   })();
 
   return initializationPromise;
