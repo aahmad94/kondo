@@ -32,16 +32,16 @@ export function useIsMobile(): MobileInfo {
       if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
         browser = 'safari';
         // iOS Safari: Estimate URL bar + toolbar height
-        offset = 60; // Conservative estimate for top address bar + bottom toolbar
+        offset = 70; // Conservative estimate for top address bar + bottom toolbar
       } else if (userAgent.includes('chrome')) {
         browser = 'chrome';
-        offset = 56; // Typical Chrome address bar height on Android
+        offset = 0; // Typical Chrome address bar height on Android
       } else if (userAgent.includes('firefox')) {
         browser = 'firefox';
-        offset = 56; // Similar to Chrome, may vary
+        offset = 70; // Similar to Chrome, may vary
       } else {
         // Fallback for other browsers
-        offset = 60; // Safe default
+        offset = 70; // Safe default
       }
 
       setMobileInfo({ isMobile, browser, offset });
