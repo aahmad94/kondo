@@ -12,6 +12,7 @@ interface StandardResponseProps {
 export default function StandardResponse({ items, selectedLanguage = 'ja' }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Extract the content from each numbered item (removing the "1/", "2/", etc.)
   const processedItems = items.map(item => {
@@ -38,59 +39,52 @@ export default function StandardResponse({ items, selectedLanguage = 'ja' }: Sta
         
         const furiganaResult = await addFurigana(japaneseText, hiraganaText);
         setFuriganaText(furiganaResult);
+        setRetryCount(0); // Reset retry count on success
       } catch (error) {
         console.error('Error generating furigana:', error);
-        // On error, don't use furigana - this will cause the component to fall back to the original 4-line format
-        setFuriganaText(''); 
+        // If this is the first few attempts and we haven't succeeded yet, retry
+        if (retryCount < 3) {
+          console.log(`Retrying furigana generation (attempt ${retryCount + 1})`);
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1);
+          }, 1000 * (retryCount + 1)); // Exponential backoff: 1s, 2s, 3s
+        } else {
+          // After 3 retries, give up and show original text
+          setFuriganaText(''); 
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     generateFurigana();
-  }, [shouldUseFurigana, processedItems[0], processedItems[1]]);
+  }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount]);
 
-  // If this is a Japanese 4-line response with kanji, render the furigana version
-  // But only if furigana was successfully generated
-  if (shouldUseFurigana && furiganaText && !isLoading) {
+  // If this is a Japanese 4-line response with kanji, render the enhanced version
+  if (shouldUseFurigana) {
     return (
       <div className="pr-3" style={{ color: '#b59f3b' }}>
         <div className="space-y-2">
-          {/* First line - Japanese with furigana (larger text for better furigana spacing) */}
+          {/* First line - Japanese text (original initially, then furigana when loaded) */}
           <div className="text-xl font-medium">
-            <FuriganaText furiganaHtml={furiganaText} fontSize="1.15rem" />
+            {furiganaText && !isLoading ? (
+              <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
+            ) : (
+              <span>{processedItems[0]}</span>
+            )}
           </div>
 
-          {/* Second line - Romaji pronunciation */}
+          {/* Second line - Hiragana/katakana reading (always show for reference) */}
+          <div className="text-sm opacity-80">
+            {processedItems[1]}
+          </div>
+
+          {/* Third line - Romaji pronunciation */}
           <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
             {processedItems[2]}
           </div>
 
-          {/* Third line - English translation */}
-          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
-            {processedItems[3]}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading state only if we're trying to generate furigana
-  if (shouldUseFurigana && isLoading) {
-    return (
-      <div className="pr-3" style={{ color: '#b59f3b' }}>
-        <div className="space-y-2">
-          {/* First line - Loading state */}
-          <div className="text-xl font-medium">
-            <div className="animate-pulse">Loading furigana...</div>
-          </div>
-
-          {/* Second line - Romaji pronunciation */}
-          <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
-            {processedItems[2]}
-          </div>
-
-          {/* Third line - English translation */}
+          {/* Fourth line - English translation */}
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
             {processedItems[3]}
           </span>

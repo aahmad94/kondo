@@ -408,13 +408,18 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             <div className="space-y-2">
               {shouldUseFurigana ? (
                 <>
-                  {/* Japanese text with furigana (larger text for better furigana spacing) */}
+                  {/* Japanese text (original initially, then furigana when loaded) */}
                   <div className="text-xl font-medium">
-                    {isLoadingFurigana ? (
-                      <div className="animate-pulse">Loading furigana...</div>
+                    {furiganaText && !isLoadingFurigana ? (
+                      <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
                     ) : (
-                      <FuriganaText furiganaHtml={furiganaText} fontSize="1.15rem" />
+                      <span>{response.content.japanese}</span>
                     )}
+                  </div>
+
+                  {/* Hiragana reading (always show for reference) */}
+                  <div className="text-sm opacity-80">
+                    {response.content.hiragana}
                   </div>
 
                   {/* Romanized text */}

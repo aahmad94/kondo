@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/copy-kuromoji-dict.js",
     "build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
