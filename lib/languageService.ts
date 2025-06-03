@@ -8,7 +8,7 @@ interface LanguageInstructions {
 const DOJO_INSTRUCTIONS = `
   This tool creates material to review daily after 12:00 EST.
 
-  There are 10 responses: 4 hard, 3 medium, 2 easy.
+  There are 9 responses: 4 hard, 3 medium, 2 easy.
   Click the refresh (🔄) button above to manually generate new material.`
 
 const JAPANESE_INSTRUCTIONS = {
