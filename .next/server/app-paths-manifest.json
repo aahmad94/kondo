@@ -1,7 +1,5 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/api/textToSpeech/route": "app/api/textToSpeech/route.js",
-  "/api/breakdown/route": "app/api/breakdown/route.js"
+  "/page": "app/page.js"
 }
