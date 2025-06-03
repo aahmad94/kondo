@@ -575,7 +575,7 @@ export default function GPTResponse({
               {hasExpression && (
                 !isMobile ? (
                   <Tooltip
-                    content="Breakdown"
+                    content="Dissect"
                     isVisible={isBreakdownHovered}
                     buttonRef={breakdownButtonRef}
                   >
