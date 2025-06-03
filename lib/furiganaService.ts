@@ -18,7 +18,10 @@ async function initKuroshiro(): Promise<Kuroshiro> {
   // Start initialization
   initializationPromise = (async () => {
     kuroshiro = new Kuroshiro();
-    await kuroshiro.init(new KuromojiAnalyzer());
+    // Specify the dictionary path to work from any route
+    await kuroshiro.init(new KuromojiAnalyzer({
+      dictPath: "/node_modules/kuromoji/dict/"
+    }));
     return kuroshiro;
   })();
 

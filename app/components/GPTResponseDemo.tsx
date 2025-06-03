@@ -5,6 +5,8 @@ import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, P
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
+import { addFurigana, containsKanji } from '../../lib/furiganaService';
+import FuriganaText from './FuriganaText';
 
 interface DemoResponse {
   id: string;
@@ -34,6 +36,8 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [isPaused, setIsPaused] = useState(response.isPaused);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [furiganaText, setFuriganaText] = useState<string>('');
+  const [isLoadingFurigana, setIsLoadingFurigana] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { isMobile } = useIsMobile();
   const [isPauseHovered, setIsPauseHovered] = useState(false);
@@ -48,6 +52,29 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const upChevronRef = useRef<HTMLButtonElement>(null);
   const downChevronRef = useRef<HTMLButtonElement>(null);
   const plusButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Check if we should use furigana (Japanese text with kanji)
+  const shouldUseFurigana = containsKanji(response.content.japanese);
+
+  // Generate furigana on component mount
+  useEffect(() => {
+    const generateFurigana = async () => {
+      if (!shouldUseFurigana) return;
+
+      setIsLoadingFurigana(true);
+      try {
+        const furiganaResult = await addFurigana(response.content.japanese, response.content.hiragana);
+        setFuriganaText(furiganaResult);
+      } catch (error) {
+        console.error('Error generating furigana:', error);
+        setFuriganaText(response.content.japanese); // Fallback to original text
+      } finally {
+        setIsLoadingFurigana(false);
+      }
+    };
+
+    generateFurigana();
+  }, [response.content.japanese, response.content.hiragana, shouldUseFurigana]);
 
   // Handle rank color changes based on rank value
   const getRankBorderColor = (rank: number) => {
@@ -378,25 +405,50 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
         <div className="whitespace-pre-wrap overflow-x-auto w-[95%]">
           <div className="pr-3" style={{ color: '#b59f3b' }}>
             <div className="space-y-2">
-              {/* Japanese text */}
-              <div className="text-lg font-medium">
-                {response.content.japanese}
-              </div>
+              {shouldUseFurigana ? (
+                <>
+                  {/* Japanese text with furigana (larger text for better furigana spacing) */}
+                  <div className="text-xl font-medium">
+                    {isLoadingFurigana ? (
+                      <div className="animate-pulse">Loading furigana...</div>
+                    ) : (
+                      <FuriganaText furiganaHtml={furiganaText} fontSize="1.15rem" />
+                    )}
+                  </div>
 
-              {/* Hiragana reading */}
-              <div className="text-sm opacity-80">
-                {response.content.hiragana}
-              </div>
+                  {/* Romanized text */}
+                  <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+                    {response.content.romanized}
+                  </div>
 
-              {/* Romanized text */}
-              <div className="text-sm opacity-60 italic">
-                {response.content.romanized}
-              </div>
+                  {/* English translation */}
+                  <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+                    {response.content.english}
+                  </span>
+                </>
+              ) : (
+                <>
+                  {/* Japanese text */}
+                  <div className="text-xl font-medium">
+                    {response.content.japanese}
+                  </div>
 
-              {/* English translation */}
-              <div className="text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
-                {response.content.english}
-              </div>
+                  {/* Hiragana reading */}
+                  <div className="text-sm opacity-80">
+                    {response.content.hiragana}
+                  </div>
+
+                  {/* Romanized text */}
+                  <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+                    {response.content.romanized}
+                  </div>
+
+                  {/* English translation */}
+                  <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+                    {response.content.english}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>

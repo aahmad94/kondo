@@ -14,8 +14,12 @@ declare module 'kuroshiro' {
 }
 
 declare module 'kuroshiro-analyzer-kuromoji' {
+  interface KuromojiAnalyzerOptions {
+    dictPath?: string;
+  }
+
   class KuromojiAnalyzer {
-    constructor();
+    constructor(options?: KuromojiAnalyzerOptions);
   }
 
   export = KuromojiAnalyzer;
