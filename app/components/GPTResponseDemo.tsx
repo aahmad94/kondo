@@ -63,7 +63,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
       setIsLoadingFurigana(true);
       try {
-        const furiganaResult = await addFurigana(response.content.japanese, response.content.hiragana);
+        const furiganaResult = await addFurigana(response.content.japanese, response.content.hiragana, response.id);
         setFuriganaText(furiganaResult);
       } catch (error) {
         console.error('Error generating furigana:', error);
@@ -75,7 +75,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
     };
 
     generateFurigana();
-  }, [response.content.japanese, response.content.hiragana, shouldUseFurigana]);
+  }, [response.content.japanese, response.content.hiragana, shouldUseFurigana, response.id]);
 
   // Handle rank color changes based on rank value
   const getRankBorderColor = (rank: number) => {

@@ -45,7 +45,8 @@ export default async function handler(
         rank: true,
         isPaused: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        furigana: true
       },
       orderBy: {
         rank: 'asc'

@@ -7,10 +7,12 @@ import FuriganaText from './FuriganaText';
 interface StandardResponseProps {
   items: string[];
   selectedLanguage?: string;
+  responseId?: string | null;
+  cachedFurigana?: string | null;
 }
 
-export default function StandardResponse({ items, selectedLanguage = 'ja' }: StandardResponseProps) {
-  const [furiganaText, setFuriganaText] = useState<string>('');
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana }: StandardResponseProps) {
+  const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -27,6 +29,12 @@ export default function StandardResponse({ items, selectedLanguage = 'ja' }: Sta
   useEffect(() => {
     const generateFurigana = async () => {
       if (!shouldUseFurigana) return;
+      
+      // If we already have cached furigana, don't make an API call
+      if (cachedFurigana) {
+        setFuriganaText(cachedFurigana);
+        return;
+      }
 
       // Add a small random delay to stagger requests
       const delay = Math.random() * 100; // 0-100ms random delay
@@ -37,7 +45,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja' }: Sta
         const japaneseText = processedItems[0];
         const hiraganaText = processedItems[1];
         
-        const furiganaResult = await addFurigana(japaneseText, hiraganaText);
+        const furiganaResult = await addFurigana(japaneseText, hiraganaText, responseId || undefined);
         setFuriganaText(furiganaResult);
         setRetryCount(0); // Reset retry count on success
       } catch (error) {
@@ -58,7 +66,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja' }: Sta
     };
 
     generateFurigana();
-  }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount]);
+  }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount, responseId, cachedFurigana]);
 
   // If this is a Japanese 4-line response with kanji, render the enhanced version
   if (shouldUseFurigana) {

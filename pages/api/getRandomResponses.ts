@@ -28,7 +28,8 @@ export default async function handler(
         id: true,
         content: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        furigana: true
       },
     });
 

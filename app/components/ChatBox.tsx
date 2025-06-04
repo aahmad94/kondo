@@ -27,6 +27,7 @@ interface Response {
   bookmarks?: Record<string, string>;
   createdAt: Date;
   updatedAt: Date;
+  furigana?: string | null;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
 
 }
@@ -38,6 +39,7 @@ interface BookmarkResponse {
   isPaused?: boolean;
   createdAt: Date;
   updatedAt: Date;
+  furigana?: string | null;
 }
 
 const formatStats = (stats: {
@@ -263,6 +265,7 @@ export default function ChatBox({
         isPaused: response.isPaused,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
+        furigana: response.furigana,
       }));
 
       // Sort responses using the new function
@@ -295,7 +298,8 @@ export default function ChatBox({
         isPaused: response.isPaused,
         bookmarks: response.bookmarks,
         createdAt: new Date(response.createdAt),
-        updatedAt: new Date(response.updatedAt)
+        updatedAt: new Date(response.updatedAt),
+        furigana: response.furigana
       }]));
       setBookmarkResponses(dict);
       setIsLoading(false);
@@ -747,6 +751,7 @@ export default function ChatBox({
                       createdAt={response.createdAt}
                       isPaused={response.isPaused}
                       bookmarks={response.bookmarks}
+                      furigana={response.furigana}
                       onQuote={handleResponseQuote}
                       onRankUpdate={handleRankUpdate}
                       onDelete={handleResponseDelete}
@@ -818,6 +823,7 @@ export default function ChatBox({
                   createdAt={response.createdAt}
                   isPaused={response.isPaused}
                   bookmarks={response.bookmarks}
+                  furigana={response.furigana}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
                   onDelete={handleResponseDelete}

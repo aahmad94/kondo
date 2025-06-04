@@ -1,12 +1,15 @@
 // Convert Japanese text with kanji to furigana format using server-side API
-export async function addFurigana(japaneseText: string, hiraganaText: string): Promise<string> {
+export async function addFurigana(japaneseText: string, hiraganaText: string, responseId?: string): Promise<string> {
   try {
     const response = await fetch('/api/furigana', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ japaneseText }),
+      body: JSON.stringify({ 
+        japaneseText,
+        responseId 
+      }),
     });
 
     if (!response.ok) {

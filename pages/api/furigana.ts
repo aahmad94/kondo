@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Kuroshiro from 'kuroshiro';
 import KuromojiAnalyzer from 'kuroshiro-analyzer-kuromoji';
+import prisma from '../../lib/prisma';
 
 let kuroshiro: Kuroshiro | null = null;
 let initializationPromise: Promise<Kuroshiro> | null = null;
@@ -44,10 +45,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { japaneseText } = req.body;
+    const { japaneseText, responseId } = req.body;
     
     if (!japaneseText) {
       return res.status(400).json({ error: 'Japanese text is required' });
+    }
+
+    // If responseId is provided, check for cached furigana first
+    if (responseId) {
+      try {
+        const cachedResponse = await prisma.gPTResponse.findUnique({
+          where: { id: responseId },
+          select: { furigana: true }
+        });
+
+        if (cachedResponse?.furigana) {
+          console.log(`Returning cached furigana for response ${responseId}`);
+          return res.status(200).json({ furigana: cachedResponse.furigana });
+        }
+      } catch (dbError) {
+        console.error('Error checking cached furigana:', dbError);
+        // Continue with generation if database check fails
+      }
     }
 
     // Always wait for initialization to complete
@@ -62,6 +81,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       mode: 'furigana',
       to: 'hiragana'
     });
+
+    // If responseId is provided, cache the furigana result
+    if (responseId) {
+      try {
+        await prisma.gPTResponse.update({
+          where: { id: responseId },
+          data: { furigana: furiganaResult }
+        });
+        console.log(`Cached furigana for response ${responseId}`);
+      } catch (dbError) {
+        console.error('Error caching furigana:', dbError);
+        // Don't fail the request if caching fails
+      }
+    }
 
     res.status(200).json({ furigana: furiganaResult });
   } catch (error) {

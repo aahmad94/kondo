@@ -48,7 +48,8 @@ export async function getUserResponses(userId: string) {
         id: true,
         content: true,
         rank: true,
-        createdAt: true
+        createdAt: true,
+        furigana: true
       }
     });
 

@@ -35,6 +35,7 @@ interface GPTResponseProps {
   createdAt?: Date;
   type?: 'instruction' | 'response';
   isPaused?: boolean;
+  furigana?: string | null;
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
@@ -59,6 +60,7 @@ export default function GPTResponse({
   createdAt,
   type = 'response',
   isPaused = false,
+  furigana,
   onDelete, 
   onQuote,
   onRankUpdate,
@@ -757,6 +759,8 @@ export default function GPTResponse({
                     <StandardResponse 
                       items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
                       selectedLanguage={selectedLanguage}
+                      responseId={responseId}
+                      cachedFurigana={furigana}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
