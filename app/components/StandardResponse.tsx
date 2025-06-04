@@ -10,9 +10,10 @@ interface StandardResponseProps {
   responseId?: string | null;
   cachedFurigana?: string | null;
   onFuriganaGenerated?: (furigana: string) => void;
+  isFuriganaEnabled?: boolean;
 }
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated }: StandardResponseProps) {
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -25,7 +26,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
   // Check if this is a Japanese 4-line standard response that needs furigana
   const isJapaneseFourLine = selectedLanguage === 'ja' && processedItems.length === 4;
-  const shouldUseFurigana = isJapaneseFourLine && containsKanji(processedItems[0]);
+  const shouldUseFurigana = isJapaneseFourLine && containsKanji(processedItems[0]) && isFuriganaEnabled;
 
   // Notify parent when furigana changes
   useEffect(() => {
@@ -76,12 +77,12 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     generateFurigana();
   }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount, responseId, cachedFurigana]);
 
-  // If this is a Japanese 4-line response with kanji, render the enhanced version
+  // If this is a Japanese 4-line response with kanji and furigana is enabled, render the enhanced version
   if (shouldUseFurigana) {
     return (
       <div className="pr-3" style={{ color: '#b59f3b' }}>
         <div className="space-y-2">
-          {/* First line - Japanese text (original initially, then furigana when loaded) */}
+          {/* First line - Japanese text with furigana */}
           <div className="text-xl font-medium">
             {furiganaText && !isLoading ? (
               <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
@@ -90,7 +91,31 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             )}
           </div>
 
-          {/* Second line - Hiragana/katakana reading (always show for reference) */}
+          {/* Second line - Romaji pronunciation (skip hiragana when furigana is enabled) */}
+          <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+            {processedItems[2]}
+          </div>
+
+          {/* Third line - English translation */}
+          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+            {processedItems[3]}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // For Japanese 4-line responses when furigana is disabled, show all 4 lines
+  if (isJapaneseFourLine && !isFuriganaEnabled) {
+    return (
+      <div className="pr-3" style={{ color: '#b59f3b' }}>
+        <div className="space-y-2">
+          {/* First line - Japanese text without furigana */}
+          <div className="text-xl font-medium">
+            {processedItems[0]}
+          </div>
+
+          {/* Second line - Hiragana/katakana reading */}
           <div className="text-sm opacity-80">
             {processedItems[1]}
           </div>
@@ -109,7 +134,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     );
   }
 
-  // Original rendering logic for non-furigana cases
+  // Original rendering logic for non-Japanese or non-4-line cases
   return (
     <div className="pr-3" style={{ color: '#b59f3b' }}>
       <div className="space-y-2">

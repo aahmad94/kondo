@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   PlusIcon, 
@@ -12,7 +12,9 @@ import {
   MagnifyingGlassIcon,
   PauseCircleIcon,
   PlayCircleIcon,
-  SpeakerWaveIcon
+  SpeakerWaveIcon,
+  XMarkIcon,
+  CheckIcon
 } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
@@ -111,12 +113,37 @@ export default function GPTResponse({
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
   const { isMobile, offset } = useIsMobile();
   
+  // Furigana toggle state
+  const [isFuriganaEnabled, setIsFuriganaEnabled] = useState(false);
+  const [showFuriganaDropdown, setShowFuriganaDropdown] = useState(false);
+  const furiganaDropdownRef = useRef<HTMLDivElement>(null);
+  
   // Track current furigana (starts with cached furigana, gets updated when new furigana is generated)
   const [currentFurigana, setCurrentFurigana] = useState<string | null>(furigana || null);
 
   // Handle furigana updates from StandardResponse
   const handleFuriganaGenerated = (newFurigana: string) => {
     setCurrentFurigana(newFurigana);
+  };
+
+  // Handle click outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (furiganaDropdownRef.current && !furiganaDropdownRef.current.contains(event.target as Node)) {
+        setShowFuriganaDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Handle furigana toggle
+  const handleFuriganaToggle = () => {
+    setIsFuriganaEnabled(!isFuriganaEnabled);
+    setShowFuriganaDropdown(false);
   };
 
   // Helper to check if a block should use StandardResponse styling
@@ -681,6 +708,36 @@ export default function GPTResponse({
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          {/* Furigana dropdown - only show for Japanese language */}
+          {selectedLanguage === 'ja' && type !== 'instruction' && (
+            <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
+              <button
+                onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
+                className="text-white hover:text-gray-300 transition-colors duration-200"
+              >
+                <ChevronDownIcon className="h-6 w-6" />
+              </button>
+              {showFuriganaDropdown && (
+                <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 min-w-[120px] w-max rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60]">
+                  <div className="py-1">
+                    <button
+                      onClick={handleFuriganaToggle}
+                      className="flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
+                    >
+                      <span>
+                        {isFuriganaEnabled ? (
+                          <span>Disable furigana</span>
+                        ) : (
+                          <span>Enable furigana</span>
+                        )}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Refresh button for Dojo mode */}
           {type === 'instruction' && selectedBookmarkTitle === 'daily summary' && (
             !isMobile ? (
@@ -770,6 +827,7 @@ export default function GPTResponse({
                       responseId={responseId}
                       cachedFurigana={currentFurigana}
                       onFuriganaGenerated={handleFuriganaGenerated}
+                      isFuriganaEnabled={isFuriganaEnabled}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon } from '@heroicons/react/24/solid';
+import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
@@ -54,8 +54,13 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const downChevronRef = useRef<HTMLButtonElement>(null);
   const plusButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Furigana toggle state
+  const [isFuriganaEnabled, setIsFuriganaEnabled] = useState(false);
+  const [showFuriganaDropdown, setShowFuriganaDropdown] = useState(false);
+  const furiganaDropdownRef = useRef<HTMLDivElement>(null);
+
   // Check if we should use furigana (Japanese text with kanji)
-  const shouldUseFurigana = containsKanji(response.content.japanese);
+  const shouldUseFurigana = containsKanji(response.content.japanese) && isFuriganaEnabled;
 
   // Use pre-generated furigana from dummy data, fallback to API if not available
   useEffect(() => {
@@ -84,6 +89,26 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
     generateFurigana();
   }, [response.content.japanese, response.content.hiragana, response.content.furigana, shouldUseFurigana, response.id]);
+
+  // Handle click outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (furiganaDropdownRef.current && !furiganaDropdownRef.current.contains(event.target as Node)) {
+        setShowFuriganaDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Handle furigana toggle
+  const handleFuriganaToggle = () => {
+    setIsFuriganaEnabled(!isFuriganaEnabled);
+    setShowFuriganaDropdown(false);
+  };
 
   // Handle rank color changes based on rank value
   const getRankBorderColor = (rank: number) => {
@@ -383,7 +408,40 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
           </div>
 
           {/* Right side - Plus button */}
-          <div className="flex items-center px-3">
+          <div className="flex items-center gap-3 px-3">
+            {/* Furigana dropdown */}
+            <div className="relative" ref={furiganaDropdownRef}>
+              <button
+                onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
+                className="text-white hover:text-gray-300 transition-colors duration-200"
+              >
+                <ChevronDownIcon className="h-6 w-6" />
+              </button>
+              {showFuriganaDropdown && (
+                <div className="absolute right-0 mt-2 min-w-[180px] w-max rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60]">
+                  <div className="py-1">
+                    <button
+                      onClick={handleFuriganaToggle}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>Furigana</span>
+                        <ruby className="text-base">
+                          今<rt className="text-xs">きょう</rt>
+                        </ruby>
+                      </span>
+                      {isFuriganaEnabled ? (
+                        <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <XCircleIcon className="h-4 w-4 text-red-500" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Plus button */}
             {!isMobile ? (
               <Tooltip
                 content="Add to a bookmark to organize study material"
@@ -416,7 +474,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             <div className="space-y-2">
               {shouldUseFurigana ? (
                 <>
-                  {/* Japanese text (original initially, then furigana when loaded) */}
+                  {/* Japanese text with furigana */}
                   <div className="text-xl font-medium">
                     {furiganaText && !isLoadingFurigana ? (
                       <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
@@ -425,12 +483,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     )}
                   </div>
 
-                  {/* Hiragana reading (always show for reference) */}
-                  <div className="text-sm opacity-80">
-                    {response.content.hiragana}
-                  </div>
-
-                  {/* Romanized text */}
+                  {/* Romanized text (skip hiragana when furigana is enabled) */}
                   <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
                     {response.content.romanized}
                   </div>
@@ -442,7 +495,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                 </>
               ) : (
                 <>
-                  {/* Japanese text */}
+                  {/* Japanese text without furigana */}
                   <div className="text-xl font-medium">
                     {response.content.japanese}
                   </div>
