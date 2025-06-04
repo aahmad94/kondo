@@ -44,6 +44,7 @@ interface GPTResponseProps {
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
+  onFuriganaToggle?: (responseId: string, isFuriganaEnabled: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
   bookmarks?: Record<string, string>;
@@ -69,6 +70,7 @@ export default function GPTResponse({
   onQuote,
   onRankUpdate,
   onPauseToggle,
+  onFuriganaToggle,
   onGenerateSummary,
   onBookmarkSelect,
   bookmarks,
@@ -148,19 +150,10 @@ export default function GPTResponse({
     setLocalFuriganaEnabled(newState);
     setShowFuriganaDropdown(false);
 
-    // Update database if we have a responseId and it's not a temp response
-    if (responseId && !responseId.includes('temp')) {
+    // Use parent's handler if available and we have a responseId
+    if (responseId && onFuriganaToggle) {
       try {
-        await fetch('/api/updateFuriganaEnabled', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            responseId,
-            isFuriganaEnabled: newState
-          }),
-        });
+        await onFuriganaToggle(responseId, newState);
       } catch (error) {
         console.error('Error updating furigana enabled state:', error);
         // Revert the state if the API call fails

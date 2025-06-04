@@ -615,6 +615,116 @@ export default function ChatBox({
     }
   };
 
+  const handleFuriganaToggle = async (responseId: string, isFuriganaEnabled: boolean) => {
+    if (!session?.userId) return;
+
+    // Skip API call for temp responses
+    if (responseId.includes('temp')) {
+      // Update local state only for temp responses
+      setResponses(prev => {
+        const updated = { ...prev };
+        if (updated[responseId]) {
+          updated[responseId] = {
+            ...updated[responseId],
+            isFuriganaEnabled,
+          };
+        }
+        return updated;
+      });
+
+      setBookmarkResponses(prev => {
+        const updated = { ...prev };
+        if (updated[responseId]) {
+          updated[responseId] = {
+            ...updated[responseId],
+            isFuriganaEnabled,
+          };
+        }
+        return updated;
+      });
+
+      setDailySummaryCache(prev => {
+        if (!prev) return prev;
+        const updated = { ...prev };
+        if (updated[responseId]) {
+          updated[responseId] = {
+            ...updated[responseId],
+            isFuriganaEnabled,
+          };
+        }
+        return updated;
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/updateFuriganaEnabled', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          responseId,
+          isFuriganaEnabled,
+        }),
+      });
+
+      if (response.ok) {
+        // Update responses state
+        setResponses(prev => {
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              isFuriganaEnabled,
+            };
+          }
+          return updated;
+        });
+
+        // Update bookmarkResponses state
+        setBookmarkResponses(prev => {
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              isFuriganaEnabled,
+            };
+          }
+          return updated;
+        });
+
+        // Update dailySummaryCache if it exists
+        setDailySummaryCache(prev => {
+          if (!prev) return prev;
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              isFuriganaEnabled,
+            };
+          }
+          return updated;
+        });
+
+        // Update searchResultsCache if it exists
+        setSearchResultsCache(prev => {
+          if (!prev) return prev;
+          const updated = { ...prev };
+          if (updated[responseId]) {
+            updated[responseId] = {
+              ...updated[responseId],
+              isFuriganaEnabled,
+            };
+          }
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling furigana:', error);
+    }
+  };
+
   const handleGenerateSummary = async (forceRefresh: boolean = false) => {
     if (!session?.userId) return;
     
@@ -764,6 +874,7 @@ export default function ChatBox({
                       onRankUpdate={handleRankUpdate}
                       onDelete={handleResponseDelete}
                       onPauseToggle={handlePauseToggle}
+                      onFuriganaToggle={handleFuriganaToggle}
                       onBookmarkSelect={onBookmarkSelect}
                       selectedLanguage={selectedLanguage}
                       onLoadingChange={setIsLoading}
@@ -808,6 +919,7 @@ export default function ChatBox({
                 onRankUpdate={handleRankUpdate}
                 onDelete={handleResponseDelete}
                 onPauseToggle={handlePauseToggle}
+                onFuriganaToggle={handleFuriganaToggle}
                 onBookmarkSelect={onBookmarkSelect}
                 selectedLanguage={selectedLanguage}
                 onLoadingChange={setIsLoading}
@@ -837,6 +949,7 @@ export default function ChatBox({
                   onRankUpdate={handleRankUpdate}
                   onDelete={handleResponseDelete}
                   onPauseToggle={handlePauseToggle}
+                  onFuriganaToggle={handleFuriganaToggle}
                   onBookmarkSelect={onBookmarkSelect}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
@@ -862,6 +975,7 @@ export default function ChatBox({
                   onDelete={handleResponseDelete}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
+                  onFuriganaToggle={handleFuriganaToggle}
                   onBookmarkSelect={onBookmarkSelect}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}

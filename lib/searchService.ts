@@ -11,6 +11,8 @@ interface SearchResult {
   rank: number;
   createdAt: Date;
   isPaused: boolean;
+  furigana: string | null;
+  isFuriganaEnabled: boolean;
   bookmarks: Record<string, string>;
 }
 
@@ -36,6 +38,8 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
         rank: result.rank,
         createdAt: new Date(result.createdat),
         isPaused: result.ispaused,
+        furigana: result.furigana || null,
+        isFuriganaEnabled: result.isfuriganaenabled || false,
         bookmarks: result.bookmarks || {}
       }));
     }
@@ -59,6 +63,8 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       rank: result.rank,
       createdAt: new Date(result.createdat),
       isPaused: result.ispaused,
+      furigana: result.furigana || null,
+      isFuriganaEnabled: result.isfuriganaenabled || false,
       bookmarks: result.bookmarks || {}
     }));
   } catch (error) {
