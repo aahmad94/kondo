@@ -15,6 +15,7 @@ interface DemoResponse {
     hiragana: string;
     romanized: string;
     english: string;
+    furigana?: string;
   };
   breakdown: string;
   rank: number;
@@ -36,7 +37,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [isPaused, setIsPaused] = useState(response.isPaused);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [furiganaText, setFuriganaText] = useState<string>('');
+  const [furiganaText, setFuriganaText] = useState<string>(response.content.furigana || '');
   const [isLoadingFurigana, setIsLoadingFurigana] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { isMobile } = useIsMobile();
@@ -56,11 +57,18 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   // Check if we should use furigana (Japanese text with kanji)
   const shouldUseFurigana = containsKanji(response.content.japanese);
 
-  // Generate furigana on component mount
+  // Use pre-generated furigana from dummy data, fallback to API if not available
   useEffect(() => {
     const generateFurigana = async () => {
       if (!shouldUseFurigana) return;
+      
+      // If we already have furigana in the dummy data, use it
+      if (response.content.furigana) {
+        setFuriganaText(response.content.furigana);
+        return;
+      }
 
+      // Fallback to API call if furigana is not in dummy data
       setIsLoadingFurigana(true);
       try {
         const furiganaResult = await addFurigana(response.content.japanese, response.content.hiragana, response.id);
@@ -75,7 +83,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
     };
 
     generateFurigana();
-  }, [response.content.japanese, response.content.hiragana, shouldUseFurigana, response.id]);
+  }, [response.content.japanese, response.content.hiragana, response.content.furigana, shouldUseFurigana, response.id]);
 
   // Handle rank color changes based on rank value
   const getRankBorderColor = (rank: number) => {

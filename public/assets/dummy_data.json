@@ -6,7 +6,8 @@
         "japanese": "旅行の準備や勉強にブックマークを使いましょう",
         "hiragana": "りょこうのじゅんびやべんきょうにブックマークをつかいましょう",
         "romanized": "Ryokou no junbi ya benkyou ni bukumaaku o tsukaimashou", 
-        "english": "Use bookmarks to study or prepare for your travels."
+        "english": "Use bookmarks to study or prepare for your travels.",
+        "furigana": "<ruby>旅行<rp>(</rp><rt>りょこう</rt><rp>)</rp></ruby>の<ruby>準備<rp>(</rp><rt>じゅんび</rt><rp>)</rp></ruby>や<ruby>勉強<rp>(</rp><rt>べんきょう</rt><rp>)</rp></ruby>にブックマークを<ruby>使<rp>(</rp><rt>つか</rt><rp>)</rp></ruby>いましょう"
     },
     "audio": {
         "success": true,
@@ -24,7 +25,8 @@
         "japanese": "多くの言語のための学習資料を簡単に作成する",
         "hiragana": "おおくのげんごのためのがくしゅうしりょうをかんたんにさくせいする", 
         "romanized": "Ooku no gengo no tame no gakushuu shiryou o kantan ni sakusei suru",
-        "english": "Easily generate study material for many languages"
+        "english": "Easily generate study material for many languages",
+        "furigana": "<ruby>多<rp>(</rp><rt>おお</rt><rp>)</rp></ruby>くの<ruby>言語<rp>(</rp><rt>げんご</rt><rp>)</rp></ruby>のための<ruby>学習<rp>(</rp><rt>がくしゅう</rt><rp>)</rp></ruby><ruby>資料<rp>(</rp><rt>しりょう</rt><rp>)</rp></ruby>を<ruby>簡単<rp>(</rp><rt>かんたん</rt><rp>)</rp></ruby>に<ruby>作成<rp>(</rp><rt>さくせい</rt><rp>)</rp></ruby>する"
       },
       "audio": {
         "success": true,
@@ -42,7 +44,8 @@
         "japanese": "すべての翻訳にはテキストとオーディオガイドが含まれています。",
         "hiragana": "すべてのほんやくにはテキストとオーディオガイドがふくまれています。",
         "romanized": "Subete no honyaku niwa tekisuto to ōdio gaido ga fukumareteimasu.",
-        "english": "Every translation includes a text and audio guide."
+        "english": "Every translation includes a text and audio guide.",
+        "furigana": "すべての<ruby>翻訳<rp>(</rp><rt>ほんやく</rt><rp>)</rp></ruby>にはテキストとオーディオガイドが<ruby>含<rp>(</rp><rt>ふく</rt><rp>)</rp></ruby>まれています。"
       },
       "audio": {
         "success": true,
