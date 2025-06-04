@@ -9,9 +9,10 @@ interface StandardResponseProps {
   selectedLanguage?: string;
   responseId?: string | null;
   cachedFurigana?: string | null;
+  onFuriganaGenerated?: (furigana: string) => void;
 }
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana }: StandardResponseProps) {
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -25,6 +26,13 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
   // Check if this is a Japanese 4-line standard response that needs furigana
   const isJapaneseFourLine = selectedLanguage === 'ja' && processedItems.length === 4;
   const shouldUseFurigana = isJapaneseFourLine && containsKanji(processedItems[0]);
+
+  // Notify parent when furigana changes
+  useEffect(() => {
+    if (furiganaText && onFuriganaGenerated) {
+      onFuriganaGenerated(furiganaText);
+    }
+  }, [furiganaText, onFuriganaGenerated]);
 
   useEffect(() => {
     const generateFurigana = async () => {

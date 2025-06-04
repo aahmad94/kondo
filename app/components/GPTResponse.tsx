@@ -110,6 +110,14 @@ export default function GPTResponse({
   const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
   const { isMobile, offset } = useIsMobile();
+  
+  // Track current furigana (starts with cached furigana, gets updated when new furigana is generated)
+  const [currentFurigana, setCurrentFurigana] = useState<string | null>(furigana || null);
+
+  // Handle furigana updates from StandardResponse
+  const handleFuriganaGenerated = (newFurigana: string) => {
+    setCurrentFurigana(newFurigana);
+  };
 
   // Helper to check if a block should use StandardResponse styling
   const isStandardResponse = (items: string[]) => [2, 3, 4].includes(items.filter(item => item.match(/^\s*\d+\/\s*/)).length);
@@ -760,7 +768,8 @@ export default function GPTResponse({
                       items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
                       selectedLanguage={selectedLanguage}
                       responseId={responseId}
-                      cachedFurigana={furigana}
+                      cachedFurigana={currentFurigana}
+                      onFuriganaGenerated={handleFuriganaGenerated}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
@@ -840,6 +849,7 @@ export default function GPTResponse({
           reservedBookmarkTitles={reservedBookmarkTitles}
           cachedAudio={cachedAudio}
           breakdownContent={breakdownContent}
+          furigana={currentFurigana}
           onBookmarkCreated={onBookmarkCreated}
           onBookmarkSelect={onBookmarkSelect}
         />
