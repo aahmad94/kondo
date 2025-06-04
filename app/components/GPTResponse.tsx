@@ -724,8 +724,8 @@ export default function GPTResponse({
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          {/* Furigana dropdown - only show for Japanese language */}
-          {selectedLanguage === 'ja' && type !== 'instruction' && (
+          {/* Furigana dropdown - only show for Japanese language and when there's an expression */}
+          {selectedLanguage === 'ja' && type !== 'instruction' && hasExpression && (
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
