@@ -1,43 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import Kuroshiro from 'kuroshiro';
-import KuromojiAnalyzer from 'kuroshiro-analyzer-kuromoji';
 import prisma from '../../lib/prisma';
-
-let kuroshiro: Kuroshiro | null = null;
-let initializationPromise: Promise<Kuroshiro> | null = null;
-
-async function initKuroshiro(): Promise<Kuroshiro> {
-  // If already initialized, return immediately
-  if (kuroshiro) {
-    return kuroshiro;
-  }
-
-  // If initialization is already in progress, wait for it
-  if (initializationPromise) {
-    console.log('Waiting for existing initialization...');
-    return initializationPromise;
-  }
-
-  // Start initialization
-  console.log('Starting Kuroshiro initialization...');
-  initializationPromise = (async () => {
-    try {
-      const newKuroshiro = new Kuroshiro();
-      // On server-side, we can access node_modules directly
-      await newKuroshiro.init(new KuromojiAnalyzer());
-      console.log('Kuroshiro initialized successfully');
-      kuroshiro = newKuroshiro; // Only set after successful initialization
-      return kuroshiro;
-    } catch (error) {
-      console.error('Failed to initialize Kuroshiro:', error);
-      // Reset the promise so subsequent requests can retry
-      initializationPromise = null;
-      throw error;
-    }
-  })();
-
-  return initializationPromise;
-}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -69,27 +31,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Always wait for initialization to complete
-    const kuroshiroInstance = await initKuroshiro();
+    // Generate furigana using server-side API approach
+    const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
     
-    // Double-check that kuroshiro is properly initialized
-    if (!kuroshiroInstance) {
-      throw new Error('Kuroshiro instance is null after initialization');
-    }
+    const response = await fetch(`${appUrl}/api/openai`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        prompt: `Convert the following Japanese text to furigana format using HTML ruby tags. Only add furigana for kanji characters, leave hiragana and katakana as-is. Use this exact format: <ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>
 
-    const furiganaResult = await kuroshiroInstance.convert(japaneseText, {
-      mode: 'furigana',
-      to: 'hiragana'
+Text: ${japaneseText}`,
+        languageCode: 'ja',
+        model: 'gpt-4o-mini'
+      }),
     });
 
-    // If responseId is provided, cache the furigana result
+    if (!response.ok) {
+      throw new Error('Failed to generate furigana');
+    }
+
+    const data = await response.json();
+    const furiganaResult = data.result;
+
+    // If responseId is provided, try to cache the furigana result
     if (responseId) {
       try {
-        await prisma.gPTResponse.update({
+        // First check if the record exists before trying to update
+        const existingRecord = await prisma.gPTResponse.findUnique({
           where: { id: responseId },
-          data: { furigana: furiganaResult }
+          select: { id: true }
         });
-        console.log(`Cached furigana for response ${responseId}`);
+
+        if (existingRecord) {
+          await prisma.gPTResponse.update({
+            where: { id: responseId },
+            data: { furigana: furiganaResult }
+          });
+          console.log(`Cached furigana for response ${responseId}`);
+        } else {
+          console.log(`Response ${responseId} not found in database, skipping cache`);
+        }
       } catch (dbError) {
         console.error('Error caching furigana:', dbError);
         // Don't fail the request if caching fails
