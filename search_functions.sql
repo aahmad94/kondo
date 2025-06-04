@@ -1,4 +1,4 @@
--- Updated search functions with furigana support
+-- Updated search functions with furigana and phonetic support
 
 DROP FUNCTION IF EXISTS fuzzy_search_responses(text,text,text);
 CREATE OR REPLACE FUNCTION public.fuzzy_search_responses(
@@ -13,6 +13,7 @@ CREATE OR REPLACE FUNCTION public.fuzzy_search_responses(
   isPaused boolean,
   furigana text,
   isFuriganaEnabled boolean,
+  isPhoneticEnabled boolean,
   bookmarks jsonb
 ) LANGUAGE plpgsql AS $$
 BEGIN
@@ -25,6 +26,7 @@ BEGIN
     r."isPaused",
     r.furigana,
     r."isFuriganaEnabled",
+    r."isPhoneticEnabled",
     COALESCE(jsonb_object_agg(b.id, b.title) FILTER (WHERE b.id IS NOT NULL), '{}'::jsonb) AS bookmarks
   FROM "GPTResponse" r
   LEFT JOIN "_BookmarksToResponses" btr ON r.id = btr."B"
@@ -34,7 +36,7 @@ BEGIN
       SELECT l.id FROM "Language" l WHERE code = language_code
     )
     AND to_tsvector('simple', r.content) @@ to_tsquery('simple', search_query)
-  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled"
+  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled", r."isPhoneticEnabled"
   ORDER BY ts_rank(to_tsvector('simple', r.content), to_tsquery('simple', search_query)) DESC
   LIMIT 10;
 END;
@@ -53,6 +55,7 @@ CREATE OR REPLACE FUNCTION ilike_search_responses(
   isPaused boolean,
   furigana text,
   isFuriganaEnabled boolean,
+  isPhoneticEnabled boolean,
   bookmarks jsonb
 ) LANGUAGE plpgsql AS $$
 BEGIN
@@ -65,6 +68,7 @@ BEGIN
     r."isPaused",
     r.furigana,
     r."isFuriganaEnabled",
+    r."isPhoneticEnabled",
     COALESCE(
       jsonb_object_agg(b.id, b.title) FILTER (WHERE b.id IS NOT NULL),
       '{}'::jsonb
@@ -77,7 +81,7 @@ BEGIN
       SELECT l.id FROM "Language" l WHERE code = language_code
     )
     AND r.content ILIKE '%' || search_query || '%'
-  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled"
+  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled", r."isPhoneticEnabled"
   ORDER BY r."createdAt" DESC
   LIMIT 10;
 END;

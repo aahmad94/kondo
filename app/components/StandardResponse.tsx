@@ -51,6 +51,18 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     }
   }, [furiganaText, onFuriganaGenerated]);
 
+  // Sync furigana text with cached furigana prop changes
+  useEffect(() => {
+    setFuriganaText(cachedFurigana || '');
+  }, [cachedFurigana]);
+
+  // Reset furigana text when response content changes
+  useEffect(() => {
+    if (!cachedFurigana) {
+      setFuriganaText('');
+    }
+  }, [processedItems[0], cachedFurigana]);
+
   useEffect(() => {
     const generateFurigana = async () => {
       if (!shouldUseFurigana) return;
