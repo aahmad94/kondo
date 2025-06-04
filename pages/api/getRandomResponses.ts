@@ -29,7 +29,8 @@ export default async function handler(
         content: true,
         createdAt: true,
         updatedAt: true,
-        furigana: true
+        furigana: true,
+        isFuriganaEnabled: true
       },
     });
 

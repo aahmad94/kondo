@@ -52,7 +52,8 @@ export default async function handler(
         },
         createdAt: true,
         updatedAt: true,
-        furigana: true
+        furigana: true,
+        isFuriganaEnabled: true
       },
       orderBy: {
         createdAt: 'desc'
