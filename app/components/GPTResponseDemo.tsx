@@ -59,6 +59,9 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [showFuriganaDropdown, setShowFuriganaDropdown] = useState(false);
   const furiganaDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Phonetic toggle state
+  const [isPhoneticEnabled, setIsPhoneticEnabled] = useState(true);
+
   // Check if we should use furigana (Japanese text with kanji)
   const shouldUseFurigana = containsKanji(response.content.japanese) && isFuriganaEnabled;
 
@@ -107,6 +110,12 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   // Handle furigana toggle
   const handleFuriganaToggle = () => {
     setIsFuriganaEnabled(!isFuriganaEnabled);
+    setShowFuriganaDropdown(false);
+  };
+
+  // Handle phonetic toggle
+  const handlePhoneticToggle = () => {
+    setIsPhoneticEnabled(!isPhoneticEnabled);
     setShowFuriganaDropdown(false);
   };
 
@@ -409,7 +418,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
           {/* Right side - Plus button */}
           <div className="flex items-center gap-3">
-            {/* Furigana dropdown */}
+            {/* Language options dropdown */}
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
@@ -424,6 +433,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     : 'min-w-[120px] w-max'
                 }`}>
                   <div className="py-1">
+                    {/* Furigana toggle - only for Japanese */}
                     <button
                       onClick={handleFuriganaToggle}
                       className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
@@ -435,6 +445,22 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                           <span>Disable furigana</span>
                         ) : (
                           <span>Enable furigana</span>
+                        )}
+                      </span>
+                    </button>
+                    
+                    {/* Phonetic toggle */}
+                    <button
+                      onClick={handlePhoneticToggle}
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                        isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
+                      }`}
+                    >
+                      <span>
+                        {isPhoneticEnabled ? (
+                          <span>Hide phonetic</span>
+                        ) : (
+                          <span>Show phonetic</span>
                         )}
                       </span>
                     </button>
@@ -486,9 +512,11 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                   </div>
 
                   {/* Romanized text (skip hiragana when furigana is enabled) */}
-                  <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
-                    {response.content.romanized}
-                  </div>
+                  {isPhoneticEnabled && (
+                    <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+                      {response.content.romanized}
+                    </div>
+                  )}
 
                   {/* English translation */}
                   <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
@@ -508,9 +536,11 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                   </div>
 
                   {/* Romanized text */}
-                  <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
-                    {response.content.romanized}
-                  </div>
+                  {isPhoneticEnabled && (
+                    <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+                      {response.content.romanized}
+                    </div>
+                  )}
 
                   {/* English translation */}
                   <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">

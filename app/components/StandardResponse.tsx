@@ -11,9 +11,10 @@ interface StandardResponseProps {
   cachedFurigana?: string | null;
   onFuriganaGenerated?: (furigana: string) => void;
   isFuriganaEnabled?: boolean;
+  isPhoneticEnabled?: boolean;
 }
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false }: StandardResponseProps) {
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -27,6 +28,21 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
   // Check if this is a Japanese 4-line standard response that needs furigana
   const isJapaneseFourLine = selectedLanguage === 'ja' && processedItems.length === 4;
   const shouldUseFurigana = isJapaneseFourLine && containsKanji(processedItems[0]) && isFuriganaEnabled;
+
+  // Helper function to get phonetic line index based on language
+  const getPhoneticLineIndex = (language: string, itemsLength: number) => {
+    if (itemsLength < 3) return -1; // No phonetic line for 2-item responses
+    
+    switch (language) {
+      case 'ja': return itemsLength === 4 ? 2 : -1; // 3rd line (index 2) for 4-line Japanese
+      case 'zh': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Chinese
+      case 'ko': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Korean
+      case 'ar': return itemsLength === 4 ? 2 : -1; // 3rd line (index 2) for 4-line Arabic
+      default: return -1;
+    }
+  };
+
+  const phoneticLineIndex = getPhoneticLineIndex(selectedLanguage, processedItems.length);
 
   // Notify parent when furigana changes
   useEffect(() => {
@@ -92,9 +108,11 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           </div>
 
           {/* Second line - Romaji pronunciation (skip hiragana when furigana is enabled) */}
-          <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
-            {processedItems[2]}
-          </div>
+          {isPhoneticEnabled && (
+            <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+              {processedItems[2]}
+            </div>
+          )}
 
           {/* Third line - English translation */}
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
@@ -121,9 +139,11 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           </div>
 
           {/* Third line - Romaji pronunciation */}
-          <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
-            {processedItems[2]}
-          </div>
+          {isPhoneticEnabled && (
+            <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+              {processedItems[2]}
+            </div>
+          )}
 
           {/* Fourth line - English translation */}
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
@@ -149,13 +169,19 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             {processedItems[1]}
           </span>
         ) : processedItems.length === 3 ? (
-          <div className="text-sm opacity-80">
-            {processedItems[1]}
-          </div>
+          // For 3-item responses, check if line 1 is phonetic
+          phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
+            <div className="text-sm opacity-80">
+              {processedItems[1]}
+            </div>
+          )
         ) : processedItems.length === 4 ? (
-          <div className="text-sm opacity-80">
-            {processedItems[1]}
-          </div>
+          // For 4-item responses, check if line 1 is phonetic
+          phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
+            <div className="text-sm opacity-80">
+              {processedItems[1]}
+            </div>
+          )
         ) : null}
 
         {/* Third line - italic (for 4 items), or blue (for 3 items) */}
@@ -164,9 +190,12 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             {processedItems[2]}
           </span>
         ) : processedItems.length === 4 ? (
-          <div className="text-sm opacity-60 italic">
-            {processedItems[2]}
-          </div>
+          // For 4-item responses, check if line 2 is phonetic
+          phoneticLineIndex === 2 && !isPhoneticEnabled ? null : (
+            <div className="text-sm opacity-60 italic">
+              {processedItems[2]}
+            </div>
+          )
         ) : null}
 
         {/* Fourth line - blue (for 4 items) */}

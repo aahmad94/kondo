@@ -13,6 +13,7 @@ interface SearchResult {
   isPaused: boolean;
   furigana: string | null;
   isFuriganaEnabled: boolean;
+  isPhoneticEnabled: boolean;
   bookmarks: Record<string, string>;
 }
 
@@ -40,6 +41,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
         isPaused: result.ispaused,
         furigana: result.furigana || null,
         isFuriganaEnabled: result.isfuriganaenabled || false,
+        isPhoneticEnabled: result.isphoneticenabled !== undefined ? result.isphoneticenabled : true,
         bookmarks: result.bookmarks || {}
       }));
     }
@@ -65,6 +67,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
       isPaused: result.ispaused,
       furigana: result.furigana || null,
       isFuriganaEnabled: result.isfuriganaenabled || false,
+      isPhoneticEnabled: result.isphoneticenabled !== undefined ? result.isphoneticenabled : true,
       bookmarks: result.bookmarks || {}
     }));
   } catch (error) {

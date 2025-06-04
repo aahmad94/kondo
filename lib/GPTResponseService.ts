@@ -50,7 +50,8 @@ export async function getUserResponses(userId: string) {
         rank: true,
         createdAt: true,
         furigana: true,
-        isFuriganaEnabled: true
+        isFuriganaEnabled: true,
+        isPhoneticEnabled: true
       }
     });
 
@@ -347,6 +348,45 @@ export async function updateFuriganaEnabled(responseId: string, isFuriganaEnable
     return updatedResponse;
   } catch (error) {
     console.error('Error updating furigana enabled state:', error);
+    throw error;
+  }
+}
+
+export async function updatePhoneticEnabled(responseId: string, isPhoneticEnabled: boolean) {
+  if (!responseId) {
+    throw new Error('Response ID is required');
+  }
+
+  if (typeof isPhoneticEnabled !== 'boolean') {
+    throw new Error('isPhoneticEnabled must be a boolean value');
+  }
+
+  // Check if responseId includes 'temp' - if so, skip database operations
+  if (responseId.includes('temp')) {
+    console.log(`Skipping database update for temp response: ${responseId}`);
+    return { id: responseId, isPhoneticEnabled };
+  }
+
+  try {
+    // Check if the response exists
+    const response = await prisma.gPTResponse.findUnique({
+      where: { id: responseId }
+    });
+
+    if (!response) {
+      throw new Error('Response not found');
+    }
+
+    // Update the phonetic enabled state for the response
+    const updatedResponse = await prisma.gPTResponse.update({
+      where: { id: responseId },
+      data: { isPhoneticEnabled },
+      select: { id: true, isPhoneticEnabled: true }
+    });
+
+    return updatedResponse;
+  } catch (error) {
+    console.error('Error updating phonetic enabled state:', error);
     throw error;
   }
 } 

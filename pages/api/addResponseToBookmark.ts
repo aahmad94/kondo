@@ -3,7 +3,7 @@ import prisma from '../../lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { bookmarkId, gptResponseContent, userId, cachedAudio, breakdownContent, furigana, isFuriganaEnabled } = req.body as {
+    const { bookmarkId, gptResponseContent, userId, cachedAudio, breakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled } = req.body as {
       bookmarkId: string;
       gptResponseContent: string;
       userId: string;
@@ -11,6 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       breakdownContent?: string | null;
       furigana?: string | null;
       isFuriganaEnabled?: boolean | null;
+      isPhoneticEnabled?: boolean | null;
     };
 
     try {
@@ -46,6 +47,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }),
           ...(typeof isFuriganaEnabled === 'boolean' && {
             isFuriganaEnabled: isFuriganaEnabled
+          }),
+          ...(typeof isPhoneticEnabled === 'boolean' && {
+            isPhoneticEnabled: isPhoneticEnabled
           })
         },
       });

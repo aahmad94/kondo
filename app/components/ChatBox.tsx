@@ -29,8 +29,8 @@ interface Response {
   updatedAt: Date;
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
+  isPhoneticEnabled?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
-
 }
 
 interface BookmarkResponse {
@@ -42,6 +42,7 @@ interface BookmarkResponse {
   updatedAt: Date;
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
+  isPhoneticEnabled?: boolean;
 }
 
 const formatStats = (stats: {
@@ -269,6 +270,7 @@ export default function ChatBox({
         updatedAt: new Date(response.updatedAt),
         furigana: response.furigana,
         isFuriganaEnabled: response.isFuriganaEnabled,
+        isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
       }));
 
       // Sort responses using the new function
@@ -303,7 +305,8 @@ export default function ChatBox({
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
         furigana: response.furigana,
-        isFuriganaEnabled: response.isFuriganaEnabled
+        isFuriganaEnabled: response.isFuriganaEnabled,
+        isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
       }]));
       setBookmarkResponses(dict);
       setIsLoading(false);
@@ -346,7 +349,8 @@ export default function ChatBox({
           isPaused: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          isFuriganaEnabled: true
+          isFuriganaEnabled: true,
+          isPhoneticEnabled: true
         }
       }));
       setResponseQuote('');
@@ -362,7 +366,8 @@ export default function ChatBox({
           isPaused: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          isFuriganaEnabled: true
+          isFuriganaEnabled: true,
+          isPhoneticEnabled: true
         }
       }));
     } finally {
@@ -643,6 +648,37 @@ export default function ChatBox({
     }
   };
 
+  const handlePhoneticToggle = async (responseId: string, isPhoneticEnabled: boolean) => {
+    if (!session?.userId) return;
+
+    // Skip API call for temp responses
+    if (responseId.includes('temp')) {
+      // Update local state only for temp responses
+      updateResponseInCaches(responseId, { isPhoneticEnabled });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/updatePhoneticEnabled', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          responseId,
+          isPhoneticEnabled,
+        }),
+      });
+
+      if (response.ok) {
+        // Update all caches with new phonetic state
+        updateResponseInCaches(responseId, { isPhoneticEnabled });
+      }
+    } catch (error) {
+      console.error('Error toggling phonetic:', error);
+    }
+  };
+
   const handleGenerateSummary = async (forceRefresh: boolean = false) => {
     if (!session?.userId) return;
     
@@ -788,11 +824,13 @@ export default function ChatBox({
                       bookmarks={response.bookmarks}
                       furigana={response.furigana}
                       isFuriganaEnabled={response.isFuriganaEnabled}
+                      isPhoneticEnabled={response.isPhoneticEnabled}
                       onQuote={handleResponseQuote}
                       onRankUpdate={handleRankUpdate}
                       onDelete={handleResponseDelete}
                       onPauseToggle={handlePauseToggle}
                       onFuriganaToggle={handleFuriganaToggle}
+                      onPhoneticToggle={handlePhoneticToggle}
                       onBookmarkSelect={onBookmarkSelect}
                       selectedLanguage={selectedLanguage}
                       onLoadingChange={setIsLoading}
@@ -863,11 +901,13 @@ export default function ChatBox({
                   bookmarks={response.bookmarks}
                   furigana={response.furigana}
                   isFuriganaEnabled={response.isFuriganaEnabled}
+                  isPhoneticEnabled={response.isPhoneticEnabled}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
                   onDelete={handleResponseDelete}
                   onPauseToggle={handlePauseToggle}
                   onFuriganaToggle={handleFuriganaToggle}
+                  onPhoneticToggle={handlePhoneticToggle}
                   onBookmarkSelect={onBookmarkSelect}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
@@ -890,10 +930,13 @@ export default function ChatBox({
                   reservedBookmarkTitles={reservedBookmarkTitles}
                   responseId={response.id}
                   isPaused={response.isPaused}
+                  isFuriganaEnabled={response.isFuriganaEnabled}
+                  isPhoneticEnabled={response.isPhoneticEnabled}
                   onDelete={handleResponseDelete}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
                   onFuriganaToggle={handleFuriganaToggle}
+                  onPhoneticToggle={handlePhoneticToggle}
                   onBookmarkSelect={onBookmarkSelect}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}

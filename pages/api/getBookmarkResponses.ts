@@ -47,7 +47,8 @@ export default async function handler(
         createdAt: true,
         updatedAt: true,
         furigana: true,
-        isFuriganaEnabled: true
+        isFuriganaEnabled: true,
+        isPhoneticEnabled: true
       },
       orderBy: {
         rank: 'asc'

@@ -39,12 +39,14 @@ interface GPTResponseProps {
   isPaused?: boolean;
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
+  isPhoneticEnabled?: boolean;
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onFuriganaToggle?: (responseId: string, isFuriganaEnabled: boolean) => Promise<void>;
+  onPhoneticToggle?: (responseId: string, isPhoneticEnabled: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
   bookmarks?: Record<string, string>;
@@ -66,11 +68,13 @@ export default function GPTResponse({
   isPaused = false,
   furigana,
   isFuriganaEnabled = false,
+  isPhoneticEnabled = false,
   onDelete, 
   onQuote,
   onRankUpdate,
   onPauseToggle,
   onFuriganaToggle,
+  onPhoneticToggle,
   onGenerateSummary,
   onBookmarkSelect,
   bookmarks,
@@ -122,8 +126,21 @@ export default function GPTResponse({
   const [showFuriganaDropdown, setShowFuriganaDropdown] = useState(false);
   const furiganaDropdownRef = useRef<HTMLDivElement>(null);
   
+  // Phonetic toggle state - initialize from props
+  const [localPhoneticEnabled, setLocalPhoneticEnabled] = useState(isPhoneticEnabled);
+  
   // Track current furigana (starts with cached furigana, gets updated when new furigana is generated)
   const [currentFurigana, setCurrentFurigana] = useState<string | null>(furigana || null);
+
+  // Sync local furigana state with prop changes
+  useEffect(() => {
+    setLocalFuriganaEnabled(isFuriganaEnabled);
+  }, [isFuriganaEnabled]);
+
+  // Sync local phonetic state with prop changes
+  useEffect(() => {
+    setLocalPhoneticEnabled(isPhoneticEnabled);
+  }, [isPhoneticEnabled]);
 
   // Handle furigana updates from StandardResponse
   const handleFuriganaGenerated = (newFurigana: string) => {
@@ -158,6 +175,24 @@ export default function GPTResponse({
         console.error('Error updating furigana enabled state:', error);
         // Revert the state if the API call fails
         setLocalFuriganaEnabled(!newState);
+      }
+    }
+  };
+
+  // Handle phonetic toggle
+  const handlePhoneticToggle = async () => {
+    const newState = !localPhoneticEnabled;
+    setLocalPhoneticEnabled(newState);
+    setShowFuriganaDropdown(false);
+
+    // Use parent's handler if available and we have a responseId
+    if (responseId && onPhoneticToggle) {
+      try {
+        await onPhoneticToggle(responseId, newState);
+      } catch (error) {
+        console.error('Error updating phonetic enabled state:', error);
+        // Revert the state if the API call fails
+        setLocalPhoneticEnabled(!newState);
       }
     }
   };
@@ -724,8 +759,8 @@ export default function GPTResponse({
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          {/* Furigana dropdown - only show for Japanese language and when there's an expression */}
-          {selectedLanguage === 'ja' && type !== 'instruction' && hasExpression && (
+          {/* Language options dropdown - show for non-English languages except Spanish */}
+          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && hasExpression && (
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
@@ -740,17 +775,36 @@ export default function GPTResponse({
                     : 'min-w-[120px] w-max'
                 }`}>
                   <div className="py-1">
+                    {/* Furigana toggle - only for Japanese */}
+                    {selectedLanguage === 'ja' && (
+                      <button
+                        onClick={handleFuriganaToggle}
+                        className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                          isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
+                        }`}
+                      >
+                        <span>
+                          {localFuriganaEnabled ? (
+                            <span>Disable furigana</span>
+                          ) : (
+                            <span>Enable furigana</span>
+                          )}
+                        </span>
+                      </button>
+                    )}
+                    
+                    {/* Phonetic toggle - for all supported languages */}
                     <button
-                      onClick={handleFuriganaToggle}
+                      onClick={handlePhoneticToggle}
                       className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
                         isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                       }`}
                     >
                       <span>
-                        {localFuriganaEnabled ? (
-                          <span>Disable furigana</span>
+                        {localPhoneticEnabled ? (
+                          <span>Hide phonetic</span>
                         ) : (
-                          <span>Enable furigana</span>
+                          <span>Show phonetic</span>
                         )}
                       </span>
                     </button>
@@ -850,6 +904,7 @@ export default function GPTResponse({
                       cachedFurigana={currentFurigana}
                       onFuriganaGenerated={handleFuriganaGenerated}
                       isFuriganaEnabled={localFuriganaEnabled}
+                      isPhoneticEnabled={localPhoneticEnabled}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
