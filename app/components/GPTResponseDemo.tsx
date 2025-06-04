@@ -418,11 +418,17 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                 <ChevronDownIcon className="h-6 w-6" />
               </button>
               {showFuriganaDropdown && (
-                <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 min-w-[120px] w-max rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60]">
+                <div className={`absolute left-1/2 transform -translate-x-1/2 top-full mt-2 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60] ${
+                  isMobile 
+                    ? 'min-w-[80px] w-[100px] max-w-[100px]' 
+                    : 'min-w-[120px] w-max'
+                }`}>
                   <div className="py-1">
                     <button
                       onClick={handleFuriganaToggle}
-                      className="flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                        isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
+                      }`}
                     >
                       <span>
                         {isFuriganaEnabled ? (
