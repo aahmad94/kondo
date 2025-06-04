@@ -448,7 +448,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                   ref={plusButtonRef}
                   onMouseEnter={() => setIsPlusHovered(true)}
                   onMouseLeave={() => setIsPlusHovered(false)}
-                  className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
+                  className="text-white hover:text-blue-400 transition-colors duration-200 pr-3"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
@@ -456,7 +456,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             ) : (
               <button 
                 ref={plusButtonRef}
-                className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
+                className="text-white hover:text-blue-400 transition-colors duration-200 pr-3"
               >
                 <PlusIcon className="h-6 w-6" />
               </button>
