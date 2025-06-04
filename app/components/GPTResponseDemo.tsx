@@ -408,9 +408,9 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
           </div>
 
           {/* Right side - Plus button */}
-          <div className="flex items-center gap-3 px-3">
+          <div className="flex items-center gap-3">
             {/* Furigana dropdown */}
-            <div className="relative" ref={furiganaDropdownRef}>
+            <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
                 className="text-white hover:text-gray-300 transition-colors duration-200"
@@ -418,23 +418,19 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                 <ChevronDownIcon className="h-6 w-6" />
               </button>
               {showFuriganaDropdown && (
-                <div className="absolute right-0 mt-2 min-w-[180px] w-max rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60]">
+                <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 min-w-[120px] w-max rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60]">
                   <div className="py-1">
                     <button
                       onClick={handleFuriganaToggle}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
+                      className="flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
                     >
-                      <span className="flex items-center gap-2">
-                        <span>Furigana</span>
-                        <ruby className="text-base">
-                          今<rt className="text-xs">きょう</rt>
-                        </ruby>
+                      <span>
+                        {isFuriganaEnabled ? (
+                          <span>Disable furigana</span>
+                        ) : (
+                          <span>Enable furigana</span>
+                        )}
                       </span>
-                      {isFuriganaEnabled ? (
-                        <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircleIcon className="h-4 w-4 text-red-500" />
-                      )}
                     </button>
                   </div>
                 </div>
@@ -452,7 +448,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                   ref={plusButtonRef}
                   onMouseEnter={() => setIsPlusHovered(true)}
                   onMouseLeave={() => setIsPlusHovered(false)}
-                  className="text-white hover:text-blue-400 transition-colors duration-200"
+                  className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
@@ -460,7 +456,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             ) : (
               <button 
                 ref={plusButtonRef}
-                className="text-white hover:text-blue-400 transition-colors duration-200"
+                className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
               >
                 <PlusIcon className="h-6 w-6" />
               </button>

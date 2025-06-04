@@ -139,7 +139,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
           <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
-          <span className="text-white text-sm mt-1">View Demo</span>
+          <span className="text-white max-w-[150px] text-center text-wrap text-sm mt-1">Scroll down to view demo</span>
         </div>
       )}
     </div>
