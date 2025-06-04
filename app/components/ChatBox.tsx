@@ -453,6 +453,59 @@ export default function ChatBox({
     setResponseQuote(null);
   };
 
+  // Utility function to update a response across all cache states
+  const updateResponseInCaches = (responseId: string, updates: Partial<Response | BookmarkResponse>) => {
+    // Update responses state
+    setResponses(prev => {
+      const updated = { ...prev };
+      if (updated[responseId]) {
+        updated[responseId] = {
+          ...updated[responseId],
+          ...updates,
+        };
+      }
+      return updated;
+    });
+
+    // Update bookmarkResponses state
+    setBookmarkResponses(prev => {
+      const updated = { ...prev };
+      if (updated[responseId]) {
+        updated[responseId] = {
+          ...updated[responseId],
+          ...updates,
+        };
+      }
+      return updated;
+    });
+
+    // Update dailySummaryCache if it exists
+    setDailySummaryCache(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev };
+      if (updated[responseId]) {
+        updated[responseId] = {
+          ...updated[responseId],
+          ...updates,
+        };
+      }
+      return updated;
+    });
+
+    // Update searchResultsCache if it exists
+    setSearchResultsCache(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev };
+      if (updated[responseId]) {
+        updated[responseId] = {
+          ...updated[responseId],
+          ...updates,
+        };
+      }
+      return updated;
+    });
+  };
+
   const handleRankUpdate = async (responseId: string, newRank: number) => {
     if (!session?.userId) return;
     
@@ -483,29 +536,8 @@ export default function ChatBox({
       });
 
       if (response.ok) {        
-        // Update responses state
-        setResponses(prev => {
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              rank: newRank,
-            };
-          }
-          return updated;
-        });
-
-        // Update bookmarkResponses state
-        setBookmarkResponses(prev => {
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              rank: newRank,
-            };
-          }
-          return updated;
-        });
+        // Update all caches with new rank
+        updateResponseInCaches(responseId, { rank: newRank });
 
         // Update local stats to reflect the rank change
         setResponseStats(prev => {
@@ -571,43 +603,8 @@ export default function ChatBox({
       });
 
       if (response.ok) {
-        // Update responses state
-        setResponses(prev => {
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              isPaused,
-            };
-          }
-          return updated;
-        });
-
-        // Update bookmarkResponses state
-        setBookmarkResponses(prev => {
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              isPaused,
-            };
-          }
-          return updated;
-        });
-
-        // Update dailySummaryCache if it exists
-        setDailySummaryCache(prev => {
-          if (!prev) return prev;
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              isPaused,
-            };
-          }
-          return updated;
-        });
-
+        // Update all caches with new pause state
+        updateResponseInCaches(responseId, { isPaused });
         trackPauseToggle(isPaused);
       }
     } catch (error) {
@@ -621,39 +618,7 @@ export default function ChatBox({
     // Skip API call for temp responses
     if (responseId.includes('temp')) {
       // Update local state only for temp responses
-      setResponses(prev => {
-        const updated = { ...prev };
-        if (updated[responseId]) {
-          updated[responseId] = {
-            ...updated[responseId],
-            isFuriganaEnabled,
-          };
-        }
-        return updated;
-      });
-
-      setBookmarkResponses(prev => {
-        const updated = { ...prev };
-        if (updated[responseId]) {
-          updated[responseId] = {
-            ...updated[responseId],
-            isFuriganaEnabled,
-          };
-        }
-        return updated;
-      });
-
-      setDailySummaryCache(prev => {
-        if (!prev) return prev;
-        const updated = { ...prev };
-        if (updated[responseId]) {
-          updated[responseId] = {
-            ...updated[responseId],
-            isFuriganaEnabled,
-          };
-        }
-        return updated;
-      });
+      updateResponseInCaches(responseId, { isFuriganaEnabled });
       return;
     }
 
@@ -670,55 +635,8 @@ export default function ChatBox({
       });
 
       if (response.ok) {
-        // Update responses state
-        setResponses(prev => {
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              isFuriganaEnabled,
-            };
-          }
-          return updated;
-        });
-
-        // Update bookmarkResponses state
-        setBookmarkResponses(prev => {
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              isFuriganaEnabled,
-            };
-          }
-          return updated;
-        });
-
-        // Update dailySummaryCache if it exists
-        setDailySummaryCache(prev => {
-          if (!prev) return prev;
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              isFuriganaEnabled,
-            };
-          }
-          return updated;
-        });
-
-        // Update searchResultsCache if it exists
-        setSearchResultsCache(prev => {
-          if (!prev) return prev;
-          const updated = { ...prev };
-          if (updated[responseId]) {
-            updated[responseId] = {
-              ...updated[responseId],
-              isFuriganaEnabled,
-            };
-          }
-          return updated;
-        });
+        // Update all caches with new furigana state
+        updateResponseInCaches(responseId, { isFuriganaEnabled });
       }
     } catch (error) {
       console.error('Error toggling furigana:', error);
