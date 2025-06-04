@@ -38,6 +38,7 @@ interface GPTResponseProps {
   type?: 'instruction' | 'response';
   isPaused?: boolean;
   furigana?: string | null;
+  isFuriganaEnabled?: boolean;
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
@@ -63,6 +64,7 @@ export default function GPTResponse({
   type = 'response',
   isPaused = false,
   furigana,
+  isFuriganaEnabled = false,
   onDelete, 
   onQuote,
   onRankUpdate,
@@ -113,8 +115,8 @@ export default function GPTResponse({
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
   const { isMobile, offset } = useIsMobile();
   
-  // Furigana toggle state
-  const [isFuriganaEnabled, setIsFuriganaEnabled] = useState(false);
+  // Furigana toggle state - initialize from props
+  const [localFuriganaEnabled, setLocalFuriganaEnabled] = useState(isFuriganaEnabled);
   const [showFuriganaDropdown, setShowFuriganaDropdown] = useState(false);
   const furiganaDropdownRef = useRef<HTMLDivElement>(null);
   
@@ -141,9 +143,30 @@ export default function GPTResponse({
   }, []);
 
   // Handle furigana toggle
-  const handleFuriganaToggle = () => {
-    setIsFuriganaEnabled(!isFuriganaEnabled);
+  const handleFuriganaToggle = async () => {
+    const newState = !localFuriganaEnabled;
+    setLocalFuriganaEnabled(newState);
     setShowFuriganaDropdown(false);
+
+    // Update database if we have a responseId and it's not a temp response
+    if (responseId && !responseId.includes('temp')) {
+      try {
+        await fetch('/api/updateFuriganaEnabled', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            responseId,
+            isFuriganaEnabled: newState
+          }),
+        });
+      } catch (error) {
+        console.error('Error updating furigana enabled state:', error);
+        // Revert the state if the API call fails
+        setLocalFuriganaEnabled(!newState);
+      }
+    }
   };
 
   // Helper to check if a block should use StandardResponse styling
@@ -725,7 +748,7 @@ export default function GPTResponse({
                       className="flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
                     >
                       <span>
-                        {isFuriganaEnabled ? (
+                        {localFuriganaEnabled ? (
                           <span>Disable furigana</span>
                         ) : (
                           <span>Enable furigana</span>
@@ -827,7 +850,7 @@ export default function GPTResponse({
                       responseId={responseId}
                       cachedFurigana={currentFurigana}
                       onFuriganaGenerated={handleFuriganaGenerated}
-                      isFuriganaEnabled={isFuriganaEnabled}
+                      isFuriganaEnabled={localFuriganaEnabled}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
@@ -908,6 +931,7 @@ export default function GPTResponse({
           cachedAudio={cachedAudio}
           breakdownContent={breakdownContent}
           furigana={currentFurigana}
+          isFuriganaEnabled={localFuriganaEnabled}
           onBookmarkCreated={onBookmarkCreated}
           onBookmarkSelect={onBookmarkSelect}
         />

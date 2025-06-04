@@ -15,8 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Japanese text is required' });
     }
 
-    // If responseId is provided, check for cached furigana first
-    if (responseId) {
+    // If responseId is provided and it's not a temp response, check for cached furigana first
+    if (responseId && !responseId.includes('temp')) {
       try {
         const cachedResponse = await prisma.gPTResponse.findUnique({
           where: { id: responseId },
@@ -60,8 +60,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = await response.json();
     const furiganaResult = data.result;
 
-    // If responseId is provided, try to cache the furigana result
-    if (responseId) {
+    // If responseId is provided and it's not a temp response, try to cache the furigana result
+    if (responseId && !responseId.includes('temp')) {
       try {
         // First check if the record exists before trying to update
         const existingRecord = await prisma.gPTResponse.findUnique({
@@ -83,7 +83,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Don't fail the request if caching fails
       }
     }
-
     res.status(200).json({ furigana: furiganaResult });
   } catch (error) {
     console.error('Error generating furigana:', error);

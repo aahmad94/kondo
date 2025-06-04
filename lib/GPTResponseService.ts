@@ -49,7 +49,8 @@ export async function getUserResponses(userId: string) {
         content: true,
         rank: true,
         createdAt: true,
-        furigana: true
+        furigana: true,
+        isFuriganaEnabled: true
       }
     });
 
@@ -307,6 +308,45 @@ export async function getBreakdown(text: string, language: string, responseId?: 
     return breakdown;
   } catch (error) {
     console.error('Error generating breakdown:', error);
+    throw error;
+  }
+}
+
+export async function updateFuriganaEnabled(responseId: string, isFuriganaEnabled: boolean) {
+  if (!responseId) {
+    throw new Error('Response ID is required');
+  }
+
+  if (typeof isFuriganaEnabled !== 'boolean') {
+    throw new Error('isFuriganaEnabled must be a boolean value');
+  }
+
+  // Check if responseId includes 'temp' - if so, skip database operations
+  if (responseId.includes('temp')) {
+    console.log(`Skipping database update for temp response: ${responseId}`);
+    return { id: responseId, isFuriganaEnabled };
+  }
+
+  try {
+    // Check if the response exists
+    const response = await prisma.gPTResponse.findUnique({
+      where: { id: responseId }
+    });
+
+    if (!response) {
+      throw new Error('Response not found');
+    }
+
+    // Update the furigana enabled state for the response
+    const updatedResponse = await prisma.gPTResponse.update({
+      where: { id: responseId },
+      data: { isFuriganaEnabled },
+      select: { id: true, isFuriganaEnabled: true }
+    });
+
+    return updatedResponse;
+  } catch (error) {
+    console.error('Error updating furigana enabled state:', error);
     throw error;
   }
 } 

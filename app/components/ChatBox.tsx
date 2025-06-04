@@ -28,6 +28,7 @@ interface Response {
   createdAt: Date;
   updatedAt: Date;
   furigana?: string | null;
+  isFuriganaEnabled?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
 
 }
@@ -40,6 +41,7 @@ interface BookmarkResponse {
   createdAt: Date;
   updatedAt: Date;
   furigana?: string | null;
+  isFuriganaEnabled?: boolean;
 }
 
 const formatStats = (stats: {
@@ -266,6 +268,7 @@ export default function ChatBox({
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
         furigana: response.furigana,
+        isFuriganaEnabled: response.isFuriganaEnabled,
       }));
 
       // Sort responses using the new function
@@ -299,7 +302,8 @@ export default function ChatBox({
         bookmarks: response.bookmarks,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
-        furigana: response.furigana
+        furigana: response.furigana,
+        isFuriganaEnabled: response.isFuriganaEnabled
       }]));
       setBookmarkResponses(dict);
       setIsLoading(false);
@@ -341,7 +345,8 @@ export default function ChatBox({
           rank: 1,
           isPaused: false,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          isFuriganaEnabled: true
         }
       }));
       setResponseQuote('');
@@ -356,7 +361,8 @@ export default function ChatBox({
           rank: 1,
           isPaused: false,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          isFuriganaEnabled: true
         }
       }));
     } finally {
@@ -634,7 +640,8 @@ export default function ChatBox({
           rank: response.rank,
           createdAt: new Date(response.createdAt),
           isPaused: response.isPaused,
-          bookmarks: response.bookmarks
+          bookmarks: response.bookmarks,
+          isFuriganaEnabled: response.isFuriganaEnabled
         }));
 
         // Sort responses using the new function
@@ -752,6 +759,7 @@ export default function ChatBox({
                       isPaused={response.isPaused}
                       bookmarks={response.bookmarks}
                       furigana={response.furigana}
+                      isFuriganaEnabled={response.isFuriganaEnabled}
                       onQuote={handleResponseQuote}
                       onRankUpdate={handleRankUpdate}
                       onDelete={handleResponseDelete}
@@ -824,6 +832,7 @@ export default function ChatBox({
                   isPaused={response.isPaused}
                   bookmarks={response.bookmarks}
                   furigana={response.furigana}
+                  isFuriganaEnabled={response.isFuriganaEnabled}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
                   onDelete={handleResponseDelete}

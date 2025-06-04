@@ -17,6 +17,7 @@ interface BookmarksModalProps {
   cachedAudio?: { audio: string; mimeType: string } | null;
   breakdownContent?: string | null;
   furigana?: string | null;
+  isFuriganaEnabled?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
 }
@@ -29,6 +30,7 @@ export default function BookmarksModal({
   cachedAudio,
   breakdownContent,
   furigana,
+  isFuriganaEnabled,
   onBookmarkCreated,
   onBookmarkSelect
 }: BookmarksModalProps) {
@@ -83,7 +85,8 @@ export default function BookmarksModal({
           userId: session.userId,
           cachedAudio,
           breakdownContent,
-          furigana
+          furigana,
+          isFuriganaEnabled
         }),
       });
 

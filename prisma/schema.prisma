@@ -88,22 +88,23 @@ model UserLanguagePreference {
 }
 
 model GPTResponse {
-  id             String         @id @default(cuid())
-  content        String
-  createdAt      DateTime       @default(now())
-  userId         String
-  rank           Int?           @default(1)
-  languageId     String
-  isPaused       Boolean        @default(false)
-  updatedAt      DateTime       @updatedAt
-  audio          String?
-  audioMimeType  String?
-  breakdown      String?
-  furigana       String?
-  language       Language       @relation(fields: [languageId], references: [id])
-  user           User           @relation(fields: [userId], references: [id])
-  bookmarks      Bookmark[]     @relation("BookmarksToResponses")
-  dailySummaries DailySummary[] @relation("DailySummaryToResponses")
+  id                String         @id @default(cuid())
+  content           String
+  createdAt         DateTime       @default(now())
+  userId            String
+  rank              Int?           @default(1)
+  languageId        String
+  isPaused          Boolean        @default(false)
+  isFuriganaEnabled Boolean        @default(false)
+  updatedAt         DateTime       @updatedAt
+  audio             String?
+  audioMimeType     String?
+  breakdown         String?
+  furigana          String?
+  language          Language       @relation(fields: [languageId], references: [id])
+  user              User           @relation(fields: [userId], references: [id])
+  bookmarks         Bookmark[]     @relation("BookmarksToResponses")
+  dailySummaries    DailySummary[] @relation("DailySummaryToResponses")
 }
 
 model Bookmark {
