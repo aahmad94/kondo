@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../lib/prisma';
+import fs from 'fs';
+import path from 'path';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -31,6 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // Load furigana prompt from file
+    const promptPath = path.join(process.cwd(), 'prompts', 'furigana_prompt.txt');
+    const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
+    const prompt = promptTemplate.replace('{japaneseText}', japaneseText);
+
     // Generate furigana using server-side API approach
     const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
     
@@ -40,11 +47,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ 
-        prompt: `Convert the following Japanese text to furigana format using HTML ruby tags. Only add furigana for kanji characters, leave hiragana and katakana as-is. Use this exact format: <ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby>
-
-Text: ${japaneseText}`,
+        prompt: prompt,
         languageCode: 'ja',
-        model: 'gpt-4o-mini'
+        model: 'gpt-4o'
       }),
     });
 
