@@ -106,51 +106,18 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     generateFurigana();
   }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount, responseId, cachedFurigana]);
 
-  // If this is a Japanese 4-line response with kanji and furigana is enabled, render the enhanced version
-  if (shouldUseFurigana) {
+  // If this is a Japanese 4-line response, render the enhanced version
+  if (isJapaneseFourLine) {
     return (
       <div className="pr-3" style={{ color: '#b59f3b' }}>
         <div className="space-y-2">
-          {/* First line - Japanese text with furigana */}
+          {/* First line - Japanese text with or without furigana */}
           <div className="text-xl font-medium">
-            {furiganaText && !isLoading ? (
+            {shouldUseFurigana && furiganaText && !isLoading ? (
               <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
             ) : (
               <span>{processedItems[0]}</span>
             )}
-          </div>
-
-          {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
-          {isKanaEnabled && (
-            <div className="text-sm opacity-80">
-              {processedItems[1]}
-            </div>
-          )}
-
-          {/* Third line - Romaji pronunciation */}
-          {isPhoneticEnabled && (
-            <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
-              {processedItems[2]}
-            </div>
-          )}
-
-          {/* Fourth line - English translation */}
-          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
-            {processedItems[3]}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  // For Japanese 4-line responses when furigana is disabled, show all 4 lines
-  if (isJapaneseFourLine && !isFuriganaEnabled) {
-    return (
-      <div className="pr-3" style={{ color: '#b59f3b' }}>
-        <div className="space-y-2">
-          {/* First line - Japanese text without furigana */}
-          <div className="text-xl font-medium">
-            {processedItems[0]}
           </div>
 
           {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
