@@ -11,7 +11,7 @@ const DOJO_INSTRUCTIONS = `
   There are 9 responses: 4 hard, 3 medium, 2 easy.
   Click the refresh (🔄) button above to manually generate new material.
   
-  Challenge: hide romanization from a response via the dropdown menu.`
+  Challenge: hide romanization and/or kana from a response via the dropdown menu.`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
