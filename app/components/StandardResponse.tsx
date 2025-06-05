@@ -43,6 +43,9 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     }
   };
 
+  console.log(cachedFurigana);
+  console.log(items);
+
   const phoneticLineIndex = getPhoneticLineIndex(selectedLanguage, processedItems.length);
 
   // Notify parent when furigana changes
