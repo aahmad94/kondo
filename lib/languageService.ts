@@ -9,7 +9,9 @@ const DOJO_INSTRUCTIONS = `
   This tool creates material to review daily after 12:00 EST.
 
   There are 9 responses: 4 hard, 3 medium, 2 easy.
-  Click the refresh (🔄) button above to manually generate new material.`
+  Click the refresh (🔄) button above to manually generate new material.
+  
+  Challenge: hide romanization from a response via the dropdown menu.`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
@@ -56,7 +58,10 @@ const SPANISH_INSTRUCTIONS = {
   4/ alphabet: phonetic table of Spanish script and romanization
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: DOJO_INSTRUCTIONS,
+  dailySummary: `This tool creates material to review daily after 12:00 EST.
+
+  There are 9 responses: 4 hard, 3 medium, 2 easy.
+  Click the refresh (🔄) button above to manually generate new material.`,
 };
 
 const ARABIC_INSTRUCTIONS = {
