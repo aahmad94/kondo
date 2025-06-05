@@ -58,8 +58,8 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
       >
         {/* Slide 1: Kondo description + sign-in */}
         <SwiperSlide>
-          <div className="flex items-center justify-center min-h-screen w-full bg-gray-900 relative">
-            <div className="w-full max-w-4xl bg-gray-800 rounded-sm shadow-lg overflow-hidden m-4">
+          <div className={`flex items-center justify-center w-full bg-gray-900 relative ${isMobile ? 'min-h-[100dvh] py-4' : 'min-h-screen'}`}>
+            <div className={`w-full max-w-4xl bg-gray-800 rounded-sm shadow-lg overflow-hidden ${isMobile ? 'mx-4 my-auto' : 'm-4'}`}>
               <div className="flex flex-col md:flex-row">
                 {/* Left section with headers */}
                 <div className="p-8 md:w-2/3">
@@ -135,7 +135,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
       {/* Animated down arrow cue: only show on first slide */}
       {activeIndex === 0 && (
-        <div className="fixed left-[calc(50%-75px)] bottom-3 md:bottom-12 flex flex-col items-center opacity-80 animate-bounce z-40">
+        <div className={`fixed left-[calc(50%-75px)] flex flex-col items-center opacity-80 animate-bounce z-40 ${isMobile ? 'bottom-16' : 'bottom-3 md:bottom-12'}`}>
           <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
