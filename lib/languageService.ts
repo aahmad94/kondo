@@ -6,12 +6,14 @@ interface LanguageInstructions {
 }
 
 const DOJO_INSTRUCTIONS = `
-  This tool creates material to review daily after 12:00 EST.
+  This tool pulls responses from your bookmarks to review daily after 12:00 EST.
 
-  There are 9 responses: 4 hard, 3 medium, 2 easy.
   Click the refresh (🔄) button above to manually generate new material.
   
-  Challenge: hide romanization and/or kana from a response via the dropdown menu.`
+  There are 9 responses: 4 hard, 3 medium, 2 easy.
+  
+  **Bonus**
+  Challenge yourself by hiding romanization from the dropdown menu of a response.`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
@@ -26,7 +28,15 @@ const JAPANESE_INSTRUCTIONS = {
   4/ alphabet: phonetic table of hiragana/katakana and romaji
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: DOJO_INSTRUCTIONS
+  dailySummary: `
+    This tool creates material to review daily after 12:00 EST.
+    
+    Click the refresh (🔄) button above to manually generate new material.
+    
+    There are 9 responses: 4 hard, 3 medium, 2 easy.
+
+    **Bonus**
+    Challenge yourself by hiding romanization and/or kana from the dropdown menu of a response.`
 };
 
 const KOREAN_INSTRUCTIONS = {
@@ -58,10 +68,11 @@ const SPANISH_INSTRUCTIONS = {
   4/ alphabet: phonetic table of Spanish script and romanization
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `This tool creates material to review daily after 12:00 EST.
+  dailySummary: `
+    This tool creates material to review daily after 12:00 EST.
 
-  There are 9 responses: 4 hard, 3 medium, 2 easy.
-  Click the refresh (🔄) button above to manually generate new material.`,
+    There are 9 responses: 4 hard, 3 medium, 2 easy.
+    Click the refresh (🔄) button above to manually generate new material.`,
 };
 
 const ARABIC_INSTRUCTIONS = {
