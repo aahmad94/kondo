@@ -155,7 +155,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-sm bg-[#111111] p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-visible rounded-sm bg-[#111111] p-6 text-left align-middle shadow-xl transition-all">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-2">
                   {/* Left: action icons */}
@@ -328,7 +328,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
 
                 {/* Breakdown content */}
                 <div className="pt-2">
-                  <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto max-h-96" style={{ color: '#b59f3b' }}>
+                  <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-96" style={{ color: '#b59f3b' }}>
                     <Markdown>{breakdown}</Markdown>
                   </div>
                 </div>
