@@ -349,7 +349,7 @@ export default function ChatBox({
           isPaused: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          isFuriganaEnabled: true,
+          isFuriganaEnabled: false,
           isPhoneticEnabled: true
         }
       }));
@@ -366,7 +366,7 @@ export default function ChatBox({
           isPaused: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          isFuriganaEnabled: true,
+          isFuriganaEnabled: false,
           isPhoneticEnabled: true
         }
       }));
