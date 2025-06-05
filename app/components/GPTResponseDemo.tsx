@@ -113,19 +113,25 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   // Handle furigana toggle
   const handleFuriganaToggle = () => {
     setIsFuriganaEnabled(!isFuriganaEnabled);
-    setShowFuriganaDropdown(false);
+    // Only close dropdown for non-Japanese languages (Japanese has multiple options)
+    // Note: GPTResponseDemo is always Japanese, so we keep it open
+    // setShowFuriganaDropdown(false);
   };
 
   // Handle phonetic toggle
   const handlePhoneticToggle = () => {
     setIsPhoneticEnabled(!isPhoneticEnabled);
-    setShowFuriganaDropdown(false);
+    // Only close dropdown for non-Japanese languages (Japanese has multiple options)
+    // Note: GPTResponseDemo is always Japanese, so we keep it open
+    // setShowFuriganaDropdown(false);
   };
 
   // Handle kana toggle
   const handleKanaToggle = () => {
     setIsKanaEnabled(!isKanaEnabled);
-    setShowFuriganaDropdown(false);
+    // Only close dropdown for non-Japanese languages (Japanese has multiple options)
+    // Note: GPTResponseDemo is always Japanese, so we keep it open
+    // setShowFuriganaDropdown(false);
   };
 
   // Handle rank color changes based on rank value

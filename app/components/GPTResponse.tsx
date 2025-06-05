@@ -177,7 +177,10 @@ export default function GPTResponse({
   const handleFuriganaToggle = async () => {
     const newState = !localFuriganaEnabled;
     setLocalFuriganaEnabled(newState);
-    setShowFuriganaDropdown(false);
+    // Only close dropdown for non-Japanese languages (Japanese has multiple options)
+    if (selectedLanguage !== 'ja') {
+      setShowFuriganaDropdown(false);
+    }
 
     // Use parent's handler if available and we have a responseId
     if (responseId && onFuriganaToggle) {
@@ -195,7 +198,10 @@ export default function GPTResponse({
   const handlePhoneticToggle = async () => {
     const newState = !localPhoneticEnabled;
     setLocalPhoneticEnabled(newState);
-    setShowFuriganaDropdown(false);
+    // Only close dropdown for non-Japanese languages (Japanese has multiple options)
+    if (selectedLanguage !== 'ja') {
+      setShowFuriganaDropdown(false);
+    }
 
     // Use parent's handler if available and we have a responseId
     if (responseId && onPhoneticToggle) {
@@ -213,7 +219,10 @@ export default function GPTResponse({
   const handleKanaToggle = async () => {
     const newState = !localKanaEnabled;
     setLocalKanaEnabled(newState);
-    setShowFuriganaDropdown(false);
+    // Only close dropdown for non-Japanese languages (Japanese has multiple options)
+    if (selectedLanguage !== 'ja') {
+      setShowFuriganaDropdown(false);
+    }
 
     // Use parent's handler if available and we have a responseId
     if (responseId && onKanaToggle) {
