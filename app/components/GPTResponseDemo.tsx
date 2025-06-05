@@ -456,11 +456,11 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                         isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                       }`}
                     >
-                      <span>
+                      <span className={isMobile ? 'truncate' : ''}>
                         {isPhoneticEnabled ? (
-                          <span>Hide phonetic</span>
+                          <span>Hide romanization</span>
                         ) : (
-                          <span>Show phonetic</span>
+                          <span>Show romanization</span>
                         )}
                       </span>
                     </button>

@@ -800,11 +800,11 @@ export default function GPTResponse({
                         isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                       }`}
                     >
-                      <span>
+                      <span className={isMobile ? 'truncate' : ''}>
                         {localPhoneticEnabled ? (
-                          <span>Hide phonetic</span>
+                          <span>Hide romanization</span>
                         ) : (
-                          <span>Show phonetic</span>
+                          <span>Show romanization</span>
                         )}
                       </span>
                     </button>
