@@ -273,6 +273,7 @@ export default function ChatBox({
         furigana: response.furigana,
         isFuriganaEnabled: response.isFuriganaEnabled,
         isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
+        isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
       }));
 
       // Sort responses using the new function
@@ -309,6 +310,7 @@ export default function ChatBox({
         furigana: response.furigana,
         isFuriganaEnabled: response.isFuriganaEnabled,
         isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
+        isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
       }]));
       setBookmarkResponses(dict);
       setIsLoading(false);
@@ -729,7 +731,9 @@ export default function ChatBox({
           createdAt: new Date(response.createdAt),
           isPaused: response.isPaused,
           bookmarks: response.bookmarks,
-          isFuriganaEnabled: response.isFuriganaEnabled
+          isFuriganaEnabled: response.isFuriganaEnabled,
+          isPhoneticEnabled: response.isPhoneticEnabled,
+          isKanaEnabled: response.isKanaEnabled
         }));
 
         // Sort responses using the new function
