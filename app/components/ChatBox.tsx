@@ -30,6 +30,7 @@ interface Response {
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
+  isKanaEnabled?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
 }
 
@@ -43,6 +44,7 @@ interface BookmarkResponse {
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
+  isKanaEnabled?: boolean;
 }
 
 const formatStats = (stats: {
@@ -350,7 +352,8 @@ export default function ChatBox({
           createdAt: new Date(),
           updatedAt: new Date(),
           isFuriganaEnabled: false,
-          isPhoneticEnabled: true
+          isPhoneticEnabled: true,
+          isKanaEnabled: true
         }
       }));
       setResponseQuote('');
@@ -367,7 +370,8 @@ export default function ChatBox({
           createdAt: new Date(),
           updatedAt: new Date(),
           isFuriganaEnabled: false,
-          isPhoneticEnabled: true
+          isPhoneticEnabled: true,
+          isKanaEnabled: true
         }
       }));
     } finally {
@@ -659,23 +663,43 @@ export default function ChatBox({
     }
 
     try {
-      const response = await fetch('/api/updatePhoneticEnabled', {
+      const res = await fetch('/api/updatePhoneticEnabled', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          responseId,
-          isPhoneticEnabled,
-        }),
+        body: JSON.stringify({ responseId, isPhoneticEnabled }),
       });
 
-      if (response.ok) {
-        // Update all caches with new phonetic state
-        updateResponseInCaches(responseId, { isPhoneticEnabled });
+      if (!res.ok) {
+        throw new Error('Failed to update phonetic enabled state');
       }
+
+      // Update local state
+      updateResponseInCaches(responseId, { isPhoneticEnabled });
     } catch (error) {
       console.error('Error toggling phonetic:', error);
+    }
+  };
+
+  const handleKanaToggle = async (responseId: string, isKanaEnabled: boolean) => {
+    try {
+      const res = await fetch('/api/updateKanaEnabled', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ responseId, isKanaEnabled }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to update kana enabled state');
+      }
+
+      // Update local state
+      updateResponseInCaches(responseId, { isKanaEnabled });
+    } catch (error) {
+      console.error('Error toggling kana:', error);
     }
   };
 
@@ -825,12 +849,14 @@ export default function ChatBox({
                       furigana={response.furigana}
                       isFuriganaEnabled={response.isFuriganaEnabled}
                       isPhoneticEnabled={response.isPhoneticEnabled}
+                      isKanaEnabled={response.isKanaEnabled}
                       onQuote={handleResponseQuote}
                       onRankUpdate={handleRankUpdate}
                       onDelete={handleResponseDelete}
                       onPauseToggle={handlePauseToggle}
                       onFuriganaToggle={handleFuriganaToggle}
                       onPhoneticToggle={handlePhoneticToggle}
+                      onKanaToggle={handleKanaToggle}
                       onBookmarkSelect={onBookmarkSelect}
                       selectedLanguage={selectedLanguage}
                       onLoadingChange={setIsLoading}
@@ -902,12 +928,14 @@ export default function ChatBox({
                   furigana={response.furigana}
                   isFuriganaEnabled={response.isFuriganaEnabled}
                   isPhoneticEnabled={response.isPhoneticEnabled}
+                  isKanaEnabled={response.isKanaEnabled}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
                   onDelete={handleResponseDelete}
                   onPauseToggle={handlePauseToggle}
                   onFuriganaToggle={handleFuriganaToggle}
                   onPhoneticToggle={handlePhoneticToggle}
+                  onKanaToggle={handleKanaToggle}
                   onBookmarkSelect={onBookmarkSelect}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
@@ -932,11 +960,13 @@ export default function ChatBox({
                   isPaused={response.isPaused}
                   isFuriganaEnabled={response.isFuriganaEnabled}
                   isPhoneticEnabled={response.isPhoneticEnabled}
+                  isKanaEnabled={response.isKanaEnabled}
                   onDelete={handleResponseDelete}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
                   onFuriganaToggle={handleFuriganaToggle}
                   onPhoneticToggle={handlePhoneticToggle}
+                  onKanaToggle={handleKanaToggle}
                   onBookmarkSelect={onBookmarkSelect}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}

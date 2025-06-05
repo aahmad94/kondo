@@ -40,6 +40,7 @@ interface GPTResponseProps {
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
+  isKanaEnabled?: boolean;
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
@@ -47,6 +48,7 @@ interface GPTResponseProps {
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onFuriganaToggle?: (responseId: string, isFuriganaEnabled: boolean) => Promise<void>;
   onPhoneticToggle?: (responseId: string, isPhoneticEnabled: boolean) => Promise<void>;
+  onKanaToggle?: (responseId: string, isKanaEnabled: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
   bookmarks?: Record<string, string>;
@@ -69,12 +71,14 @@ export default function GPTResponse({
   furigana,
   isFuriganaEnabled = false,
   isPhoneticEnabled = false,
+  isKanaEnabled,
   onDelete, 
   onQuote,
   onRankUpdate,
   onPauseToggle,
   onFuriganaToggle,
   onPhoneticToggle,
+  onKanaToggle,
   onGenerateSummary,
   onBookmarkSelect,
   bookmarks,
@@ -129,6 +133,9 @@ export default function GPTResponse({
   // Phonetic toggle state - initialize from props
   const [localPhoneticEnabled, setLocalPhoneticEnabled] = useState(isPhoneticEnabled);
   
+  // Kana toggle state - initialize from props
+  const [localKanaEnabled, setLocalKanaEnabled] = useState(isKanaEnabled);
+  
   // Track current furigana (starts with cached furigana, gets updated when new furigana is generated)
   const [currentFurigana, setCurrentFurigana] = useState<string | null>(furigana || null);
 
@@ -141,6 +148,11 @@ export default function GPTResponse({
   useEffect(() => {
     setLocalPhoneticEnabled(isPhoneticEnabled);
   }, [isPhoneticEnabled]);
+
+  // Sync local kana state with prop changes
+  useEffect(() => {
+    setLocalKanaEnabled(isKanaEnabled);
+  }, [isKanaEnabled]);
 
   // Handle furigana updates from StandardResponse
   const handleFuriganaGenerated = (newFurigana: string) => {
@@ -193,6 +205,24 @@ export default function GPTResponse({
         console.error('Error updating phonetic enabled state:', error);
         // Revert the state if the API call fails
         setLocalPhoneticEnabled(!newState);
+      }
+    }
+  };
+
+  // Handle kana toggle
+  const handleKanaToggle = async () => {
+    const newState = !localKanaEnabled;
+    setLocalKanaEnabled(newState);
+    setShowFuriganaDropdown(false);
+
+    // Use parent's handler if available and we have a responseId
+    if (responseId && onKanaToggle) {
+      try {
+        await onKanaToggle(responseId, newState);
+      } catch (error) {
+        console.error('Error updating kana enabled state:', error);
+        // Revert the state if the API call fails
+        setLocalKanaEnabled(!newState);
       }
     }
   };
@@ -785,14 +815,32 @@ export default function GPTResponse({
                       >
                         <span>
                           {localFuriganaEnabled ? (
-                            <span>Disable furigana</span>
+                            <span>Hide furigana</span>
                           ) : (
-                            <span>Enable furigana</span>
+                            <span>Show furigana</span>
                           )}
                         </span>
                       </button>
                     )}
                     
+                    {/* Kana toggle - only for Japanese */}
+                    {selectedLanguage === 'ja' && (
+                      <button
+                        onClick={handleKanaToggle}
+                        className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                          isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
+                        }`}
+                      >
+                        <span className={isMobile ? 'truncate' : ''}>
+                          {localKanaEnabled ? (
+                            <span>Hide kana</span>
+                          ) : (
+                            <span>Show kana</span>
+                          )}
+                        </span>
+                      </button>
+                    )}
+
                     {/* Phonetic toggle - for all supported languages */}
                     <button
                       onClick={handlePhoneticToggle}
@@ -905,6 +953,7 @@ export default function GPTResponse({
                       onFuriganaGenerated={handleFuriganaGenerated}
                       isFuriganaEnabled={localFuriganaEnabled}
                       isPhoneticEnabled={localPhoneticEnabled}
+                      isKanaEnabled={localKanaEnabled}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items

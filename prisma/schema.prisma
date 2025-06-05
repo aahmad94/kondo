@@ -97,6 +97,7 @@ model GPTResponse {
   isPaused          Boolean        @default(false)
   isFuriganaEnabled Boolean        @default(false)
   isPhoneticEnabled Boolean        @default(true)
+  isKanaEnabled     Boolean        @default(true)
   updatedAt         DateTime       @updatedAt
   audio             String?
   audioMimeType     String?

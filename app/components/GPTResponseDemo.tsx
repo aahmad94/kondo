@@ -62,6 +62,9 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   // Phonetic toggle state
   const [isPhoneticEnabled, setIsPhoneticEnabled] = useState(true);
 
+  // Kana toggle state
+  const [isKanaEnabled, setIsKanaEnabled] = useState(true);
+
   // Check if we should use furigana (Japanese text with kanji)
   const shouldUseFurigana = containsKanji(response.content.japanese) && isFuriganaEnabled;
 
@@ -116,6 +119,12 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   // Handle phonetic toggle
   const handlePhoneticToggle = () => {
     setIsPhoneticEnabled(!isPhoneticEnabled);
+    setShowFuriganaDropdown(false);
+  };
+
+  // Handle kana toggle
+  const handleKanaToggle = () => {
+    setIsKanaEnabled(!isKanaEnabled);
     setShowFuriganaDropdown(false);
   };
 
@@ -442,13 +451,29 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     >
                       <span>
                         {isFuriganaEnabled ? (
-                          <span>Disable furigana</span>
+                          <span>Hide furigana</span>
                         ) : (
-                          <span>Enable furigana</span>
+                          <span>Show furigana</span>
                         )}
                       </span>
                     </button>
                     
+                    {/* Kana toggle - only for Japanese */}
+                    <button
+                      onClick={handleKanaToggle}
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                        isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
+                      }`}
+                    >
+                      <span className={isMobile ? 'truncate' : ''}>
+                        {isKanaEnabled ? (
+                          <span>Hide kana</span>
+                        ) : (
+                          <span>Show kana</span>
+                        )}
+                      </span>
+                    </button>
+
                     {/* Phonetic toggle */}
                     <button
                       onClick={handlePhoneticToggle}
@@ -511,7 +536,14 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     )}
                   </div>
 
-                  {/* Romanized text (skip hiragana when furigana is enabled) */}
+                  {/* Hiragana reading (show/hide based on kana toggle) */}
+                  {isKanaEnabled && (
+                    <div className="text-sm opacity-80">
+                      {response.content.hiragana}
+                    </div>
+                  )}
+
+                  {/* Romanized text */}
                   {isPhoneticEnabled && (
                     <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
                       {response.content.romanized}
@@ -530,10 +562,12 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     {response.content.japanese}
                   </div>
 
-                  {/* Hiragana reading */}
-                  <div className="text-sm opacity-80">
-                    {response.content.hiragana}
-                  </div>
+                  {/* Hiragana reading (show/hide based on kana toggle) */}
+                  {isKanaEnabled && (
+                    <div className="text-sm opacity-80">
+                      {response.content.hiragana}
+                    </div>
+                  )}
 
                   {/* Romanized text */}
                   {isPhoneticEnabled && (

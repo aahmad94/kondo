@@ -51,7 +51,8 @@ export async function getUserResponses(userId: string) {
         createdAt: true,
         furigana: true,
         isFuriganaEnabled: true,
-        isPhoneticEnabled: true
+        isPhoneticEnabled: true,
+        isKanaEnabled: true
       }
     });
 
@@ -387,6 +388,45 @@ export async function updatePhoneticEnabled(responseId: string, isPhoneticEnable
     return updatedResponse;
   } catch (error) {
     console.error('Error updating phonetic enabled state:', error);
+    throw error;
+  }
+}
+
+export async function updateKanaEnabled(responseId: string, isKanaEnabled: boolean) {
+  if (!responseId) {
+    throw new Error('Response ID is required');
+  }
+
+  if (typeof isKanaEnabled !== 'boolean') {
+    throw new Error('isKanaEnabled must be a boolean value');
+  }
+
+  // Check if responseId includes 'temp' - if so, skip database operations
+  if (responseId.includes('temp')) {
+    console.log(`Skipping database update for temp response: ${responseId}`);
+    return { id: responseId, isKanaEnabled };
+  }
+
+  try {
+    // Check if the response exists
+    const response = await prisma.gPTResponse.findUnique({
+      where: { id: responseId }
+    });
+
+    if (!response) {
+      throw new Error('Response not found');
+    }
+
+    // Update the kana enabled state for the response
+    const updatedResponse = await prisma.gPTResponse.update({
+      where: { id: responseId },
+      data: { isKanaEnabled },
+      select: { id: true, isKanaEnabled: true }
+    });
+
+    return updatedResponse;
+  } catch (error) {
+    console.error('Error updating kana enabled state:', error);
     throw error;
   }
 } 

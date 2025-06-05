@@ -12,9 +12,10 @@ interface StandardResponseProps {
   onFuriganaGenerated?: (furigana: string) => void;
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
+  isKanaEnabled?: boolean;
 }
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true }: StandardResponseProps) {
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -119,14 +120,21 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             )}
           </div>
 
-          {/* Second line - Romaji pronunciation (skip hiragana when furigana is enabled) */}
+          {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
+          {isKanaEnabled && (
+            <div className="text-sm opacity-80">
+              {processedItems[1]}
+            </div>
+          )}
+
+          {/* Third line - Romaji pronunciation */}
           {isPhoneticEnabled && (
             <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
               {processedItems[2]}
             </div>
           )}
 
-          {/* Third line - English translation */}
+          {/* Fourth line - English translation */}
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
             {processedItems[3]}
           </span>
@@ -145,10 +153,12 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             {processedItems[0]}
           </div>
 
-          {/* Second line - Hiragana/katakana reading */}
-          <div className="text-sm opacity-80">
-            {processedItems[1]}
-          </div>
+          {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
+          {isKanaEnabled && (
+            <div className="text-sm opacity-80">
+              {processedItems[1]}
+            </div>
+          )}
 
           {/* Third line - Romaji pronunciation */}
           {isPhoneticEnabled && (
