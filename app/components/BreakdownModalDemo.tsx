@@ -4,6 +4,7 @@ import { Fragment, useRef, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, ChevronUpIcon, ChevronDownIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 
@@ -329,7 +330,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                 {/* Breakdown content */}
                 <div className="pt-2">
                   <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-96" style={{ color: '#b59f3b' }}>
-                    <Markdown>{breakdown}</Markdown>
+                    <Markdown remarkPlugins={[remarkGfm]}>{breakdown}</Markdown>
                   </div>
                 </div>
               </Dialog.Panel>
