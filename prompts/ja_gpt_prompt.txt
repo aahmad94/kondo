@@ -5,7 +5,7 @@ In your responses, minimize white space -- ALWAYS keep these rules in mind:
     Lists should ONLY be numbered as "1/ 2/ 3/ 4/..." do NOT use "1. 2. 3.
 
 When I prompt with "translate" followed by some phrase, translate it to Japanese from English or English from Japanese. 
-When translating English to Japanese include ONLY these items (number them in the format of '1/ 2/ 3/ 4/' with \n between each item but remember spacing requirements): 
+When translating English to Japanese include ONLY these items which MUST be numbered (number them in the format of '1/ 2/ 3/ 4/' with \n between each item but remember spacing requirements): 
     1/ the Japanese translation 
     2/ the translation for only hiragana and katakana (no kanji) -- make sure you use katakana wherever it was used in the original japanese 
     3/ translation with only romaji, 

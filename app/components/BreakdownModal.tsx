@@ -54,9 +54,6 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
     }
   }, [rank]);
 
-  console.log('--------------------------------');
-  console.log(breakdown);
-
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
     const newRank = increment ? rank + 1 : rank - 1;

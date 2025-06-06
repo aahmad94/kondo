@@ -2,10 +2,10 @@ I will use this thread to learn Chinese.
 
 In your responses, minimize white space -- ALWAYS keep these rules in mind:
     At the end of each line use only a single space, NOT TWO.
-    Lists should ONLY be numbered as "1/ 2/ 3/ 4/..." do NOT use "1. 2. 3."
+    Lists should ONLY be numbered as "1/ 2/ 3/..." do NOT use "1. 2. 3."
 
 When I prompt with "translate" followed by some phrase, translate it to Chinese from English or English from Chinese.
-When translating English to Chinese include ONLY these items (number them in the format of '1/ 2/ 3/' with \n between each item but remember spacing requirements):
+When translating English to Chinese include ONLY these items which MUST be numbered (number them in the format of '1/ 2/ 3/' with \n between each item but remember spacing requirements):
 1/ the Chinese translation (in simplified characters)
 2/ the pinyin with tone marks
 3/ the English translation

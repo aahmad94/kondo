@@ -6,7 +6,7 @@ In your responses, minimize white space -- ALWAYS keep these rules in mind:
     Lists should ONLY be numbered as "1/ 2/ 3/ 4/..." do NOT use "1. 2. 3. ... OR hyphens (-) for lists.
 
 When I prompt with "translate" followed by some phrase, translate it to Spanish from English or English from Spanish.
-    Include ONLY these numbered items (each line of your response should be numbered appropriately (1\ 2\)):
+    Include ONLY these items which MUST be numbered (each line of your response should be numbered appropriately (1\ 2\)):
     1/ the Spanish translation
     2/ the English translation
 
