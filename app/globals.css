@@ -177,3 +177,19 @@ html, body {
   color: inherit; /* inherit the yellow color from parent */
   font-weight: 500;
 }
+
+/* Furigana loading animation */
+@keyframes furigana-loading-pulse {
+  0%, 100% {
+    color: #b59f3b;
+    text-shadow: 0 0 4px rgba(181, 159, 59, 0.4);
+  }
+  50% {
+    color: #d4c05f;
+    text-shadow: 0 0 8px rgba(181, 159, 59, 0.6);
+  }
+}
+
+.furigana-loading {
+  animation: furigana-loading-pulse 1.5s ease-in-out infinite;
+}

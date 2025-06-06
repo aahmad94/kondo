@@ -43,9 +43,6 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     }
   };
 
-  console.log(cachedFurigana);
-  console.log(items);
-
   const phoneticLineIndex = getPhoneticLineIndex(selectedLanguage, processedItems.length);
 
   // Notify parent when furigana changes
@@ -119,7 +116,9 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             {shouldUseFurigana && furiganaText && !isLoading ? (
               <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
             ) : (
-              <span>{processedItems[0]}</span>
+              <span className={shouldUseFurigana && isLoading ? 'furigana-loading' : ''}>
+                {processedItems[0]}
+              </span>
             )}
           </div>
 
