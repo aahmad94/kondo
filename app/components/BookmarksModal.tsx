@@ -18,6 +18,8 @@ interface BookmarksModalProps {
   breakdownContent?: string | null;
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
+  isPhoneticEnabled?: boolean;
+  isKanaEnabled?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
 }
@@ -31,6 +33,8 @@ export default function BookmarksModal({
   breakdownContent,
   furigana,
   isFuriganaEnabled,
+  isPhoneticEnabled,
+  isKanaEnabled,
   onBookmarkCreated,
   onBookmarkSelect
 }: BookmarksModalProps) {
@@ -86,7 +90,9 @@ export default function BookmarksModal({
           cachedAudio,
           breakdownContent,
           furigana,
-          isFuriganaEnabled
+          isFuriganaEnabled,
+          isPhoneticEnabled,
+          isKanaEnabled
         }),
       });
 

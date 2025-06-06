@@ -1044,6 +1044,8 @@ export default function GPTResponse({
           breakdownContent={breakdownContent}
           furigana={currentFurigana}
           isFuriganaEnabled={localFuriganaEnabled}
+          isPhoneticEnabled={localPhoneticEnabled}
+          isKanaEnabled={localKanaEnabled}
           onBookmarkCreated={onBookmarkCreated}
           onBookmarkSelect={onBookmarkSelect}
         />
