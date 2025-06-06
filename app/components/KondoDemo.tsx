@@ -6,6 +6,7 @@ import GPTResponseDemo from './GPTResponseDemo';
 
 interface DemoResponse {
   id: string;
+  bookmark: string;
   content: {
     japanese: string;
     hiragana: string;
@@ -36,6 +37,7 @@ export default function KondoDemo() {
         setResponses([
           {
             id: 'demo-1',
+            bookmark: 'instructions',
             content: {
               japanese: '多くの言語のための学習資料を簡単に作成する',
               hiragana: 'おおくのげんごのためのがくしゅうしりょうをかんたんにさくせいする',
