@@ -155,7 +155,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-visible rounded-sm bg-[#111111] p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-[650px] max-w-[90vw] transform overflow-visible rounded-sm bg-[#111111] p-6 text-left align-middle shadow-xl transition-all">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-2">
                   {/* Left: action icons */}

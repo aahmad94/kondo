@@ -66,7 +66,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-[#111111] p-6 rounded-sm w-[600px] max-w-[90vw] max-h-[80vh] flex flex-col">
+      <div className="bg-[#111111] p-6 rounded-sm w-[650px] max-w-[90vw] max-h-[80vh] flex flex-col">
         <div className="flex justify-between items-center sticky top-0 bg-[#111111] pb-4">
           {/* Action buttons (formerly bottom) */}
           <div className="flex items-center gap-3">
