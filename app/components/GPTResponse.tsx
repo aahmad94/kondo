@@ -658,45 +658,7 @@ export default function GPTResponse({
                 </div>
               )}
 
-              {/* Pause button */}
-              {selectedBookmarkId && responseId && onPauseToggle && (
-                !isMobile ? (
-                  <Tooltip
-                    content={isPaused 
-                      ? "Resume cycling this response in dojo" 
-                      : "Pause cycling this response in dojo"
-                    }
-                    isVisible={isHovered}
-                    buttonRef={pauseButtonRef}
-                  >
-                    <button 
-                      ref={pauseButtonRef}
-                      onClick={handlePauseToggle}
-                      onMouseEnter={() => setIsHovered(true)}
-                      onMouseLeave={() => setIsHovered(false)}
-                      className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-                    >
-                      {isPaused ? (
-                        <PlayCircleIcon className="h-6 w-6" />
-                      ) : (
-                        <PauseCircleIcon className="h-6 w-6" />
-                      )}
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button 
-                    ref={pauseButtonRef}
-                    onClick={handlePauseToggle}
-                    className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-                  >
-                    {isPaused ? (
-                      <PlayCircleIcon className="h-6 w-6" />
-                    ) : (
-                      <PauseCircleIcon className="h-6 w-6" />
-                    )}
-                  </button>
-                )
-              )}
+
 
               {/* Breakdown button */}
               {hasExpression && (
@@ -1014,9 +976,9 @@ export default function GPTResponse({
         )}
       </div>
 
-      {/* Bookmark badge -- show when in reserved bookmark, now below the content */}
+      {/* Bookmark badge in bottom left corner with pause toggle */}
       {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
-        <div className="mt-2 pt-1flex items-start">
+        <div className="mt-2 pt-1 flex items-center gap-2">
           <span 
             onClick={handleBookmarkClick}
             className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[120px] truncate"
@@ -1030,6 +992,46 @@ export default function GPTResponse({
               return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
             })()}
           </span>
+          
+          {/* Pause button - only show when bookmark is "daily summary" */}
+          {selectedBookmarkTitle === 'daily summary' && selectedBookmarkId && responseId && onPauseToggle && (
+            !isMobile ? (
+              <Tooltip
+                content={isPaused 
+                  ? "Resume cycling this response in dojo" 
+                  : "Pause cycling this response in dojo"
+                }
+                isVisible={isHovered}
+                buttonRef={pauseButtonRef}
+              >
+                <button 
+                  ref={pauseButtonRef}
+                  onClick={handlePauseToggle}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+                >
+                  {isPaused ? (
+                    <PlayCircleIcon className="h-5 w-5" />
+                  ) : (
+                    <PauseCircleIcon className="h-5 w-5" />
+                  )}
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={pauseButtonRef}
+                onClick={handlePauseToggle}
+                className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
+              >
+                {isPaused ? (
+                  <PlayCircleIcon className="h-5 w-5" />
+                ) : (
+                  <PauseCircleIcon className="h-5 w-5" />
+                )}
+              </button>
+            )
+          )}
         </div>
       )}
 

@@ -33,4 +33,10 @@ Your default response absent an explicit command at the beginning of the prompt 
 3/ Transliteration
 4/ English translation
 
-If the user prompts with breakdown: explain word roles (e.g., subject, verb), gender/number agreement, and root if applicable (e.g., "كتب" from k-t-b = "to write"). Use hyphens for parts. Do NOT explain punctuation marks (periods, commas, exclamation marks, quotation marks, etc.) - only explain the actual words. Do NOT include the original translation phrase (1/ to 4/ list items)
+If I follow up with 'breakdown the above phrase':
+    Respond with a markdown table format with (4) columns: Arabic, Transliteration, Function (purpose/meaning), and Root. 
+    Each row should explain what purpose or meaning each word serves (Function). For conjugated verbs, you should explain what the verb is and what form/tense is used in 'Function'. 
+    In the 'Root' column, ONLY provide an entry if the word is a verb; the entry MUST include the verb root. FOLLOW THIS FORMAT: include the original Arabic for the verb root AND the transliteration for it in parentheses.
+    ABSOLUTELY DO NOT include any punctuation marks in the table - this includes but is not limited to: periods (.), commas (,), exclamation marks (!), question marks (?), quotation marks, parentheses (), dashes, colons, semicolons, or any other punctuation symbols. 
+    ONLY analyze and include actual Arabic words and grammatical elements. 
+    Skip over all punctuation completely.

@@ -10,6 +10,7 @@ import FuriganaText from './FuriganaText';
 
 interface DemoResponse {
   id: string;
+  bookmark: string;
   content: {
     japanese: string;
     hiragana: string;
@@ -47,12 +48,14 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
   const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
   const [isPlusHovered, setIsPlusHovered] = useState(false);
+  const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
   const pauseButtonRef = useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = useRef<HTMLButtonElement>(null);
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
   const upChevronRef = useRef<HTMLButtonElement>(null);
   const downChevronRef = useRef<HTMLButtonElement>(null);
   const plusButtonRef = useRef<HTMLButtonElement>(null);
+  const bookmarkButtonRef = useRef<HTMLButtonElement>(null);
 
   // Furigana toggle state
   const [isFuriganaEnabled, setIsFuriganaEnabled] = useState(false);
@@ -320,51 +323,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
               )}
             </div>
 
-            {/* Pause button */}
-            {!isMobile ? (
-              <Tooltip
-                content={isPaused 
-                  ? "Resume cycling this response in dojo" 
-                  : "Pause cycling this response in dojo"
-                }
-                isVisible={isPauseHovered}
-                buttonRef={pauseButtonRef}
-              >
-                <button 
-                  ref={pauseButtonRef}
-                  onClick={handlePauseToggle}
-                  onMouseEnter={() => setIsPauseHovered(true)}
-                  onMouseLeave={() => setIsPauseHovered(false)}
-                  className={`transition-colors duration-200 ${
-                    isPaused 
-                      ? 'text-green-500 hover:text-green-700' 
-                      : 'text-yellow-500 hover:text-yellow-700'
-                  }`}
-                >
-                  {isPaused ? (
-                    <PlayCircleIcon className="h-6 w-6" />
-                  ) : (
-                    <PauseCircleIcon className="h-6 w-6" />
-                  )}
-                </button>
-              </Tooltip>
-            ) : (
-              <button 
-                ref={pauseButtonRef}
-                onClick={handlePauseToggle}
-                className={`transition-colors duration-200 ${
-                  isPaused 
-                    ? 'text-green-500 hover:text-green-700' 
-                    : 'text-yellow-500 hover:text-yellow-700'
-                }`}
-              >
-                {isPaused ? (
-                  <PlayCircleIcon className="h-6 w-6" />
-                ) : (
-                  <PauseCircleIcon className="h-6 w-6" />
-                )}
-              </button>
-            )}
+
 
             {/* Breakdown button */}
             {!isMobile ? (
@@ -590,6 +549,77 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Bookmark badge and pause toggle at bottom */}
+        <div className="mt-2 pt-1 flex items-center gap-2">
+          {/* Bookmark badge */}
+          {!isMobile ? (
+            <Tooltip
+              content="View bookmark that this content is from"
+              isVisible={isBookmarkHovered}
+              buttonRef={bookmarkButtonRef}
+            >
+              <button 
+                ref={bookmarkButtonRef}
+                className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[120px] truncate text-white"
+                onMouseEnter={() => setIsBookmarkHovered(true)}
+                onMouseLeave={() => setIsBookmarkHovered(false)}
+              >
+                {response.bookmark}
+              </button>
+            </Tooltip>
+          ) : (
+            <button className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[120px] truncate text-white">
+              {response.bookmark}
+            </button>
+          )}
+          
+          {/* Pause toggle */}
+          {!isMobile ? (
+            <Tooltip
+              content={isPaused 
+                ? "Resume cycling this response in dojo" 
+                : "Pause cycling this response in dojo"
+              }
+              isVisible={isPauseHovered}
+              buttonRef={pauseButtonRef}
+            >
+              <button 
+                ref={pauseButtonRef}
+                onClick={handlePauseToggle}
+                onMouseEnter={() => setIsPauseHovered(true)}
+                onMouseLeave={() => setIsPauseHovered(false)}
+                className={`transition-colors duration-200 ${
+                  isPaused 
+                    ? 'text-green-500 hover:text-green-700' 
+                    : 'text-yellow-500 hover:text-yellow-700'
+                }`}
+              >
+                {isPaused ? (
+                  <PlayCircleIcon className="h-5 w-5" />
+                ) : (
+                  <PauseCircleIcon className="h-5 w-5" />
+                )}
+              </button>
+            </Tooltip>
+          ) : (
+            <button 
+              ref={pauseButtonRef}
+              onClick={handlePauseToggle}
+              className={`transition-colors duration-200 ${
+                isPaused 
+                  ? 'text-green-500 hover:text-green-700' 
+                  : 'text-yellow-500 hover:text-yellow-700'
+              }`}
+            >
+              {isPaused ? (
+                <PlayCircleIcon className="h-5 w-5" />
+              ) : (
+                <PauseCircleIcon className="h-5 w-5" />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Bottom spacing */}

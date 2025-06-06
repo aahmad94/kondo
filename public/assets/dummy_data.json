@@ -2,6 +2,7 @@
   "responses": [
     {
     "id": "response-1",
+    "bookmark": "instructions",
     "content": {
         "japanese": "旅行の準備や勉強にブックマークを使いましょう",
         "hiragana": "りょこうのじゅんびやべんきょうにブックマークをつかいましょう",
@@ -21,6 +22,7 @@
     },
     {
       "id": "response-2",
+      "bookmark":"instructions",
       "content": {
         "japanese": "多くの言語のための学習資料を簡単に作成する",
         "hiragana": "おおくのげんごのためのがくしゅうしりょうをかんたんにさくせいする", 
@@ -39,7 +41,8 @@
       "createdAt": "2024-01-15T10:30:00Z"
     },
     {
-      "id": "response-3", 
+      "id": "response-3",
+      "bookmark": "instructions",
       "content": {
         "japanese": "すべての翻訳にはテキストとオーディオガイドが含まれています。",
         "hiragana": "すべてのほんやくにはテキストとオーディオガイドがふくまれています。",

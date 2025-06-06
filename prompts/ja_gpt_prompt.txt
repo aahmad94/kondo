@@ -13,7 +13,8 @@ When translating English to Japanese include ONLY these items (number them in th
     
 If I follow up with 'breakdown the above phrase':
     Respond with a markdown table format with (5) columns: Kanji, Hiragana/Katakana (call this column 'Kana'), Romaji, Function (purpose/meaning), and Root. 
-    Each row should explain what purpose or meaning each word and particle serves (Function). For conjugated verbs, you should explain what the verb is and what tense is used in 'Function'. You MUST include the verb stem in the root ('Root') column -- you MUST include the original Japanese for the verb AND the romaji (English spelling) for it in paranthesis.
+    Each row should explain what purpose or meaning each word and particle serves (Function). For conjugated verbs, you should explain what the verb is and what tense is used in 'Function'. 
+    In the 'Root' column, ONLY provide an entry for if the word is a verb; the entry MUST include the verb stem. FOLLOW THIS FORMAT: include the original Japanese for the verb AND the romaji (English spelling) for it in paranthesis, DO NOT INCLUDE THE SIMPLIFIED KANA as this takes up too much space.
     ABSOLUTELY DO NOT include any punctuation marks in the table - this includes but is not limited to: periods (。), commas (、), exclamation marks (！), question marks (？), quotation marks (「」), parentheses (), dashes, colons, semicolons, or any other punctuation symbols. 
     ONLY analyze and include actual Japanese words, particles, and grammatical elements. 
     Skip over all punctuation completely.
