@@ -191,6 +191,7 @@ export default function Bookmarks({
   const handleChatClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     router.push('/');
+    changeSelectedBookmark(null, null); // This sets the chat as "selected" state
     onClearBookmark();
     // Track bookmark clearing when clicking chat
     await trackClearBookmark();
@@ -257,7 +258,8 @@ export default function Bookmarks({
                   </div>
 
                   <div
-                    className="chat-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block"
+                    className={`chat-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.id === null && selectedBookmark.title === null ? 'bg-gray-700 rounded-sm' : ''}`}
                     onClick={handleChatClick}
                   >
                     <ChatBubbleLeftIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
