@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, MagnifyingGlassIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, MagnifyingGlassIcon, ChatBubbleLeftIcon, AcademicCapIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 import { useRouter } from 'next/navigation';
@@ -236,12 +236,63 @@ export default function Bookmarks({
         </div>
       )}
       
-      <div className={`flex-none bg-gray-900 transition-[width] duration-300 ease-in-out ${isOpen ? 'w-48' : 'w-0'} h-[calc(100vh-50px)] overflow-hidden`}>
-        <div className="w-48 h-full">
+      <div className={`flex-none bg-gray-900 transition-[width] duration-300 ease-in-out ${isOpen ? 'w-52' : 'w-0'} h-[calc(100vh-50px)] overflow-hidden`}>
+        <div className="w-52 h-full" style={{ willChange: 'auto', backfaceVisibility: 'hidden' }}>
           {isOpen && (
             <>
-              <div className="flex justify-between items-center pl-4 px-2 py-2">
-                <h2 className="text-xl text-white">Bookmarks</h2>
+              <div className="flex justify-between items-start px-2 py-2">
+                <div className="flex flex-col space-y-1">
+                  <div 
+                    className={`daily-summary-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.title === "daily summary" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    onClick={() => {
+                      const dailySummaryBookmark = bookmarks.find(b => b.title === 'daily summary');
+                      if (dailySummaryBookmark) {
+                        handleBookmarkInteraction(dailySummaryBookmark.id, dailySummaryBookmark.title);
+                      }
+                    }}
+                  >
+                    <AcademicCapIcon className="h-4 w-4 inline mr-2" style={{ color: '#b59f3b' }}/>
+                    <span style={{ color: '#b59f3b' }}>dojo</span>
+                  </div>
+
+                  <div
+                    className="chat-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block"
+                    onClick={handleChatClick}
+                  >
+                    <ChatBubbleLeftIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                    <span className="text-blue-400">chat</span>
+                  </div>
+
+                  <div 
+                    className={`search-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.title === "search" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    onClick={() => handleBookmarkInteraction("search", "search")}
+                    onTouchStart={() => handleBookmarkInteraction("search", "search")}
+                  >
+                    <MagnifyingGlassIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                    <span className="text-blue-400">search</span>
+                  </div>
+
+                  <div 
+                    className={`all-responses-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.id === "all" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    onClick={() => handleBookmarkInteraction("all", "all responses")}
+                    onTouchStart={() => handleBookmarkInteraction("all", "all responses")}
+                  >
+                    <QueueListIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                    <span className="text-blue-400">all responses</span>
+                  </div>
+
+                  <div
+                    className="create-bookmark-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block"
+                    onClick={handleCreateNewBookmark}
+                  >
+                    <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                    <span className="text-blue-400">new bookmark</span>
+                  </div>
+                </div>
+
                 <button 
                   onClick={handleToggleOpen} 
                   className="text-white cursor-pointer"
@@ -251,57 +302,8 @@ export default function Bookmarks({
               </div>
 
               <div className="flex flex-col p-2">
-                <div
-                  className="chat-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block"
-                  onClick={handleChatClick}
-                >
-                  <ChatBubbleLeftIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                  <span className="text-blue-400">KondoAI</span>
-                </div>
 
-                <div
-                  className="create-bookmark-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block"
-                  onClick={handleCreateNewBookmark}
-                >
-                  <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                  <span className="text-blue-400">new bookmark</span>
-                </div>
-
-                <div 
-                  className={`search-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
-                    ${selectedBookmark.title === "search" ? 'bg-gray-700 rounded-sm' : ''}`}
-                  onClick={() => handleBookmarkInteraction("search", "search")}
-                  onTouchStart={() => handleBookmarkInteraction("search", "search")}
-                >
-                  <MagnifyingGlassIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                  <span className="text-blue-400">search</span>
-                </div>
-
-                <div 
-                  className={`all-responses-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
-                    ${selectedBookmark.id === "all" ? 'bg-gray-700 rounded-sm' : ''}`}
-                  onClick={() => handleBookmarkInteraction("all", "all responses")}
-                  onTouchStart={() => handleBookmarkInteraction("all", "all responses")}
-                >
-                  <QueueListIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                  <span className="text-blue-400">all responses</span>
-                </div>
-
-                <div 
-                  className={`daily-summary-button mb-2 cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all pl-2 py-1 inline-block
-                    ${selectedBookmark.title === "daily summary" ? 'bg-gray-700 rounded-sm' : ''}`}
-                  onClick={() => {
-                    const dailySummaryBookmark = bookmarks.find(b => b.title === 'daily summary');
-                    if (dailySummaryBookmark) {
-                      handleBookmarkInteraction(dailySummaryBookmark.id, dailySummaryBookmark.title);
-                    }
-                  }}
-                >
-                  <DocumentTextIcon className="h-4 w-4 inline mr-2" style={{ color: '#b59f3b' }}/>
-                  <span style={{ color: '#b59f3b' }}>dojo</span>
-                </div>
-
-                <div className="overflow-y-auto max-h-[50vh] bookmark-list">
+                <div className="overflow-y-auto max-h-[65vh] bookmark-list">
                   {isLoading ? (
                     // Skeleton loading state
                     Array.from({ length: 10 }).map((_, index) => (
