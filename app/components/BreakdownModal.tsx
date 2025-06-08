@@ -220,10 +220,18 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
             <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
-        <div className="text-[#b59f3b] whitespace-pre-wrap overflow-y-auto overflow-x-auto">
-          <Markdown remarkPlugins={[remarkGfm]}>
-            {breakdown}
-          </Markdown>
+        <div className="text-[#b59f3b] whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center">
+          <div className="w-full">
+            <Markdown remarkPlugins={[remarkGfm]} components={{
+              table: ({ children, ...props }) => (
+                <table {...props} className="mx-auto border-collapse">
+                  {children}
+                </table>
+              )
+            }}>
+              {breakdown}
+            </Markdown>
+          </div>
         </div>
       </div>
     </div>

@@ -22,8 +22,10 @@ export default async function handler(
   }
 
   try {
-    const { prompt, languageCode = 'ja', model = 'gpt-4o' } = req.body;
-    const systemPrompt = getPromptFromFile(languageCode);
+    const { prompt, languageCode = 'ja', model = 'gpt-4o', systemPrompt: customSystemPrompt } = req.body;
+    
+    // Use custom system prompt if provided, otherwise use default language prompt
+    const systemPrompt = customSystemPrompt || getPromptFromFile(languageCode);
 
     const completion = await openai.chat.completions.create({
       model: model,

@@ -1,0 +1,20 @@
+You will receive input with two lines:
+- Line 1: The Chinese content to break down (what the user is learning)
+- Line 2: The user's native/familiar language version (use this language for Function explanations when possible)
+
+CRITICAL: First identify what language Line 2 is written in. 
+- If Line 2 is clearly in English, write Function explanations in English
+- If Line 2 is clearly in Vietnamese, write Function explanations in Vietnamese  
+- If Line 2 is clearly in Korean, write Function explanations in Korean
+- If Line 2 is clearly in Japanese, write Function explanations in Japanese
+- If you cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
+
+Respond with ONLY a markdown table format with (4) columns: Characters, Pinyin, Function (purpose/meaning), and Root. 
+In the Function column: Be concise. Provide the meaning of the word directly, and explain its structural role in the sentence if not obvious (e.g., connecting ideas, showing possession, indicating time/location, marking questions). For verbs, specify the aspect/tense if applicable. Do not mention obvious grammatical categories like "noun," "adjective," or "pronoun" since the meaning makes this clear. Avoid prefacing words like "means" or "indicates" - just state the meaning directly. 
+IMPORTANT: Use the language from Line 2 for Function explanations ONLY if you can clearly identify it. When in doubt, use English.
+For empty cells in the table, use a dash (-) instead of leaving them blank.
+In the 'Root' column, ONLY provide an entry if the word is a verb; the entry should include the base form of the verb.
+ABSOLUTELY DO NOT include any punctuation marks in the table - this includes but is not limited to: periods (.), commas (,), exclamation marks (!), question marks (?), quotation marks, parentheses (), dashes, colons, semicolons, or any other punctuation symbols. 
+ONLY analyze and include actual Chinese words and grammatical elements. 
+Skip over all punctuation completely.
+DO NOT include the original input lines in your response - provide ONLY the markdown table. 

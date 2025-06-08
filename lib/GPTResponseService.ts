@@ -1,4 +1,6 @@
 import prisma from './prisma';
+import fs from 'fs';
+import path from 'path';
 
 type ValidRank = 1 | 2 | 3;
 
@@ -259,7 +261,18 @@ export async function getBreakdown(text: string, language: string, responseId?: 
     }
 
     const content = match[1].trim();
-    
+
+    // Find the last numbered line by finding all numbers and getting the max
+    const numbers = [...text.matchAll(/(\d+)\//g)].map(match => parseInt(match[1]));
+    const lastNumber = Math.max(...numbers);
+
+    // Extract content from the last numbered line (original user input)
+    const lastLineRegex = new RegExp(`${lastNumber}/\\s*([^\\r\\n]*)`);
+    const lastLineMatch = text.match(lastLineRegex);
+    const originalUserInput = lastLineMatch ? lastLineMatch[1].trim() : '';
+
+    // Combine content with original user input
+    const combinedContent = content + '\n' + originalUserInput;
     // Only check database if we have a responseId
     if (responseId) {
       const existingResponse = await prisma.gPTResponse.findUnique({
@@ -273,16 +286,20 @@ export async function getBreakdown(text: string, language: string, responseId?: 
       }
     }
 
-    // Generate new breakdown
+    // Read the breakdown-specific prompt for the language
+    const breakdownPromptPath = path.join(process.cwd(), 'prompts', `${language}_gpt_breakdown_prompt.txt`);
+    const breakdownSystemPrompt = fs.readFileSync(breakdownPromptPath, 'utf8');
+
+    // Generate new breakdown using dedicated breakdown prompt
     const response = await fetch(`${appUrl}/api/openai`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ 
-        prompt: `* Breakdown the following phrase:\n\n${content}`,
-        languageCode: language,
-        model: 'gpt-4o-mini'
+        prompt: combinedContent,
+        systemPrompt: breakdownSystemPrompt,
+        model: 'gpt-4o'
       }),
     });
 

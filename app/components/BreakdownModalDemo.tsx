@@ -329,8 +329,18 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
 
                 {/* Breakdown content */}
                 <div className="pt-2">
-                  <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-96" style={{ color: '#b59f3b' }}>
-                    <Markdown remarkPlugins={[remarkGfm]}>{breakdown}</Markdown>
+                  <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-96 flex justify-center" style={{ color: '#b59f3b' }}>
+                    <div className="w-full">
+                      <Markdown remarkPlugins={[remarkGfm]} components={{
+                        table: ({ children, ...props }) => (
+                          <table {...props} className="mx-auto border-collapse">
+                            {children}
+                          </table>
+                        )
+                      }}>
+                        {breakdown}
+                      </Markdown>
+                    </div>
                   </div>
                 </div>
               </Dialog.Panel>
