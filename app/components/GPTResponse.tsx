@@ -833,33 +833,14 @@ export default function GPTResponse({
             </div>
           )}
 
-          {/* Refresh button for Dojo mode */}
+          {/* New report button for Dojo mode */}
           {type === 'instruction' && selectedBookmarkTitle === 'daily summary' && (
-            !isMobile ? (
-              <Tooltip
-                content="Refresh dojo summary"
-                isVisible={isHovered}
-                buttonRef={refreshButtonRef}
-              >
-                <button
-                  ref={refreshButtonRef}
-                  onClick={() => onGenerateSummary?.(true)}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-                >
-                  <ArrowPathIcon className="h-6 w-6" />
-                </button>
-              </Tooltip>
-            ) : (
-              <button
-                ref={refreshButtonRef}
-                onClick={() => onGenerateSummary?.(true)}
-                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-              >
-                <ArrowPathIcon className="h-6 w-6" />
-              </button>
-            )
+            <button
+              onClick={() => onGenerateSummary?.(true)}
+              className="px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded transition-colors duration-200"
+            >
+              new report
+            </button>
           )}
 
           {/* Delete button */}
