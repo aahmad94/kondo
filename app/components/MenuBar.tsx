@@ -51,10 +51,17 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
     <>
       <nav className="bg-gray-900 shadow-md flex justify-between items-center w-full">
         <Link 
-          className="text-2xl pt-2 pl-4 text-white"
+          className="flex items-center text-2xl pt-2 pl-4 text-white"
           href="/"
           onClick={handleLogoClick}
         >
+          <Image
+            src="/icon.png"
+            alt="Kondo Logo"
+            width={42}
+            height={42}
+            className="mr-2"
+          />
           Kondo
         </Link>
         <div className="flex items-center gap-4 mr-4">
