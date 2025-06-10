@@ -27,12 +27,22 @@ export const useAudio = () => {
   return context;
 };
 
+// Utility function to convert base64 audio to blob URL
+const convertBase64ToAudioUrl = (base64Audio: string, mimeType: string): string => {
+  // Convert base64 to bytes using browser-compatible method
+  const binaryString = atob(base64Audio);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  const audioBlob = new Blob([bytes], { type: mimeType });
+  return URL.createObjectURL(audioBlob);
+};
+
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentResponseId, setCurrentResponseId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-
 
   const pauseAudio = useCallback(() => {
     if (audioRef.current) {
@@ -69,14 +79,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         try {
-          // Convert base64 to bytes using browser-compatible method
-          const binaryString = atob(cachedAudio.audio);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-          const audioBlob = new Blob([bytes], { type: cachedAudio.mimeType });
-          const audioUrl = URL.createObjectURL(audioBlob);
+          const audioUrl = convertBase64ToAudioUrl(cachedAudio.audio, cachedAudio.mimeType);
+          
           audioRef.current.src = audioUrl;
 
           const playPromise = audioRef.current.play();
@@ -133,14 +137,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       try {
-        // Convert base64 to bytes using browser-compatible method
-        const binaryString = atob(data.audio);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const audioBlob = new Blob([bytes], { type: data.mimeType });
-        const audioUrl = URL.createObjectURL(audioBlob);
+        const audioUrl = convertBase64ToAudioUrl(data.audio, data.mimeType);
+        
         audioRef.current.src = audioUrl;
 
         const playPromise = audioRef.current.play();
