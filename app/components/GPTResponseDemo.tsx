@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 import { addFurigana, containsKanji } from '../../lib/furiganaService';
 import FuriganaText from './FuriganaText';
+import RankContainer from './ui/RankContainer';
 
 interface DemoResponse {
   id: string;
@@ -45,15 +46,13 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [isPauseHovered, setIsPauseHovered] = useState(false);
   const [isBreakdownHovered, setIsBreakdownHovered] = useState(false);
   const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
-  const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
-  const [isDownChevronHovered, setIsDownChevronHovered] = useState(false);
+
   const [isPlusHovered, setIsPlusHovered] = useState(false);
   const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
   const pauseButtonRef = useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = useRef<HTMLButtonElement>(null);
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
-  const upChevronRef = useRef<HTMLButtonElement>(null);
-  const downChevronRef = useRef<HTMLButtonElement>(null);
+
   const plusButtonRef = useRef<HTMLButtonElement>(null);
   const bookmarkButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -137,13 +136,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
     // setShowFuriganaDropdown(false);
   };
 
-  // Handle rank color changes based on rank value
-  const getRankBorderColor = (rank: number) => {
-    if (rank === 1) return '#d93900'; // red
-    if (rank === 2) return '#b59f3b'; // yellow
-    if (rank === 3) return '#2ea149'; // green
-    return '#666666';
-  };
+
 
   const onRankClick = (increment: boolean) => {
     const newRank = increment ? Math.min(rank + 1, 3) : Math.max(rank - 1, 1);
@@ -257,71 +250,10 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
         <div className="header flex justify-between mb-2 pb-1">          
           <div className="flex items-center gap-3">
             {/* Rank container */}
-            <div
-              className="rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400"
-              style={{
-                border: `3px solid ${getRankBorderColor(rank)}`,
-                backgroundColor: '#111111'
-              }}
-            >
-              {!isMobile ? (
-                <Tooltip
-                  content="Rank higher - higher ranked content will surface less"
-                  isVisible={isUpChevronHovered}
-                  buttonRef={upChevronRef}
-                >
-                  <button
-                    ref={upChevronRef}
-                    onClick={() => onRankClick(true)}
-                    disabled={rank >= 3}
-                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                    onMouseEnter={() => setIsUpChevronHovered(true)}
-                    onMouseLeave={() => setIsUpChevronHovered(false)}
-                  >
-                    <ChevronUpIcon className="h-5 w-5" />
-                  </button>
-                </Tooltip>
-              ) : (
-                <button
-                  ref={upChevronRef}
-                  onClick={() => onRankClick(true)}
-                  disabled={rank >= 3}
-                  className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                >
-                  <ChevronUpIcon className="h-5 w-5" />
-                </button>
-              )}
-              <span className="px-1.5 rounded text-xs text-white">
-                {rank}
-              </span>
-              {!isMobile ? (
-                <Tooltip
-                  content="Rank lower - lower ranked content will surface more"
-                  isVisible={isDownChevronHovered}
-                  buttonRef={downChevronRef}
-                >
-                  <button
-                    ref={downChevronRef}
-                    onClick={() => onRankClick(false)}
-                    disabled={rank <= 1}
-                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                    onMouseEnter={() => setIsDownChevronHovered(true)}
-                    onMouseLeave={() => setIsDownChevronHovered(false)}
-                  >
-                    <ChevronDownIcon className="h-5 w-5" />
-                  </button>
-                </Tooltip>
-              ) : (
-                <button
-                  ref={downChevronRef}
-                  onClick={() => onRankClick(false)}
-                  disabled={rank <= 1}
-                  className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                >
-                  <ChevronDownIcon className="h-5 w-5" />
-                </button>
-              )}
-            </div>
+            <RankContainer 
+              rank={rank} 
+              onRankClick={onRankClick}
+            />
 
 
 

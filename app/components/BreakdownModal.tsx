@@ -1,9 +1,10 @@
 import React from 'react';
-import { XMarkIcon, ChevronUpIcon, ChevronDownIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Tooltip from './Tooltip';
 import { useIsMobile } from '../hooks/useIsMobile';
+import RankContainer from './ui/RankContainer';
 
 interface BreakdownModalProps {
   isOpen: boolean;
@@ -30,29 +31,13 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   onTextToSpeech,
   isPlaying
 }) => {
-  const red = '#d93900'
-  const yellow = '#b59f3b'
-  const green = '#2ea149'
-  const [rankContainerOutline, setRankContainerOutline] = React.useState(red);
   const [isHovered, setIsHovered] = React.useState(false);
   const [isSpeakerHovered, setIsSpeakerHovered] = React.useState(false);
-  const [isUpChevronHovered, setIsUpChevronHovered] = React.useState(false);
-  const [isDownChevronHovered, setIsDownChevronHovered] = React.useState(false);
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
-  const upChevronRef = React.useRef<HTMLButtonElement>(null);
-  const downChevronRef = React.useRef<HTMLButtonElement>(null);
   const { isMobile, offset } = useIsMobile();
 
-  React.useEffect(() => {
-    if (rank === 1) {
-      setRankContainerOutline(red);
-    } else if (rank === 2) {
-      setRankContainerOutline(yellow);
-    } else if (rank === 3) {
-      setRankContainerOutline(green);
-    }
-  }, [rank]);
+
 
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
@@ -72,71 +57,10 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
           <div className="flex items-center gap-3">
             {/* Rank container */}
             { responseId && !responseId.startsWith('temp_') && onRankUpdate && (
-              <div
-                className={"rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400"}
-                style={{
-                  border: `3px solid ${rankContainerOutline}`,
-                  backgroundColor: '#111111'
-                }}
-              >
-                {!isMobile ? (
-                  <Tooltip
-                    content="Rank higher"
-                    isVisible={isUpChevronHovered}
-                    buttonRef={upChevronRef}
-                  >
-                    <button
-                      ref={upChevronRef}
-                      onClick={() => onRankClick(true)}
-                      disabled={rank >= 3}
-                      className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                      onMouseEnter={() => setIsUpChevronHovered(true)}
-                      onMouseLeave={() => setIsUpChevronHovered(false)}
-                    >
-                      <ChevronUpIcon className="h-5 w-5" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button
-                    ref={upChevronRef}
-                    onClick={() => onRankClick(true)}
-                    disabled={rank >= 3}
-                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                  >
-                    <ChevronUpIcon className="h-5 w-5" />
-                  </button>
-                )}
-                <span className={`px-1.5 rounded text-xs text-white`}>
-                  {rank}
-                </span>
-                {!isMobile ? (
-                  <Tooltip
-                    content="Rank lower"
-                    isVisible={isDownChevronHovered}
-                    buttonRef={downChevronRef}
-                  >
-                    <button
-                      ref={downChevronRef}
-                      onClick={() => onRankClick(false)}
-                      disabled={rank <= 1}
-                      className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                      onMouseEnter={() => setIsDownChevronHovered(true)}
-                      onMouseLeave={() => setIsDownChevronHovered(false)}
-                    >
-                      <ChevronDownIcon className="h-5 w-5" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button
-                    ref={downChevronRef}
-                    onClick={() => onRankClick(false)}
-                    disabled={rank <= 1}
-                    className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
-                  >
-                    <ChevronDownIcon className="h-5 w-5" />
-                  </button>
-                )}
-              </div>
+              <RankContainer 
+                rank={rank} 
+                onRankClick={onRankClick}
+              />
             )}
 
             {/* Pause button */}
