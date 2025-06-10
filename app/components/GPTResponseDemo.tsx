@@ -1,16 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 import { addFurigana, containsKanji } from '../../lib/furiganaService';
 import FuriganaText from './FuriganaText';
 import RankContainer from './ui/RankContainer';
-import BreakdownButton from './ui/BreakdownButton';
 import SpeakerButton from './ui/SpeakerButton';
-import PauseButton from './ui/PauseButton';
+import IconButton from './ui/IconButton';
 import { extractJapaneseFromDemo } from '../../lib/audioUtils';
 
 interface DemoResponse {
@@ -185,10 +184,12 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
 
             {/* Breakdown button */}
-            <BreakdownButton 
-              onBreakdownClick={handleBreakdownClick}
+            <IconButton 
+              icon={<MagnifyingGlassIcon className="h-6 w-6" />}
+              onClick={handleBreakdownClick}
               tooltipContent="Analyze content and generate grammar walkthrough"
               buttonRef={breakdownButtonRef}
+              colorScheme="blue"
             />
 
             {/* Speaker button */}
@@ -395,11 +396,17 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
           )}
           
           {/* Pause toggle */}
-          <PauseButton
-            isPaused={isPaused}
-            responseId={response.id}
-            onPauseToggle={() => setIsPaused(!isPaused)}
+          <IconButton
+            icon={<PauseCircleIcon className="h-5 w-5" />}
+            alternateIcon={<PlayCircleIcon className="h-5 w-5" />}
+            isAlternateState={isPaused}
+            onClick={() => setIsPaused(!isPaused)}
+            tooltipContent={{
+              default: "Pause cycling this response in dojo",
+              alternate: "Resume cycling this response in dojo"
+            }}
             buttonRef={pauseButtonRef}
+            colorScheme="green-yellow"
           />
         </div>
 

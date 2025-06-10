@@ -9,7 +9,7 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
-import PauseButton from './ui/PauseButton';
+import IconButton from './ui/IconButton';
 
 interface BreakdownModalDemoProps {
   isOpen: boolean;
@@ -96,11 +96,17 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
 
                     {/* Pause/Play button */}
                     {responseId && onPauseToggle && (
-                      <PauseButton
-                        isPaused={isPaused}
-                        responseId={responseId}
-                        onPauseToggle={onPauseToggle}
+                      <IconButton
+                        icon={<PauseCircleIcon className="h-6 w-6" />}
+                        alternateIcon={<PlayCircleIcon className="h-6 w-6" />}
+                        isAlternateState={isPaused}
+                        onClick={() => onPauseToggle(responseId, !isPaused)}
+                        tooltipContent={{
+                          default: "Pause cycling this response in dojo",
+                          alternate: "Resume cycling this response in dojo"
+                        }}
                         buttonRef={pauseButtonRef}
+                        colorScheme="green-yellow"
                       />
                     )}
 

@@ -11,16 +11,16 @@ import {
   PauseCircleIcon,
   PlayCircleIcon,
   XMarkIcon,
-  CheckIcon
+  CheckIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import BreakdownModal from './BreakdownModal';
 import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
-import BreakdownButton from './ui/BreakdownButton';
 import SpeakerButton from './ui/SpeakerButton';
-import PauseButton from './ui/PauseButton';
+import IconButton from './ui/IconButton';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
@@ -417,10 +417,12 @@ export default function GPTResponse({
 
               {/* Breakdown button */}
               {hasExpression && (
-                <BreakdownButton 
-                  onBreakdownClick={handleBreakdownClick}
+                <IconButton 
+                  icon={<MagnifyingGlassIcon className="h-6 w-6" />}
+                  onClick={handleBreakdownClick}
                   tooltipContent="Dissect"
                   buttonRef={breakdownButtonRef}
+                  colorScheme="blue"
                 />
               )}
 
@@ -690,11 +692,17 @@ export default function GPTResponse({
           
           {/* Pause button - only show when bookmark is "daily summary" */}
           {selectedBookmarkTitle === 'daily summary' && selectedBookmarkId && responseId && onPauseToggle && (
-            <PauseButton
-              isPaused={isPaused}
-              responseId={responseId}
-              onPauseToggle={handlePauseToggle}
+            <IconButton
+              icon={<PauseCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
+              alternateIcon={<PlayCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
+              isAlternateState={isPaused}
+              onClick={() => handlePauseToggle(responseId, !isPaused)}
+              tooltipContent={{
+                default: "Pause cycling this response in dojo",
+                alternate: "Resume cycling this response in dojo"
+              }}
               buttonRef={pauseButtonRef}
+              colorScheme="green-yellow"
               className="relative group"
             />
           )}
