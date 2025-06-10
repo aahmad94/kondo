@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, MagnifyingGlassIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 import { addFurigana, containsKanji } from '../../lib/furiganaService';
 import FuriganaText from './FuriganaText';
 import RankContainer from './ui/RankContainer';
+import BreakdownButton from './ui/BreakdownButton';
 
 interface DemoResponse {
   id: string;
@@ -44,7 +45,6 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { isMobile } = useIsMobile();
   const [isPauseHovered, setIsPauseHovered] = useState(false);
-  const [isBreakdownHovered, setIsBreakdownHovered] = useState(false);
   const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
 
   const [isPlusHovered, setIsPlusHovered] = useState(false);
@@ -258,31 +258,11 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
 
             {/* Breakdown button */}
-            {!isMobile ? (
-              <Tooltip
-                content="Analyze content and generate grammar walkthrough"
-                isVisible={isBreakdownHovered}
-                buttonRef={breakdownButtonRef}
-              >
-                <button 
-                  ref={breakdownButtonRef}
-                  onClick={handleBreakdownClick}
-                  onMouseEnter={() => setIsBreakdownHovered(true)}
-                  onMouseLeave={() => setIsBreakdownHovered(false)}
-                  className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-                >
-                  <MagnifyingGlassIcon className="h-6 w-6" />
-                </button>
-              </Tooltip>
-            ) : (
-              <button 
-                ref={breakdownButtonRef}
-                onClick={handleBreakdownClick}
-                className="text-blue-400 hover:text-blue-700 transition-colors duration-200"
-              >
-                <MagnifyingGlassIcon className="h-6 w-6" />
-              </button>
-            )}
+            <BreakdownButton 
+              onBreakdownClick={handleBreakdownClick}
+              tooltipContent="Analyze content and generate grammar walkthrough"
+              buttonRef={breakdownButtonRef}
+            />
 
             {/* Speaker button */}
             {!isMobile ? (

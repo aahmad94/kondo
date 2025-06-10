@@ -8,7 +8,6 @@ import {
   ChatBubbleLeftEllipsisIcon, 
   ChevronDownIcon, 
   ArrowPathIcon, 
-  MagnifyingGlassIcon,
   PauseCircleIcon,
   PlayCircleIcon,
   SpeakerWaveIcon,
@@ -20,6 +19,7 @@ import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import BreakdownModal from './BreakdownModal';
 import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
+import BreakdownButton from './ui/BreakdownButton';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
@@ -106,7 +106,6 @@ export default function GPTResponse({
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
-  const [isBreakdownHovered, setIsBreakdownHovered] = useState(false);
   const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -585,31 +584,11 @@ export default function GPTResponse({
 
               {/* Breakdown button */}
               {hasExpression && (
-                !isMobile ? (
-                  <Tooltip
-                    content="Dissect"
-                    isVisible={isBreakdownHovered}
-                    buttonRef={breakdownButtonRef}
-                  >
-                    <button 
-                      ref={breakdownButtonRef}
-                      onClick={handleBreakdownClick}
-                      onMouseEnter={() => setIsBreakdownHovered(true)}
-                      onMouseLeave={() => setIsBreakdownHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                    >
-                      <MagnifyingGlassIcon className="h-6 w-6" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button 
-                    ref={breakdownButtonRef}
-                    onClick={handleBreakdownClick}
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                  >
-                    <MagnifyingGlassIcon className="h-6 w-6" />
-                  </button>
-                )
+                <BreakdownButton 
+                  onBreakdownClick={handleBreakdownClick}
+                  tooltipContent="Dissect"
+                  buttonRef={breakdownButtonRef}
+                />
               )}
 
               {/* Text-to-speech button */}
