@@ -20,6 +20,7 @@ import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import BreakdownButton from './ui/BreakdownButton';
 import SpeakerButton from './ui/SpeakerButton';
+import PauseButton from './ui/PauseButton';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
@@ -101,7 +102,6 @@ export default function GPTResponse({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const router = useRouter();
-  const [isHovered, setIsHovered] = useState(false);
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
@@ -376,10 +376,10 @@ export default function GPTResponse({
 
 
 
-  const handlePauseToggle = async () => {
-    if (!responseId || !onPauseToggle) return;
-    await onPauseToggle(responseId, !isPaused);
-    await trackPauseToggle(!isPaused);
+  const handlePauseToggle = async (responseId: string, newIsPaused: boolean) => {
+    if (!onPauseToggle) return;
+    await onPauseToggle(responseId, newIsPaused);
+    await trackPauseToggle(newIsPaused);
   };
 
   const handleAddToBookmark = async (bookmarkId: string, bookmarkTitle: string) => {
@@ -690,42 +690,13 @@ export default function GPTResponse({
           
           {/* Pause button - only show when bookmark is "daily summary" */}
           {selectedBookmarkTitle === 'daily summary' && selectedBookmarkId && responseId && onPauseToggle && (
-            !isMobile ? (
-              <Tooltip
-                content={isPaused 
-                  ? "Resume cycling this response in dojo" 
-                  : "Pause cycling this response in dojo"
-                }
-                isVisible={isHovered}
-                buttonRef={pauseButtonRef}
-              >
-                <button 
-                  ref={pauseButtonRef}
-                  onClick={handlePauseToggle}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-                >
-                  {isPaused ? (
-                    <PlayCircleIcon className="h-5 w-5" />
-                  ) : (
-                    <PauseCircleIcon className="h-5 w-5" />
-                  )}
-                </button>
-              </Tooltip>
-            ) : (
-              <button 
-                ref={pauseButtonRef}
-                onClick={handlePauseToggle}
-                className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-              >
-                {isPaused ? (
-                  <PlayCircleIcon className="h-5 w-5" />
-                ) : (
-                  <PauseCircleIcon className="h-5 w-5" />
-                )}
-              </button>
-            )
+            <PauseButton
+              isPaused={isPaused}
+              responseId={responseId}
+              onPauseToggle={handlePauseToggle}
+              buttonRef={pauseButtonRef}
+              className="relative group"
+            />
           )}
         </div>
       )}

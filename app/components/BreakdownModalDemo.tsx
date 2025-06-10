@@ -9,6 +9,7 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
+import PauseButton from './ui/PauseButton';
 
 interface BreakdownModalDemoProps {
   isOpen: boolean;
@@ -38,7 +39,6 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
   onPauseToggle
 }) => {
   const { isMobile } = useIsMobile();
-  const [isHovered, setIsHovered] = useState(false);
   const pauseButtonRef = useRef<HTMLButtonElement>(null);
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -51,11 +51,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
     await onRankUpdate(responseId, newRank);
   };
 
-  const handlePauseToggle = async () => {
-    if (!responseId || !onPauseToggle) return;
-    
-    await onPauseToggle(responseId, !isPaused);
-  };
+
 
 
 
@@ -100,50 +96,12 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
 
                     {/* Pause/Play button */}
                     {responseId && onPauseToggle && (
-                      !isMobile ? (
-                        <Tooltip
-                          content={isPaused 
-                            ? "Resume cycling this response in dojo" 
-                            : "Pause cycling this response in dojo"
-                          }
-                          isVisible={isHovered}
-                          buttonRef={pauseButtonRef}
-                        >
-                          <button
-                            ref={pauseButtonRef}
-                            onClick={handlePauseToggle}
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
-                            className={`transition-colors duration-200 ${
-                              isPaused 
-                                ? 'text-green-500 hover:text-green-700' 
-                                : 'text-yellow-500 hover:text-yellow-700'
-                            }`}
-                          >
-                            {isPaused ? (
-                              <PlayCircleIcon className="h-6 w-6" />
-                            ) : (
-                              <PauseCircleIcon className="h-6 w-6" />
-                            )}
-                          </button>
-                        </Tooltip>
-                      ) : (
-                        <button
-                          ref={pauseButtonRef}
-                          onClick={handlePauseToggle}
-                          className={`transition-colors duration-200 ${
-                            isPaused 
-                              ? 'text-green-500 hover:text-green-700' 
-                              : 'text-yellow-500 hover:text-yellow-700'
-                          }`}
-                        >
-                          {isPaused ? (
-                            <PlayCircleIcon className="h-6 w-6" />
-                          ) : (
-                            <PauseCircleIcon className="h-6 w-6" />
-                          )}
-                        </button>
-                      )
+                      <PauseButton
+                        isPaused={isPaused}
+                        responseId={responseId}
+                        onPauseToggle={onPauseToggle}
+                        buttonRef={pauseButtonRef}
+                      />
                     )}
 
                     {/* Text to Speech button */}

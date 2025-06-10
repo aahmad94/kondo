@@ -6,6 +6,7 @@ import Tooltip from './Tooltip';
 import { useIsMobile } from '../hooks/useIsMobile';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
+import PauseButton from './ui/PauseButton';
 
 interface BreakdownModalProps {
   isOpen: boolean;
@@ -34,7 +35,6 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   onLoadingChange,
   onError
 }) => {
-  const [isHovered, setIsHovered] = React.useState(false);
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const { isMobile, offset } = useIsMobile();
@@ -67,42 +67,13 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 
             {/* Pause button */}
             {responseId && !responseId.startsWith('temp_') && onPauseToggle && (
-              !isMobile ? (
-                <Tooltip
-                  content={isPaused 
-                    ? "Resume cycling this response in dojo" 
-                    : "Pause cycling this response in dojo"
-                  }
-                  isVisible={isHovered}
-                  buttonRef={pauseButtonRef}
-                >
-                  <button 
-                    ref={pauseButtonRef}
-                    onClick={() => onPauseToggle(responseId, !isPaused)}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
-                    className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-                  >
-                    {isPaused ? (
-                      <PlayCircleIcon className="h-6 w-6" />
-                    ) : (
-                      <PauseCircleIcon className="h-6 w-6" />
-                    )}
-                  </button>
-                </Tooltip>
-              ) : (
-                <button 
-                  ref={pauseButtonRef}
-                  onClick={() => onPauseToggle(responseId, !isPaused)}
-                  className={`relative group ${isPaused ? 'text-green-500 hover:text-green-700' : 'text-yellow-500 hover:text-yellow-700'} transition-colors duration-200`}
-                >
-                  {isPaused ? (
-                    <PlayCircleIcon className="h-6 w-6" />
-                  ) : (
-                    <PauseCircleIcon className="h-6 w-6" />
-                  )}
-                </button>
-              )
+              <PauseButton
+                isPaused={isPaused}
+                responseId={responseId}
+                onPauseToggle={onPauseToggle}
+                buttonRef={pauseButtonRef}
+                className="relative group"
+              />
             )}
 
             {/* Speaker button */}

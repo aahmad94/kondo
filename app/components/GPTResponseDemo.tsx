@@ -10,6 +10,7 @@ import FuriganaText from './FuriganaText';
 import RankContainer from './ui/RankContainer';
 import BreakdownButton from './ui/BreakdownButton';
 import SpeakerButton from './ui/SpeakerButton';
+import PauseButton from './ui/PauseButton';
 import { extractJapaneseFromDemo } from '../../lib/audioUtils';
 
 interface DemoResponse {
@@ -44,7 +45,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [furiganaText, setFuriganaText] = useState<string>(response.content.furigana || '');
   const [isLoadingFurigana, setIsLoadingFurigana] = useState(false);
   const { isMobile } = useIsMobile();
-  const [isPauseHovered, setIsPauseHovered] = useState(false);
+
 
   const [isPlusHovered, setIsPlusHovered] = useState(false);
   const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
@@ -142,9 +143,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
     setRank(newRank);
   };
 
-  const handlePauseToggle = () => {
-    setIsPaused(!isPaused);
-  };
+
 
   const handleBreakdownClick = () => {
     setIsBreakdownOpen(true);
@@ -396,50 +395,12 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
           )}
           
           {/* Pause toggle */}
-          {!isMobile ? (
-            <Tooltip
-              content={isPaused 
-                ? "Resume cycling this response in dojo" 
-                : "Pause cycling this response in dojo"
-              }
-              isVisible={isPauseHovered}
-              buttonRef={pauseButtonRef}
-            >
-              <button 
-                ref={pauseButtonRef}
-                onClick={handlePauseToggle}
-                onMouseEnter={() => setIsPauseHovered(true)}
-                onMouseLeave={() => setIsPauseHovered(false)}
-                className={`transition-colors duration-200 ${
-                  isPaused 
-                    ? 'text-green-500 hover:text-green-700' 
-                    : 'text-yellow-500 hover:text-yellow-700'
-                }`}
-              >
-                {isPaused ? (
-                  <PlayCircleIcon className="h-5 w-5" />
-                ) : (
-                  <PauseCircleIcon className="h-5 w-5" />
-                )}
-              </button>
-            </Tooltip>
-          ) : (
-            <button 
-              ref={pauseButtonRef}
-              onClick={handlePauseToggle}
-              className={`transition-colors duration-200 ${
-                isPaused 
-                  ? 'text-green-500 hover:text-green-700' 
-                  : 'text-yellow-500 hover:text-yellow-700'
-              }`}
-            >
-              {isPaused ? (
-                <PlayCircleIcon className="h-5 w-5" />
-              ) : (
-                <PauseCircleIcon className="h-5 w-5" />
-              )}
-            </button>
-          )}
+          <PauseButton
+            isPaused={isPaused}
+            responseId={response.id}
+            onPauseToggle={() => setIsPaused(!isPaused)}
+            buttonRef={pauseButtonRef}
+          />
         </div>
 
         {/* Bottom spacing */}
