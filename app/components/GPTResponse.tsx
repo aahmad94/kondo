@@ -24,6 +24,7 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
+import { extractExpressions, prepareTextForSpeech } from '../../lib/audioUtils';
 
 import { useIsMobile } from '../hooks/useIsMobile';
 import StandardResponse from './StandardResponse';
@@ -114,7 +115,6 @@ export default function GPTResponse({
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
   const { isMobile, offset } = useIsMobile();
   
   // Furigana toggle state - initialize from props
@@ -231,33 +231,8 @@ export default function GPTResponse({
   // Helper to check if a block should use StandardResponse styling
   const isStandardResponse = (items: string[]) => [2, 3, 4].includes(items.filter(item => item.match(/^\s*\d+\/\s*/)).length);
 
-  // Extract expressions for voice and breakdown logic
-  function extractExpressions(response: string): string[] {
-    // If the first line doesn't include a number, return an empty array
-    // hasExpression will be false, and the response will be rendered as a regular text
-    // speaker and breakdown buttons will not be shown
-    const firstLineIncludesNumber = response.split('\n')[0].includes('1/');
-    if (!firstLineIncludesNumber) {
-      return [];
-    }
-
-    // Find all numbered items (e.g., 1/ ... 2/ ... 3/ ...)
-    const numberedItems: RegExpMatchArray[] = [...response.matchAll(/^\d+\/\s*(.*)$/gm)];
-    const notStandardList = numberedItems.some(item => item[0].includes('5/'));
-    let expressions: string[] = [];
-    // If 5 or more, return all content after each number-slash
-    if (notStandardList) {
-      // expressions = numberedItems
-      //   .map((match: RegExpMatchArray) => match[1].trim())
-      //   .filter((item: string) => !!item);
-      return [];
-    } else {
-      expressions = numberedItems
-        .map((match: RegExpMatchArray) => (match[0].includes('1/') ? match[1].trim() : undefined))
-        .filter((item: string | undefined): item is string => !!item);
-    }
-    return expressions.filter(Boolean);
-  }
+  // Extract expressions using utility function
+  // This is used for voice and breakdown logic
 
   const expressions = extractExpressions(response);
   
@@ -453,22 +428,9 @@ export default function GPTResponse({
               {hasExpression && responseId && (
                 <SpeakerButton
                   responseId={responseId}
-                  textToSpeak={(() => {
-                    let textToSpeak = expressions.join('\n');
-                    if (response.includes(' - ')) {
-                      textToSpeak = response
-                        .split('\n')
-                        .map(line => {
-                          const match = line.match(/^([^（(]+)/);
-                          return match ? match[1].trim() : '';
-                        })
-                        .filter(Boolean)
-                        .join('\n');
-                    }
-                    return textToSpeak;
-                  })()}
+                  textToSpeak={prepareTextForSpeech(response)}
                   selectedLanguage={selectedLanguage}
-                  cachedAudio={cachedAudio}
+                  cachedAudio={null}
                   buttonRef={speakerButtonRef}
                   onLoadingChange={onLoadingChange}
                   onError={(error) => {
@@ -775,7 +737,7 @@ export default function GPTResponse({
           onClose={() => setIsBookmarkModalOpen(false)}
           response={response}
           reservedBookmarkTitles={reservedBookmarkTitles}
-          cachedAudio={cachedAudio}
+          cachedAudio={null}
           breakdownContent={breakdownContent}
           furigana={currentFurigana}
           isFuriganaEnabled={localFuriganaEnabled}

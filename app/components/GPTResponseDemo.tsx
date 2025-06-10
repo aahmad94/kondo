@@ -10,6 +10,7 @@ import FuriganaText from './FuriganaText';
 import RankContainer from './ui/RankContainer';
 import BreakdownButton from './ui/BreakdownButton';
 import SpeakerButton from './ui/SpeakerButton';
+import { extractJapaneseFromDemo } from '../../lib/audioUtils';
 
 interface DemoResponse {
   id: string;
@@ -195,7 +196,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             {response.audio?.success && (
               <SpeakerButton
                 responseId={response.id}
-                textToSpeak={response.content.japanese}
+                textToSpeak={extractJapaneseFromDemo(response.content)}
                 selectedLanguage="ja"
                 cachedAudio={response.audio ? {
                   audio: response.audio.audio,
