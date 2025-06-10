@@ -1,10 +1,11 @@
 import React from 'react';
-import { XMarkIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, PlayCircleIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Tooltip from './Tooltip';
 import { useIsMobile } from '../hooks/useIsMobile';
 import RankContainer from './ui/RankContainer';
+import SpeakerButton from './ui/SpeakerButton';
 
 interface BreakdownModalProps {
   isOpen: boolean;
@@ -15,8 +16,9 @@ interface BreakdownModalProps {
   responseId?: string | null;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
-  onTextToSpeech?: () => Promise<void>;
-  isPlaying?: boolean;
+  selectedLanguage?: string;
+  onLoadingChange?: (loading: boolean) => void;
+  onError?: (error: string) => void;
 }
 
 const BreakdownModal: React.FC<BreakdownModalProps> = ({ 
@@ -28,11 +30,11 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   responseId,
   onRankUpdate,
   onPauseToggle,
-  onTextToSpeech,
-  isPlaying
+  selectedLanguage = 'ja',
+  onLoadingChange,
+  onError
 }) => {
   const [isHovered, setIsHovered] = React.useState(false);
-  const [isSpeakerHovered, setIsSpeakerHovered] = React.useState(false);
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const { isMobile, offset } = useIsMobile();
@@ -103,42 +105,20 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
               )
             )}
 
-            {/* Text-to-speech button */}
-            {onTextToSpeech && (
-              !isMobile ? (
-                <Tooltip
-                  content="Listen to pronunciation"
-                  isVisible={isSpeakerHovered}
-                  buttonRef={speakerButtonRef}
-                >
-                  <button 
-                    ref={speakerButtonRef}
-                    onClick={onTextToSpeech}
-                    onMouseEnter={() => setIsSpeakerHovered(true)}
-                    onMouseLeave={() => setIsSpeakerHovered(false)}
-                    className={`transition-colors duration-200 ${
-                      isPlaying
-                        ? 'text-green-400 hover:text-green-600'
-                        : 'text-blue-400 hover:text-blue-700'
-                    } relative group`}
-                  >
-                    <SpeakerWaveIcon className="h-6 w-6" />
-                  </button>
-                </Tooltip>
-              ) : (
-                <button 
-                  ref={speakerButtonRef}
-                  onClick={onTextToSpeech}
-                  className={`transition-colors duration-200 ${
-                    isPlaying
-                      ? 'text-green-400 hover:text-green-600'
-                      : 'text-blue-400 hover:text-blue-700'
-                  } relative group`}
-                >
-                  <SpeakerWaveIcon className="h-6 w-6" />
-                </button>
-              )
+            {/* Speaker button */}
+            {responseId && breakdown && (
+              <SpeakerButton
+                responseId={responseId}
+                textToSpeak={breakdown}
+                selectedLanguage={selectedLanguage}
+                tooltipContent="Listen to breakdown"
+                buttonRef={speakerButtonRef}
+                onLoadingChange={onLoadingChange}
+                onError={onError}
+              />
             )}
+
+
           </div>
           <button onClick={onClose} className="text-white hover:opacity-70 transition-opacity duration-200">
             <XMarkIcon className="h-6 w-6" />

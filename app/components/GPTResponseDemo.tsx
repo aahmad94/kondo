@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, SpeakerWaveIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
@@ -9,6 +9,7 @@ import { addFurigana, containsKanji } from '../../lib/furiganaService';
 import FuriganaText from './FuriganaText';
 import RankContainer from './ui/RankContainer';
 import BreakdownButton from './ui/BreakdownButton';
+import SpeakerButton from './ui/SpeakerButton';
 
 interface DemoResponse {
   id: string;
@@ -39,13 +40,10 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [rank, setRank] = useState(response.rank);
   const [isPaused, setIsPaused] = useState(response.isPaused);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [furiganaText, setFuriganaText] = useState<string>(response.content.furigana || '');
   const [isLoadingFurigana, setIsLoadingFurigana] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { isMobile } = useIsMobile();
   const [isPauseHovered, setIsPauseHovered] = useState(false);
-  const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
 
   const [isPlusHovered, setIsPlusHovered] = useState(false);
   const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
@@ -151,80 +149,9 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
     setIsBreakdownOpen(true);
   };
 
-  const handleSpeakerClick = async () => {
-    if (!response.audio || !response.audio.success) {
-      alert('Audio not available for this demo response');
-      return;
-    }
 
-    try {
-      if (isPlaying && audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-        return;
-      }
 
-      if (!audioRef.current) {
-        audioRef.current = new Audio();
-      }
 
-      // Convert base64 audio to blob and create URL
-      const audioBlob = new Blob(
-        [Buffer.from(response.audio.audio, 'base64')],
-        { type: response.audio.mimeType }
-      );
-      const audioUrl = URL.createObjectURL(audioBlob);
-      audioRef.current.src = audioUrl;
-
-      await audioRef.current.play();
-      setIsPlaying(true);
-
-      audioRef.current.onended = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      audioRef.current.onerror = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-        alert('Error playing audio');
-      };
-    } catch (error) {
-      console.error('Error playing audio:', error);
-      setIsPlaying(false);
-      alert('Error playing audio');
-    }
-  };
-
-  // Clean up audio on unmount
-  useEffect(() => {
-    let isUnmounted = false;
-    const audio = audioRef.current;
-
-    if (audio) {
-      const handleEnded = () => {
-        if (!isUnmounted) setIsPlaying(false);
-      };
-      const handleError = () => {
-        if (!isUnmounted) {
-          setIsPlaying(false);
-          alert('Error playing audio');
-        }
-      };
-      audio.onended = handleEnded;
-      audio.onerror = handleError;
-    }
-
-    return () => {
-      isUnmounted = true;
-      if (audio) {
-        audio.pause();
-        audio.src = '';
-        audio.onended = null;
-        audio.onerror = null;
-      }
-    };
-  }, [response]);
 
   // Extract Japanese expressions for highlighting
   function extractExpressions(response: string): string[] {
@@ -265,40 +192,20 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             />
 
             {/* Speaker button */}
-            {!isMobile ? (
-              <Tooltip
-                content="Listen to pronunciation"
-                isVisible={isSpeakerHovered}
+            {response.audio?.success && (
+              <SpeakerButton
+                responseId={response.id}
+                textToSpeak={response.content.japanese}
+                selectedLanguage="ja"
+                cachedAudio={response.audio ? {
+                  audio: response.audio.audio,
+                  mimeType: response.audio.mimeType
+                } : null}
                 buttonRef={speakerButtonRef}
-              >
-                <button 
-                  ref={speakerButtonRef}
-                  onClick={handleSpeakerClick}
-                  onMouseEnter={() => setIsSpeakerHovered(true)}
-                  onMouseLeave={() => setIsSpeakerHovered(false)}
-                  className={`transition-colors duration-200 ${
-                    isPlaying 
-                      ? 'text-green-400 hover:text-green-600' 
-                      : 'text-blue-400 hover:text-blue-700'
-                  }`}
-                  disabled={!response.audio?.success}
-                >
-                  <SpeakerWaveIcon className="h-6 w-6" />
-                </button>
-              </Tooltip>
-            ) : (
-              <button 
-                ref={speakerButtonRef}
-                onClick={handleSpeakerClick}
-                className={`transition-colors duration-200 ${
-                  isPlaying 
-                    ? 'text-green-400 hover:text-green-600' 
-                    : 'text-blue-400 hover:text-blue-700'
-                }`}
-                disabled={!response.audio?.success}
-              >
-                <SpeakerWaveIcon className="h-6 w-6" />
-              </button>
+                onError={(error) => {
+                  alert(error);
+                }}
+              />
             )}
           </div>
 

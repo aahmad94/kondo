@@ -8,7 +8,7 @@ import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
 import { getLanguageInstructions } from '../../lib/languageService';
 import SearchBar from './SearchBar';
-import { trackBreakdownClick, trackSpeakerClick, trackPauseToggle, trackChangeRank } from '../../lib/amplitudeService';
+import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '../../lib/amplitudeService';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -865,7 +865,6 @@ export default function ChatBox({
                       selectedLanguage={selectedLanguage}
                       onLoadingChange={setIsLoading}
                       onBreakdownClick={() => trackBreakdownClick(response.id!)}
-                      onSpeakerClick={() => trackSpeakerClick(response.id!)}
                     />
                   ))}
                 </div>
@@ -944,7 +943,6 @@ export default function ChatBox({
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
                   onBreakdownClick={() => trackBreakdownClick(response.id!)}
-                  onSpeakerClick={() => trackSpeakerClick(response.id!)}
                 />
               ))}
             </div>

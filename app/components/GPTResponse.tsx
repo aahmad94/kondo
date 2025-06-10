@@ -10,7 +10,6 @@ import {
   ArrowPathIcon, 
   PauseCircleIcon,
   PlayCircleIcon,
-  SpeakerWaveIcon,
   XMarkIcon,
   CheckIcon
 } from '@heroicons/react/24/solid';
@@ -20,10 +19,12 @@ import BreakdownModal from './BreakdownModal';
 import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import BreakdownButton from './ui/BreakdownButton';
+import SpeakerButton from './ui/SpeakerButton';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
-import { trackBreakdownClick, trackSpeakerClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
+import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
+
 import { useIsMobile } from '../hooks/useIsMobile';
 import StandardResponse from './StandardResponse';
 
@@ -55,7 +56,6 @@ interface GPTResponseProps {
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
   onBreakdownClick?: () => void;
-  onSpeakerClick?: () => void;
 }
 
 export default function GPTResponse({ 
@@ -85,7 +85,6 @@ export default function GPTResponse({
   selectedLanguage = 'ja',
   onLoadingChange,
   onBreakdownClick,
-  onSpeakerClick,
   onBookmarkCreated
 }: GPTResponseProps) {
   const red = '#d93900'
@@ -102,7 +101,6 @@ export default function GPTResponse({
 
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
-  const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
@@ -115,8 +113,6 @@ export default function GPTResponse({
   const [breakdownContent, setBreakdownContent] = useState('');
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [cachedAudio, setCachedAudio] = useState<{audio: string, mimeType: string} | null>(null);
   const { isMobile, offset } = useIsMobile();
@@ -403,117 +399,7 @@ export default function GPTResponse({
     }
   };
 
-  const handleTextToSpeech = async () => {
-    if (!responseId) return;
 
-    try {
-      // If already playing, pause and reset
-      if (isPlaying && audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-        return;
-      }
-
-      if (cachedAudio) {
-        if (!audioRef.current) {
-          audioRef.current = new Audio();
-        }
-
-        const audioBlob = new Blob(
-          [Buffer.from(cachedAudio.audio, 'base64')],
-          { type: cachedAudio.mimeType }
-        );
-        const audioUrl = URL.createObjectURL(audioBlob);
-        audioRef.current.src = audioUrl;
-
-        await audioRef.current.play();
-        setIsPlaying(true);
-        await trackSpeakerClick(responseId);
-
-        audioRef.current.onended = () => {
-          setIsPlaying(false);
-          URL.revokeObjectURL(audioUrl);
-        };
-        audioRef.current.onerror = () => {
-          setIsPlaying(false);
-          URL.revokeObjectURL(audioUrl);
-          setErrorMessage('Error playing audio');
-        };
-        return;
-      }
-
-      onLoadingChange?.(true);
-      
-      // Extract only Japanese terms for text-to-speech
-      let textToSpeak = expressions.join('\n');
-      if (response.includes(' - ')) {
-        // This is a terms function output:
-            // 1/ ウェブサイト (うぇぶさいと, uebusaito) - website
-            // 2/ インターネット (いんたーねっと, intānetto) - internet
-        // modify to extract only the Japanese terms:
-            // 1/ ウェブサイト
-            // 2/ インターネット
-        textToSpeak = response
-          .split('\n')
-          .map(line => {
-            const match = line.match(/^([^（(]+)/);
-            return match ? match[1].trim() : '';
-          })
-          .filter(Boolean)
-          .join('\n');
-      }
-
-      const res = await fetch('/api/textToSpeech', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          text: textToSpeak,
-          language: selectedLanguage,
-          responseId: responseId
-        }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to generate speech');
-      }
-
-      const data = await res.json();
-      setCachedAudio(data);
-
-      if (!audioRef.current) {
-        audioRef.current = new Audio();
-      }
-
-      const audioBlob = new Blob(
-        [Buffer.from(data.audio, 'base64')],
-        { type: data.mimeType }
-      );
-      const audioUrl = URL.createObjectURL(audioBlob);
-      audioRef.current.src = audioUrl;
-
-      await audioRef.current.play();
-      setIsPlaying(true);
-      await trackSpeakerClick(responseId);
-
-      audioRef.current.onended = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-      };
-      audioRef.current.onerror = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-        setErrorMessage('Error playing audio');
-      };
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Failed to generate speech');
-      setIsErrorModalOpen(true);
-    } finally {
-      onLoadingChange?.(false);
-    }
-  };
 
   const handlePauseToggle = async () => {
     if (!responseId || !onPauseToggle) return;
@@ -527,35 +413,7 @@ export default function GPTResponse({
     }
   };
 
-  // Clean up audio element on unmount and reset isPlaying, matching GPTResponseDemo
-  useEffect(() => {
-    let isUnmounted = false;
-    const audio = audioRef.current;
 
-    if (audio) {
-      const handleEnded = () => {
-        if (!isUnmounted) setIsPlaying(false);
-      };
-      const handleError = () => {
-        if (!isUnmounted) {
-          setIsPlaying(false);
-          setErrorMessage('Error playing audio');
-        }
-      };
-      audio.onended = handleEnded;
-      audio.onerror = handleError;
-    }
-
-    return () => {
-      isUnmounted = true;
-      if (audio) {
-        audio.pause();
-        audio.src = '';
-        audio.onended = null;
-        audio.onerror = null;
-      }
-    };
-  }, [response]);
 
   return (
     <div className="pl-3 py-3 rounded text-white w-full border-b border-[#222222]">
@@ -592,40 +450,32 @@ export default function GPTResponse({
               )}
 
               {/* Text-to-speech button */}
-              {hasExpression && (
-                !isMobile ? (
-                  <Tooltip
-                    content="Listen to pronunciation"
-                    isVisible={isSpeakerHovered}
-                    buttonRef={speakerButtonRef}
-                  >
-                    <button 
-                      ref={speakerButtonRef}
-                      onClick={handleTextToSpeech}
-                      onMouseEnter={() => setIsSpeakerHovered(true)}
-                      onMouseLeave={() => setIsSpeakerHovered(false)}
-                      className={`transition-colors duration-200 ${
-                        isPlaying
-                          ? 'text-green-400 hover:text-green-600'
-                          : 'text-blue-400 hover:text-blue-700'
-                      } relative group`}
-                    >
-                      <SpeakerWaveIcon className="h-6 w-6" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button 
-                    ref={speakerButtonRef}
-                    onClick={handleTextToSpeech}
-                    className={`transition-colors duration-200 ${
-                      isPlaying
-                        ? 'text-green-400 hover:text-green-600'
-                        : 'text-blue-400 hover:text-blue-700'
-                    } relative group`}
-                  >
-                    <SpeakerWaveIcon className="h-6 w-6" />
-                  </button>
-                )
+              {hasExpression && responseId && (
+                <SpeakerButton
+                  responseId={responseId}
+                  textToSpeak={(() => {
+                    let textToSpeak = expressions.join('\n');
+                    if (response.includes(' - ')) {
+                      textToSpeak = response
+                        .split('\n')
+                        .map(line => {
+                          const match = line.match(/^([^（(]+)/);
+                          return match ? match[1].trim() : '';
+                        })
+                        .filter(Boolean)
+                        .join('\n');
+                    }
+                    return textToSpeak;
+                  })()}
+                  selectedLanguage={selectedLanguage}
+                  cachedAudio={cachedAudio}
+                  buttonRef={speakerButtonRef}
+                  onLoadingChange={onLoadingChange}
+                  onError={(error) => {
+                    setErrorMessage(error);
+                    setIsErrorModalOpen(true);
+                  }}
+                />
               )}
 
               {/* Quote button - only show when not in a bookmark */}
@@ -952,8 +802,12 @@ export default function GPTResponse({
           responseId={responseId ?? null}
           onRankUpdate={onRankUpdate}
           onPauseToggle={onPauseToggle}
-          onTextToSpeech={handleTextToSpeech}
-          isPlaying={isPlaying}
+          selectedLanguage={selectedLanguage}
+          onLoadingChange={onLoadingChange}
+          onError={(error) => {
+            setErrorMessage(error);
+            setIsErrorModalOpen(true);
+          }}
         />
       )}
 

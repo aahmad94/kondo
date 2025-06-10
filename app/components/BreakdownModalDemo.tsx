@@ -2,12 +2,13 @@
 
 import { Fragment, useRef, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, PlayCircleIcon, PauseCircleIcon, SpeakerWaveIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, PlayCircleIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 import RankContainer from './ui/RankContainer';
+import SpeakerButton from './ui/SpeakerButton';
 
 interface BreakdownModalDemoProps {
   isOpen: boolean;
@@ -36,11 +37,8 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
   onRankUpdate,
   onPauseToggle
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { isMobile } = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
-  const [isSpeakerHovered, setIsSpeakerHovered] = useState(false);
   const pauseButtonRef = useRef<HTMLButtonElement>(null);
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -59,67 +57,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
     await onPauseToggle(responseId, !isPaused);
   };
 
-  const handleTextToSpeech = async () => {
-    if (!audio || !audio.success) {
-      alert('Audio not available for this demo response');
-      return;
-    }
 
-    try {
-      if (isPlaying && audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-        return;
-      }
-
-      if (!audioRef.current) {
-        audioRef.current = new Audio();
-      }
-
-      // Convert base64 audio to blob and create URL
-      const audioBlob = new Blob(
-        [Buffer.from(audio.audio, 'base64')],
-        { type: audio.mimeType }
-      );
-      const audioUrl = URL.createObjectURL(audioBlob);
-      audioRef.current.src = audioUrl;
-
-      await audioRef.current.play();
-      setIsPlaying(true);
-
-      audioRef.current.onended = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      audioRef.current.onerror = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-        alert('Error playing audio');
-      };
-    } catch (error) {
-      console.error('Error playing audio:', error);
-      setIsPlaying(false);
-      alert('Error playing audio');
-    }
-  };
-
-  // Clean up audio on unmount or when modal closes
-  useEffect(() => {
-    if (!isOpen && audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
-    };
-  }, []);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -209,40 +147,20 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                     )}
 
                     {/* Text to Speech button */}
-                    {!isMobile ? (
-                      <Tooltip
-                        content="Listen to pronunciation"
-                        isVisible={isSpeakerHovered}
+                    {audio?.success && responseId && (
+                      <SpeakerButton
+                        responseId={responseId}
+                        textToSpeak={breakdown}
+                        selectedLanguage="ja"
+                        cachedAudio={audio ? {
+                          audio: audio.audio,
+                          mimeType: audio.mimeType
+                        } : null}
                         buttonRef={speakerButtonRef}
-                      >
-                        <button
-                          ref={speakerButtonRef}
-                          onClick={handleTextToSpeech}
-                          onMouseEnter={() => setIsSpeakerHovered(true)}
-                          onMouseLeave={() => setIsSpeakerHovered(false)}
-                          className={`transition-colors duration-200 ${
-                            isPlaying 
-                              ? 'text-green-400 hover:text-green-600' 
-                              : 'text-blue-400 hover:text-blue-700'
-                          }`}
-                          disabled={!audio?.success}
-                        >
-                          <SpeakerWaveIcon className="h-6 w-6" />
-                        </button>
-                      </Tooltip>
-                    ) : (
-                      <button
-                        ref={speakerButtonRef}
-                        onClick={handleTextToSpeech}
-                        className={`transition-colors duration-200 ${
-                          isPlaying 
-                            ? 'text-green-400 hover:text-green-600' 
-                            : 'text-blue-400 hover:text-blue-700'
-                        }`}
-                        disabled={!audio?.success}
-                      >
-                        <SpeakerWaveIcon className="h-6 w-6" />
-                      </button>
+                        onError={(error) => {
+                          alert(error);
+                        }}
+                      />
                     )}
                   </div>
                   {/* Right: X button */}
