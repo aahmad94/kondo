@@ -175,7 +175,7 @@ export default function FlashcardModal({
 
           {/* Just the number indicator */}
           <div className="flex items-center">
-            <span className="text-lg text-white font-medium">
+            <span className="text-md text-white">
               {currentIndex + 1}
             </span>
           </div>
