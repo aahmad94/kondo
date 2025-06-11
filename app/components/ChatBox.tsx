@@ -9,6 +9,9 @@ import GPTResponse from './GPTResponse';
 import { getLanguageInstructions } from '../../lib/languageService';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '../../lib/amplitudeService';
+import { extractExpressions } from '../../lib/expressionUtils';
+import DojoMenuBar from './DojoMenuBar';
+import FlashcardModal from './FlashcardModal';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -118,6 +121,16 @@ export default function ChatBox({
   const previousLanguageRef = useRef(selectedLanguage);
   // Add ref to track ongoing rank updates to prevent duplicates
   const ongoingRankUpdatesRef = useRef<Set<string>>(new Set());
+  // Flashcard mode state
+  const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
+  const [flashcardResponses, setFlashcardResponses] = useState<Response[]>([]);
+
+  // Keep flashcard responses in sync with bookmark responses when modal is open
+  useEffect(() => {
+    if (isFlashcardModalOpen) {
+      setFlashcardResponses(getFlashcardResponses());
+    }
+  }, [bookmarkResponses, isFlashcardModalOpen]);
 
   const bookmarkContainerHeight = () => {
     return window.innerWidth < 768 ? 'h-[80%]' : 'h-[91%]';
@@ -799,6 +812,21 @@ export default function ChatBox({
     }
   };
 
+  // Filter responses that have expressions for flashcard mode
+  const getFlashcardResponses = (): Response[] => {
+    const responsesToFilter = Object.values(bookmarkResponses);
+    return responsesToFilter.filter((response: Response) => {
+      return extractExpressions(response.content).length > 0;
+    });
+  };
+
+  // Handle flashcard mode
+  const handleFlashcardMode = () => {
+    const flashcards = getFlashcardResponses();
+    setFlashcardResponses(flashcards);
+    setIsFlashcardModalOpen(true);
+  };
+
 
   if (status === "loading") {
     return <div>Loading...</div>
@@ -818,7 +846,7 @@ export default function ChatBox({
         }}
       >
         {isLoading && (
-          <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-[60]">
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-[80]">
             <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
           </div>
         )}
@@ -832,7 +860,7 @@ export default function ChatBox({
               onChange={setSearchQuery}
             />
             {isSearching ? (
-              <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-[60]">
+              <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-[80]">
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
             ) : Object.values(bookmarkResponses).length > 0 ? (
@@ -892,25 +920,33 @@ export default function ChatBox({
         )}
         
         {selectedBookmark.title === 'daily summary' && (
-          <div className="w-full md:flex md:justify-center">
-            <div className="w-full md:max-w-2xl">
-              <GPTResponse
-                type="instruction"
-                response={compileDojoInstructions(responseStats, summaryTimestamp)}
-                selectedBookmarkId={selectedBookmark.id}
-                selectedBookmarkTitle="daily summary"
-                reservedBookmarkTitles={reservedBookmarkTitles}
-                onGenerateSummary={handleGenerateSummary}
-                onRankUpdate={handleRankUpdate}
-                onDelete={handleResponseDelete}
-                onPauseToggle={handlePauseToggle}
-                onFuriganaToggle={handleFuriganaToggle}
-                onBookmarkSelect={onBookmarkSelect}
-                selectedLanguage={selectedLanguage}
-                onLoadingChange={setIsLoading}
-              />
+          <>
+            {/* Dojo Menu Bar */}
+            <DojoMenuBar
+              onNewReport={() => handleGenerateSummary(true)}
+              onFlashcardMode={handleFlashcardMode}
+              flashcardCount={getFlashcardResponses().length}
+            />
+            
+            <div className="w-full md:flex md:justify-center">
+              <div className="w-full md:max-w-2xl">
+                <GPTResponse
+                  type="instruction"
+                  response={compileDojoInstructions(responseStats, summaryTimestamp)}
+                  selectedBookmarkId={selectedBookmark.id}
+                  selectedBookmarkTitle="daily summary"
+                  reservedBookmarkTitles={reservedBookmarkTitles}
+                  onRankUpdate={handleRankUpdate}
+                  onDelete={handleResponseDelete}
+                  onPauseToggle={handlePauseToggle}
+                  onFuriganaToggle={handleFuriganaToggle}
+                  onBookmarkSelect={onBookmarkSelect}
+                  selectedLanguage={selectedLanguage}
+                  onLoadingChange={setIsLoading}
+                />
+              </div>
             </div>
-          </div>
+          </>
         )}
         
         {selectedBookmark.id && selectedBookmark.id !== 'search' ? (
@@ -989,6 +1025,20 @@ export default function ChatBox({
           selectedLanguage={selectedLanguage}
         />
       )}
+      
+      {/* Flashcard Modal */}
+      <FlashcardModal
+        isOpen={isFlashcardModalOpen}
+        onClose={() => setIsFlashcardModalOpen(false)}
+        responses={flashcardResponses}
+        selectedLanguage={selectedLanguage}
+        onRankUpdate={handleRankUpdate}
+        onPauseToggle={handlePauseToggle}
+        onFuriganaToggle={handleFuriganaToggle}
+        onPhoneticToggle={handlePhoneticToggle}
+        onKanaToggle={handleKanaToggle}
+        onLoadingChange={setIsLoading}
+      />
     </div>
   );
 }

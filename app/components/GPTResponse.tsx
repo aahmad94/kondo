@@ -12,7 +12,9 @@ import {
   PlayCircleIcon,
   XMarkIcon,
   CheckIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/solid';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
@@ -25,7 +27,8 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
-import { extractExpressions, prepareTextForSpeech } from '../../lib/audioUtils';
+import { extractExpressions } from '../../lib/expressionUtils';
+import { prepareTextForSpeech } from '../../lib/audioUtils';
 
 import { useIsMobile } from '../hooks/useIsMobile';
 import StandardResponse from './StandardResponse';
@@ -44,6 +47,9 @@ interface GPTResponseProps {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  hideContent?: boolean;
+  showAnswer?: boolean;
+  onToggleAnswer?: () => void;
   onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
@@ -74,6 +80,9 @@ export default function GPTResponse({
   isFuriganaEnabled = false,
   isPhoneticEnabled = false,
   isKanaEnabled,
+  hideContent = false,
+  showAnswer,
+  onToggleAnswer,
   onDelete, 
   onQuote,
   onRankUpdate,
@@ -442,6 +451,18 @@ export default function GPTResponse({
                 />
               )}
 
+              {/* Eye toggle button - only show in flashcard mode */}
+              {selectedBookmarkTitle === 'flashcard' && onToggleAnswer && (
+                <IconButton 
+                  icon={<EyeIcon className="h-6 w-6" />}
+                  alternateIcon={<EyeSlashIcon className="h-6 w-6" />}
+                  isAlternateState={showAnswer}
+                  onClick={onToggleAnswer}
+                  tooltipContent={showAnswer ? "Hide answer" : "Show answer"}
+                  colorScheme="blue"
+                />
+              )}
+
               {/* Quote button - only show when not in a bookmark */}
               {!selectedBookmarkId && onQuote && (
                 !isMobile ? (
@@ -476,8 +497,8 @@ export default function GPTResponse({
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          {/* Language options dropdown - show for non-English languages except Spanish */}
-          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && hasExpression && (
+          {/* Language options dropdown - show for non-English languages except Spanish, but hide in flashcard mode */}
+          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && hasExpression && selectedBookmarkTitle !== 'flashcard' && (
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
@@ -549,15 +570,7 @@ export default function GPTResponse({
             </div>
           )}
 
-          {/* New report button for Dojo mode */}
-          {type === 'instruction' && selectedBookmarkTitle === 'daily summary' && (
-            <button
-              onClick={() => onGenerateSummary?.(true)}
-              className="px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded transition-colors duration-200"
-            >
-              new report
-            </button>
-          )}
+
 
           {/* Delete button */}
           {type !== 'instruction' && selectedBookmarkId && responseId && onDelete && (
@@ -622,6 +635,7 @@ export default function GPTResponse({
                       isFuriganaEnabled={localFuriganaEnabled}
                       isPhoneticEnabled={localPhoneticEnabled}
                       isKanaEnabled={localKanaEnabled}
+                      hideContent={hideContent}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items

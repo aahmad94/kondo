@@ -13,9 +13,54 @@ interface StandardResponseProps {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  hideContent?: boolean;
 }
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true }: StandardResponseProps) {
+// Function to calculate placeholder dimensions based on text length and font size
+const calculatePlaceholderDimensions = (text: string, fontSize: 'sm' | 'base' | 'lg' | 'xl' = 'base'): { width: string; height: string } => {
+  const fontConfig = {
+    'sm': { charWidth: 0.5, height: 1.25 },   // text-sm: 0.875rem font, ~1.25rem line height
+    'base': { charWidth: 0.6, height: 1.5 },  // text-base: 1rem font, ~1.5rem line height  
+    'lg': { charWidth: 0.7, height: 1.75 },   // text-lg: 1.125rem font, ~1.75rem line height
+    'xl': { charWidth: 0.8, height: 2.0 }     // text-xl: 1.25rem font, ~2rem line height
+  };
+  
+  const config = fontConfig[fontSize];
+  const calculatedWidth = Math.min(Math.max(text.length * config.charWidth, 3), 25); // Min 3rem, max 25rem
+  
+  return {
+    width: `${calculatedWidth}rem`,
+    height: `${config.height}rem`
+  };
+};
+
+// Component for placeholder lines when content is hidden
+const PlaceholderLine = ({ 
+  text, 
+  fontSize = 'base', 
+  className = "", 
+  style = {} 
+}: { 
+  text: string;
+  fontSize?: 'sm' | 'base' | 'lg' | 'xl';
+  className?: string;
+  style?: React.CSSProperties;
+}) => {
+  const dimensions = calculatePlaceholderDimensions(text, fontSize);
+  return (
+    <div 
+      className={`rounded ${className}`} 
+      style={{ 
+        backgroundColor: 'rgb(30 58 138 / 0.2)', 
+        width: dimensions.width,
+        height: dimensions.height,
+        ...style 
+      }} 
+    />
+  );
+};
+
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, hideContent = false }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -112,31 +157,43 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
       <div className="pr-3" style={{ color: '#b59f3b' }}>
         <div className="space-y-2">
           {/* First line - Japanese text with or without furigana */}
-          <div className="text-xl font-medium">
-            {shouldUseFurigana && furiganaText && !isLoading ? (
-              <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
-            ) : (
-              <span className={shouldUseFurigana && isLoading ? 'furigana-loading' : ''}>
-                {processedItems[0]}
-              </span>
-            )}
-          </div>
+          {hideContent ? (
+            <PlaceholderLine text={processedItems[0]} fontSize="xl" />
+          ) : (
+            <div className="text-xl font-medium">
+              {shouldUseFurigana && furiganaText && !isLoading ? (
+                <FuriganaText furiganaHtml={furiganaText} fontSize="1.25rem" />
+              ) : (
+                <span className={shouldUseFurigana && isLoading ? 'furigana-loading' : ''}>
+                  {processedItems[0]}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
           {isKanaEnabled && (
-            <div className="text-sm opacity-80">
-              {processedItems[1]}
-            </div>
+            hideContent ? (
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" />
+            ) : (
+              <div className="text-sm opacity-80">
+                {processedItems[1]}
+              </div>
+            )
           )}
 
           {/* Third line - Romaji pronunciation */}
           {isPhoneticEnabled && (
-            <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
-              {processedItems[2]}
-            </div>
+            hideContent ? (
+              <PlaceholderLine text={processedItems[2]} fontSize="sm" />
+            ) : (
+              <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+                {processedItems[2]}
+              </div>
+            )
           )}
 
-          {/* Fourth line - English translation */}
+          {/* Fourth line - English translation (always show - this is the native language) */}
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
             {processedItems[3]}
           </span>
@@ -150,46 +207,64 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     <div className="pr-3" style={{ color: '#b59f3b' }}>
       <div className="space-y-2">
         {/* First line - larger text for Japanese 4-line responses, regular for others */}
-        <div className={`font-medium ${isJapaneseFourLine ? 'text-xl' : 'text-lg'}`}>
-          {processedItems[0]}
-        </div>
+        {hideContent ? (
+          <PlaceholderLine text={processedItems[0]} fontSize="lg" />
+        ) : (
+          <div className={`font-medium ${isJapaneseFourLine ? 'text-xl' : 'text-lg'}`}>
+            {processedItems[0]}
+          </div>
+        )}
 
         {/* Second line - subtle or blue depending on number of items */}
         {processedItems.length === 2 ? (
+          // For 2-item responses, second line is always the native language (always show)
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
             {processedItems[1]}
           </span>
         ) : processedItems.length === 3 ? (
-          // For 3-item responses, check if line 1 is phonetic
+          // For 3-item responses, check if line 1 is phonetic and hide logic
           phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
-            <div className="text-sm opacity-80">
-              {processedItems[1]}
-            </div>
+            hideContent ? (
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" />
+            ) : (
+              <div className="text-sm opacity-80">
+                {processedItems[1]}
+              </div>
+            )
           )
         ) : processedItems.length === 4 ? (
-          // For 4-item responses, check if line 1 is phonetic
+          // For 4-item responses, check if line 1 is phonetic and hide logic
           phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
-            <div className="text-sm opacity-80">
-              {processedItems[1]}
-            </div>
+            hideContent ? (
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" />
+            ) : (
+              <div className="text-sm opacity-80">
+                {processedItems[1]}
+              </div>
+            )
           )
         ) : null}
 
         {/* Third line - italic (for 4 items), or blue (for 3 items) */}
         {processedItems.length === 3 ? (
+          // For 3-item responses, third line is the native language (always show)
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
             {processedItems[2]}
           </span>
         ) : processedItems.length === 4 ? (
-          // For 4-item responses, check if line 2 is phonetic
+          // For 4-item responses, check if line 2 is phonetic and hide logic
           phoneticLineIndex === 2 && !isPhoneticEnabled ? null : (
-            <div className="text-sm opacity-60 italic">
-              {processedItems[2]}
-            </div>
+            hideContent ? (
+              <PlaceholderLine text={processedItems[2]} fontSize="sm" />
+            ) : (
+              <div className="text-sm opacity-60 italic">
+                {processedItems[2]}
+              </div>
+            )
           )
         ) : null}
 
-        {/* Fourth line - blue (for 4 items) */}
+        {/* Fourth line - blue (for 4 items) - always show as this is native language */}
         {processedItems.length === 4 && (
           <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
             {processedItems[3]}
