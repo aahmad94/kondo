@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { addFurigana, containsKanji, extractJapaneseFromLine } from '../../lib/furiganaService';
+import { calculatePlaceholderDimensions } from '../../lib/expressionUtils';
 import FuriganaText from './FuriganaText';
 
 interface StandardResponseProps {
@@ -14,39 +15,24 @@ interface StandardResponseProps {
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
   hideContent?: boolean;
+  containerWidth?: number;
 }
-
-// Function to calculate placeholder dimensions based on text length and font size
-const calculatePlaceholderDimensions = (text: string, fontSize: 'sm' | 'base' | 'lg' | 'xl' = 'base'): { width: string; height: string } => {
-  const fontConfig = {
-    'sm': { charWidth: 0.5, height: 1.25 },   // text-sm: 0.875rem font, ~1.25rem line height
-    'base': { charWidth: 0.6, height: 1.5 },  // text-base: 1rem font, ~1.5rem line height  
-    'lg': { charWidth: 0.7, height: 1.75 },   // text-lg: 1.125rem font, ~1.75rem line height
-    'xl': { charWidth: 0.8, height: 2.0 }     // text-xl: 1.25rem font, ~2rem line height
-  };
-  
-  const config = fontConfig[fontSize];
-  const calculatedWidth = Math.min(Math.max(text.length * config.charWidth, 3), 25); // Min 3rem, max 25rem
-  
-  return {
-    width: `${calculatedWidth}rem`,
-    height: `${config.height}rem`
-  };
-};
 
 // Component for placeholder lines when content is hidden
 const PlaceholderLine = ({ 
   text, 
   fontSize = 'base', 
   className = "", 
-  style = {} 
+  style = {},
+  divWidthRem
 }: { 
   text: string;
   fontSize?: 'sm' | 'base' | 'lg' | 'xl';
   className?: string;
   style?: React.CSSProperties;
+  divWidthRem?: number;
 }) => {
-  const dimensions = calculatePlaceholderDimensions(text, fontSize);
+  const dimensions = calculatePlaceholderDimensions(text, fontSize, divWidthRem);
   return (
     <div 
       className={`rounded ${className}`} 
@@ -60,7 +46,7 @@ const PlaceholderLine = ({
   );
 };
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, hideContent = false }: StandardResponseProps) {
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, hideContent = false, containerWidth = 20 }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -158,7 +144,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
         <div className="space-y-2">
           {/* First line - Japanese text with or without furigana */}
           {hideContent ? (
-            <PlaceholderLine text={processedItems[0]} fontSize="xl" />
+            <PlaceholderLine text={processedItems[0]} fontSize="xl" divWidthRem={containerWidth} />
           ) : (
             <div className="text-xl font-medium">
               {shouldUseFurigana && furiganaText && !isLoading ? (
@@ -174,7 +160,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
           {isKanaEnabled && (
             hideContent ? (
-              <PlaceholderLine text={processedItems[1]} fontSize="sm" />
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} />
             ) : (
               <div className="text-sm opacity-80">
                 {processedItems[1]}
@@ -185,7 +171,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           {/* Third line - Romaji pronunciation */}
           {isPhoneticEnabled && (
             hideContent ? (
-              <PlaceholderLine text={processedItems[2]} fontSize="sm" />
+              <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} />
             ) : (
               <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
                 {processedItems[2]}
@@ -208,7 +194,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
       <div className="space-y-2">
         {/* First line - larger text for Japanese 4-line responses, regular for others */}
         {hideContent ? (
-          <PlaceholderLine text={processedItems[0]} fontSize="lg" />
+          <PlaceholderLine text={processedItems[0]} fontSize="lg" divWidthRem={containerWidth} />
         ) : (
           <div className={`font-medium ${isJapaneseFourLine ? 'text-xl' : 'text-lg'}`}>
             {processedItems[0]}
@@ -225,7 +211,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           // For 3-item responses, check if line 1 is phonetic and hide logic
           phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
             hideContent ? (
-              <PlaceholderLine text={processedItems[1]} fontSize="sm" />
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} />
             ) : (
               <div className="text-sm opacity-80">
                 {processedItems[1]}
@@ -236,7 +222,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           // For 4-item responses, check if line 1 is phonetic and hide logic
           phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
             hideContent ? (
-              <PlaceholderLine text={processedItems[1]} fontSize="sm" />
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} />
             ) : (
               <div className="text-sm opacity-80">
                 {processedItems[1]}
@@ -255,7 +241,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           // For 4-item responses, check if line 2 is phonetic and hide logic
           phoneticLineIndex === 2 && !isPhoneticEnabled ? null : (
             hideContent ? (
-              <PlaceholderLine text={processedItems[2]} fontSize="sm" />
+              <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} />
             ) : (
               <div className="text-sm opacity-60 italic">
                 {processedItems[2]}

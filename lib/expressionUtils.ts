@@ -38,4 +38,40 @@ export function extractExpressions(response: string): string[] {
  */
 export function hasExpressions(response: string): boolean {
   return extractExpressions(response).length > 0;
+}
+
+/**
+ * Calculate placeholder dimensions based on text length and font size
+ * Used for creating placeholder elements that match the expected size of actual content
+ */
+export function calculatePlaceholderDimensions(
+  text: string, 
+  fontSize: 'sm' | 'base' | 'lg' | 'xl' = 'base', 
+  divWidthRem?: number
+): { width: string; height: string } {
+  const fontConfig = {
+    'sm': { charWidth: 0.5, height: 1.25 },   // text-sm: 0.875rem font, ~1.25rem line height
+    'base': { charWidth: 0.6, height: 1.5 },  // text-base: 1rem font, ~1.5rem line height  
+    'lg': { charWidth: 0.7, height: 1.75 },   // text-lg: 1.125rem font, ~1.75rem line height
+    'xl': { charWidth: 0.8, height: 2.0 }     // text-xl: 1.25rem font, ~2rem line height
+  };
+  
+  const config = fontConfig[fontSize];
+  const textWidthRem = text.length * config.charWidth;
+  
+  let actualHeight = config.height;
+  let actualWidth = Math.min(Math.max(textWidthRem, 3), 25); // Min 3rem, max 25rem
+  
+  // If divWidth is provided, calculate how many lines the text would wrap to
+  if (divWidthRem) {
+    const lines = Math.ceil(textWidthRem / divWidthRem);
+    actualHeight = config.height * lines;
+    // For multi-line text, constrain width to the container width
+    actualWidth = Math.min(textWidthRem, divWidthRem);
+  }
+  
+  return {
+    width: `${actualWidth}rem`,
+    height: `${actualHeight}rem`
+  };
 } 

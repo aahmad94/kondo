@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, EyeIcon } from '@heroicons/react/24/solid';
 import GPTResponse from './GPTResponse';
 
@@ -45,6 +45,30 @@ export default function FlashcardModal({
 }: FlashcardModalProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [containerWidth, setContainerWidth] = useState<number>(20); // Default fallback in rem
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Measure container width when modal opens or resizes
+  useEffect(() => {
+    const measureWidth = () => {
+      if (contentRef.current) {
+        const widthPx = contentRef.current.offsetWidth;
+        // Convert pixels to rem (assuming 16px = 1rem)
+        const widthRem = widthPx / 16;
+        // Account for padding and margins, use 90% of available width
+        setContainerWidth(widthRem * 0.9);
+      }
+    };
+
+    if (isOpen) {
+      // Measure after a short delay to ensure DOM is rendered
+      setTimeout(measureWidth, 100);
+      
+      // Add resize listener
+      window.addEventListener('resize', measureWidth);
+      return () => window.removeEventListener('resize', measureWidth);
+    }
+  }, [isOpen]);
 
   // Reset to first card and hide answer when modal opens
   useEffect(() => {
@@ -122,7 +146,7 @@ export default function FlashcardModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-4">
-      <div className="bg-[#111111] border border-[#222222] rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col relative">
+      <div className="bg-[#111111] rounded-sm w-full max-w-2xl max-h-[90vh] flex flex-col relative">
         {/* Close button - positioned absolutely in top right */}
         <button
           onClick={onClose}
@@ -131,10 +155,8 @@ export default function FlashcardModal({
           <XMarkIcon className="h-5 w-5" />
         </button>
 
-
-
         {/* Content */}
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto py-2" ref={contentRef}>
           <GPTResponse
             key={`flashcard-${currentResponse.id}-${currentIndex}`}
             response={currentResponse.content}
@@ -160,6 +182,7 @@ export default function FlashcardModal({
             hideContent={!showAnswer} // This is the key prop for flashcard mode
             showAnswer={showAnswer}
             onToggleAnswer={toggleAnswer}
+            containerWidth={containerWidth}
           />
         </div>
 

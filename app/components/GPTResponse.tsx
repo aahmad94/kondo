@@ -64,6 +64,7 @@ interface GPTResponseProps {
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
   onBreakdownClick?: () => void;
+  containerWidth?: number;
 }
 
 export default function GPTResponse({ 
@@ -96,7 +97,8 @@ export default function GPTResponse({
   selectedLanguage = 'ja',
   onLoadingChange,
   onBreakdownClick,
-  onBookmarkCreated
+  onBookmarkCreated,
+  containerWidth
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
@@ -400,7 +402,7 @@ export default function GPTResponse({
 
 
   return (
-    <div className="pl-3 py-3 rounded text-white w-full border-b border-[#222222]">
+    <div className={`pl-3 py-3 rounded text-white w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b border-[#222222]' : ''}`}>
       <div className="header flex justify-between mb-2">
         {/* Left side */}
         <div className="flex pt-2 pb-1 items-center gap-3">
@@ -424,8 +426,8 @@ export default function GPTResponse({
 
 
 
-              {/* Breakdown button */}
-              {hasExpression && (
+              {/* Breakdown button - hide in flashcard mode when content is hidden */}
+              {hasExpression && (selectedBookmarkTitle !== 'flashcard' || showAnswer) && (
                 <IconButton 
                   icon={<MagnifyingGlassIcon className="h-6 w-6" />}
                   onClick={handleBreakdownClick}
@@ -435,8 +437,8 @@ export default function GPTResponse({
                 />
               )}
 
-              {/* Text-to-speech button */}
-              {hasExpression && responseId && (
+              {/* Text-to-speech button - hide in flashcard mode when content is hidden */}
+              {hasExpression && responseId && (selectedBookmarkTitle !== 'flashcard' || showAnswer) && (
                 <SpeakerButton
                   responseId={responseId}
                   textToSpeak={prepareTextForSpeech(response)}
@@ -636,6 +638,7 @@ export default function GPTResponse({
                       isPhoneticEnabled={localPhoneticEnabled}
                       isKanaEnabled={localKanaEnabled}
                       hideContent={hideContent}
+                      containerWidth={containerWidth}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
