@@ -9,14 +9,19 @@ interface ContentModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  content: string;
+  content?: string;
+  /**
+   * Pass a ReactNode (e.g., <DojoTipsList />) from ContentModalItems.tsx for custom content
+   */
+  contentComponent?: React.ReactNode;
 }
 
 export default function ContentModal({
   isOpen,
   onClose,
   title = "Content",
-  content
+  content,
+  contentComponent
 }: ContentModalProps) {
   // Handle keyboard navigation
   React.useEffect(() => {
@@ -41,7 +46,7 @@ export default function ContentModal({
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-4">
       <div className="bg-[#111111] rounded-sm w-[90vw] md:w-[600px] max-w-4xl max-h-[90vh] flex flex-col relative">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#222222]">
+        <div className="flex items-center justify-between py-2 px-4 border-b border-[#222222]">
           <h2 className="text-lg font-medium text-yellow-400">{title}</h2>
           <button
             onClick={onClose}
@@ -54,10 +59,14 @@ export default function ContentModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4 pt-2">
-            <div className="prose prose-invert max-w-none" style={{ color: '#b59f3b' }}>
-              <Markdown remarkPlugins={[remarkGfm]}>
-                {content}
-              </Markdown>
+            <div className="max-w-none" style={{ color: '#b59f3b' }}>
+              {contentComponent ? (
+                contentComponent
+              ) : content ? (
+                <Markdown remarkPlugins={[remarkGfm]}>
+                  {content}
+                </Markdown>
+              ) : null}
             </div>
           </div>
         </div>

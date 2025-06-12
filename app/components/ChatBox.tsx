@@ -13,6 +13,7 @@ import { extractExpressions } from '../../lib/expressionUtils';
 import DojoMenuBar from './DojoMenuBar';
 import FlashcardModal from './FlashcardModal';
 import ContentModal from './ui/ContentModal';
+import { DojoTipsList } from './ui/ContentModalItems';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -1054,7 +1055,7 @@ export default function ChatBox({
         isOpen={isContentModalOpen}
         onClose={() => setIsContentModalOpen(false)}
         title="Dojo Tips"
-        content={instructions.dojoDetailed}
+        contentComponent={<DojoTipsList />}
       />
     </div>
   );
