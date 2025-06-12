@@ -12,6 +12,7 @@ import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '../../li
 import { extractExpressions } from '../../lib/expressionUtils';
 import DojoMenuBar from './DojoMenuBar';
 import FlashcardModal from './FlashcardModal';
+import ContentModal from './ui/ContentModal';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -105,7 +106,7 @@ export default function ChatBox({
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
-  const [instructions, setInstructions] = useState({ main: '', dailySummary: '' });
+  const [instructions, setInstructions] = useState({ main: '', dailySummary: '', dojoDetailed: '' });
   const [responseStats, setResponseStats] = useState<{
     total: number;
     rank1: { count: number; percentage: number };
@@ -124,6 +125,8 @@ export default function ChatBox({
   // Flashcard mode state
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [flashcardResponses, setFlashcardResponses] = useState<Response[]>([]);
+  // Content modal state
+  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -827,6 +830,11 @@ export default function ChatBox({
     setIsFlashcardModalOpen(true);
   };
 
+  // Handle content modal
+  const handleContentModal = () => {
+    setIsContentModalOpen(true);
+  };
+
 
   if (status === "loading") {
     return <div>Loading...</div>
@@ -925,6 +933,7 @@ export default function ChatBox({
             <DojoMenuBar
               onNewReport={() => handleGenerateSummary(true)}
               onFlashcardMode={handleFlashcardMode}
+              onInstructions={handleContentModal}
               flashcardCount={getFlashcardResponses().length}
             />
             
@@ -1038,6 +1047,14 @@ export default function ChatBox({
         onPhoneticToggle={handlePhoneticToggle}
         onKanaToggle={handleKanaToggle}
         onLoadingChange={setIsLoading}
+      />
+      
+      {/* Content Modal */}
+      <ContentModal
+        isOpen={isContentModalOpen}
+        onClose={() => setIsContentModalOpen(false)}
+        title="Dojo Tips"
+        content={instructions.dojoDetailed}
       />
     </div>
   );

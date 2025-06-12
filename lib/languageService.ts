@@ -3,15 +3,17 @@ import prisma from './prisma';
 interface LanguageInstructions {
   main: string;
   dailySummary: string;
+  dojoDetailed: string;
 }
 
 const DOJO_INSTRUCTIONS = `
-  This tool pulls responses from your bookmarks to review daily after 12:00 EST.
-  
-  There are 9 responses: 4 hard, 3 medium, 2 easy.
-  
-  **Bonus**
-  Challenge yourself by hiding romanization from the dropdown menu of a response.`
+  This tool pulls responses from your bookmarks to review daily after 12:00 EST.`
+
+const DOJO_TIPS = `
+- **use flashcard mode**: test yourself before looking at answers
+- **hide romanization**: challenge yourself by removing pronunciation aids
+- **regular practice**: check your dojo daily for consistent progress
+- **pause strategically**: remove mastered content to focus on challenging material`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
@@ -26,13 +28,8 @@ const JAPANESE_INSTRUCTIONS = {
   4/ alphabet: phonetic table of hiragana/katakana and romaji
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `
-    This tool creates material to review daily after 12:00 EST.
-    
-    There are 9 responses: 4 hard, 3 medium, 2 easy.
-
-    **Bonus**
-    Challenge yourself by hiding romanization and/or kana from the dropdown menu of a response.`
+  dailySummary: DOJO_INSTRUCTIONS,
+  dojoDetailed: DOJO_TIPS
 };
 
 const KOREAN_INSTRUCTIONS = {
@@ -49,6 +46,7 @@ const KOREAN_INSTRUCTIONS = {
   5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
+  dojoDetailed: DOJO_TIPS
 };
 
 const SPANISH_INSTRUCTIONS = {
@@ -64,10 +62,8 @@ const SPANISH_INSTRUCTIONS = {
   4/ alphabet: phonetic table of Spanish script and romanization
   5/ asterisk (*) + (question): inquire about anything else
 `,
-  dailySummary: `
-    This tool creates material to review daily after 12:00 EST.
-
-    There are 9 responses: 4 hard, 3 medium, 2 easy.`,
+  dailySummary: DOJO_INSTRUCTIONS,
+  dojoDetailed: DOJO_TIPS
 };
 
 const ARABIC_INSTRUCTIONS = {
@@ -84,6 +80,7 @@ const ARABIC_INSTRUCTIONS = {
   5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
+  dojoDetailed: DOJO_TIPS
 };
 
 const CHINESE_INSTRUCTIONS = {
@@ -100,6 +97,7 @@ const CHINESE_INSTRUCTIONS = {
   5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
+  dojoDetailed: DOJO_TIPS
 };
 
 const INSTRUCTIONS_BY_LANGUAGE_CODE: Record<string, LanguageInstructions> = {

@@ -41,7 +41,7 @@ interface GPTResponseProps {
   responseId?: string | null;
   rank?: number;
   createdAt?: Date;
-  type?: 'instruction' | 'response';
+  type?: 'instruction' | 'response' | 'other';
   isPaused?: boolean;
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
@@ -584,7 +584,7 @@ export default function GPTResponse({
           )}
 
           {/* Add to bookmark button - only show when not in a bookmark */}
-          {type !== 'instruction' && !selectedBookmarkId && (
+          {type !== 'instruction' && type !== 'other' && !selectedBookmarkId && (
             !isMobile ? (
               <Tooltip
                 content="Add to bookmark"

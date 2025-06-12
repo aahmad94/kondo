@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { PlusIcon, RectangleStackIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 
 interface DojoMenuBarProps {
   onNewReport: () => void;
   onFlashcardMode: () => void;
+  onInstructions: () => void;
   flashcardCount: number;
 }
 
-export default function DojoMenuBar({ onNewReport, onFlashcardMode, flashcardCount }: DojoMenuBarProps) {
+export default function DojoMenuBar({ onNewReport, onFlashcardMode, onInstructions, flashcardCount }: DojoMenuBarProps) {
   const { isMobile } = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +32,16 @@ export default function DojoMenuBar({ onNewReport, onFlashcardMode, flashcardCou
           }}
         >
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {/* New Report Button */}
+            {/* Dojo Tips Button - First */}
+            <button
+              onClick={onInstructions}
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+            >
+              <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
+              <span>dojo tips</span>
+            </button>
+
+            {/* New Report Button - Second */}
             <button
               onClick={onNewReport}
               className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
@@ -40,7 +50,7 @@ export default function DojoMenuBar({ onNewReport, onFlashcardMode, flashcardCou
               <span>new report</span>
             </button>
 
-            {/* Flashcard Mode Button */}
+            {/* Flashcard Mode Button - Third */}
             <button
               onClick={onFlashcardMode}
               disabled={flashcardCount === 0}
