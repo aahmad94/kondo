@@ -156,34 +156,36 @@ export default function FlashcardModal({
         </button>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto py-2" ref={contentRef}>
-          <GPTResponse
-            key={`flashcard-${currentResponse.id}-${currentIndex}`}
-            response={currentResponse.content}
-            selectedBookmarkId="flashcard-mode"
-            selectedBookmarkTitle="flashcard"
-            reservedBookmarkTitles={[]}
-            responseId={currentResponse.id}
-            rank={currentResponse.rank}
-            createdAt={currentResponse.createdAt}
-            isPaused={currentResponse.isPaused}
-            bookmarks={currentResponse.bookmarks}
-            furigana={currentResponse.furigana}
-            isFuriganaEnabled={currentResponse.isFuriganaEnabled}
-            isPhoneticEnabled={currentResponse.isPhoneticEnabled}
-            isKanaEnabled={currentResponse.isKanaEnabled}
-            onRankUpdate={onRankUpdate}
-            onPauseToggle={onPauseToggle}
-            onFuriganaToggle={onFuriganaToggle}
-            onPhoneticToggle={onPhoneticToggle}
-            onKanaToggle={onKanaToggle}
-            selectedLanguage={selectedLanguage}
-            onLoadingChange={onLoadingChange}
-            hideContent={!showAnswer} // This is the key prop for flashcard mode
-            showAnswer={showAnswer}
-            onToggleAnswer={toggleAnswer}
-            containerWidth={containerWidth}
-          />
+        <div className="flex flex-col justify-center">
+            <div className="flex-1 overflow-y-auto py-2" ref={contentRef}>
+                <GPTResponse
+                    key={`flashcard-${currentResponse.id}-${currentIndex}`}
+                    response={currentResponse.content}
+                    selectedBookmarkId="flashcard-mode"
+                    selectedBookmarkTitle="flashcard"
+                    reservedBookmarkTitles={[]}
+                    responseId={currentResponse.id}
+                    rank={currentResponse.rank}
+                    createdAt={currentResponse.createdAt}
+                    isPaused={currentResponse.isPaused}
+                    bookmarks={currentResponse.bookmarks}
+                    furigana={currentResponse.furigana}
+                    isFuriganaEnabled={currentResponse.isFuriganaEnabled}
+                    isPhoneticEnabled={currentResponse.isPhoneticEnabled}
+                    isKanaEnabled={currentResponse.isKanaEnabled}
+                    onRankUpdate={onRankUpdate}
+                    onPauseToggle={onPauseToggle}
+                    onFuriganaToggle={onFuriganaToggle}
+                    onPhoneticToggle={onPhoneticToggle}
+                    onKanaToggle={onKanaToggle}
+                    selectedLanguage={selectedLanguage}
+                    onLoadingChange={onLoadingChange}
+                    hideContent={!showAnswer} // This is the key prop for flashcard mode
+                    showAnswer={showAnswer}
+                    onToggleAnswer={toggleAnswer}
+                    containerWidth={containerWidth}
+                />
+            </div>
         </div>
 
         {/* Navigation Footer - simplified like demo */}

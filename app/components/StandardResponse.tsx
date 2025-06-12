@@ -24,15 +24,17 @@ const PlaceholderLine = ({
   fontSize = 'base', 
   className = "", 
   style = {},
-  divWidthRem
+  divWidthRem,
+  script = 'latin'
 }: { 
   text: string;
   fontSize?: 'sm' | 'base' | 'lg' | 'xl';
   className?: string;
   style?: React.CSSProperties;
   divWidthRem?: number;
+  script?: 'latin' | 'hiragana' | 'katakana' | 'kanji' | 'chinese' | 'furigana';
 }) => {
-  const dimensions = calculatePlaceholderDimensions(text, fontSize, divWidthRem);
+  const dimensions = calculatePlaceholderDimensions(text, fontSize, divWidthRem, script);
   return (
     <div 
       className={`rounded ${className}`} 
@@ -140,11 +142,16 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
   // If this is a Japanese 4-line response, render the enhanced version
   if (isJapaneseFourLine) {
     return (
-      <div className="pr-3" style={{ color: '#b59f3b' }}>
+      <div className="pr-3 min-h-[150px] flex flex-col justify-center" style={{ color: '#b59f3b' }}>
         <div className="space-y-2">
           {/* First line - Japanese text with or without furigana */}
           {hideContent ? (
-            <PlaceholderLine text={processedItems[0]} fontSize="xl" divWidthRem={containerWidth} />
+            <PlaceholderLine 
+              text={processedItems[0]} 
+              fontSize="xl" 
+              divWidthRem={containerWidth} 
+              script={shouldUseFurigana && (furiganaText || cachedFurigana) ? "furigana" : "kanji"} 
+            />
           ) : (
             <div className="text-xl font-medium">
               {shouldUseFurigana && furiganaText && !isLoading ? (
@@ -160,7 +167,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
           {isKanaEnabled && (
             hideContent ? (
-              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} />
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} script="hiragana" />
             ) : (
               <div className="text-sm opacity-80">
                 {processedItems[1]}
@@ -190,11 +197,16 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
   // Original rendering logic for non-Japanese or non-4-line cases
   return (
-    <div className="pr-3" style={{ color: '#b59f3b' }}>
+    <div className="pr-3 min-h-[150px] flex flex-col justify-center" style={{ color: '#b59f3b' }}>
       <div className="space-y-2">
         {/* First line - larger text for Japanese 4-line responses, regular for others */}
         {hideContent ? (
-          <PlaceholderLine text={processedItems[0]} fontSize="lg" divWidthRem={containerWidth} />
+          <PlaceholderLine 
+            text={processedItems[0]} 
+            fontSize="xl" 
+            divWidthRem={containerWidth} 
+            script={selectedLanguage === 'zh' ? 'chinese' : 'latin'} 
+          />
         ) : (
           <div className={`font-medium ${isJapaneseFourLine ? 'text-xl' : 'text-lg'}`}>
             {processedItems[0]}

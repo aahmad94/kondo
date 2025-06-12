@@ -47,17 +47,29 @@ export function hasExpressions(response: string): boolean {
 export function calculatePlaceholderDimensions(
   text: string, 
   fontSize: 'sm' | 'base' | 'lg' | 'xl' = 'base', 
-  divWidthRem?: number
+  divWidthRem?: number,
+  script: 'latin' | 'hiragana' | 'katakana' | 'kanji' | 'chinese' | 'furigana' = 'latin'
 ): { width: string; height: string } {
   const fontConfig = {
     'sm': { charWidth: 0.5, height: 1.25 },   // text-sm: 0.875rem font, ~1.25rem line height
-    'base': { charWidth: 0.6, height: 1.5 },  // text-base: 1rem font, ~1.5rem line height  
+    'base': { charWidth: 0.6, height: 1.5 },  // text-base: 1rem font, ~1.5rem line height
     'lg': { charWidth: 0.7, height: 1.75 },   // text-lg: 1.125rem font, ~1.75rem line height
-    'xl': { charWidth: 0.8, height: 2.0 }     // text-xl: 1.25rem font, ~2rem line height
+    'xl': { charWidth: 1, height: 2.0 }     // text-xl: 1.25rem font, ~2rem line height
+  };
+
+  // Script-specific character width multipliers
+  const scriptMultipliers = {
+    'latin': 1.0,      // Default for English/romanization
+    'hiragana': 1.7,   // Hiragana characters are wider
+    'katakana': 1.3,   // Katakana characters are slightly wider
+    'kanji': 1.2,      // Kanji characters are the widest
+    'chinese': 1.2,    // Chinese characters similar to kanji
+    'furigana': 1.25    // Kanji with furigana annotations (wider than plain kanji)
   };
   
   const config = fontConfig[fontSize];
-  const textWidthRem = text.length * config.charWidth;
+  const scriptMultiplier = scriptMultipliers[script];
+  const textWidthRem = text.length * config.charWidth * scriptMultiplier;
   
   let actualHeight = config.height;
   let actualWidth = Math.min(Math.max(textWidthRem, 3), 25); // Min 3rem, max 25rem

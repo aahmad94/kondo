@@ -424,7 +424,17 @@ export default function GPTResponse({
                 />
               )}
 
-
+              {/* Eye toggle button - only show in flashcard mode - moved to first position */}
+              {selectedBookmarkTitle === 'flashcard' && onToggleAnswer && (
+                <IconButton 
+                  icon={<EyeIcon className="h-6 w-6" />}
+                  alternateIcon={<EyeSlashIcon className="h-6 w-6" />}
+                  isAlternateState={showAnswer}
+                  onClick={onToggleAnswer}
+                  tooltipContent={showAnswer ? "Hide answer" : "Show answer"}
+                  colorScheme="blue"
+                />
+              )}
 
               {/* Breakdown button - hide in flashcard mode when content is hidden */}
               {hasExpression && (selectedBookmarkTitle !== 'flashcard' || showAnswer) && (
@@ -450,18 +460,6 @@ export default function GPTResponse({
                     setErrorMessage(error);
                     setIsErrorModalOpen(true);
                   }}
-                />
-              )}
-
-              {/* Eye toggle button - only show in flashcard mode */}
-              {selectedBookmarkTitle === 'flashcard' && onToggleAnswer && (
-                <IconButton 
-                  icon={<EyeIcon className="h-6 w-6" />}
-                  alternateIcon={<EyeSlashIcon className="h-6 w-6" />}
-                  isAlternateState={showAnswer}
-                  onClick={onToggleAnswer}
-                  tooltipContent={showAnswer ? "Hide answer" : "Show answer"}
-                  colorScheme="blue"
                 />
               )}
 
