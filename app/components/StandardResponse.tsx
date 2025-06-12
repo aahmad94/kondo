@@ -16,6 +16,7 @@ interface StandardResponseProps {
   isKanaEnabled?: boolean;
   hideContent?: boolean;
   containerWidth?: number;
+  isFlashcard?: boolean;
 }
 
 // Component for placeholder lines when content is hidden
@@ -25,7 +26,8 @@ const PlaceholderLine = ({
   className = "", 
   style = {},
   divWidthRem,
-  script = 'latin'
+  script = 'latin',
+  isFlashcard = false
 }: { 
   text: string;
   fontSize?: 'sm' | 'base' | 'lg' | 'xl';
@@ -33,11 +35,12 @@ const PlaceholderLine = ({
   style?: React.CSSProperties;
   divWidthRem?: number;
   script?: 'latin' | 'hiragana' | 'katakana' | 'kanji' | 'chinese' | 'furigana';
+  isFlashcard?: boolean;
 }) => {
   const dimensions = calculatePlaceholderDimensions(text, fontSize, divWidthRem, script);
   return (
     <div 
-      className={`rounded ${className}`} 
+      className={`rounded ${className} ${isFlashcard ? 'mx-auto' : ''}`} 
       style={{ 
         backgroundColor: 'rgb(30 58 138 / 0.2)', 
         width: dimensions.width,
@@ -48,7 +51,7 @@ const PlaceholderLine = ({
   );
 };
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, hideContent = false, containerWidth = 20 }: StandardResponseProps) {
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, hideContent = false, containerWidth = 20, isFlashcard = false }: StandardResponseProps) {
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -142,8 +145,8 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
   // If this is a Japanese 4-line response, render the enhanced version
   if (isJapaneseFourLine) {
     return (
-      <div className="pr-3 min-h-[150px] flex flex-col justify-center" style={{ color: '#b59f3b' }}>
-        <div className="space-y-2">
+      <div className={`${isFlashcard ? 'min-h-[160px]' : ''} flex flex-col justify-center ${isFlashcard ? 'items-center' : ''}`} style={{ color: '#b59f3b' }}>
+        <div className={`space-y-2 ${isFlashcard ? 'text-center' : ''}`}>
           {/* First line - Japanese text with or without furigana */}
           {hideContent ? (
             <PlaceholderLine 
@@ -151,6 +154,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
               fontSize="xl" 
               divWidthRem={containerWidth} 
               script={shouldUseFurigana && (furiganaText || cachedFurigana) ? "furigana" : "kanji"} 
+              isFlashcard={isFlashcard}
             />
           ) : (
             <div className="text-xl font-medium">
@@ -167,7 +171,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           {/* Second line - Hiragana/katakana reading (show/hide based on kana toggle) */}
           {isKanaEnabled && (
             hideContent ? (
-              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} script="hiragana" />
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} script="hiragana" isFlashcard={isFlashcard} />
             ) : (
               <div className="text-sm opacity-80">
                 {processedItems[1]}
@@ -178,7 +182,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           {/* Third line - Romaji pronunciation */}
           {isPhoneticEnabled && (
             hideContent ? (
-              <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} />
+              <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
               <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
                 {processedItems[2]}
@@ -187,7 +191,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           )}
 
           {/* Fourth line - English translation (always show - this is the native language) */}
-          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
             {processedItems[3]}
           </span>
         </div>
@@ -197,8 +201,8 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
   // Original rendering logic for non-Japanese or non-4-line cases
   return (
-    <div className="pr-3 min-h-[150px] flex flex-col justify-center" style={{ color: '#b59f3b' }}>
-      <div className="space-y-2">
+    <div className={`${isFlashcard ? 'min-h-[160px]' : ''} flex flex-col justify-center ${isFlashcard ? 'items-center' : ''}`} style={{ color: '#b59f3b' }}>
+      <div className={`space-y-2 ${isFlashcard ? 'text-center' : ''}`}>
         {/* First line - larger text for Japanese 4-line responses, regular for others */}
         {hideContent ? (
           <PlaceholderLine 
@@ -206,6 +210,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             fontSize="xl" 
             divWidthRem={containerWidth} 
             script={selectedLanguage === 'zh' ? 'chinese' : 'latin'} 
+            isFlashcard={isFlashcard}
           />
         ) : (
           <div className={`font-medium ${isJapaneseFourLine ? 'text-xl' : 'text-lg'}`}>
@@ -216,14 +221,14 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
         {/* Second line - subtle or blue depending on number of items */}
         {processedItems.length === 2 ? (
           // For 2-item responses, second line is always the native language (always show)
-          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
             {processedItems[1]}
           </span>
         ) : processedItems.length === 3 ? (
           // For 3-item responses, check if line 1 is phonetic and hide logic
           phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
             hideContent ? (
-              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} />
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
               <div className="text-sm opacity-80">
                 {processedItems[1]}
@@ -234,7 +239,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           // For 4-item responses, check if line 1 is phonetic and hide logic
           phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
             hideContent ? (
-              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} />
+              <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
               <div className="text-sm opacity-80">
                 {processedItems[1]}
@@ -246,14 +251,14 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
         {/* Third line - italic (for 4 items), or blue (for 3 items) */}
         {processedItems.length === 3 ? (
           // For 3-item responses, third line is the native language (always show)
-          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
             {processedItems[2]}
           </span>
         ) : processedItems.length === 4 ? (
           // For 4-item responses, check if line 2 is phonetic and hide logic
           phoneticLineIndex === 2 && !isPhoneticEnabled ? null : (
             hideContent ? (
-              <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} />
+              <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
               <div className="text-sm opacity-60 italic">
                 {processedItems[2]}
@@ -264,7 +269,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
         {/* Fourth line - blue (for 4 items) - always show as this is native language */}
         {processedItems.length === 4 && (
-          <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
             {processedItems[3]}
           </span>
         )}

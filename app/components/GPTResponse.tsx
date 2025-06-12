@@ -616,7 +616,7 @@ export default function GPTResponse({
       </div>
 
       {/* ------------ GPTResponse content ------------ */}
-      <div className="whitespace-pre-wrap overflow-x-auto w-[90%]">
+      <div className={`whitespace-pre-wrap overflow-x-auto ${selectedBookmarkTitle === 'flashcard' ? 'w-full flex justify-center items-center' : 'w-[90%]'}`}>
         {parsedBlocks.some(items => items && items.length > 0) ? (
           // For all responses, handle numbered lists specially, use Markdown for others
           parsedBlocks.map((items, blockIdx) =>
@@ -637,6 +637,7 @@ export default function GPTResponse({
                       isKanaEnabled={localKanaEnabled}
                       hideContent={hideContent}
                       containerWidth={containerWidth}
+                      isFlashcard={selectedBookmarkTitle === 'flashcard'}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items

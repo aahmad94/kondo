@@ -146,7 +146,7 @@ export default function FlashcardModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-4">
-      <div className="bg-[#111111] rounded-sm w-full max-w-2xl max-h-[90vh] flex flex-col relative">
+      <div className="bg-[#111111] rounded-sm w-[90vw] md:w-[450px] max-w-xl max-h-[90vh] flex flex-col relative">
         {/* Close button - positioned absolutely in top right */}
         <button
           onClick={onClose}
