@@ -7,10 +7,10 @@ interface LanguageInstructions {
 }
 
 const DOJO_INSTRUCTIONS = `
-  This tool pulls responses from your bookmarks to review daily after 12:00 EST.`
+  This tool pulls up to 9 responses across all your bookmarks after 12:00 EST everyday.`
 
 const DOJO_TIPS = `
-- **use flashcard mode**: test yourself before looking at answers
+- **use flashcard mode**: test yourself after reviewing the daily material in dojo
 - **hide romanization**: challenge yourself by removing pronunciation aids
 - **regular practice**: check your dojo daily for consistent progress
 - **pause strategically**: remove mastered content to focus on challenging material`

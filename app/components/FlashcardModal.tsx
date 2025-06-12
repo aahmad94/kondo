@@ -201,7 +201,7 @@ export default function FlashcardModal({
           {/* Just the number indicator */}
           <div className="flex items-center">
             <span className="text-md text-white">
-              {currentIndex + 1}
+              {currentIndex + 1} / {responses.length}
             </span>
           </div>
 
