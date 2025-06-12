@@ -227,7 +227,7 @@ export default function Bookmarks({
   return (
     <>
       {!isOpen && (
-        <div className="fixed top-[56px] h-[50px] w-8 rounded-r-sm bg-gray-900/80 ml-0 flex items-center justify-center z-10">
+        <div className="fixed top-[56px] h-[50px] w-8 rounded-r-lg bg-gray-900/80 ml-0 flex items-center justify-center z-10">
           <button 
             onClick={handleToggleOpen}
             className="text-white w-full h-full flex items-center justify-center cursor-pointer"

@@ -17,6 +17,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Kondo",
   description: "Leverage AI to learn new languages",
+  themeColor: "#111827",
   icons: {
     icon: [
       {
