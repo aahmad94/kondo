@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/solid';
 import { useSession } from 'next-auth/react';
+import FormModal from './ui/FormModal';
 
 interface CreateBookmarkModalProps {
   isOpen: boolean;
@@ -54,38 +54,32 @@ export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[60]">
-      <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-l text-white">Create New Bookmark</h2>
-          <button onClick={onClose} className="text-white">
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
-        <form onSubmit={handleCreateBookmark}>
-          <input
-            type="text"
-            value={bookmarkTitle}
-            onChange={(e) => setBookmarkTitle(e.target.value)}
-            placeholder="Enter bookmark name"
-            className="w-full p-2 mb-4 bg-gray-700 text-white rounded-sm"
-          />
-          {error && (
-            <div className="text-red-500 mb-4 text-sm">
-              {error}
-            </div>
-          )}
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600"
-          >
-            {optionalCopy || 'Create Bookmark'}
-          </button>
-        </form>
-      </div>
-    </div>
+    <FormModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Create New Bookmark"
+    >
+      <form onSubmit={handleCreateBookmark}>
+        <input
+          type="text"
+          value={bookmarkTitle}
+          onChange={(e) => setBookmarkTitle(e.target.value)}
+          placeholder="Enter bookmark name"
+          className="w-full p-2 mb-4 bg-gray-700 text-white rounded-sm"
+        />
+        {error && (
+          <div className="text-red-500 mb-4 text-sm">
+            {error}
+          </div>
+        )}
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600 transition-colors duration-200"
+        >
+          {optionalCopy || 'Create Bookmark'}
+        </button>
+      </form>
+    </FormModal>
   );
 }
