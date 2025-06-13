@@ -23,8 +23,7 @@ import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import Markdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { StyledMarkdown } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
 import { extractExpressions } from '../../lib/expressionUtils';
@@ -665,14 +664,14 @@ export default function GPTResponse({
                     </div>
                   )
                 ) : (
-                  // For all other content (tables, regular text, etc.), use Markdown
-                  <div className="pr-3" style={{ color: yellow }}>
-                    <div className="overflow-x-auto w-full">
-                      <Markdown remarkPlugins={[remarkGfm]}>
-                        {items.join('\n')}
-                      </Markdown>
-                    </div>
-                  </div>
+                                                         // For all other content (tables, regular text, etc.), use Markdown
+           <div className="pr-3" style={{ color: yellow }}>
+             <div className="overflow-x-auto w-full">
+               <StyledMarkdown>
+                 {items.join('\n')}
+               </StyledMarkdown>
+             </div>
+           </div>
                 )}
                 {/* Add a line break between blocks */}
                 {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
@@ -683,7 +682,9 @@ export default function GPTResponse({
           // Fallback to Markdown for non-list blocks
           <div className="pr-3" style={{ color: yellow }}>
             <div className="overflow-x-auto w-full">
-              <Markdown remarkPlugins={[remarkGfm]}>{cleanResponse}</Markdown>
+              <StyledMarkdown>
+                {cleanResponse}
+              </StyledMarkdown>
             </div>
           </div>
         )}

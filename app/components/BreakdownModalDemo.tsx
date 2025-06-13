@@ -3,13 +3,12 @@
 import { Fragment, useRef, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, PlayCircleIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
+import { StyledMarkdown } from './ui';
 
 interface BreakdownModalDemoProps {
   isOpen: boolean;
@@ -143,15 +142,17 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                 <div className="pt-2">
                   <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-96 flex justify-center" style={{ color: '#b59f3b' }}>
                     <div className="w-full">
-                      <Markdown remarkPlugins={[remarkGfm]} components={{
-                        table: ({ children, ...props }) => (
-                          <table {...props} className="mx-auto border-collapse">
-                            {children}
-                          </table>
-                        )
-                      }}>
+                      <StyledMarkdown 
+                        components={{
+                          table: ({ children, ...props }) => (
+                            <table {...props} className="mx-auto border-collapse">
+                              {children}
+                            </table>
+                          )
+                        }}
+                      >
                         {breakdown}
-                      </Markdown>
+                      </StyledMarkdown>
                     </div>
                   </div>
                 </div>

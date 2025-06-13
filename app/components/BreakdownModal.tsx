@@ -1,12 +1,11 @@
 import React from 'react';
 import { XMarkIcon, PlayCircleIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Tooltip from './Tooltip';
 import { useIsMobile } from '../hooks/useIsMobile';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
+import { StyledMarkdown } from './ui';
 
 interface BreakdownModalProps {
   isOpen: boolean;
@@ -103,15 +102,15 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
         </div>
         <div className="text-[#b59f3b] whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center">
           <div className="w-full">
-            <Markdown remarkPlugins={[remarkGfm]} components={{
-              table: ({ children, ...props }) => (
-                <table {...props} className="mx-auto border-collapse">
-                  {children}
-                </table>
-              )
-            }}>
+            <StyledMarkdown 
+              components={{
+                table: ({node, ...props}) => (
+                  <table {...props} className="mx-auto" style={{borderSpacing: '0 8px', borderCollapse: 'separate'}} />
+                ),
+              }}
+            >
               {breakdown}
-            </Markdown>
+            </StyledMarkdown>
           </div>
         </div>
       </div>

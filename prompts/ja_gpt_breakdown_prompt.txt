@@ -7,10 +7,18 @@ CRITICAL: First identify what language Line 2 is written in.
 - If Line 2 is clearly in Vietnamese, write Function explanations in Vietnamese  
 - If Line 2 is clearly in Chinese, write Function explanations in Chinese
 - If Line 2 is clearly in Korean, write Function explanations in Korean
-- If you cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
+- If You cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
+
+ESSENTIAL REQUIREMENTS:
+- ANALYZE EVERY SINGLE WORD, PARTICLE, AND GRAMMATICAL ELEMENT - do not skip anything
+- Pay special attention to particles (は, が, を, に, で, から, まで, と, や, の, etc.) and fully explain their grammatical function
+- For verbs, ALWAYS specify the exact tense, form, and voice (e.g., "present continuous", "past passive", "potential form", "causative", "conditional", etc.)
+- Use more descriptive language to thoroughly explain grammatical relationships and nuances
 
 Respond with ONLY a markdown table format with (5) columns: Kanji, Hiragana/Katakana (call this column 'Kana'), Romaji, Function (purpose/meaning), and Root. 
-In the Function column: Be concise. Provide the meaning of the word directly, and explain its structural role in the sentence if not obvious (e.g., connecting ideas, showing possession, marking topics, indicating time/location). For conjugated verbs, specify the tense/form. Do not mention obvious grammatical categories like "noun," "adjective," or "pronoun" since the meaning makes this clear. Avoid prefacing words like "means" or "indicates" - just state the meaning directly. 
+
+In the Function column: Be thorough and descriptive. Provide the meaning of the word directly, and always explain its structural role in the sentence. For particles, describe their exact grammatical function (e.g., "topic marker", "direct object marker", "location/direction marker", "possession marker"). For conjugated verbs, specify the complete tense/form/voice (e.g., "eat (present continuous form)", "was written (past passive)", "can go (potential form)", "made to do (causative past)"). For adjectives, note if they're i-adjectives or na-adjectives and their form. Use descriptive language to clarify grammatical relationships and sentence structure. Do not mention obvious grammatical categories like "noun," but do explain the role of particles and verb forms in detail. Avoid filler words like "indicates", "shows", "means" - state functions directly.
+
 IMPORTANT: Use the language from Line 2 for Function explanations ONLY if you can clearly identify it. When in doubt, use English.
 For empty cells in the table, use a dash (-) instead of leaving them blank.
 In the 'Root' column, ONLY provide an entry for if the word is a verb; the entry MUST include the verb stem. FOLLOW THIS FORMAT: include the original Japanese for the verb AND the romaji (English spelling) for it in paranthesis, DO NOT INCLUDE THE SIMPLIFIED KANA as this takes up too much space.

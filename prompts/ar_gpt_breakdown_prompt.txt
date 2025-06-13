@@ -9,8 +9,15 @@ CRITICAL: First identify what language Line 2 is written in.
 - If Line 2 is clearly in Japanese, write Function explanations in Japanese
 - If you cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
 
+ESSENTIAL REQUIREMENTS:
+- ANALYZE EVERY SINGLE WORD AND GRAMMATICAL ELEMENT - do not skip anything
+- For verbs, ALWAYS specify the exact tense, form, voice, and conjugation pattern (e.g., "third person masculine singular past", "present continuous feminine", "passive imperfect", "imperative", etc.)
+- Use more descriptive language to thoroughly explain grammatical relationships, case markings, and syntactic functions
+
 Respond with ONLY a markdown table format with (4) columns: Arabic, Transliteration, Function (purpose/meaning), and Root. 
-In the Function column: Be concise. Provide the meaning of the word directly, and explain its structural role in the sentence if not obvious (e.g., connecting ideas, showing possession, indicating definite/indefinite, marking cases). For conjugated verbs, specify the tense/form. Do not mention obvious grammatical categories like "noun," "adjective," or "pronoun" since the meaning makes this clear. Avoid prefacing words like "means" or "indicates" - just state the meaning directly. 
+
+In the Function column: Be thorough and descriptive. Provide the meaning of the word directly, and always explain its structural role in the sentence. For particles and prepositions, describe their exact grammatical function. For conjugated verbs, specify the complete tense/form/voice/person/gender/number (e.g., "write (third person masculine singular past)", "being written (passive present)", "will study (first person plural future)"). For nouns, note definiteness, case, and number when relevant. Use descriptive language to clarify grammatical relationships and sentence structure. Avoid filler words like "indicates", "shows", "means" - state functions directly.
+
 IMPORTANT: Use the language from Line 2 for Function explanations ONLY if you can clearly identify it. When in doubt, use English.
 For empty cells in the table, use a dash (-) instead of leaving them blank.
 In the 'Root' column, ONLY provide an entry if the word is a verb; the entry MUST include the verb root. FOLLOW THIS FORMAT: include the original Arabic for the verb root AND the transliteration for it in parentheses.

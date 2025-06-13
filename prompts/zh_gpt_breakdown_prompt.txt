@@ -9,8 +9,15 @@ CRITICAL: First identify what language Line 2 is written in.
 - If Line 2 is clearly in Japanese, write Function explanations in Japanese
 - If you cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
 
+ESSENTIAL REQUIREMENTS:
+- ANALYZE EVERY SINGLE WORD, CHARACTER, AND GRAMMATICAL ELEMENT - do not skip anything
+- For verbs, ALWAYS specify the exact aspect, tense markers, and grammatical particles (e.g., "completed action with 了", "ongoing action with 在", "experiential 过", "potential complement", "directional complement", etc.)
+- Use more descriptive language to thoroughly explain grammatical relationships, sentence patterns, and functional words
+
 Respond with ONLY a markdown table format with (4) columns: Characters, Pinyin, Function (purpose/meaning), and Root. 
-In the Function column: Be concise. Provide the meaning of the word directly, and explain its structural role in the sentence if not obvious (e.g., connecting ideas, showing possession, indicating time/location, marking questions). For verbs, specify the aspect/tense if applicable. Do not mention obvious grammatical categories like "noun," "adjective," or "pronoun" since the meaning makes this clear. Avoid prefacing words like "means" or "indicates" - just state the meaning directly. 
+
+In the Function column: Be thorough and descriptive. Provide the meaning of the word directly, and always explain its structural role in the sentence. For particles and function words, describe their exact grammatical function (e.g., "aspect marker for completion", "question particle", "topic marker", "directional complement toward speaker"). For verbs, specify the complete aspect/tense/complement information (e.g., "eat (with completion marker 了)", "is studying (ongoing action with 在)", "has experienced doing (with 过)", "can understand (potential complement)"). For measure words, explain their specific usage. Use descriptive language to clarify grammatical relationships and sentence structure. Avoid filler words like "indicates", "shows", "means" - state functions directly.
+
 IMPORTANT: Use the language from Line 2 for Function explanations ONLY if you can clearly identify it. When in doubt, use English.
 For empty cells in the table, use a dash (-) instead of leaving them blank.
 In the 'Root' column, ONLY provide an entry if the word is a verb; the entry should include the base form of the verb.
