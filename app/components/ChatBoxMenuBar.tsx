@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
-import { DojoTipsList, StatsMarkdown } from './ui/ContentModalItems';
+import { DojoTipsList, StatsMarkdown, AdditionalCommands } from './ui/ContentModalItems';
 
 interface ChatBoxMenuBarProps {
   onNewReport: () => void;
@@ -27,10 +27,10 @@ export default function ChatBoxMenuBar({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Content modal state - managed within ChatBoxMenuBar
-  const [contentModalType, setContentModalType] = useState<'tips' | 'stats' | null>(null);
+  const [contentModalType, setContentModalType] = useState<'tips' | 'stats' | 'commands' | null>(null);
 
   // Handle content modal types
-  const handleContentModal = (type: 'tips' | 'stats') => {
+  const handleContentModal = (type: 'tips' | 'stats' | 'commands') => {
     setContentModalType(type);
   };
 
@@ -45,6 +45,7 @@ export default function ChatBoxMenuBar({
   const showFlashcards = isDojo;
   const showDojoTips = isDojo;
   const showNewReport = isDojo;
+  const showAdditionalCommands = isRoot;
   const showStats = isDojo || isRoot;
 
   return (
@@ -104,7 +105,18 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Stats Button - Fourth */}
+              {/* Additional Commands Button - Fourth (root only) */}
+              {showAdditionalCommands && (
+                <button
+                  onClick={() => handleContentModal('commands')}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <CommandLineIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>commands</span>
+                </button>
+              )}
+
+              {/* Stats Button - Fifth */}
               {showStats && (
                 <button
                   onClick={() => handleContentModal('stats')}
@@ -126,6 +138,18 @@ export default function ChatBoxMenuBar({
         onClose={closeContentModal}
         title="Dojo Tips"
         contentComponent={<DojoTipsList />}
+      />
+
+      {/* Additional Commands Modal */}
+      <ContentModal
+        isOpen={contentModalType === 'commands'}
+        onClose={closeContentModal}
+        title="Additional Commands"
+        contentComponent={
+          <AdditionalCommands 
+            selectedLanguage={selectedLanguage}
+          />
+        }
       />
 
       {/* Stats Modal */}

@@ -14,13 +14,6 @@ const JAPANESE_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Japanese.
 
   Organize and rank material in bookmarks based on how well you know it.
-
-  Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Japanese
-  4/ alphabet: phonetic table of hiragana/katakana and romaji
-  5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -31,13 +24,6 @@ const KOREAN_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Korean.
 
   Organize and rank material in bookmarks based on how well you know it.
-
-  Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Korean
-  4/ alphabet: phonetic table of Hangul and romanization
-  5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -48,13 +34,6 @@ const SPANISH_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Spanish.
 
   Organize and rank material in bookmarks based on how well you know it.
-
-  Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Spanish
-  4/ alphabet: phonetic table of Spanish script and romanization
-  5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -65,13 +44,6 @@ const ARABIC_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Arabic.
 
   Organize and rank material in bookmarks based on how well you know it.
-
-  Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Arabic
-  4/ alphabet: phonetic table of Arabic script and romanization
-  5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -82,13 +54,6 @@ const CHINESE_INSTRUCTIONS = {
   Enter a phrase or sentence to translate into Chinese.
 
   Organize and rank material in bookmarks based on how well you know it.
-
-  Additional commands:
-  1/ random + (optional topic) + (optional difficulty level)
-  2/ verb + (verb): get a table for all verb tenses
-  3/ terms + (topic): list of related words in Chinese
-  4/ alphabet + (optional # or range): table of common Chinese characters
-  5/ asterisk (*) + (question): inquire about anything else
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''

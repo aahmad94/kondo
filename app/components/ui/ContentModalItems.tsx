@@ -17,6 +17,7 @@ interface StatsData {
   rank3: { count: number; percentage: number };
 }
 
+// --- Stats ---
 export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
   const { data: session } = useSession();
   const [stats, setStats] = useState<StatsData | null>(null);
@@ -110,6 +111,7 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
   );
 }
 
+// --- Dojo Tips ---
 export function DojoTipsList() {
   return (
     <ol style={{ paddingLeft: '1.5em', color: '#b59f3b' }} className="list-decimal space-y-2">
@@ -136,5 +138,87 @@ export function DojoTipsList() {
         {' '}remove mastered content to focus on challenging material
       </li>
     </ol>
+  );
+}
+
+// --- Additional Commands ---
+interface AdditionalCommandsProps {
+  selectedLanguage: string;
+}
+
+export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps) {
+  const generateCommandsHTML = (language: string) => {
+    const commands = [
+      {
+        command: '<strong>random</strong>',
+        args: '<em style="color: rgba(181, 159, 59, 0.6);">(optional topic) (optional difficulty level)</em>',
+        description: 'generate random phrases for practice'
+      },
+      {
+        command: '<strong>verb</strong>',
+        args: '<em style="color: rgba(181, 159, 59, 0.6);">(verb)</em>',
+        description: 'get a table for all verb tenses'
+      },
+      {
+        command: '<strong>terms</strong>',
+        args: '<em style="color: rgba(181, 159, 59, 0.6);">(topic)</em>',
+        description: `list of related words in ${getLanguageName(language)}`
+      },
+      {
+        command: '<strong>alphabet</strong>',
+        args: getAlphabetArgs(language),
+        description: getAlphabetDescription(language)
+      },
+      {
+        command: '<strong>*</strong>',
+        args: '<em style="color: rgba(181, 159, 59, 0.6);">(question)</em>',
+        description: 'inquire about anything else'
+      }
+    ];
+
+    return commands.map((cmd, index) => 
+      `<div style="margin-bottom: 1rem;">
+        <strong style="color: #575B63;">${index + 1}.</strong> ${cmd.command} ${cmd.args} <span style="color: #575B63;">${cmd.description}</span>
+      </div>`
+    ).join('');
+  };
+
+  const getLanguageName = (language: string) => {
+    const names: Record<string, string> = {
+      'ja': 'Japanese',
+      'ko': 'Korean', 
+      'es': 'Spanish',
+      'ar': 'Arabic',
+      'zh': 'Chinese'
+    };
+    return names[language] || 'Japanese';
+  };
+
+  const getAlphabetArgs = (language: string) => {
+    if (language === 'zh') {
+      return '<em style="color: rgba(181, 159, 59, 0.6);">(optional # or range)</em>';
+    }
+    return '';
+  };
+
+  const getAlphabetDescription = (language: string) => {
+    const descriptions: Record<string, string> = {
+      'ja': 'phonetic table of hiragana/katakana and romaji',
+      'ko': 'phonetic table of Hangul and romanization',
+      'es': 'phonetic table of Spanish script and romanization', 
+      'ar': 'phonetic table of Arabic script and romanization',
+      'zh': 'table of common Chinese characters'
+    };
+    return descriptions[language] || 'phonetic table of hiragana/katakana and romaji';
+  };
+
+  return (
+    <div 
+      className="max-w-none" 
+      style={{ color: '#b59f3b' }}
+      dangerouslySetInnerHTML={{ 
+        __html: generateCommandsHTML(selectedLanguage) 
+      }}
+    />
   );
 } 
