@@ -10,7 +10,7 @@ import { getLanguageInstructions } from '../../lib/languageService';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '../../lib/amplitudeService';
 import { extractExpressions } from '../../lib/expressionUtils';
-import DojoMenuBar from './DojoMenuBar';
+import ChatBoxMenuBar from './ChatBoxMenuBar';
 import FlashcardModal from './FlashcardModal';
 
 interface ChatBoxProps {
@@ -820,32 +820,45 @@ export default function ChatBox({
         )}
         
         {!selectedBookmark.id && (
-          <div className="w-full md:flex md:justify-center">
-            <div className="w-full md:max-w-2xl">
-              <GPTResponse
-                type="instruction"
-                response={instructions.main}
-                selectedBookmarkId={selectedBookmark.id}
-                selectedBookmarkTitle={selectedBookmark.title ?? ''}
-                reservedBookmarkTitles={reservedBookmarkTitles}
-                responseId={null}
-                onBookmarkSelect={onBookmarkSelect}
-                selectedLanguage={selectedLanguage}
-                onLoadingChange={setIsLoading}
-              />
-            </div>
-          </div>
-        )}
-        
-        {selectedBookmark.title === 'daily summary' && (
           <>
-            {/* Dojo Menu Bar */}
-            <DojoMenuBar
+            {/* ChatBox Menu Bar for root view */}
+            <ChatBoxMenuBar
               onNewReport={() => handleGenerateSummary(true)}
               onFlashcardMode={handleFlashcardMode}
               flashcardCount={getFlashcardResponses().length}
               selectedLanguage={selectedLanguage}
               summaryTimestamp={summaryTimestamp}
+              selectedBookmark={selectedBookmark}
+            />
+            
+            <div className="w-full md:flex md:justify-center">
+              <div className="w-full md:max-w-2xl">
+                <GPTResponse
+                  type="instruction"
+                  response={instructions.main}
+                  selectedBookmarkId={selectedBookmark.id}
+                  selectedBookmarkTitle={selectedBookmark.title ?? ''}
+                  reservedBookmarkTitles={reservedBookmarkTitles}
+                  responseId={null}
+                  onBookmarkSelect={onBookmarkSelect}
+                  selectedLanguage={selectedLanguage}
+                  onLoadingChange={setIsLoading}
+                />
+              </div>
+            </div>
+          </>
+        )}
+        
+        {selectedBookmark.title === 'daily summary' && (
+          <>
+            {/* ChatBox Menu Bar */}
+            <ChatBoxMenuBar
+              onNewReport={() => handleGenerateSummary(true)}
+              onFlashcardMode={handleFlashcardMode}
+              flashcardCount={getFlashcardResponses().length}
+              selectedLanguage={selectedLanguage}
+              summaryTimestamp={summaryTimestamp}
+              selectedBookmark={selectedBookmark}
             />
             
             <div className="w-full md:flex md:justify-center">
