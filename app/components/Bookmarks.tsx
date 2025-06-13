@@ -7,6 +7,7 @@ import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 import { useRouter } from 'next/navigation';
 import { trackBookmarkSelect, trackClearBookmark, trackCreateBookmark } from '../../lib/amplitudeService';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface Bookmark {
   id: string;
@@ -38,6 +39,7 @@ export default function Bookmarks({
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
+  const { isMobile } = useIsMobile();
   const touchStartY = useRef<number | null>(null);
   const touchStartTime = useRef<number | null>(null);
 
@@ -305,7 +307,7 @@ export default function Bookmarks({
 
               <div className="flex flex-col p-2">
 
-                <div className="overflow-y-auto max-h-[65vh] bookmark-list">
+                <div className={`overflow-y-auto bookmark-list ${isMobile ? 'max-h-[55vh]' : 'max-h-[70vh]'}`}>
                   {isLoading ? (
                     // Skeleton loading state
                     Array.from({ length: 10 }).map((_, index) => (
