@@ -12,8 +12,6 @@ import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '../../li
 import { extractExpressions } from '../../lib/expressionUtils';
 import DojoMenuBar from './DojoMenuBar';
 import FlashcardModal from './FlashcardModal';
-import ContentModal from './ui/ContentModal';
-import { DojoTipsList } from './ui/ContentModalItems';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -52,30 +50,6 @@ interface BookmarkResponse {
   isKanaEnabled?: boolean;
 }
 
-const formatStats = (stats: {
-  total: number;
-  rank1: { count: number; percentage: number };
-  rank2: { count: number; percentage: number };
-  rank3: { count: number; percentage: number };
-}) => {
-  const padLeft = (str: string, length: number) => str.padStart(length);
-  const padRight = (str: string, length: number) => str.padEnd(length);
-  
-  const rank1Str = `**${stats.rank1.count}**`;
-  const rank2Str = `**${stats.rank2.count}**`;
-  const rank3Str = `**${stats.rank3.count}**`;
-  const totalStr = `**${stats.total}**`;
-  const pct1Str = `**${stats.rank1.percentage}**%`;
-  const pct2Str = `**${stats.rank2.percentage}**%`;
-  const pct3Str = `**${stats.rank3.percentage}**%`;
-
-  return `**Current stats**\n` +
-         `${padRight('hard', 15)} ${padLeft(rank1Str, 8)} ${padLeft(pct1Str, 6)}\n` +
-         `${padRight('medium', 15)} ${padLeft(rank2Str, 8)} ${padLeft(pct2Str, 6)}\n` +
-         `${padRight('easy', 15)} ${padLeft(rank3Str, 8)} ${padLeft(pct3Str, 6)}\n` +
-         `${padRight('total', 15)} ${padLeft(totalStr, 8)}`;
-};
-
 // Add sortResponses function
 const sortResponses = (responses: Response[]): Response[] => {
   return responses.sort((a: Response, b: Response) => {
@@ -108,12 +82,6 @@ export default function ChatBox({
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '', dojoDetailed: '' });
-  const [responseStats, setResponseStats] = useState<{
-    total: number;
-    rank1: { count: number; percentage: number };
-    rank2: { count: number; percentage: number };
-    rank3: { count: number; percentage: number };
-  } | null>(null);
   const [dailySummaryCache, setDailySummaryCache] = useState<Record<string, Response> | null>(null);
   const [searchResultsCache, setSearchResultsCache] = useState<Record<string, Response> | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -126,8 +94,6 @@ export default function ChatBox({
   // Flashcard mode state
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [flashcardResponses, setFlashcardResponses] = useState<Response[]>([]);
-  // Content modal state
-  const [isContentModalOpen, setIsContentModalOpen] = useState(false);
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -187,7 +153,6 @@ export default function ChatBox({
       if (selectedBookmark.id === "all") {
         fetchAllResponses(session.userId);
       } else if (selectedBookmark.title === 'daily summary') {
-        fetchResponseStats();
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
           setBookmarkResponses(dailySummaryCache);
@@ -245,21 +210,6 @@ export default function ChatBox({
       });
     }
   }
-
-  const fetchResponseStats = async () => {
-    if (session?.userId) {
-      try {
-        const res = await fetch(`/api/getUserResponseStats?userId=${session.userId}&language=${selectedLanguage}`);
-        if (res.ok) {
-          const stats = await res.json();
-          setResponseStats(stats);
-        }
-      } catch (error) {
-        console.error('Error fetching response stats:', error);
-      }
-    }
-  };
-
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
@@ -567,40 +517,6 @@ export default function ChatBox({
         // Update all caches with new rank
         updateResponseInCaches(responseId, { rank: newRank });
 
-        // Update local stats to reflect the rank change
-        setResponseStats(prev => {
-          if (!prev) return prev;
-          const updated = { ...prev };
-          
-          // Decrease count for old rank
-          if (oldRank === 1) {
-            updated.rank1.count = Math.max(0, updated.rank1.count - 1);
-          } else if (oldRank === 2) {
-            updated.rank2.count = Math.max(0, updated.rank2.count - 1);
-          } else if (oldRank === 3) {
-            updated.rank3.count = Math.max(0, updated.rank3.count - 1);
-          }
-          
-          // Increase count for new rank
-          if (newRank === 1) {
-            updated.rank1.count = updated.rank1.count + 1;
-          } else if (newRank === 2) {
-            updated.rank2.count = updated.rank2.count + 1;
-          } else if (newRank === 3) {
-            updated.rank3.count = updated.rank3.count + 1;
-          }
-          
-          // Recalculate percentages
-          const total = updated.total;
-          if (total > 0) {
-            updated.rank1.percentage = Math.round((updated.rank1.count / total) * 100);
-            updated.rank2.percentage = Math.round((updated.rank2.count / total) * 100);
-            updated.rank3.percentage = Math.round((updated.rank3.count / total) * 100);
-          }
-          
-          return updated;
-        });
-
         // Track the change (moved outside of state setter to avoid duplicates)
         trackChangeRank(responseId, oldRank, newRank);
       }
@@ -774,12 +690,11 @@ export default function ChatBox({
   };
 
   // Compiles the instructions for the daily summary
-  const compileDojoInstructions = (stats: any, timestamp: Date | null) => {
+  const compileDojoInstructions = (timestamp: Date | null) => {
     // modify timestamp format to be more readable (Month Day, Year, hour:minute)
     const formattedTimestamp = timestamp ? format(new Date(timestamp), 'h:mm a MMMM d, yyyy') : '';
     const compiledInstructions = {
       dailySummary: instructions.dailySummary,
-      stats: stats ? formatStats(stats) : undefined,
       summaryTimestamp: timestamp ? `*Last generated at ${formattedTimestamp}*` : ''
     }
 
@@ -830,12 +745,6 @@ export default function ChatBox({
     setFlashcardResponses(flashcards);
     setIsFlashcardModalOpen(true);
   };
-
-  // Handle content modal
-  const handleContentModal = () => {
-    setIsContentModalOpen(true);
-  };
-
 
   if (status === "loading") {
     return <div>Loading...</div>
@@ -934,15 +843,16 @@ export default function ChatBox({
             <DojoMenuBar
               onNewReport={() => handleGenerateSummary(true)}
               onFlashcardMode={handleFlashcardMode}
-              onInstructions={handleContentModal}
               flashcardCount={getFlashcardResponses().length}
+              selectedLanguage={selectedLanguage}
+              summaryTimestamp={summaryTimestamp}
             />
             
             <div className="w-full md:flex md:justify-center">
               <div className="w-full md:max-w-2xl">
                 <GPTResponse
                   type="instruction"
-                  response={compileDojoInstructions(responseStats, summaryTimestamp)}
+                  response={compileDojoInstructions(summaryTimestamp)}
                   selectedBookmarkId={selectedBookmark.id}
                   selectedBookmarkTitle="daily summary"
                   reservedBookmarkTitles={reservedBookmarkTitles}
@@ -1048,14 +958,6 @@ export default function ChatBox({
         onPhoneticToggle={handlePhoneticToggle}
         onKanaToggle={handleKanaToggle}
         onLoadingChange={setIsLoading}
-      />
-      
-      {/* Content Modal */}
-      <ContentModal
-        isOpen={isContentModalOpen}
-        onClose={() => setIsContentModalOpen(false)}
-        title="Dojo Tips"
-        contentComponent={<DojoTipsList />}
       />
     </div>
   );
