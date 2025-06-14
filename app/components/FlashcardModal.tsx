@@ -150,7 +150,7 @@ export default function FlashcardModal({
         {/* Close button - positioned absolutely in top right */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 p-2 text-gray-400 hover:text-white transition-colors duration-200 z-10"
+          className="absolute top-5 right-2 p-2 text-gray-400 hover:text-white transition-colors duration-200 z-10"
         >
           <XMarkIcon className="h-5 w-5" />
         </button>
