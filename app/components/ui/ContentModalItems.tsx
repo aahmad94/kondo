@@ -6,6 +6,15 @@ import { ChevronDownIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import { useSession } from "next-auth/react";
 
+// Color constants for consistent styling
+const COLORS = {
+  primary: '#b59f3b',           // Main yellow/gold color
+  error: '#d93900',             // Error red color
+  primaryTransparent: 'rgba(181, 159, 59, 0.6)', // Semi-transparent yellow for optional args
+  secondary: '#575B63',          // Gray color for numbering and descriptions
+  accent: '#d97706'             // Amber color for icons
+};
+
 interface StatsMarkdownProps {
   selectedLanguage: string;
 }
@@ -73,7 +82,7 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
 
   if (isLoading) {
     return (
-      <div className="max-w-none flex items-center justify-center py-8" style={{ color: '#b59f3b' }}>
+      <div className="max-w-none flex items-center justify-center py-8" style={{ color: COLORS.primary }}>
         <div className="animate-spin h-6 w-6 border-2 border-yellow-400 border-t-transparent rounded-full"></div>
         <span className="ml-3">Loading stats...</span>
       </div>
@@ -82,7 +91,7 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
 
   if (error) {
     return (
-      <div className="max-w-none text-center py-8" style={{ color: '#d93900' }}>
+      <div className="max-w-none text-center py-8" style={{ color: COLORS.error }}>
         <p>{error}</p>
       </div>
     );
@@ -90,7 +99,7 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
 
   if (!stats) {
     return (
-      <div className="max-w-none text-center py-8" style={{ color: '#b59f3b' }}>
+      <div className="max-w-none text-center py-8" style={{ color: COLORS.primary }}>
         <p>No stats available</p>
       </div>
     );
@@ -99,7 +108,7 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
   const formattedStats = formatStats(stats);
 
   return (
-    <div className="max-w-none" style={{ color: '#b59f3b' }}>
+    <div className="max-w-none" style={{ color: COLORS.primary }}>
       <pre 
         className="whitespace-pre-wrap font-mono text-lg"
         style={{ fontFamily: 'monospace' }}
@@ -113,31 +122,34 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
 
 // --- Dojo Tips ---
 export function DojoTipsList() {
+  const tips = [
+    {
+      title: 'Use flashcard mode',
+      description: 'test yourself after reviewing the daily material in dojo'
+    },
+    {
+      title: 'Hide romanization',
+      description: 'challenge yourself by removing pronunciation aids',
+      icon: <ChevronDownIcon className="h-5 w-5 inline text-white" style={{ verticalAlign: 'middle' }} />
+    },
+    {
+      title: 'Pause strategically',
+      description: 'remove mastered content to focus on challenging material',
+      icon: <PauseCircleIcon className="inline h-5 w-5 text-yellow-400 align-text-bottom" style={{ verticalAlign: 'middle' }} />
+    }
+  ];
+
   return (
-    <ol style={{ paddingLeft: '1.5em', color: '#b59f3b' }} className="list-decimal space-y-2">
-      <li><strong>Use flashcard mode</strong>: test yourself after reviewing the daily material in dojo</li>
-      <li><strong>
-        Hide romanization{' '}
-        (
-          <ChevronDownIcon 
-            className="h-5 w-5 inline text-white" 
-            style={{ verticalAlign: 'middle' }} 
-          />
-        )
-        </strong>
-        {' '}challenge yourself by removing pronunciation aids</li>
-      <li>
-        <strong>
-            Pause strategically{' '}(
-            <PauseCircleIcon 
-                className="inline h-5 w-5 text-yellow-400 align-text-bottom"
-                style={{ verticalAlign: 'middle' }} 
-            />
-            )
-        </strong>
-        {' '}remove mastered content to focus on challenging material
-      </li>
-    </ol>
+    <div className="max-w-none" style={{ color: COLORS.primary }}>
+      {tips.map((tip, index) => (
+        <div key={index} style={{ marginBottom: '1rem' }}>
+          <strong style={{ color: COLORS.secondary }}>{index + 1}.</strong>{' '}
+          <strong style={{ color: COLORS.primary }}>{tip.title}</strong>
+          {tip.icon && <>{' '}{tip.icon}</>}
+          <span style={{ color: COLORS.secondary }}> {tip.description}</span>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -151,17 +163,17 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
     const commands = [
       {
         command: '<strong>random</strong>',
-        args: '<em style="color: rgba(181, 159, 59, 0.6);">(optional topic) (optional difficulty level)</em>',
+        args: `<em style="color: ${COLORS.primaryTransparent};">(optional topic) (optional difficulty level)</em>`,
         description: 'generate random phrases for practice'
       },
       {
         command: '<strong>verb</strong>',
-        args: '<em style="color: rgba(181, 159, 59, 0.6);">(verb)</em>',
+        args: `<em style="color: ${COLORS.primaryTransparent};">(verb)</em>`,
         description: 'get a table for all verb tenses'
       },
       {
         command: '<strong>terms</strong>',
-        args: '<em style="color: rgba(181, 159, 59, 0.6);">(topic)</em>',
+        args: `<em style="color: ${COLORS.primaryTransparent};">(topic)</em>`,
         description: `list of related words in ${getLanguageName(language)}`
       },
       {
@@ -171,14 +183,14 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
       },
       {
         command: '<strong>*</strong>',
-        args: '<em style="color: rgba(181, 159, 59, 0.6);">(question)</em>',
+        args: `<em style="color: ${COLORS.primaryTransparent};">(question)</em>`,
         description: 'inquire about anything else'
       }
     ];
 
     return commands.map((cmd, index) => 
       `<div style="margin-bottom: 1rem;">
-        <strong style="color: #575B63;">${index + 1}.</strong> ${cmd.command} ${cmd.args} <span style="color: #575B63;">${cmd.description}</span>
+        <strong style="color: ${COLORS.secondary};">${index + 1}.</strong> ${cmd.command} ${cmd.args} <span style="color: ${COLORS.secondary};">${cmd.description}</span>
       </div>`
     ).join('');
   };
@@ -196,7 +208,7 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
 
   const getAlphabetArgs = (language: string) => {
     if (language === 'zh') {
-      return '<em style="color: rgba(181, 159, 59, 0.6);">(optional # or range)</em>';
+      return `<em style="color: ${COLORS.primaryTransparent};">(optional # or range)</em>`;
     }
     return '';
   };
@@ -215,7 +227,7 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
   return (
     <div 
       className="max-w-none" 
-      style={{ color: '#b59f3b' }}
+      style={{ color: COLORS.primary }}
       dangerouslySetInnerHTML={{ 
         __html: generateCommandsHTML(selectedLanguage) 
       }}
