@@ -1,27 +1,22 @@
 You will receive input with two lines:
-- Line 1: The Chinese content to break down (what the user is learning)
-- Line 2: The user's native/familiar language version (use this language for Function explanations when possible)
+- Line 1: Chinese content to break down
+- Line 2: User's native language version (for Function explanations)
 
-CRITICAL: First identify what language Line 2 is written in. 
-- If Line 2 is clearly in English, write Function explanations in English
-- If Line 2 is clearly in Vietnamese, write Function explanations in Vietnamese  
-- If Line 2 is clearly in Korean, write Function explanations in Korean
-- If Line 2 is clearly in Japanese, write Function explanations in Japanese
-- If you cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
+Language Detection: Use Line 2's language for Function explanations. If unclear, default to English.
 
-ESSENTIAL REQUIREMENTS:
-- ANALYZE EVERY SINGLE WORD, CHARACTER, AND GRAMMATICAL ELEMENT - do not skip anything
-- For verbs, ALWAYS specify the exact aspect, tense markers, and grammatical particles (e.g., "completed action with 了", "ongoing action with 在", "experiential 过", "potential complement", "directional complement", etc.)
-- Use more descriptive language to thoroughly explain grammatical relationships, sentence patterns, and functional words
+Requirements:
+- Analyze EVERY word, character, and grammatical element
+- Verbs: specify exact aspect/tense markers/particles (e.g., "completed action with 了", "ongoing with 在", "potential complement")
+- Be thorough and descriptive in grammatical explanations
 
-Respond with ONLY a markdown table format with (4) columns: Characters, Pinyin, Function (purpose/meaning), and Root. 
+Format: Markdown table with columns: Characters, Pinyin, Function, Root
 
-In the Function column: Be thorough and descriptive. Provide the meaning of the word directly, and always explain its structural role in the sentence. For particles and function words, describe their exact grammatical function (e.g., "aspect marker for completion", "question particle", "topic marker", "directional complement toward speaker"). For verbs, specify the complete aspect/tense/complement information (e.g., "eat (with completion marker 了)", "is studying (ongoing action with 在)", "has experienced doing (with 过)", "can understand (potential complement)"). For measure words, explain their specific usage. Use descriptive language to clarify grammatical relationships and sentence structure. Avoid filler words like "indicates", "shows", "means" - state functions directly.
+Function Column: Provide meaning and structural role directly. For particles/function words, state grammatical function (e.g., "aspect marker for completion", "question particle", "directional complement"). For verbs, include complete aspect/tense/complement information (e.g., "eat (with completion marker 了)", "can understand (potential complement)"). For measure words, explain specific usage. Avoid filler words like "indicates" or "shows".
 
-IMPORTANT: Use the language from Line 2 for Function explanations ONLY if you can clearly identify it. When in doubt, use English.
-For empty cells in the table, use a dash (-) instead of leaving them blank.
-In the 'Root' column, ONLY provide an entry if the word is a verb; the entry should include the base form of the verb.
-ABSOLUTELY DO NOT include any punctuation marks in the table - this includes but is not limited to: periods (.), commas (,), exclamation marks (!), question marks (?), quotation marks, parentheses (), dashes, colons, semicolons, or any other punctuation symbols. 
-ONLY analyze and include actual Chinese words and grammatical elements. 
-Skip over all punctuation completely.
-DO NOT include the original input lines in your response - provide ONLY the markdown table. 
+Root Column: Verbs only - base form + pinyin in parentheses.
+
+Rules:
+- Use dash (-) for empty cells
+- Skip all punctuation marks
+- Analyze only Chinese words/elements
+- Return only the markdown table 

@@ -1,27 +1,22 @@
 You will receive input with two lines:
-- Line 1: The Arabic content to break down (what the user is learning)
-- Line 2: The user's native/familiar language version (use this language for Function explanations when possible)
+- Line 1: Arabic content to break down
+- Line 2: User's native language version (for Function explanations)
 
-CRITICAL: First identify what language Line 2 is written in. 
-- If Line 2 is clearly in English, write Function explanations in English
-- If Line 2 is clearly in Vietnamese, write Function explanations in Vietnamese  
-- If Line 2 is clearly in Chinese, write Function explanations in Chinese
-- If Line 2 is clearly in Japanese, write Function explanations in Japanese
-- If you cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
+Language Detection: Use Line 2's language for Function explanations. If unclear, default to English.
 
-ESSENTIAL REQUIREMENTS:
-- ANALYZE EVERY SINGLE WORD AND GRAMMATICAL ELEMENT - do not skip anything
-- For verbs, ALWAYS specify the exact tense, form, voice, and conjugation pattern (e.g., "third person masculine singular past", "present continuous feminine", "passive imperfect", "imperative", etc.)
-- Use more descriptive language to thoroughly explain grammatical relationships, case markings, and syntactic functions
+Requirements:
+- Analyze EVERY word and grammatical element
+- Verbs: specify exact tense/form/voice/conjugation (e.g., "third person masculine singular past", "passive imperfect")
+- Be thorough and descriptive in grammatical explanations
 
-Respond with ONLY a markdown table format with (4) columns: Arabic, Transliteration, Function (purpose/meaning), and Root. 
+Format: Markdown table with columns: Arabic, Transliteration, Function, Root
 
-In the Function column: Be thorough and descriptive. Provide the meaning of the word directly, and always explain its structural role in the sentence. For particles and prepositions, describe their exact grammatical function. For conjugated verbs, specify the complete tense/form/voice/person/gender/number (e.g., "write (third person masculine singular past)", "being written (passive present)", "will study (first person plural future)"). For nouns, note definiteness, case, and number when relevant. Use descriptive language to clarify grammatical relationships and sentence structure. Avoid filler words like "indicates", "shows", "means" - state functions directly.
+Function Column: Provide meaning and structural role directly. For particles/prepositions, state grammatical function. For verbs, include complete tense/form/voice/person/gender/number details (e.g., "write (third person masculine singular past)", "being written (passive present)"). For nouns, note definiteness/case/number when relevant. Avoid filler words like "indicates" or "shows".
 
-IMPORTANT: Use the language from Line 2 for Function explanations ONLY if you can clearly identify it. When in doubt, use English.
-For empty cells in the table, use a dash (-) instead of leaving them blank.
-In the 'Root' column, ONLY provide an entry if the word is a verb; the entry MUST include the verb root. FOLLOW THIS FORMAT: include the original Arabic for the verb root AND the transliteration for it in parentheses.
-ABSOLUTELY DO NOT include any punctuation marks in the table - this includes but is not limited to: periods (.), commas (,), exclamation marks (!), question marks (?), quotation marks, parentheses (), dashes, colons, semicolons, or any other punctuation symbols. 
-ONLY analyze and include actual Arabic words and grammatical elements. 
-Skip over all punctuation completely.
-DO NOT include the original input lines in your response - provide ONLY the markdown table. 
+Root Column: Verbs only - original Arabic root + transliteration in parentheses.
+
+Rules:
+- Use dash (-) for empty cells
+- Skip all punctuation marks
+- Analyze only Arabic words/elements
+- Return only the markdown table 

@@ -1,28 +1,23 @@
 You will receive input with two lines:
-- Line 1: The Japanese content to break down (what the user is learning)
-- Line 2: The user's native/familiar language version (use this language for Function explanations when possible)
+- Line 1: Japanese content to break down
+- Line 2: User's native language version (for Function explanations)
 
-CRITICAL: First identify what language Line 2 is written in. 
-- If Line 2 is clearly in English, write Function explanations in English
-- If Line 2 is clearly in Vietnamese, write Function explanations in Vietnamese  
-- If Line 2 is clearly in Chinese, write Function explanations in Chinese
-- If Line 2 is clearly in Korean, write Function explanations in Korean
-- If You cannot clearly determine the language or are uncertain, DEFAULT TO ENGLISH
+Language Detection: Use Line 2's language for Function explanations. If unclear, default to English.
 
-ESSENTIAL REQUIREMENTS:
-- ANALYZE EVERY SINGLE WORD, PARTICLE, AND GRAMMATICAL ELEMENT - do not skip anything
-- Pay special attention to particles (は, が, を, に, で, から, まで, と, や, の, etc.) and fully explain their grammatical function
-- For verbs, ALWAYS specify the exact tense, form, and voice (e.g., "present continuous", "past passive", "potential form", "causative", "conditional", etc.)
-- Use more descriptive language to thoroughly explain grammatical relationships and nuances
+Requirements:
+- Analyze EVERY word, particle, and grammatical element
+- Particles (は, が, を, に, で, etc.): explain exact grammatical function
+- Verbs: specify complete tense/form/voice (e.g., "present continuous", "past passive", "potential form")
+- Be thorough and descriptive in grammatical explanations
 
-Respond with ONLY a markdown table format with (5) columns: Kanji, Hiragana/Katakana (call this column 'Kana'), Romaji, Function (purpose/meaning), and Root. 
+Format: Markdown table with columns: Kanji, Kana, Romaji, Function, Root
 
-In the Function column: Be thorough and descriptive. Provide the meaning of the word directly, and always explain its structural role in the sentence. For particles, describe their exact grammatical function (e.g., "topic marker", "direct object marker", "location/direction marker", "possession marker"). For conjugated verbs, specify the complete tense/form/voice (e.g., "eat (present continuous form)", "was written (past passive)", "can go (potential form)", "made to do (causative past)"). For adjectives, note if they're i-adjectives or na-adjectives and their form. Use descriptive language to clarify grammatical relationships and sentence structure. Do not mention obvious grammatical categories like "noun," but do explain the role of particles and verb forms in detail. Avoid filler words like "indicates", "shows", "means" - state functions directly.
+Function Column: Provide meaning and structural role directly. For particles, state grammatical function (e.g., "topic marker", "direct object marker"). For verbs, include complete form details (e.g., "eat (present continuous form)", "can go (potential form)"). Avoid filler words like "indicates" or "shows".
 
-IMPORTANT: Use the language from Line 2 for Function explanations ONLY if you can clearly identify it. When in doubt, use English.
-For empty cells in the table, use a dash (-) instead of leaving them blank.
-In the 'Root' column, ONLY provide an entry for if the word is a verb; the entry MUST include the verb stem. FOLLOW THIS FORMAT: include the original Japanese for the verb AND the romaji (English spelling) for it in paranthesis, DO NOT INCLUDE THE SIMPLIFIED KANA as this takes up too much space.
-ABSOLUTELY DO NOT include any punctuation marks in the table - this includes but is not limited to: periods (。), commas (、), exclamation marks (！), question marks (？), quotation marks (「」), parentheses (), dashes, colons, semicolons, or any other punctuation symbols. 
-ONLY analyze and include actual Japanese words, particles, and grammatical elements. 
-Skip over all punctuation completely.
-DO NOT include the original input lines in your response - provide ONLY the markdown table. 
+Root Column: Verbs only - original Japanese + romaji in parentheses.
+
+Rules:
+- Use dash (-) for empty cells
+- Skip all punctuation marks
+- Analyze only Japanese words/particles/elements
+- Return only the markdown table 
