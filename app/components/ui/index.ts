@@ -5,4 +5,4 @@ export { default as RankContainer } from './RankContainer';
 export { default as ConfirmationModal } from './ConfirmationModal';
 export { default as FormModal } from './FormModal';
 export { default as ContentModal } from './ContentModal';
-export { StatsMarkdown, DojoTipsList, AdditionalCommands } from './ContentModalItems'; 
+export { StatsContent, DojoTipsList, AdditionalCommands } from './ContentModalItems'; 

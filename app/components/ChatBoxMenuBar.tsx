@@ -5,7 +5,7 @@ import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, Comman
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
-import { DojoTipsList, StatsMarkdown, AdditionalCommands } from './ui/ContentModalItems';
+import { DojoTipsList, StatsContent, AdditionalCommands } from './ui/ContentModalItems';
 
 interface ChatBoxMenuBarProps {
   onNewReport: () => void;
@@ -176,7 +176,7 @@ export default function ChatBoxMenuBar({
         onClose={closeContentModal}
         title="Response Stats"
         contentComponent={
-          <StatsMarkdown 
+          <StatsContent 
             selectedLanguage={selectedLanguage}
           />
         }

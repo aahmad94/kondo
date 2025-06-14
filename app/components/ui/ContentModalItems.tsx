@@ -12,10 +12,14 @@ const COLORS = {
   error: '#d93900',             // Error red color
   primaryTransparent: 'rgba(181, 159, 59, 0.6)', // Semi-transparent yellow for optional args
   secondary: '#575B63',          // Gray color for numbering and descriptions
-  accent: '#d97706'             // Amber color for icons
+  accent: '#d97706',            // Amber color for icons
+  // Rank colors (matching RankContainer)
+  rank1: '#d93900',             // Red for hard/rank 1
+  rank2: '#b59f3b',             // Yellow for medium/rank 2  
+  rank3: '#2ea149',             // Green for easy/rank 3
 };
 
-interface StatsMarkdownProps {
+interface StatsContentProps {
   selectedLanguage: string;
 }
 
@@ -27,7 +31,7 @@ interface StatsData {
 }
 
 // --- Stats ---
-export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
+export function StatsContent({ selectedLanguage }: StatsContentProps) {
   const { data: session } = useSession();
   const [stats, setStats] = useState<StatsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,27 +68,47 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
     const padLeft = (str: string, length: number) => str.padStart(length);
     const padRight = (str: string, length: number) => str.padEnd(length);
     
-    // Pad the visible text first, then apply HTML formatting
-    const rank1Str = `<strong>${padLeft(stats.rank1.count.toString(), 3)}</strong>`;
-    const rank2Str = `<strong>${padLeft(stats.rank2.count.toString(), 3)}</strong>`;
-    const rank3Str = `<strong>${padLeft(stats.rank3.count.toString(), 3)}</strong>`;
-    const totalStr = `<strong>${padLeft(stats.total.toString(), 3)}</strong>`;
-    const pct1Str = `<strong>${padLeft(`${stats.rank1.percentage}%`, 4)}</strong>`;
-    const pct2Str = `<strong>${padLeft(`${stats.rank2.percentage}%`, 4)}</strong>`;
-    const pct3Str = `<strong>${padLeft(`${stats.rank3.percentage}%`, 4)}</strong>`;
+    // Pad the visible text first, then apply HTML formatting with matching rank colors
+    const rank1Str = `<span style="color: ${COLORS.rank1};">${padLeft(stats.rank1.count.toString(), 3)}</span>`;
+    const rank2Str = `<span style="color: ${COLORS.rank2};">${padLeft(stats.rank2.count.toString(), 3)}</span>`;
+    const rank3Str = `<span style="color: ${COLORS.rank3};">${padLeft(stats.rank3.count.toString(), 3)}</span>`;
+    const totalStr = `<span style="color: ${COLORS.secondary};">${padLeft(stats.total.toString(), 3)}</span>`;
+    const pct1Str = `<span style="color: ${COLORS.rank1};">${padLeft(`${stats.rank1.percentage}%`, 4)}</span>`;
+    const pct2Str = `<span style="color: ${COLORS.rank2};">${padLeft(`${stats.rank2.percentage}%`, 4)}</span>`;
+    const pct3Str = `<span style="color: ${COLORS.rank3};">${padLeft(`${stats.rank3.percentage}%`, 4)}</span>`;
 
-    return `<strong>Rank composition</strong>\n` +
-           `${padRight('hard', 15)} ${rank1Str} ${pct1Str}\n` +
-           `${padRight('medium', 15)} ${rank2Str} ${pct2Str}\n` +
-           `${padRight('easy', 15)} ${rank3Str} ${pct3Str}\n` +
-           `${padRight('total', 15)} ${totalStr}`;
+    // Color the descriptions according to their rank colors
+    const hardLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('hard', 15)}</span>`;
+    const mediumLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('medium', 15)}</span>`;
+    const easyLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('easy', 15)}</span>`;
+    const totalLabel = `<span style="color: ${COLORS.secondary};">${padRight('total', 15)}</span>`;
+
+    return `<span style="color: ${COLORS.primary};">Rank composition</span>\n` +
+           `${hardLabel} ${rank1Str} ${pct1Str}\n` +
+           `${mediumLabel} ${rank2Str} ${pct2Str}\n` +
+           `${easyLabel} ${rank3Str} ${pct3Str}\n` +
+           `${totalLabel} ${totalStr}`;
   };
 
   if (isLoading) {
     return (
       <div className="max-w-none flex items-center justify-center py-8" style={{ color: COLORS.primary }}>
-        <div className="animate-spin h-6 w-6 border-2 border-yellow-400 border-t-transparent rounded-full"></div>
-        <span className="ml-3">Loading stats...</span>
+        <span className="ml-3">Loading stats</span>
+        <span className="dots-animation">
+          <style jsx>{`
+            .dots-animation::after {
+              content: '';
+              animation: dots 1.5s steps(4, end) infinite;
+            }
+            
+            @keyframes dots {
+              0%, 20% { content: '.'; }
+              40% { content: '..'; }
+              60% { content: '...'; }
+              80%, 100% { content: ''; }
+            }
+          `}</style>
+        </span>
       </div>
     );
   }
@@ -110,7 +134,7 @@ export function StatsMarkdown({ selectedLanguage }: StatsMarkdownProps) {
   return (
     <div className="max-w-none" style={{ color: COLORS.primary }}>
       <pre 
-        className="whitespace-pre-wrap font-mono text-lg"
+        className="whitespace-pre-wrap font-mono text-base"
         style={{ fontFamily: 'monospace' }}
         dangerouslySetInnerHTML={{ 
           __html: formattedStats 
