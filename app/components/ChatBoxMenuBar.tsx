@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
+import ConfirmationModal from './ui/ConfirmationModal';
 import { DojoTipsList, StatsMarkdown, AdditionalCommands } from './ui/ContentModalItems';
 
 interface ChatBoxMenuBarProps {
@@ -28,6 +29,9 @@ export default function ChatBoxMenuBar({
   
   // Content modal state - managed within ChatBoxMenuBar
   const [contentModalType, setContentModalType] = useState<'tips' | 'stats' | 'commands' | null>(null);
+  
+  // New report confirmation modal state
+  const [showNewReportConfirmation, setShowNewReportConfirmation] = useState(false);
 
   // Handle content modal types
   const handleContentModal = (type: 'tips' | 'stats' | 'commands') => {
@@ -36,6 +40,20 @@ export default function ChatBoxMenuBar({
 
   const closeContentModal = () => {
     setContentModalType(null);
+  };
+  
+  // Handle new report confirmation
+  const handleNewReportClick = () => {
+    setShowNewReportConfirmation(true);
+  };
+  
+  const handleNewReportConfirm = () => {
+    setShowNewReportConfirmation(false);
+    onNewReport();
+  };
+  
+  const handleNewReportCancel = () => {
+    setShowNewReportConfirmation(false);
   };
 
   // Determine which buttons to show based on selected bookmark
@@ -66,6 +84,17 @@ export default function ChatBoxMenuBar({
             }}
           >
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              {/* Dojo Tips Button - Second */}
+              {showDojoTips && (
+                <button
+                  onClick={() => handleContentModal('tips')}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>dojo tips</span>
+                </button>
+              )}
+
               {/* Flashcard Mode Button - First */}
               {showFlashcards && (
                 <button
@@ -83,21 +112,10 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Dojo Tips Button - Second */}
-              {showDojoTips && (
-                <button
-                  onClick={() => handleContentModal('tips')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>dojo tips</span>
-                </button>
-              )}
-
               {/* New Report Button - Third */}
               {showNewReport && (
                 <button
-                  onClick={onNewReport}
+                  onClick={handleNewReportClick}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <PlusIcon className="h-4 w-4 flex-shrink-0" />
@@ -162,6 +180,18 @@ export default function ChatBoxMenuBar({
             selectedLanguage={selectedLanguage}
           />
         }
+      />
+      
+      {/* New Report Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showNewReportConfirmation}
+        onClose={handleNewReportCancel}
+        onConfirm={handleNewReportConfirm}
+        title="Create New Report"
+        message="Are you sure you would like to create a new dojo report?"
+        confirmText="Yes"
+        cancelText="Cancel"
+        confirmButtonColor="blue"
       />
     </>
   );
