@@ -6,14 +6,17 @@ import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
 import { StyledMarkdown } from './ui';
+import { prepareTextForSpeech } from '../../lib/audioUtils';
 
 interface BreakdownModalProps {
   isOpen: boolean;
   onClose: () => void;
   breakdown: string;
+  originalResponse?: string;
   rank?: number;
   isPaused?: boolean;
   responseId?: string | null;
+  selectedBookmarkTitle?: string | null;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   selectedLanguage?: string;
@@ -25,9 +28,11 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   isOpen, 
   onClose, 
   breakdown,
+  originalResponse,
   rank = 1,
   isPaused = false,
   responseId,
+  selectedBookmarkTitle,
   onRankUpdate,
   onPauseToggle,
   selectedLanguage = 'ja',
@@ -64,8 +69,8 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
               />
             )}
 
-            {/* Pause button */}
-            {responseId && !responseId.startsWith('temp_') && onPauseToggle && (
+            {/* Pause button - only show when selected bookmark is Daily Summary */}
+            {responseId && !responseId.startsWith('temp_') && onPauseToggle && selectedBookmarkTitle === 'daily summary' && (
               <IconButton
                 icon={<PauseCircleIcon className="h-6 w-6" />}
                 alternateIcon={<PlayCircleIcon className="h-6 w-6" />}
@@ -82,10 +87,10 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
             )}
 
             {/* Speaker button */}
-            {responseId && breakdown && (
+            {responseId && breakdown && originalResponse && (
               <SpeakerButton
                 responseId={responseId}
-                textToSpeak={breakdown}
+                textToSpeak={prepareTextForSpeech(originalResponse)}
                 selectedLanguage={selectedLanguage}
                 tooltipContent="Listen to breakdown"
                 buttonRef={speakerButtonRef}

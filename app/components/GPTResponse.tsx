@@ -755,9 +755,11 @@ export default function GPTResponse({
           isOpen={isBreakdownModalOpen}
           onClose={() => setIsBreakdownModalOpen(false)}
           breakdown={breakdownContent}
+          originalResponse={response}
           rank={rank}
           isPaused={isPaused}
           responseId={responseId ?? null}
+          selectedBookmarkTitle={selectedBookmarkTitle}
           onRankUpdate={onRankUpdate}
           onPauseToggle={onPauseToggle}
           selectedLanguage={selectedLanguage}
