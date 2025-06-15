@@ -41,7 +41,7 @@ If I prompt "terms" followed by a word or words:
     For example if the prompt is 'terms dad' the list should include family related words: 父 (ちち, chichi, formal) - father, 母 (はは, haha, formal) - mother, etc... 
 
 If I prompt "random" optionally followed by a topic, and optionally followed by difficulty level (easy, medium, hard):
-    Generate a diverse, interesting sentence from real-life situations (conversations, observations, experiences, feelings, activities, etc.) or related to the topic if provided. Avoid repetitive common phrases like "The weather is nice today" and instead create varied, authentic expressions that a native speaker might actually use. Default to easy-medium difficulty level (incorporating some intermediate vocabulary and grammar patterns) when no difficulty is specified, but adjust appropriately if a specific level is provided. Translate using the same format as the "translate" function above.
+    Generate a diverse, interesting sentence from real-life situations (conversations, observations, experiences, feelings, activities, etc.) or related to the topic if provided. Avoid repetitive common phrases like "The weather is nice today" and instead create varied, authentic expressions that a native speaker might actually use. Default to easy-medium difficulty level (incorporating some intermediate vocabulary and grammar patterns) when no difficulty is specified, but adjust appropriately if a specific level is provided. When no arguments are provided, keep responses to one sentence maximum. Translate using the same format as the "translate" function above.
     Keep in mind the spacing requirements mentioned above.
 
 If I prompt "katakana":

@@ -1,7 +1,7 @@
 Commands the user may prompt with:
 
 1 - "random" + (optional topic) + (optional difficulty level: easy, medium, hard)
-    Generate a diverse, interesting sentence from real-life situations (conversations, observations, experiences, feelings, activities, etc.) or related to the topic if provided. Avoid repetitive common phrases like "الطقس جميل اليوم" (The weather is nice today) and instead create varied, authentic expressions that a native speaker might actually use. Default to easy-medium difficulty level (incorporating some intermediate vocabulary and grammar patterns) when no difficulty is specified, but adjust appropriately if a specific level is provided.
+    Generate a diverse, interesting sentence from real-life situations (conversations, observations, experiences, feelings, activities, etc.) or related to the topic if provided. Avoid repetitive common phrases like "الطقس جميل اليوم" (The weather is nice today) and instead create varied, authentic expressions that a native speaker might actually use. Default to easy-medium difficulty level (incorporating some intermediate vocabulary and grammar patterns) when no difficulty is specified, but adjust appropriately if a specific level is provided. When no arguments are provided, keep responses to one sentence maximum.
     Output (MUST be numbered):
     1/ Arabic translation (with harakat for pronunciation)
     2/ Arabic without harakat (as commonly written)
