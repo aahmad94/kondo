@@ -56,9 +56,9 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[80]">
       <div className="bg-[#111111] p-6 rounded-sm w-[650px] max-w-[90vw] max-h-[80vh] flex flex-col">
-        <div className="flex justify-between items-center sticky top-0 bg-[#111111] pb-4">
+        <div className="flex justify-between items-center bg-[#111111] pb-4 flex-shrink-0">
           {/* Action buttons (formerly bottom) */}
           <div className="flex items-center gap-3">
             {/* Rank container */}
@@ -105,7 +105,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
             <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
-        <div className="text-[#b59f3b] whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center">
+        <div className="text-[#b59f3b] whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center flex-1">
           <div className="w-full">
             <StyledMarkdown 
               components={{

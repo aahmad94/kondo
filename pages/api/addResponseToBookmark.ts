@@ -58,6 +58,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
+      // Update the bookmark's updatedAt field to reflect the interaction
+      await prisma.bookmark.update({
+        where: { id: bookmarkId },
+        data: { updatedAt: new Date() }
+      });
+
       res.status(200).json(newResponse);
     } catch (error) {
       console.error('Error adding response to bookmark:', error);

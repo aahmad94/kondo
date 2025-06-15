@@ -30,6 +30,16 @@ export default async function handler(
           }
         }
       });
+
+      // Update all affected bookmarks' updatedAt field to reflect the interaction
+      await prisma.bookmark.updateMany({
+        where: {
+          id: {
+            in: Object.keys(bookmarks)
+          }
+        },
+        data: { updatedAt: new Date() }
+      });
     }
 
     // Then delete the response itself
