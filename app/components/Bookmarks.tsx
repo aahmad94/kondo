@@ -12,6 +12,7 @@ import { useIsMobile } from '../hooks/useIsMobile';
 interface Bookmark {
   id: string;
   title: string;
+  updatedAt?: string;
 }
 
 interface BookmarksProps {
@@ -321,6 +322,11 @@ export default function Bookmarks({
                   ) : (
                     bookmarks
                       .filter(bookmark => !reservedBookmarkTitles.includes(bookmark.title))
+                      .sort((a: Bookmark, b: Bookmark) => {
+                        if (!a.updatedAt) return 1;
+                        if (!b.updatedAt) return -1;
+                        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+                      })
                       .map((bookmark) => (
                         <div
                           key={bookmark.id}

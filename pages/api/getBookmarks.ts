@@ -36,6 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           userId: userId,
           languageId: languageId
         },
+        orderBy: {
+          updatedAt: 'desc'
+        }
       });
       res.status(200).json(bookmarks);
     } catch (error) {

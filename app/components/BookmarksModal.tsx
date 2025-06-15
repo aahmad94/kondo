@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 interface Bookmark {
   id: string;
   title: string;
+  updatedAt?: string;
 }
 
 interface BookmarksModalProps {
@@ -62,7 +63,11 @@ export default function BookmarksModal({
       // Filter out reserved bookmarks using the reservedBookmarkTitles array
       const nonReservedBookmarks = data.filter((bookmark: Bookmark) => 
         !reservedBookmarkTitles.includes(bookmark.title)
-      );
+      ).sort((a: Bookmark, b: Bookmark) => {
+        if (!a.updatedAt) return 1;
+        if (!b.updatedAt) return -1;
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      });
       setBookmarks(nonReservedBookmarks);
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
