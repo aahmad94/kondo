@@ -58,7 +58,7 @@ export default function ContentModal({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 pt-2">
+          <div className="p-4 pt-2 flex justify-center">
             <div className="max-w-none" style={{ color: '#b59f3b' }}>
               {contentComponent ? (
                 contentComponent
