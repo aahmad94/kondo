@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { 
   PlusIcon, 
   XCircleIcon, 
-  ChatBubbleLeftEllipsisIcon, 
   ChevronDownIcon, 
   ArrowPathIcon, 
   PauseCircleIcon,
@@ -16,6 +15,7 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/solid';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import BreakdownModal from './BreakdownModal';
@@ -462,34 +462,7 @@ export default function GPTResponse({
                 />
               )}
 
-              {/* Quote button - only show when not in a bookmark */}
-              {!selectedBookmarkId && onQuote && (
-                !isMobile ? (
-                  <Tooltip
-                    content="Ask a question about this response"
-                    isVisible={isQuoteHovered}
-                    buttonRef={quoteButtonRef}
-                  >
-                    <button 
-                      ref={quoteButtonRef}
-                      onClick={() => onQuote(response, 'input')} 
-                      onMouseEnter={() => setIsQuoteHovered(true)}
-                      onMouseLeave={() => setIsQuoteHovered(false)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                    >
-                      <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <button 
-                    ref={quoteButtonRef}
-                    onClick={() => onQuote(response, 'input')} 
-                    className="text-blue-400 hover:text-blue-700 transition-colors duration-200 relative group"
-                  >
-                    <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
-                  </button>
-                )
-              )}
+
             </>
           )}
         </div>
@@ -569,7 +542,34 @@ export default function GPTResponse({
             </div>
           )}
 
-
+          {/* Quote button - only show when not in a bookmark */}
+          {!selectedBookmarkId && onQuote && (
+            !isMobile ? (
+              <Tooltip
+                content="Ask a question about this response"
+                isVisible={isQuoteHovered}
+                buttonRef={quoteButtonRef}
+              >
+                <button 
+                  ref={quoteButtonRef}
+                  onClick={() => onQuote(response, 'input')} 
+                  onMouseEnter={() => setIsQuoteHovered(true)}
+                  onMouseLeave={() => setIsQuoteHovered(false)}
+                  className="text-white hover:text-gray-300 transition-colors duration-200"
+                >
+                  <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={quoteButtonRef}
+                onClick={() => onQuote(response, 'input')} 
+                className="text-white hover:text-gray-300 transition-colors duration-200"
+              >
+                <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
+              </button>
+            )
+          )}
 
           {/* Delete button */}
           {type !== 'instruction' && selectedBookmarkId && responseId && onDelete && (
@@ -596,7 +596,7 @@ export default function GPTResponse({
                   onClick={() => setIsBookmarkModalOpen(true)} 
                   onMouseEnter={() => setIsBookmarkHovered(true)}
                   onMouseLeave={() => setIsBookmarkHovered(false)}
-                  className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
+                  className="text-white hover:text-blue-400 transition-colors duration-200"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
@@ -605,7 +605,7 @@ export default function GPTResponse({
               <button 
                 ref={bookmarkButtonRef}
                 onClick={() => setIsBookmarkModalOpen(true)} 
-                className="text-white hover:text-blue-400 transition-colors duration-200 px-3"
+                className="text-white hover:text-blue-400 transition-colors duration-200"
               >
                 <PlusIcon className="h-6 w-6" />
               </button>

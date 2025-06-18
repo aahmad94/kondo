@@ -30,22 +30,6 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
     }, 0);
   }, []);
 
-  // Set the default prompt and adjust the height of the textarea
-  useEffect(() => {
-    if (defaultPrompt) {
-      setPrompt(defaultPrompt);
-      setTimeout(adjustHeight, 0);
-      // Focus on the textarea and scroll to the bottom
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        setTimeout(() => {
-          textareaRef.current!.scrollTop = textareaRef.current!.scrollHeight;
-        }, 50);
-      }
-    }
-  }, [defaultPrompt]);
-
-
   // Adjust the height of the textarea based on the user's input
   const adjustHeight = () => {
     const textarea = textareaRef.current;
@@ -82,10 +66,6 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
     adjustHeight();
-    if (defaultPrompt && e.target.value !== defaultPrompt) {
-      defaultPrompt = null;
-      onQuoteToNull();
-    }
   };
 
   // Submit the user's input

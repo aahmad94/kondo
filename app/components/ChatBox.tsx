@@ -12,6 +12,7 @@ import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '../../li
 import { extractExpressions } from '../../lib/expressionUtils';
 import ChatBoxMenuBar from './ChatBoxMenuBar';
 import FlashcardModal from './FlashcardModal';
+import QuoteBar from './QuoteBar';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -81,6 +82,7 @@ export default function ChatBox({
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
+  const [quoteBarHeight, setQuoteBarHeight] = useState<number>(0);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '', dojoDetailed: '' });
   const [dailySummaryCache, setDailySummaryCache] = useState<Record<string, Response> | null>(null);
   const [searchResultsCache, setSearchResultsCache] = useState<Record<string, Response> | null>(null);
@@ -293,13 +295,19 @@ export default function ChatBox({
   const handleSubmit = async (prompt: string, model?: string) => {
     try {
       setIsLoading(true);
+      
+      // If there's quoted material, include it with the user's question
+      const processedPrompt = responseQuote 
+        ? `${prompt}\n\nQuoted material:\n* ${responseQuote}` 
+        : prompt;
+      
       const res = await fetch('/api/openai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          prompt,
+          prompt: processedPrompt,
           languageCode: selectedLanguage || 'ja',
           model: model || 'gpt-4o' // Default to gpt-4o if no model is specified
         }),
@@ -325,7 +333,7 @@ export default function ChatBox({
           isKanaEnabled: true
         }
       }));
-      setResponseQuote('');
+      setResponseQuote(null);
     } catch (error) {
       console.error('Error fetching data:', error);
       const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -418,17 +426,23 @@ export default function ChatBox({
 
   const handleResponseQuote = (response: string, type: 'submit' | 'breakdown' | 'input' = 'input') => {
     const submitResponse = `* Breakdown the following phrase:\n\n${response}`;
-    const quoteResponse = `${response}\n\n* Replace this text to ask anything about the quoted response above...`
 
     if (type === 'breakdown') {
       handleSubmit(submitResponse, 'gpt-4o-mini');
+      setResponseQuote(null); // Clear any existing quote when doing breakdown
     } else {
-      setResponseQuote(quoteResponse);
+      setResponseQuote(response);
     }
   };
 
   const setResponseQuoteToNull = () => {
     setResponseQuote(null);
+    setQuoteBarHeight(0); // Reset height when quote is cleared
+  };
+
+  // Handle QuoteBar height changes
+  const handleQuoteBarHeightChange = (height: number) => {
+    setQuoteBarHeight(height);
   };
 
   // Utility function to update a response across all cache states
@@ -759,7 +773,7 @@ export default function ChatBox({
           selectedBookmark.id ? bookmarkContainerHeight() : ''
         }`}
         style={{ 
-          height: selectedBookmark.id ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset}px)`,
+          height: selectedBookmark.id ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset + quoteBarHeight}px)`,
           paddingBottom: 'env(safe-area-inset-bottom)' 
         }}
       >
@@ -949,14 +963,23 @@ export default function ChatBox({
         ) : null}
       </div>
       {!selectedBookmark.id && (
-        <UserInput 
-          onSubmit={handleSubmit} 
-          isLoading={isLoading} 
-          defaultPrompt={responseQuote}
-          onUserInputOffset={handleUserInputOffset}
-          onQuoteToNull={setResponseQuoteToNull}
-          selectedLanguage={selectedLanguage}
-        />
+        <>
+          {responseQuote && (
+            <QuoteBar 
+              quotedText={responseQuote}
+              onClear={setResponseQuoteToNull}
+              onHeightChange={handleQuoteBarHeightChange}
+            />
+          )}
+          <UserInput 
+            onSubmit={handleSubmit} 
+            isLoading={isLoading} 
+            defaultPrompt={null}
+            onUserInputOffset={handleUserInputOffset}
+            onQuoteToNull={setResponseQuoteToNull}
+            selectedLanguage={selectedLanguage}
+          />
+        </>
       )}
       
       {/* Flashcard Modal */}
