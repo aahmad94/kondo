@@ -245,7 +245,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
         {/* View Toggle - only show if we have mobile breakdown capability */}
         {(cachedMobileBreakdown || originalResponse) && (
           <div className="flex justify-start pt-4 flex-shrink-0">
-            {isLoading && 
+            {!isLoading && 
               <button
                 onClick={handleViewToggle}
                 disabled={isLoading}
