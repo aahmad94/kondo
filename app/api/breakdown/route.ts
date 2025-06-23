@@ -3,7 +3,7 @@ import { getBreakdown } from '@/lib/GPTResponseService';
 
 export async function POST(request: Request) {
   try {
-    const { text, language, responseId } = await request.json();
+    const { text, language, responseId, isMobile } = await request.json();
 
     if (!text) {
       return NextResponse.json(
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const breakdown = await getBreakdown(text, language, responseId);
+    const breakdown = await getBreakdown(text, language, responseId, isMobile);
 
     return NextResponse.json({ breakdown });
   } catch (error: any) {

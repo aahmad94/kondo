@@ -121,7 +121,9 @@ export default function GPTResponse({
   const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
   const refreshButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
-  const [breakdownContent, setBreakdownContent] = useState('');
+  const [desktopBreakdownContent, setDesktopBreakdownContent] = useState('');
+  const [mobileBreakdownContent, setMobileBreakdownContent] = useState('');
+  const [currentBreakdownContent, setCurrentBreakdownContent] = useState('');
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -347,8 +349,14 @@ export default function GPTResponse({
 
   const handleBreakdownClick = async () => {
     try {
-      if (breakdownContent) {
-        setBreakdownContent(breakdownContent);
+      // Check current screen size at the time of click
+      const currentIsMobile = window.innerWidth < 640 || /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
+      
+      // Check if we already have the appropriate breakdown cached
+      const cachedBreakdown = currentIsMobile ? mobileBreakdownContent : desktopBreakdownContent;
+      
+      if (cachedBreakdown) {
+        setCurrentBreakdownContent(cachedBreakdown);
         setIsBreakdownModalOpen(true);
         if (responseId) await trackBreakdownClick(responseId);
         return;
@@ -363,7 +371,8 @@ export default function GPTResponse({
         body: JSON.stringify({ 
           text: response,
           language: selectedLanguage,
-          responseId: responseId
+          responseId: responseId,
+          isMobile: currentIsMobile
         }),
       });
 
@@ -373,7 +382,15 @@ export default function GPTResponse({
       }
 
       const data = await res.json();
-      setBreakdownContent(data.breakdown);
+      
+      // Cache the breakdown in the appropriate state and display it
+      if (currentIsMobile) {
+        setMobileBreakdownContent(data.breakdown);
+      } else {
+        setDesktopBreakdownContent(data.breakdown);
+      }
+      
+      setCurrentBreakdownContent(data.breakdown);
       setIsBreakdownModalOpen(true);
       if (responseId) await trackBreakdownClick(responseId);
     } catch (error: any) {
@@ -734,7 +751,7 @@ export default function GPTResponse({
           response={response}
           reservedBookmarkTitles={reservedBookmarkTitles}
           cachedAudio={null}
-          breakdownContent={breakdownContent}
+          breakdownContent={currentBreakdownContent}
           furigana={currentFurigana}
           isFuriganaEnabled={localFuriganaEnabled}
           isPhoneticEnabled={localPhoneticEnabled}
@@ -754,7 +771,7 @@ export default function GPTResponse({
         <BreakdownModal
           isOpen={isBreakdownModalOpen}
           onClose={() => setIsBreakdownModalOpen(false)}
-          breakdown={breakdownContent}
+          breakdown={currentBreakdownContent}
           originalResponse={response}
           rank={rank}
           isPaused={isPaused}

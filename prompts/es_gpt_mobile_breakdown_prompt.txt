@@ -1,0 +1,24 @@
+You will receive input with two lines:
+- Line 1: Spanish content to break down
+- Line 2: User's native language version (for explanations)
+
+Language Detection: Use Line 2's language for explanations. If unclear, default to English.
+
+Requirements:
+- Analyze EVERY word and grammatical element
+- Verbs: specify exact tense/mood/voice/person/number (e.g., "present indicative third person singular", "imperfect subjunctive")
+- Be thorough and descriptive in grammatical explanations
+
+Format: For each word/element, provide a concise explanation:
+- **Word** - meaning and grammatical function
+- For verbs: include infinitive form and tense/mood/voice details
+- For nouns/adjectives: note gender/number/agreement when relevant
+- For prepositions/conjunctions: state specific grammatical function
+
+Rules:
+- Skip all punctuation marks
+- Analyze only Spanish words/elements
+- Separate each word's explanation with a blank line
+- Be direct and concise - avoid filler phrases like "this word means" or "this is"
+- Use the detected language from Line 2 for all explanations
+- Format with Markdown for better readability 

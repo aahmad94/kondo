@@ -244,7 +244,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
   }
 }
 
-export async function getBreakdown(text: string, language: string, responseId?: string) {
+export async function getBreakdown(text: string, language: string, responseId?: string, isMobile?: boolean) {
   if (!text) {
     throw new Error('Text content is required');
   }
@@ -273,21 +273,25 @@ export async function getBreakdown(text: string, language: string, responseId?: 
 
     // Combine content with original user input
     const combinedContent = content + '\n' + originalUserInput;
+    
     // Only check database if we have a responseId
     if (responseId) {
       const existingResponse = await prisma.gPTResponse.findUnique({
         where: { id: responseId },
-        select: { breakdown: true }
+        select: { breakdown: true, mobileBreakdown: true }
       });
 
-      if (existingResponse?.breakdown) {
-        // Return existing breakdown from database
+      // Return existing breakdown based on device type
+      if (isMobile && existingResponse?.mobileBreakdown) {
+        return existingResponse.mobileBreakdown;
+      } else if (!isMobile && existingResponse?.breakdown) {
         return existingResponse.breakdown;
       }
     }
 
-    // Read the breakdown-specific prompt for the language
-    const breakdownPromptPath = path.join(process.cwd(), 'prompts', `${language}_gpt_breakdown_prompt.txt`);
+    // Choose the appropriate prompt based on device type
+    const promptSuffix = isMobile ? 'mobile_breakdown' : 'breakdown';
+    const breakdownPromptPath = path.join(process.cwd(), 'prompts', `${language}_gpt_${promptSuffix}_prompt.txt`);
     const breakdownSystemPrompt = fs.readFileSync(breakdownPromptPath, 'utf8');
 
     // Generate new breakdown using dedicated breakdown prompt
@@ -317,9 +321,14 @@ export async function getBreakdown(text: string, language: string, responseId?: 
       });
 
       if (responseExists) {
+        // Update the appropriate breakdown field based on device type
+        const updateData = isMobile 
+          ? { mobileBreakdown: breakdown }
+          : { breakdown };
+          
         await prisma.gPTResponse.update({
           where: { id: responseId },
-          data: { breakdown }
+          data: updateData
         });
       }
     }

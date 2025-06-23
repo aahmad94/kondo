@@ -102,6 +102,7 @@ model GPTResponse {
   audio             String?
   audioMimeType     String?
   breakdown         String?
+  mobileBreakdown   String?
   furigana          String?
   language          Language       @relation(fields: [languageId], references: [id])
   user              User           @relation(fields: [userId], references: [id])
