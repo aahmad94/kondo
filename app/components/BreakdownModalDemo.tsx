@@ -14,6 +14,7 @@ interface BreakdownModalDemoProps {
   isOpen: boolean;
   onClose: () => void;
   breakdown: string;
+  mobileBreakdown?: string;
   rank?: number;
   isPaused?: boolean;
   responseId?: string | null;
@@ -30,6 +31,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
   isOpen, 
   onClose, 
   breakdown,
+  mobileBreakdown,
   rank = 1,
   isPaused = false,
   responseId,
@@ -41,7 +43,8 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
   const pauseButtonRef = useRef<HTMLButtonElement>(null);
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
 
-
+  // Determine which breakdown to display based on device type
+  const currentBreakdown = isMobile && mobileBreakdown ? mobileBreakdown : breakdown;
 
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
@@ -49,10 +52,6 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
     const newRank = increment ? Math.min(rank + 1, 3) : Math.max(rank - 1, 1);
     await onRankUpdate(responseId, newRank);
   };
-
-
-
-
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -113,7 +112,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                     {audio?.success && responseId && (
                       <SpeakerButton
                         responseId={responseId}
-                        textToSpeak={breakdown}
+                        textToSpeak={currentBreakdown}
                         selectedLanguage="ja"
                         cachedAudio={audio ? {
                           audio: audio.audio,
@@ -151,7 +150,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                           )
                         }}
                       >
-                        {breakdown}
+                        {currentBreakdown}
                       </StyledMarkdown>
                     </div>
                   </div>

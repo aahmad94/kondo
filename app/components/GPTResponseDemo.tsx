@@ -23,6 +23,7 @@ interface DemoResponse {
     furigana?: string;
   };
   breakdown: string;
+  mobileBreakdown?: string;
   rank: number;
   isPaused: boolean;
   createdAt: string;
@@ -419,6 +420,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
         isOpen={isBreakdownOpen}
         onClose={() => setIsBreakdownOpen(false)}
         breakdown={response.breakdown}
+        mobileBreakdown={response.mobileBreakdown}
         rank={rank}
         isPaused={isPaused}
         responseId={response.id}

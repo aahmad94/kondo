@@ -43,6 +43,8 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const { isMobile, offset } = useIsMobile();
 
+  console.log('----------- breakdown -----------');
+  console.log(breakdown);
 
 
   const onRankClick = async (increment: boolean) => {
