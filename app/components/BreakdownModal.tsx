@@ -245,16 +245,15 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
         {/* View Toggle - only show if we have mobile breakdown capability */}
         {(cachedMobileBreakdown || originalResponse) && (
           <div className="flex justify-start pt-4 flex-shrink-0">
-            <button
-              onClick={handleViewToggle}
-              disabled={isLoading}
-              className="font-mono text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-50 rounded-sm text-white transition-colors duration-200"
-            >
-              {isLoading 
-                ? `loading ${loadingType === 'mobile' ? 'text' : 'table'} view...`
-                : isTextView ? 'desktop view' : 'mobile view'
-              }
-            </button>
+            {isLoading && 
+              <button
+                onClick={handleViewToggle}
+                disabled={isLoading}
+                className="font-mono text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-50 rounded-sm text-white transition-colors duration-200"
+              >
+                {isTextView ? 'desktop view' : 'mobile view'}
+              </button>
+            }
           </div>
         )}
       </div>
