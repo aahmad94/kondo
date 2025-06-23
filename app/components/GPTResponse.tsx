@@ -771,7 +771,8 @@ export default function GPTResponse({
         <BreakdownModal
           isOpen={isBreakdownModalOpen}
           onClose={() => setIsBreakdownModalOpen(false)}
-          breakdown={currentBreakdownContent}
+          breakdown={desktopBreakdownContent || currentBreakdownContent}
+          mobileBreakdown={mobileBreakdownContent}
           originalResponse={response}
           rank={rank}
           isPaused={isPaused}

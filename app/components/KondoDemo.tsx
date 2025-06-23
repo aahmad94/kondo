@@ -14,6 +14,7 @@ interface DemoResponse {
     english: string;
   };
   breakdown: string;
+  mobileBreakdown?: string;
   rank: number;
   isPaused: boolean;
   createdAt: string;
