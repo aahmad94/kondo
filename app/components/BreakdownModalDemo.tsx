@@ -230,11 +230,6 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                   ) : (
                     <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-full flex justify-center" style={{ color: '#b59f3b' }}>
                       <div className="w-full">
-                        {/* Temporary debug indicator */}
-                        <div className="text-xs text-gray-400 mb-2 font-mono">
-                          DEBUG: Currently showing {isTextView ? 'TEXT' : 'TABLE'} view 
-                          {isTextView ? ' (mobile breakdown)' : ' (desktop breakdown)'}
-                        </div>
                         <StyledMarkdown 
                           components={{
                             table: ({ children, ...props }) => (

@@ -229,11 +229,6 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
             <LoadingContent type={loadingType} />
           ) : (
             <div className="w-full">
-              {/* Temporary debug indicator */}
-              <div className="text-xs text-gray-400 mb-2 font-mono">
-                DEBUG: Currently showing {isTextView ? 'TEXT' : 'TABLE'} view 
-                {isTextView ? ' (mobile breakdown)' : ' (desktop breakdown)'}
-              </div>
               <StyledMarkdown 
                 components={{
                   table: ({node, ...props}) => (
