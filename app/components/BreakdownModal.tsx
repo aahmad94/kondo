@@ -56,15 +56,38 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setIsTextView(isMobile);
+      // Update caches when modal opens with new props
+      setCachedDesktopBreakdown(breakdown);
+      setCachedMobileBreakdown(mobileBreakdown || '');
     }
-  }, [isOpen, isMobile]);
+  }, [isOpen, isMobile, breakdown, mobileBreakdown]);
 
   // Handle API call for missing breakdown content
   const handleViewToggle = async () => {
     const newIsTextView = !isTextView;
     
     // Check if we need to generate the content
-    const needsGeneration = newIsTextView ? !cachedMobileBreakdown : !cachedDesktopBreakdown;
+    // If switching to text view, check if we have mobile breakdown
+    // If switching to table view, check if we have desktop breakdown AND if it's different from mobile
+    let needsGeneration = false;
+    
+    if (newIsTextView) {
+      // Switching to text view - need mobile breakdown
+      needsGeneration = !cachedMobileBreakdown;
+    } else {
+      // Switching to table view - need desktop breakdown
+      // Also check if desktop and mobile breakdowns are the same (which means we need to generate a proper desktop one)
+      needsGeneration = !cachedDesktopBreakdown || 
+                       (!!cachedMobileBreakdown && cachedDesktopBreakdown === cachedMobileBreakdown);
+    }
+    
+    console.log('Toggle Debug:', {
+      newIsTextView,
+      needsGeneration,
+      hasDesktop: !!cachedDesktopBreakdown,
+      hasMobile: !!cachedMobileBreakdown,
+      areEqual: cachedDesktopBreakdown === cachedMobileBreakdown
+    });
     
     if (needsGeneration && originalResponse && responseId) {
       setIsLoading(true);
@@ -113,10 +136,12 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   };
 
   // Determine which breakdown to display based on toggle state
-  const currentBreakdown = isTextView && cachedMobileBreakdown ? cachedMobileBreakdown : cachedDesktopBreakdown;
+  const currentBreakdown = isTextView ? 
+    (cachedMobileBreakdown || cachedDesktopBreakdown) : 
+    (cachedDesktopBreakdown || cachedMobileBreakdown);
 
-  console.log('----------- breakdown -----------');
-  console.log(breakdown);
+  // Ensure we always have a string
+  const displayBreakdown = currentBreakdown || '';
 
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
@@ -204,6 +229,11 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
             <LoadingContent type={loadingType} />
           ) : (
             <div className="w-full">
+              {/* Temporary debug indicator */}
+              <div className="text-xs text-gray-400 mb-2 font-mono">
+                DEBUG: Currently showing {isTextView ? 'TEXT' : 'TABLE'} view 
+                {isTextView ? ' (mobile breakdown)' : ' (desktop breakdown)'}
+              </div>
               <StyledMarkdown 
                 components={{
                   table: ({node, ...props}) => (
@@ -211,7 +241,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                   ),
                 }}
               >
-                {currentBreakdown}
+                {displayBreakdown}
               </StyledMarkdown>
             </div>
           )}

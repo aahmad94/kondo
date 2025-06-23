@@ -60,7 +60,27 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
     const newIsTextView = !isTextView;
     
     // Check if we need to "generate" the content (simulate missing content)
-    const needsGeneration = newIsTextView ? !mobileBreakdown : !breakdown;
+    // If switching to text view, check if we have mobile breakdown
+    // If switching to table view, check if we have desktop breakdown AND if it's different from mobile
+    let needsGeneration = false;
+    
+    if (newIsTextView) {
+      // Switching to text view - need mobile breakdown
+      needsGeneration = !mobileBreakdown;
+    } else {
+      // Switching to table view - need desktop breakdown
+      // Also check if desktop and mobile breakdowns are the same (which means we need to generate a proper desktop one)
+      needsGeneration = !breakdown || 
+                       (!!mobileBreakdown && breakdown === mobileBreakdown);
+    }
+    
+    console.log('Demo Toggle Debug:', {
+      newIsTextView,
+      needsGeneration,
+      hasDesktop: !!breakdown,
+      hasMobile: !!mobileBreakdown,
+      areEqual: breakdown === mobileBreakdown
+    });
     
     if (needsGeneration) {
       setIsLoading(true);
@@ -76,7 +96,12 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
   };
 
   // Determine which breakdown to display based on toggle state
-  const currentBreakdown = isTextView && mobileBreakdown ? mobileBreakdown : breakdown;
+  const currentBreakdown = isTextView ? 
+    (mobileBreakdown || breakdown) : 
+    (breakdown || mobileBreakdown);
+
+  // Ensure we always have a string
+  const displayBreakdown = currentBreakdown || '';
 
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
@@ -106,6 +131,13 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
       </span>
     </div>
   );
+
+  console.log('----------- Demo Debug Info -----------');
+  console.log('isTextView:', isTextView);
+  console.log('isMobile:', isMobile);
+  console.log('breakdown length:', breakdown?.length || 0);
+  console.log('mobileBreakdown length:', mobileBreakdown?.length || 0);
+  console.log('displayBreakdown length:', displayBreakdown.length);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -166,7 +198,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                     {audio?.success && responseId && (
                       <SpeakerButton
                         responseId={responseId}
-                        textToSpeak={currentBreakdown}
+                        textToSpeak={displayBreakdown}
                         selectedLanguage="ja"
                         cachedAudio={audio ? {
                           audio: audio.audio,
@@ -198,6 +230,11 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                   ) : (
                     <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-full flex justify-center" style={{ color: '#b59f3b' }}>
                       <div className="w-full">
+                        {/* Temporary debug indicator */}
+                        <div className="text-xs text-gray-400 mb-2 font-mono">
+                          DEBUG: Currently showing {isTextView ? 'TEXT' : 'TABLE'} view 
+                          {isTextView ? ' (mobile breakdown)' : ' (desktop breakdown)'}
+                        </div>
                         <StyledMarkdown 
                           components={{
                             table: ({ children, ...props }) => (
@@ -207,7 +244,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                             )
                           }}
                         >
-                          {currentBreakdown}
+                          {displayBreakdown}
                         </StyledMarkdown>
                       </div>
                     </div>
