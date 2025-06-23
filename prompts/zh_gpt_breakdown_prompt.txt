@@ -11,7 +11,7 @@ Requirements:
 
 Format: Markdown table with columns: Chars, Pinyin, Function, Root
 
-Function Column: Provide meaning and structural role directly. For particles/function words, state grammatical function (e.g., "aspect marker for completion", "question particle", "directional complement"). For verbs, include complete aspect/tense/complement information (e.g., "eat (with completion marker 了)", "can understand (potential complement)"). For measure words, explain specific usage. Avoid filler words like "indicates" or "shows".
+Function Column: MUST include both translation AND grammatical function. Format as "meaning (grammatical role)". Examples: "eat (verb)", "completion marker (aspect particle)", "can understand (potential complement)", "book (noun + measure word)", "question particle (interrogative marker)". For particles/function words, provide both their meaning/purpose and grammatical classification. For verbs, include complete aspect/tense/complement information. Always include the actual meaning/translation of the word along with its structural role.
 
 Root Column: Verbs only - base form + pinyin in parentheses.
 

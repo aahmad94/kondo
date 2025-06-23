@@ -12,7 +12,7 @@ Requirements:
 
 Format: Markdown table with columns: Kanji, Kana, Romaji, Function, Root
 
-Function Column: Provide meaning and structural role directly. For particles, state grammatical function (e.g., "topic marker", "direct object marker"). For verbs, include complete form details (e.g., "eat (present continuous form)", "can go (potential form)"). Avoid filler words like "indicates" or "shows".
+Function Column: MUST include both translation AND grammatical function. Format as "meaning (grammatical role)". Examples: "cat (noun)", "eat (present continuous form)", "topic marker (particle)", "to (direction particle)", "can go (potential form)". For particles, provide both their meaning/purpose and grammatical classification. Always include the actual meaning/translation of the word along with its structural role.
 
 Root Column: Verbs only - original Japanese + romaji in parentheses.
 

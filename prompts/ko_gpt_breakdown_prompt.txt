@@ -12,7 +12,7 @@ Requirements:
 
 Format: Markdown table with columns: Hangul, Romanization, Function, Root
 
-Function Column: Provide meaning and structural role directly. For particles, state grammatical function (e.g., "subject marker", "topic contrast marker", "direct object marker"). For verbs, include complete tense/honorific/mood/form details (e.g., "eat (present informal polite form)", "went (past formal honorific)"). Note honorific levels and formality when relevant. Avoid filler words like "indicates" or "shows".
+Function Column: MUST include both translation AND grammatical function. Format as "meaning (grammatical role)". Examples: "house (noun)", "eat (present informal polite form)", "subject marker (particle)", "to/towards (direction particle)", "went (past formal honorific)". For particles, provide both their meaning/purpose and grammatical classification. For verbs, include complete tense/honorific/mood/form details. Always include the actual meaning/translation of the word along with its structural role.
 
 Root Column: Verbs only - original Korean stem + romanization in parentheses.
 

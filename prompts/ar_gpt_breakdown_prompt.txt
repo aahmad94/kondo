@@ -11,7 +11,7 @@ Requirements:
 
 Format: Markdown table with columns: Arabic, Transliteration, Function, Root
 
-Function Column: Provide meaning and structural role directly. For particles/prepositions, state grammatical function. For verbs, include complete tense/form/voice/person/gender/number details (e.g., "write (third person masculine singular past)", "being written (passive present)"). For nouns, note definiteness/case/number when relevant. Avoid filler words like "indicates" or "shows".
+Function Column: MUST include both translation AND grammatical function. Format as "meaning (grammatical role)". Examples: "house (noun)", "write (third person masculine singular past)", "in/at (preposition)", "and (conjunction)", "being written (passive present)". For particles/prepositions, provide both their meaning and grammatical classification. For verbs, include complete tense/form/voice/person/gender/number details. For nouns, note definiteness/case/number when relevant. Always include the actual meaning/translation of the word along with its structural role.
 
 Root Column: Verbs only - original Arabic root + transliteration in parentheses.
 
