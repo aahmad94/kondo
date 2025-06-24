@@ -47,61 +47,53 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
   const [isTextView, setIsTextView] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingType, setLoadingType] = useState<'desktop' | 'mobile'>('desktop');
+  const [displayedContent, setDisplayedContent] = useState('');
 
   // Initialize view state based on mobile detection when modal opens
   useEffect(() => {
     if (isOpen) {
       setIsTextView(isMobile);
+      // Set initial displayed content
+      const initialContent = isMobile ? 
+        (mobileBreakdown || breakdown) : 
+        (breakdown || mobileBreakdown || '');
+      setDisplayedContent(initialContent);
     }
-  }, [isOpen, isMobile]);
+  }, [isOpen, isMobile, breakdown, mobileBreakdown]);
 
   // Simulate API call for missing breakdown content
   const handleViewToggle = async () => {
+    // First, switch the view immediately
     const newIsTextView = !isTextView;
-    
-    // Check if we need to "generate" the content (simulate missing content)
-    // If switching to text view, check if we have mobile breakdown
-    // If switching to table view, check if we have desktop breakdown AND if it's different from mobile
-    let needsGeneration = false;
-    
-    if (newIsTextView) {
-      // Switching to text view - need mobile breakdown
-      needsGeneration = !mobileBreakdown;
-    } else {
-      // Switching to table view - need desktop breakdown
-      // Also check if desktop and mobile breakdowns are the same (which means we need to generate a proper desktop one)
-      needsGeneration = !breakdown || 
-                       (!!mobileBreakdown && breakdown === mobileBreakdown);
-    }
-    
-    console.log('Demo Toggle Debug:', {
-      newIsTextView,
-      needsGeneration,
-      hasDesktop: !!breakdown,
-      hasMobile: !!mobileBreakdown,
-      areEqual: breakdown === mobileBreakdown
-    });
-    
-    if (needsGeneration) {
-      setIsLoading(true);
-      setLoadingType(newIsTextView ? 'mobile' : 'desktop');
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setIsLoading(false);
-    }
-    
     setIsTextView(newIsTextView);
+    
+    // Check what content we need for the new view
+    const neededContent = newIsTextView ? mobileBreakdown : breakdown;
+    
+    // If we already have the content, just update display and we're done
+    if (neededContent) {
+      setDisplayedContent(neededContent);
+      return;
+    }
+    
+    // If we don't have the content, simulate generating it
+    setIsLoading(true);
+    setLoadingType(newIsTextView ? 'mobile' : 'desktop');
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Simulate getting new content
+    const simulatedContent = newIsTextView ? 
+      "**Mobile breakdown content generated**\n\nThis would be the mobile-optimized breakdown..." :
+      "| Desktop | Breakdown | Content |\n|---------|-----------|----------|\n| This | would be | desktop table |";
+    
+    // Set the displayed content directly
+    setDisplayedContent(simulatedContent);
+    setIsLoading(false);
   };
 
-  // Determine which breakdown to display based on toggle state
-  const currentBreakdown = isTextView ? 
-    (mobileBreakdown || breakdown) : 
-    (breakdown || mobileBreakdown);
 
-  // Ensure we always have a string
-  const displayBreakdown = currentBreakdown || '';
 
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
@@ -131,13 +123,6 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
       </span>
     </div>
   );
-
-  console.log('----------- Demo Debug Info -----------');
-  console.log('isTextView:', isTextView);
-  console.log('isMobile:', isMobile);
-  console.log('breakdown length:', breakdown?.length || 0);
-  console.log('mobileBreakdown length:', mobileBreakdown?.length || 0);
-  console.log('displayBreakdown length:', displayBreakdown.length);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -198,7 +183,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                     {audio?.success && responseId && (
                       <SpeakerButton
                         responseId={responseId}
-                        textToSpeak={displayBreakdown}
+                        textToSpeak={displayedContent}
                         selectedLanguage="ja"
                         cachedAudio={audio ? {
                           audio: audio.audio,
@@ -239,7 +224,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                             )
                           }}
                         >
-                          {displayBreakdown}
+                          {displayedContent}
                         </StyledMarkdown>
                       </div>
                     </div>

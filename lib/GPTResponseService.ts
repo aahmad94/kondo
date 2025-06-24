@@ -281,11 +281,29 @@ export async function getBreakdown(text: string, language: string, responseId?: 
         select: { breakdown: true, mobileBreakdown: true }
       });
 
-      // Return existing breakdown based on device type
+      // If we already have both breakdowns, return them along with the requested one
+      if (existingResponse?.breakdown && existingResponse?.mobileBreakdown) {
+        const requestedBreakdown = isMobile ? existingResponse.mobileBreakdown : existingResponse.breakdown;
+        return {
+          breakdown: requestedBreakdown,
+          desktopBreakdown: existingResponse.breakdown,
+          mobileBreakdown: existingResponse.mobileBreakdown
+        };
+      }
+
+      // Return existing breakdown based on device type if available
       if (isMobile && existingResponse?.mobileBreakdown) {
-        return existingResponse.mobileBreakdown;
+        return {
+          breakdown: existingResponse.mobileBreakdown,
+          desktopBreakdown: existingResponse.breakdown || '',
+          mobileBreakdown: existingResponse.mobileBreakdown
+        };
       } else if (!isMobile && existingResponse?.breakdown) {
-        return existingResponse.breakdown;
+        return {
+          breakdown: existingResponse.breakdown,
+          desktopBreakdown: existingResponse.breakdown,
+          mobileBreakdown: existingResponse.mobileBreakdown || ''
+        };
       }
     }
 
@@ -317,7 +335,8 @@ export async function getBreakdown(text: string, language: string, responseId?: 
     // Only save to database if we have a responseId and the response exists
     if (responseId) {
       const responseExists = await prisma.gPTResponse.findUnique({
-        where: { id: responseId }
+        where: { id: responseId },
+        select: { breakdown: true, mobileBreakdown: true }
       });
 
       if (responseExists) {
@@ -330,10 +349,22 @@ export async function getBreakdown(text: string, language: string, responseId?: 
           where: { id: responseId },
           data: updateData
         });
+
+        // Return the new breakdown along with any existing ones
+        return {
+          breakdown,
+          desktopBreakdown: isMobile ? (responseExists.breakdown || '') : breakdown,
+          mobileBreakdown: isMobile ? breakdown : (responseExists.mobileBreakdown || '')
+        };
       }
     }
 
-    return breakdown;
+    // Return just the generated breakdown if no database operations
+    return {
+      breakdown,
+      desktopBreakdown: isMobile ? '' : breakdown,
+      mobileBreakdown: isMobile ? breakdown : ''
+    };
   } catch (error) {
     console.error('Error generating breakdown:', error);
     throw error;

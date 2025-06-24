@@ -19,9 +19,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const breakdown = await getBreakdown(text, language, responseId, isMobile);
+    const result = await getBreakdown(text, language, responseId, isMobile);
 
-    return NextResponse.json({ breakdown });
+    return NextResponse.json({ 
+      breakdown: result.breakdown,
+      desktopBreakdown: result.desktopBreakdown,
+      mobileBreakdown: result.mobileBreakdown
+    });
   } catch (error: any) {
     console.error('Error in breakdown API:', error);
     return NextResponse.json(

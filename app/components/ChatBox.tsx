@@ -35,6 +35,8 @@ interface Response {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  breakdown?: string | null;
+  mobileBreakdown?: string | null;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
 }
 
@@ -680,7 +682,7 @@ export default function ChatBox({
           bookmarks: response.bookmarks,
           isFuriganaEnabled: response.isFuriganaEnabled,
           isPhoneticEnabled: response.isPhoneticEnabled,
-          isKanaEnabled: response.isKanaEnabled
+          isKanaEnabled: response.isKanaEnabled,
         }));
 
         // Sort responses using the new function

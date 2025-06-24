@@ -11,8 +11,10 @@ import { prepareTextForSpeech } from '../../lib/audioUtils';
 interface BreakdownModalProps {
   isOpen: boolean;
   onClose: () => void;
-  breakdown: string;
-  mobileBreakdown?: string;
+  content: string;
+  isLoading: boolean;
+  isTextView: boolean;
+  canToggle: boolean;
   originalResponse?: string;
   rank?: number;
   isPaused?: boolean;
@@ -23,13 +25,16 @@ interface BreakdownModalProps {
   selectedLanguage?: string;
   onLoadingChange?: (loading: boolean) => void;
   onError?: (error: string) => void;
+  onToggleView?: (toTextView: boolean) => void;
 }
 
 const BreakdownModal: React.FC<BreakdownModalProps> = ({ 
   isOpen, 
   onClose, 
-  breakdown,
-  mobileBreakdown,
+  content,
+  isLoading,
+  isTextView,
+  canToggle,
   originalResponse,
   rank = 1,
   isPaused = false,
@@ -39,115 +44,23 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   onPauseToggle,
   selectedLanguage = 'ja',
   onLoadingChange,
-  onError
+  onError,
+  onToggleView
 }) => {
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
-  const { isMobile, offset } = useIsMobile();
-
-  // State for view toggle - default based on screen size using mobile detection
-  const [isTextView, setIsTextView] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingType, setLoadingType] = useState<'desktop' | 'mobile'>('desktop');
-  const [cachedDesktopBreakdown, setCachedDesktopBreakdown] = useState(breakdown);
-  const [cachedMobileBreakdown, setCachedMobileBreakdown] = useState(mobileBreakdown || '');
-
-  // Initialize view state based on mobile detection when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setIsTextView(isMobile);
-      // Update caches when modal opens with new props
-      setCachedDesktopBreakdown(breakdown);
-      setCachedMobileBreakdown(mobileBreakdown || '');
-    }
-  }, [isOpen, isMobile, breakdown, mobileBreakdown]);
-
-  // Handle API call for missing breakdown content
-  const handleViewToggle = async () => {
-    const newIsTextView = !isTextView;
-    
-    // Check if we need to generate the content
-    // If switching to text view, check if we have mobile breakdown
-    // If switching to table view, check if we have desktop breakdown AND if it's different from mobile
-    let needsGeneration = false;
-    
-    if (newIsTextView) {
-      // Switching to text view - need mobile breakdown
-      needsGeneration = !cachedMobileBreakdown;
-    } else {
-      // Switching to table view - need desktop breakdown
-      // Also check if desktop and mobile breakdowns are the same (which means we need to generate a proper desktop one)
-      needsGeneration = !cachedDesktopBreakdown || 
-                       (!!cachedMobileBreakdown && cachedDesktopBreakdown === cachedMobileBreakdown);
-    }
-    
-    console.log('Toggle Debug:', {
-      newIsTextView,
-      needsGeneration,
-      hasDesktop: !!cachedDesktopBreakdown,
-      hasMobile: !!cachedMobileBreakdown,
-      areEqual: cachedDesktopBreakdown === cachedMobileBreakdown
-    });
-    
-    if (needsGeneration && originalResponse && responseId) {
-      setIsLoading(true);
-      setLoadingType(newIsTextView ? 'mobile' : 'desktop');
-      
-      try {
-        onLoadingChange?.(true);
-        
-        const res = await fetch('/api/breakdown', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            text: originalResponse,
-            language: selectedLanguage,
-            responseId: responseId,
-            isMobile: newIsTextView
-          }),
-        });
-
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || 'Failed to generate breakdown');
-        }
-
-        const data = await res.json();
-        
-        // Cache the breakdown
-        if (newIsTextView) {
-          setCachedMobileBreakdown(data.breakdown);
-        } else {
-          setCachedDesktopBreakdown(data.breakdown);
-        }
-        
-      } catch (error: any) {
-        onError?.(error.message || 'Failed to generate breakdown');
-        return; // Don't change view if there was an error
-      } finally {
-        setIsLoading(false);
-        onLoadingChange?.(false);
-      }
-    }
-    
-    setIsTextView(newIsTextView);
-  };
-
-  // Determine which breakdown to display based on toggle state
-  const currentBreakdown = isTextView ? 
-    (cachedMobileBreakdown || cachedDesktopBreakdown) : 
-    (cachedDesktopBreakdown || cachedMobileBreakdown);
-
-  // Ensure we always have a string
-  const displayBreakdown = currentBreakdown || '';
 
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
     const newRank = increment ? rank + 1 : rank - 1;
     if (newRank >= 1 && newRank <= 3) {
       await onRankUpdate(responseId, newRank);
+    }
+  };
+
+  const handleToggleView = () => {
+    if (onToggleView) {
+      onToggleView(!isTextView);
     }
   };
 
@@ -177,9 +90,9 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[80]">
-      <div className="bg-[#111111] p-6 rounded-sm w-[650px] max-w-[90vw] max-h-[80vh] flex flex-col">
+      <div className="bg-[#111111] p-6 rounded-sm w-[650px] max-w-[90vw] max-h-[80vh] min-h-[30vh] flex flex-col">
         <div className="flex justify-between items-center bg-[#111111] pb-4 flex-shrink-0">
-          {/* Action buttons (formerly bottom) */}
+          {/* Action buttons */}
           <div className="flex items-center gap-3">
             {/* Rank container */}
             { responseId && !responseId.startsWith('temp_') && onRankUpdate && (
@@ -207,7 +120,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
             )}
 
             {/* Speaker button */}
-            {responseId && breakdown && originalResponse && (
+            {responseId && content && originalResponse && (
               <SpeakerButton
                 responseId={responseId}
                 textToSpeak={prepareTextForSpeech(originalResponse)}
@@ -226,7 +139,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
         
         <div className="text-[#b59f3b] whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center flex-1">
           {isLoading ? (
-            <LoadingContent type={loadingType} />
+            <LoadingContent type={isTextView ? 'mobile' : 'desktop'} />
           ) : (
             <div className="w-full">
               <StyledMarkdown 
@@ -236,18 +149,18 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                   ),
                 }}
               >
-                {displayBreakdown}
+                {content}
               </StyledMarkdown>
             </div>
           )}
         </div>
 
-        {/* View Toggle - only show if we have mobile breakdown capability */}
-        {(cachedMobileBreakdown || originalResponse) && (
+        {/* View Toggle - only show if toggle is available */}
+        {canToggle && (
           <div className="flex justify-start pt-4 flex-shrink-0">
             {!isLoading && 
               <button
-                onClick={handleViewToggle}
+                onClick={handleToggleView}
                 disabled={isLoading}
                 className="font-mono text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-50 rounded-sm text-white transition-colors duration-200"
               >

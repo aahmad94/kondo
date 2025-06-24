@@ -46,6 +46,8 @@ interface GPTResponseProps {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  breakdown?: string | null;
+  mobileBreakdown?: string | null;
   hideContent?: boolean;
   showAnswer?: boolean;
   onToggleAnswer?: () => void;
@@ -80,6 +82,8 @@ export default function GPTResponse({
   isFuriganaEnabled = false,
   isPhoneticEnabled = false,
   isKanaEnabled,
+  breakdown,
+  mobileBreakdown,
   hideContent = false,
   showAnswer,
   onToggleAnswer,
@@ -121,9 +125,11 @@ export default function GPTResponse({
   const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
   const refreshButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
-  const [desktopBreakdownContent, setDesktopBreakdownContent] = useState('');
-  const [mobileBreakdownContent, setMobileBreakdownContent] = useState('');
+  const [desktopBreakdownContent, setDesktopBreakdownContent] = useState(breakdown || '');
+  const [mobileBreakdownContent, setMobileBreakdownContent] = useState(mobileBreakdown || '');
   const [currentBreakdownContent, setCurrentBreakdownContent] = useState('');
+  const [isBreakdownLoading, setIsBreakdownLoading] = useState(false);
+  const [isBreakdownTextView, setIsBreakdownTextView] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -352,6 +358,9 @@ export default function GPTResponse({
       // Check current screen size at the time of click
       const currentIsMobile = window.innerWidth < 640 || /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
       
+      // Set initial view state
+      setIsBreakdownTextView(currentIsMobile);
+      
       // Check if we already have the appropriate breakdown cached
       const cachedBreakdown = currentIsMobile ? mobileBreakdownContent : desktopBreakdownContent;
       
@@ -362,7 +371,21 @@ export default function GPTResponse({
         return;
       }
 
-      onLoadingChange?.(true);
+      // Generate the breakdown we need
+      await generateBreakdown(currentIsMobile);
+      setIsBreakdownModalOpen(true);
+      if (responseId) await trackBreakdownClick(responseId);
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Failed to generate breakdown');
+      setIsErrorModalOpen(true);
+    }
+  };
+
+  const generateBreakdown = async (isMobile: boolean) => {
+    setIsBreakdownLoading(true);
+    onLoadingChange?.(true);
+    
+    try {
       const res = await fetch('/api/breakdown', {
         method: 'POST',
         headers: {
@@ -372,7 +395,7 @@ export default function GPTResponse({
           text: response,
           language: selectedLanguage,
           responseId: responseId,
-          isMobile: currentIsMobile
+          isMobile: isMobile
         }),
       });
 
@@ -383,21 +406,34 @@ export default function GPTResponse({
 
       const data = await res.json();
       
-      // Cache the breakdown in the appropriate state and display it
-      if (currentIsMobile) {
-        setMobileBreakdownContent(data.breakdown);
-      } else {
-        setDesktopBreakdownContent(data.breakdown);
+      // Cache both breakdowns if available from the API response
+      if (data.desktopBreakdown) {
+        setDesktopBreakdownContent(data.desktopBreakdown);
+      }
+      if (data.mobileBreakdown) {
+        setMobileBreakdownContent(data.mobileBreakdown);
       }
       
+      // Set the current breakdown content for display
       setCurrentBreakdownContent(data.breakdown);
-      setIsBreakdownModalOpen(true);
-      if (responseId) await trackBreakdownClick(responseId);
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Failed to generate breakdown');
-      setIsErrorModalOpen(true);
     } finally {
+      setIsBreakdownLoading(false);
       onLoadingChange?.(false);
+    }
+  };
+
+  const handleBreakdownToggle = async (toTextView: boolean) => {
+    setIsBreakdownTextView(toTextView);
+    
+    // Check if we have the content for the requested view
+    const neededContent = toTextView ? mobileBreakdownContent : desktopBreakdownContent;
+    
+    if (neededContent) {
+      // We have the content, switch immediately
+      setCurrentBreakdownContent(neededContent);
+    } else {
+      // We need to generate the content
+      await generateBreakdown(toTextView);
     }
   };
 
@@ -771,8 +807,10 @@ export default function GPTResponse({
         <BreakdownModal
           isOpen={isBreakdownModalOpen}
           onClose={() => setIsBreakdownModalOpen(false)}
-          breakdown={desktopBreakdownContent || currentBreakdownContent}
-          mobileBreakdown={mobileBreakdownContent}
+          content={currentBreakdownContent}
+          isLoading={isBreakdownLoading}
+          isTextView={isBreakdownTextView}
+          canToggle={!!(mobileBreakdownContent || desktopBreakdownContent) || !!responseId}
           originalResponse={response}
           rank={rank}
           isPaused={isPaused}
@@ -786,6 +824,7 @@ export default function GPTResponse({
             setErrorMessage(error);
             setIsErrorModalOpen(true);
           }}
+          onToggleView={handleBreakdownToggle}
         />
       )}
 
