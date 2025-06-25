@@ -1,9 +1,26 @@
-# Kondo
+# <img src="public/icon.png" alt="Kondo Icon" width="32" height="32" style="display: inline; vertical-align: middle;"> Kondo
 
-## generate material to organize into bookmarks and cycle in dojo
-![screenshot](public/assets/kondo_landing_05-22-2025.png)
-## daily summary (dojo) w/ inngest scheduled jobs
-![screenshot](public/assets/breakdown_page_05-31-2025.png)
+## Generate material to organize into bookmarks and cycle in dojo
+<img src="public/assets/06252025/gptresponse_demo.png" alt="screenshot" width="70%">
+<!-- <img src="public/assets/kondo_landing_05-22-2025.png" alt="screenshot" width="50%"> -->
+<img src="public/assets/06252025/commands.png" alt="screenshot" width="50%">
+
+
+## <img src="public/assets/heroicons/Academic Cap Icon.svg" alt="Academic Cap" width="24" height="24" style="display: inline; vertical-align: middle;"> Dojo: lower ranked responses across all bookmarks are compiled daily to study
+<img src="public/assets/06252025/dojo_06-25-2025.png" alt="screenshot" width="70%">
+
+## <img src="public/assets/heroicons/Magnifying Glass Icon.svg" alt="Magnifying Glass" width="24" height="24" style="display: inline; vertical-align: middle;"> Dissect/breakdown generated material
+<img src="public/assets/06252025/table_breakdown_06-25-2025.png" alt="screenshot" width="70%">
+
+## <img src="public/assets/heroicons/Rectangle Stack Icon.svg" alt="Rectangle Stack" width="24" height="24" style="display: inline; vertical-align: middle;"> Dojo: flashcard mode
+<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+  <div style="flex: 1; max-width: 50%; min-width: 300px; display: flex; justify-content: center;">
+    <img src="public/assets/06252025/flashcard_hidden-06-25-2025.png" alt="screenshot" style="width: 100%; height: auto;">
+  </div>
+  <div style="flex: 1; max-width: 50%; min-width: 300px; display: flex; justify-content: center;">
+    <img src="public/assets/06252025/flashcard-answer-06-25-2025.png" alt="screenshot" style="width: 100%; height: auto;">
+  </div>
+</div>
 
 ## Generate and organize study material to learn new languages
 - Use commands and phrases to generate study material: 
