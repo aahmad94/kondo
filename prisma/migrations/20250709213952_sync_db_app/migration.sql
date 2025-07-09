@@ -206,4 +206,3 @@ ALTER TABLE "_DailySummaryToResponses" ADD CONSTRAINT "_DailySummaryToResponses_
 
 -- AddForeignKey
 ALTER TABLE "_DailySummaryToResponses" ADD CONSTRAINT "_DailySummaryToResponses_B_fkey" FOREIGN KEY ("B") REFERENCES "GPTResponse"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
