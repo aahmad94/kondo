@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, MagnifyingGlassIcon, ChatBubbleLeftIcon, AcademicCapIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, MagnifyingGlassIcon, ChatBubbleLeftIcon, AcademicCapIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
+import EditBookmarkModal from './EditBookmarkModal';
 import { useRouter } from 'next/navigation';
 import { trackBookmarkSelect, trackClearBookmark, trackCreateBookmark } from '../../lib/amplitudeService';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -37,12 +38,35 @@ export default function Bookmarks({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [bookmarkToDelete, setBookmarkToDelete] = useState<Bookmark | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [bookmarkToEdit, setBookmarkToEdit] = useState<Bookmark | null>(null);
+  const [showBookmarkDropdown, setShowBookmarkDropdown] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
   const { isMobile } = useIsMobile();
   const touchStartY = useRef<number | null>(null);
   const touchStartTime = useRef<number | null>(null);
+  const bookmarkDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Check if the clicked element is within any dropdown menu
+      const target = event.target as HTMLElement;
+      const isWithinDropdown = target.closest('.bookmark-dropdown-menu');
+      const isChevronButton = target.closest('.bookmark-chevron-button');
+      
+      if (!isWithinDropdown && !isChevronButton) {
+        setShowBookmarkDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const fetchBookmarks = async (userId: string) => {
     try {
@@ -157,6 +181,27 @@ export default function Bookmarks({
     e.stopPropagation();
     setBookmarkToDelete(bookmark);
     setIsDeleteModalOpen(true);
+    setShowBookmarkDropdown(null);
+  };
+
+  const handleEditClick = (bookmark: Bookmark, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBookmarkToEdit(bookmark);
+    setIsEditModalOpen(true);
+    setShowBookmarkDropdown(null);
+  };
+
+  const handleBookmarkUpdated = (updatedBookmark: Bookmark) => {
+    setBookmarks(bookmarks.map(b => 
+      b.id === updatedBookmark.id ? updatedBookmark : b
+    ));
+    setIsEditModalOpen(false);
+    setBookmarkToEdit(null);
+    
+    // If the updated bookmark is currently selected, update the selected bookmark title
+    if (selectedBookmark.id === updatedBookmark.id) {
+      changeSelectedBookmark(updatedBookmark.id, updatedBookmark.title);
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -225,6 +270,11 @@ export default function Bookmarks({
     // Reset touch tracking
     touchStartY.current = null;
     touchStartTime.current = null;
+  };
+
+  const handleChevronClick = (bookmark: Bookmark, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowBookmarkDropdown(showBookmarkDropdown === bookmark.id ? null : bookmark.id);
   };
 
   return (
@@ -330,20 +380,40 @@ export default function Bookmarks({
                       .map((bookmark) => (
                         <div
                           key={bookmark.id}
-                          className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group
+                          className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group relative
                             ${selectedBookmark.id === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
                           onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                           onTouchStart={(e) => handleTouchStart(e, bookmark.id, bookmark.title)}
                           onTouchEnd={(e) => handleTouchEnd(e, bookmark.id, bookmark.title)}
                         >
-                          <span className="text-white">
+                          <span className="text-white flex-1 truncate">
                             {bookmark.title}
                           </span>
-                          <XCircleIcon
-                            className={`h-5 w-5 mr-1 text-red-500 hover:text-red-700 transition-colors duration-200
-                              ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                            onClick={(e) => handleDeleteClick(bookmark, e)}
-                          />
+                          <div className="relative">
+                            <ChevronDownIcon
+                              className={`bookmark-chevron-button h-5 w-5 mr-1 text-gray-400 hover:text-white transition-colors duration-200
+                                ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                              onClick={(e) => handleChevronClick(bookmark, e)}
+                            />
+                            {showBookmarkDropdown === bookmark.id && (
+                              <div className="bookmark-dropdown-menu absolute right-0 top-full mt-1 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60] min-w-[80px]">
+                                <div className="py-1">
+                                  <button
+                                    onClick={(e) => handleEditClick(bookmark, e)}
+                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleDeleteClick(bookmark, e)}
+                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-red-400 hover:bg-gray-700 whitespace-nowrap"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       ))
                   )}
@@ -369,6 +439,15 @@ export default function Bookmarks({
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeleteConfirm}
           bookmarkTitle={bookmarkToDelete.title}
+        />
+      )}
+      {isEditModalOpen && bookmarkToEdit && (
+        <EditBookmarkModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onBookmarkUpdated={handleBookmarkUpdated}
+          bookmark={bookmarkToEdit}
+          reservedBookmarkTitles={reservedBookmarkTitles}
         />
       )}
     </>
