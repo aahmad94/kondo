@@ -1,4 +1,30 @@
 import prisma from './prisma';
+import { getUserLanguageId } from './languageService';
+
+/**
+ * Gets all bookmarks for a user in their preferred language
+ */
+export async function getBookmarks(userId: string) {
+  try {
+    // Get user's language ID (with fallback to Japanese)
+    const languageId = await getUserLanguageId(userId);
+
+    const bookmarks = await prisma.bookmark.findMany({
+      where: {
+        userId: userId,
+        languageId: languageId
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    });
+
+    return bookmarks;
+  } catch (error) {
+    console.error('Error fetching bookmarks:', error);
+    throw error;
+  }
+}
 
 export async function deleteBookmark(userId: string, bookmarkId: string) {
   try {

@@ -1,10 +1,95 @@
 import prisma from './prisma';
+import { getUserLanguageId } from './languageService';
 import fs from 'fs';
 import path from 'path';
 
 type ValidRank = 1 | 2 | 3;
 
 const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+
+/**
+ * Creates a new GPT response with user's preferred language
+ */
+export async function createGPTResponse(content: string, userId: string, bookmarkId?: string) {
+  try {
+    // Get user's language ID (with fallback to Japanese)
+    const languageId = await getUserLanguageId(userId);
+
+    const newResponse = await prisma.gPTResponse.create({
+      data: {
+        content,
+        user: {
+          connect: { id: userId },
+        },
+        language: {
+          connect: { id: languageId },
+        },
+        ...(bookmarkId && {
+          bookmarks: {
+            connect: { id: bookmarkId },
+          },
+        }),
+      },
+    });
+
+    return newResponse;
+  } catch (error) {
+    console.error('Error creating GPT response:', error);
+    throw error;
+  }
+}
+
+/**
+ * Gets all user responses by their preferred language with bookmark dictionary format
+ */
+export async function getAllUserResponsesByLanguage(userId: string) {
+  try {
+    // Get user's language ID (with fallback to Japanese)
+    const languageId = await getUserLanguageId(userId);
+
+    const responses = await prisma.gPTResponse.findMany({
+      where: {
+        userId: userId,
+        languageId: languageId
+      },
+      select: {
+        id: true,
+        content: true,
+        rank: true,
+        isPaused: true,
+        bookmarks: {
+          select: {
+            id: true,
+            title: true
+          }
+        },
+        createdAt: true,
+        updatedAt: true,
+        furigana: true,
+        isFuriganaEnabled: true,
+        isPhoneticEnabled: true,
+        isKanaEnabled: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Transform bookmarks into a dictionary format
+    const transformedResponses = responses.map(response => ({
+      ...response,
+      bookmarks: response.bookmarks.reduce((acc, bookmark) => {
+        acc[bookmark.id] = bookmark.title;
+        return acc;
+      }, {} as Record<string, string>)
+    }));
+
+    return transformedResponses;
+  } catch (error) {
+    console.error('Error fetching all user responses by language:', error);
+    throw error;
+  }
+}
 
 export async function updateGPTResponseRank(gptResponseId: string, rank: number) {
   // Validate rank

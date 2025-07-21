@@ -77,6 +77,39 @@ const INSTRUCTIONS_BY_LANGUAGE_CODE: Record<string, LanguageInstructions> = {
   zh: CHINESE_INSTRUCTIONS
 };
 
+/**
+ * Gets user's preferred language ID, with fallback to Japanese
+ */
+export async function getUserLanguageId(userId: string): Promise<string> {
+  try {
+    // Get user's language preference
+    const userLanguagePreference = await prisma.userLanguagePreference.findUnique({
+      where: { userId },
+      select: { languageId: true }
+    });
+
+    // If preference exists, return it
+    if (userLanguagePreference?.languageId) {
+      return userLanguagePreference.languageId;
+    }
+
+    // If no preference is set, get the Japanese language ID
+    const japanese = await prisma.language.findUnique({
+      where: { code: 'ja' },
+      select: { id: true }
+    });
+
+    if (!japanese?.id) {
+      throw new Error('Default language (Japanese) not found in database');
+    }
+
+    return japanese.id;
+  } catch (error) {
+    console.error('Error getting user language ID:', error);
+    throw error;
+  }
+}
+
 export async function getLanguageInstructions(userId: string, languageCode?: string): Promise<LanguageInstructions> {
   try {
     // If language code is provided, use it directly
