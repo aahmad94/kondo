@@ -2,10 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
   "/api/getLanguages": "pages/api/getLanguages.js",
-  "/api/getBookmarks": "pages/api/getBookmarks.js",
-  "/api/getDailySummary": "pages/api/getDailySummary.js",
   "/api/getUserLanguagePreference": "pages/api/getUserLanguagePreference.js",
-  "/api/furigana": "pages/api/furigana.js"
+  "/api/auth/[...nextauth]": "pages/api/auth/[...nextauth].js",
+  "/api/openai": "pages/api/openai.js"
 }

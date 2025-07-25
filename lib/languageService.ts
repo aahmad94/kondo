@@ -11,11 +11,11 @@ const DOJO_INSTRUCTIONS = `
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Japanese - you may use any language you're familiar with.
+  Enter a phrase or sentence to translate to Japanese.
 
-  Add responses to bookmarks and rank based on how well you know it.
+  Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Study and review the material in dojo with the tools like flashcard mode.
+  Use the 'breakdown' and 'flashcard' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -23,11 +23,11 @@ const JAPANESE_INSTRUCTIONS = {
 
 const KOREAN_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Korean - you may use any language you're familiar with.
+  Enter a phrase or sentence to translate to Korean.
 
-  Add responses to bookmarks and rank based on how well you know it.
+  Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Study and review the material in dojo with the tools like flashcard mode.
+  Use the 'breakdown' and 'flashcard' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -35,11 +35,11 @@ const KOREAN_INSTRUCTIONS = {
 
 const SPANISH_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Spanish - you may use any language you're familiar with.
+  Enter a phrase or sentence to translate to Spanish.
 
-  Add responses to bookmarks and rank based on how well you know it.
+  Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Study and review the material in dojo with the tools like flashcard mode.
+  Use the 'breakdown' and 'flashcard' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -47,11 +47,11 @@ const SPANISH_INSTRUCTIONS = {
 
 const ARABIC_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Arabic - you may use any language you're familiar with.
+  Enter a phrase or sentence to translate to Arabic.
 
-  Add responses to bookmarks and rank based on how well you know it.
+  Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Study and review the material in dojo with the tools like flashcard mode.
+  Use the 'breakdown' and 'flashcard' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -59,11 +59,11 @@ const ARABIC_INSTRUCTIONS = {
 
 const CHINESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate into Chinese - you may use any language you're familiar with.
+  Enter a phrase or sentence to translate to Chinese.
 
-  Add responses to bookmarks and rank based on how well you know it.
+  Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Study and review the material in dojo with the tools like flashcard mode.
+  Use the 'breakdown' and 'flashcard' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''

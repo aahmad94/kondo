@@ -263,7 +263,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
       switch (language) {
         case 'ja': return 'b34JylakFZPlGS0BnwyY'; // Japanese voice
         case 'ko': return 'z6Kj0hecH20CdetSElRT'; // Korean voice
-        case 'es': return 'l1zE9xgNpUTaQCZzpNJa'; // Spanish voice
+        case 'es': return '2Lb1en5ujrODDIqmp7F3'; // Spanish voice
         case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
         case 'zh': return 'GgmlugwQ4LYXBbEXENWm'; // Chinese voice
         default: return 'pNInz6obpgDQGcFmaJgB';  // Default
