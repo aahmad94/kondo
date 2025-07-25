@@ -845,6 +845,7 @@ export default function ChatBox({
               selectedLanguage={selectedLanguage}
               summaryTimestamp={summaryTimestamp}
               selectedBookmark={selectedBookmark}
+              isFlashcardModalOpen={isFlashcardModalOpen}
             />
             
             <div className="w-full md:flex md:justify-center">
@@ -875,6 +876,7 @@ export default function ChatBox({
               selectedLanguage={selectedLanguage}
               summaryTimestamp={summaryTimestamp}
               selectedBookmark={selectedBookmark}
+              isFlashcardModalOpen={isFlashcardModalOpen}
             />
             
             <div className="w-full md:flex md:justify-center">

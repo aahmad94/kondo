@@ -14,6 +14,7 @@ interface ChatBoxMenuBarProps {
   selectedLanguage: string;
   summaryTimestamp: Date | null;
   selectedBookmark: { id: string | null, title: string | null };
+  isFlashcardModalOpen?: boolean;
 }
 
 export default function ChatBoxMenuBar({ 
@@ -22,7 +23,8 @@ export default function ChatBoxMenuBar({
   flashcardCount,
   selectedLanguage,
   summaryTimestamp,
-  selectedBookmark
+  selectedBookmark,
+  isFlashcardModalOpen = false
 }: ChatBoxMenuBarProps) {
   const { isMobile } = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -34,7 +36,13 @@ export default function ChatBoxMenuBar({
   const [showNewReportConfirmation, setShowNewReportConfirmation] = useState(false);
 
   // Handle content modal types
-  const handleContentModal = (type: 'tips' | 'stats' | 'commands') => {
+  const handleContentModal = (type: 'tips' | 'stats' | 'commands', event?: React.MouseEvent<HTMLButtonElement>) => {
+    if (type === 'commands' && event) {
+      // Remove glow effect after first click
+      const button = event.currentTarget;
+      button.classList.remove('button-glow');
+      button.classList.add('bg-gray-900');
+    }
     setContentModalType(type);
   };
 
@@ -54,6 +62,15 @@ export default function ChatBoxMenuBar({
   
   const handleNewReportCancel = () => {
     setShowNewReportConfirmation(false);
+  };
+
+  // Handle flashcard mode with click tracking
+  const handleFlashcardClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    // Remove glow effect after first click
+    const button = event.currentTarget;
+    button.classList.remove('button-glow');
+    button.classList.add('bg-gray-900');
+    onFlashcardMode();
   };
 
   // Determine which buttons to show based on selected bookmark
@@ -98,9 +115,9 @@ export default function ChatBoxMenuBar({
               {/* Flashcard Mode Button - First */}
               {showFlashcards && (
                 <button
-                  onClick={onFlashcardMode}
+                  onClick={handleFlashcardClick}
                   disabled={flashcardCount === 0}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
                 >
                   <RectangleStackIcon className="h-4 w-4 flex-shrink-0" />
                   <span>
@@ -126,8 +143,8 @@ export default function ChatBoxMenuBar({
               {/* Additional Commands Button - Fourth (root only) */}
               {showAdditionalCommands && (
                 <button
-                  onClick={() => handleContentModal('commands')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  onClick={(e) => handleContentModal('commands', e)}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <CommandLineIcon className="h-4 w-4 flex-shrink-0" />
                   <span>commands</span>
