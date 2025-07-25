@@ -241,7 +241,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                     >
                       {isLoading 
                         ? `loading ${loadingType === 'mobile' ? 'text' : 'table'} view...`
-                        : isTextView ? 'desktop view' : 'mobile view'
+                        : isTextView ? 'desktop/table view' : 'mobile/list view'
                       }
                     </button>
                   </div>

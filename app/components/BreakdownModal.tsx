@@ -164,7 +164,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                 disabled={isLoading}
                 className="font-mono text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-50 rounded-sm text-white transition-colors duration-200"
               >
-                {isTextView ? 'desktop view' : 'mobile view'}
+                {isTextView ? 'desktop/table view' : 'mobile/list view'}
               </button>
             }
           </div>

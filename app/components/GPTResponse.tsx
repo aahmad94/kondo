@@ -11,7 +11,7 @@ import {
   PlayCircleIcon,
   XMarkIcon,
   CheckIcon,
-  MagnifyingGlassIcon,
+  TableCellsIcon,
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/solid';
@@ -491,9 +491,9 @@ export default function GPTResponse({
               {/* Breakdown button - hide in flashcard mode when content is hidden */}
               {hasExpression && (selectedBookmarkTitle !== 'flashcard' || showAnswer) && (
                 <IconButton 
-                  icon={<MagnifyingGlassIcon className="h-6 w-6" />}
+                  icon={<TableCellsIcon className="h-6 w-6" />}
                   onClick={handleBreakdownClick}
-                  tooltipContent="Dissect"
+                  tooltipContent="Breakdown phrase"
                   buttonRef={breakdownButtonRef}
                   colorScheme="blue"
                 />

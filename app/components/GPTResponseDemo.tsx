@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircleIcon, XCircleIcon, TableCellsIcon } from '@heroicons/react/24/solid';
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
@@ -186,7 +186,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
             {/* Breakdown button */}
             <IconButton 
-              icon={<MagnifyingGlassIcon className="h-6 w-6" />}
+              icon={<TableCellsIcon className="h-6 w-6" />}
               onClick={handleBreakdownClick}
               tooltipContent="Analyze content and generate grammar walkthrough"
               buttonRef={breakdownButtonRef}
