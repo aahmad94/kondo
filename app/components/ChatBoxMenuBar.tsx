@@ -76,12 +76,13 @@ export default function ChatBoxMenuBar({
   // Determine which buttons to show based on selected bookmark
   const isDojo = selectedBookmark.title === 'daily summary';
   const isRoot = selectedBookmark.id === null && selectedBookmark.title === null;
+  const isOtherBookmark = !isRoot && !isDojo; // Regular bookmarks and other reserved bookmarks
   
-  const showFlashcards = isDojo;
+  const showFlashcards = isDojo || isOtherBookmark;
   const showDojoTips = isDojo;
   const showNewReport = isDojo;
   const showAdditionalCommands = isRoot;
-  const showStats = isDojo || isRoot;
+  const showStats = true; // Show stats for all bookmark types
 
   return (
     <>

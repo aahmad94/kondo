@@ -785,6 +785,17 @@ export default function ChatBox({
           </div>
         )}
         
+        {/* ChatBox Menu Bar - Show for all cases */}
+        <ChatBoxMenuBar
+          onNewReport={() => handleGenerateSummary(true)}
+          onFlashcardMode={handleFlashcardMode}
+          flashcardCount={getFlashcardResponses().length}
+          selectedLanguage={selectedLanguage}
+          summaryTimestamp={summaryTimestamp}
+          selectedBookmark={selectedBookmark}
+          isFlashcardModalOpen={isFlashcardModalOpen}
+        />
+
         {selectedBookmark.title === 'search' && (
           <div>
             <SearchBar
@@ -836,68 +847,42 @@ export default function ChatBox({
         )}
         
         {!selectedBookmark.id && (
-          <>
-            {/* ChatBox Menu Bar for root view */}
-            <ChatBoxMenuBar
-              onNewReport={() => handleGenerateSummary(true)}
-              onFlashcardMode={handleFlashcardMode}
-              flashcardCount={getFlashcardResponses().length}
-              selectedLanguage={selectedLanguage}
-              summaryTimestamp={summaryTimestamp}
-              selectedBookmark={selectedBookmark}
-              isFlashcardModalOpen={isFlashcardModalOpen}
-            />
-            
-            <div className="w-full md:flex md:justify-center">
-              <div className="w-full md:max-w-2xl">
-                <GPTResponse
-                  type="instruction"
-                  response={instructions.main}
-                  selectedBookmarkId={selectedBookmark.id}
-                  selectedBookmarkTitle={selectedBookmark.title ?? ''}
-                  reservedBookmarkTitles={reservedBookmarkTitles}
-                  responseId={null}
-                  onBookmarkSelect={onBookmarkSelect}
-                  selectedLanguage={selectedLanguage}
-                  onLoadingChange={setIsLoading}
-                />
-              </div>
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
+              <GPTResponse
+                type="instruction"
+                response={instructions.main}
+                selectedBookmarkId={selectedBookmark.id}
+                selectedBookmarkTitle={selectedBookmark.title ?? ''}
+                reservedBookmarkTitles={reservedBookmarkTitles}
+                responseId={null}
+                onBookmarkSelect={onBookmarkSelect}
+                selectedLanguage={selectedLanguage}
+                onLoadingChange={setIsLoading}
+              />
             </div>
-          </>
+          </div>
         )}
         
         {selectedBookmark.title === 'daily summary' && (
-          <>
-            {/* ChatBox Menu Bar */}
-            <ChatBoxMenuBar
-              onNewReport={() => handleGenerateSummary(true)}
-              onFlashcardMode={handleFlashcardMode}
-              flashcardCount={getFlashcardResponses().length}
-              selectedLanguage={selectedLanguage}
-              summaryTimestamp={summaryTimestamp}
-              selectedBookmark={selectedBookmark}
-              isFlashcardModalOpen={isFlashcardModalOpen}
-            />
-            
-            <div className="w-full md:flex md:justify-center">
-              <div className="w-full md:max-w-2xl">
-                <GPTResponse
-                  type="instruction"
-                  response={compileDojoInstructions(summaryTimestamp)}
-                  selectedBookmarkId={selectedBookmark.id}
-                  selectedBookmarkTitle="daily summary"
-                  reservedBookmarkTitles={reservedBookmarkTitles}
-                  onRankUpdate={handleRankUpdate}
-                  onDelete={handleResponseDelete}
-                  onPauseToggle={handlePauseToggle}
-                  onFuriganaToggle={handleFuriganaToggle}
-                  onBookmarkSelect={onBookmarkSelect}
-                  selectedLanguage={selectedLanguage}
-                  onLoadingChange={setIsLoading}
-                />
-              </div>
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
+              <GPTResponse
+                type="instruction"
+                response={compileDojoInstructions(summaryTimestamp)}
+                selectedBookmarkId={selectedBookmark.id}
+                selectedBookmarkTitle="daily summary"
+                reservedBookmarkTitles={reservedBookmarkTitles}
+                onRankUpdate={handleRankUpdate}
+                onDelete={handleResponseDelete}
+                onPauseToggle={handlePauseToggle}
+                onFuriganaToggle={handleFuriganaToggle}
+                onBookmarkSelect={onBookmarkSelect}
+                selectedLanguage={selectedLanguage}
+                onLoadingChange={setIsLoading}
+              />
             </div>
-          </>
+          </div>
         )}
         
         {selectedBookmark.id && selectedBookmark.id !== 'search' ? (
