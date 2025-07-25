@@ -15,7 +15,7 @@ const JAPANESE_INSTRUCTIONS = {
 
   Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Use the 'breakdown' and 'flashcard' features to study and review material.
+  Use the 'breakdown' and 'flashcard mode' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -27,7 +27,7 @@ const KOREAN_INSTRUCTIONS = {
 
   Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Use the 'breakdown' and 'flashcard' features to study and review material.
+  Use the 'breakdown' and 'flashcard mode' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -39,7 +39,7 @@ const SPANISH_INSTRUCTIONS = {
 
   Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Use the 'breakdown' and 'flashcard' features to study and review material.
+  Use the 'breakdown' and 'flashcard mode' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -51,7 +51,7 @@ const ARABIC_INSTRUCTIONS = {
 
   Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Use the 'breakdown' and 'flashcard' features to study and review material.
+  Use the 'breakdown' and 'flashcard mode' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -63,7 +63,7 @@ const CHINESE_INSTRUCTIONS = {
 
   Add responses to bookmarks and rank based on how well you know it (lower ranked items will be more visible).
 
-  Use the 'breakdown' and 'flashcard' features to study and review material.
+  Use the 'breakdown' and 'flashcard mode' features to study and review material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
