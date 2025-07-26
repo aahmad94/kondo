@@ -153,7 +153,6 @@ export default function Bookmarks({
   }, []);
 
   const handleBookmarkInteraction = async (bookmarkId: string, bookmarkTitle: string) => {
-    console.log('****handleBookmarkInteraction****', { bookmarkId, bookmarkTitle });
     // Track bookmark selection
     await trackBookmarkSelect(bookmarkId, bookmarkTitle);
     // Update URL with new query parameters using the App Router pattern
@@ -249,12 +248,40 @@ export default function Bookmarks({
     setIsOpen(!isOpen);
   };
 
+  const handleChevronClick = (bookmark: Bookmark, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowBookmarkDropdown(showBookmarkDropdown === bookmark.id ? null : bookmark.id);
+  };
+
+  const handleChevronTouch = (bookmark: Bookmark, e: React.TouchEvent) => {
+    e.stopPropagation();
+    setShowBookmarkDropdown(showBookmarkDropdown === bookmark.id ? null : bookmark.id);
+  };
+
   const handleTouchStart = (e: React.TouchEvent, bookmarkId: string, bookmarkTitle: string) => {
+    // Check if the touch target is the chevron or within the chevron area
+    const target = e.target as HTMLElement;
+    const chevronElement = target.closest('.bookmark-chevron-button');
+    
+    if (chevronElement) {
+      // If touching the chevron, don't start the bookmark selection touch tracking
+      return;
+    }
+
     touchStartY.current = e.touches[0].clientY;
     touchStartTime.current = Date.now();
   };
 
   const handleTouchEnd = (e: React.TouchEvent, bookmarkId: string, bookmarkTitle: string) => {
+    // Check if the touch target is the chevron or within the chevron area
+    const target = e.target as HTMLElement;
+    const chevronElement = target.closest('.bookmark-chevron-button');
+    
+    if (chevronElement) {
+      // If touching the chevron, don't handle bookmark selection
+      return;
+    }
+
     if (!touchStartY.current || !touchStartTime.current) return;
 
     const touchEndY = e.changedTouches[0].clientY;
@@ -270,11 +297,6 @@ export default function Bookmarks({
     // Reset touch tracking
     touchStartY.current = null;
     touchStartTime.current = null;
-  };
-
-  const handleChevronClick = (bookmark: Bookmark, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowBookmarkDropdown(showBookmarkDropdown === bookmark.id ? null : bookmark.id);
   };
 
   return (
@@ -394,6 +416,7 @@ export default function Bookmarks({
                               className={`bookmark-chevron-button h-5 w-5 mr-1 text-gray-400 hover:text-white transition-colors duration-200
                                 ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                               onClick={(e) => handleChevronClick(bookmark, e)}
+                              onTouchEnd={(e) => handleChevronTouch(bookmark, e)}
                             />
                             {showBookmarkDropdown === bookmark.id && (
                               <div className="bookmark-dropdown-menu absolute right-0 top-full mt-1 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60] min-w-[80px]">
