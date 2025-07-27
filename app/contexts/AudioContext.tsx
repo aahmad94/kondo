@@ -64,7 +64,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     onError?: (error: string) => void
   ) => {
     try {
-      console.log('🎵 playAudio called:', { responseId, hasCachedAudio: !!cachedAudio, isPlaying, currentResponseId });
+      // console.log('🎵 playAudio called:', { responseId, hasCachedAudio: !!cachedAudio, isPlaying, currentResponseId });
 
       // If already playing the same audio, pause it
       if (isPlaying && currentResponseId === responseId) {
@@ -75,40 +75,40 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // If playing different audio, stop it first
       if (isPlaying) {
-        console.log('🛑 Stopping different audio');
+        // console.log('🛑 Stopping different audio');
         pauseAudio();
       }
 
       // Check local cache first (fastest option)
       const localCachedAudio = audioCacheRef.current.get(responseId);
       if (localCachedAudio) {
-        console.log('⚡ Using local cached audio - FASTEST PATH');
+        // console.log('⚡ Using local cached audio - FASTEST PATH');
         cachedAudio = localCachedAudio;
       }
 
       // Handle cached audio (either from props or local cache) - no loading state needed since it's instantaneous
       if (cachedAudio) {
-        console.log('💾 Using cached audio - NO LOADING STATE');
+        // console.log('💾 Using cached audio - NO LOADING STATE');
         
         if (!audioRef.current) {
           audioRef.current = new Audio();
         }
 
         try {
-          console.log('🔄 Converting base64 to audio URL...');
+          // console.log('🔄 Converting base64 to audio URL...');
           const audioUrl = convertBase64ToAudioUrl(cachedAudio.audio, cachedAudio.mimeType);
-          console.log('✅ Audio URL created');
+          // console.log('✅ Audio URL created');
           
           audioRef.current.src = audioUrl;
           
           // Set playing state immediately for cached audio
-          console.log('🟢 Setting playing state immediately');
+          // console.log('🟢 Setting playing state immediately');
           setIsPlaying(true);
           setCurrentResponseId(responseId);
 
           const playPromise = audioRef.current.play();
           if (playPromise !== undefined) {
-            console.log('🎵 Play promise created (non-blocking)');
+            // console.log('🎵 Play promise created (non-blocking)');
             // Handle play promise without awaiting to avoid loading blip
             playPromise.catch((error) => {
               console.error('❌ Cached audio play error:', error);
@@ -120,12 +120,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             });
           }
           
-          console.log('📊 Tracking speaker click...');
+          // console.log('📊 Tracking (Amplitude) speaker click...');
           await trackSpeakerClick(responseId);
-          console.log('✅ Cached audio setup complete');
+          // console.log('✅ Cached audio setup complete');
 
           audioRef.current.onended = () => {
-            console.log('🔚 Cached audio ended');
+            // console.log('🔚 Cached audio ended');
             setIsPlaying(false);
             setCurrentResponseId(null);
             URL.revokeObjectURL(audioUrl);
@@ -148,7 +148,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       // Generate new audio via API - only show loading for this path
-      console.log('🌐 No cached audio - fetching from API with loading state');
+      // console.log('🌐 No cached audio - fetching from API with loading state');
       onLoadingChange?.(true);
 
       const res = await fetch('/api/textToSpeech', {
@@ -171,7 +171,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const data = await res.json();
 
       // Cache the audio data locally for future use
-      console.log('💾 Caching audio data locally for future use');
+      // console.log('💾 Caching audio data locally for future use');
       audioCacheRef.current.set(responseId, { audio: data.audio, mimeType: data.mimeType });
 
       if (!audioRef.current) {
@@ -210,7 +210,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error('❌ playAudio error:', error);
       onError?.(error.message || 'Failed to generate speech');
     } finally {
-      console.log('🔄 Setting loading to false');
+      // console.log('🔄 Setting loading to false');
       onLoadingChange?.(false);
     }
   }, [isPlaying, currentResponseId, pauseAudio]);
