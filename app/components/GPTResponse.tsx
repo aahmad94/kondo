@@ -164,6 +164,20 @@ export default function GPTResponse({
     setLocalKanaEnabled(isKanaEnabled);
   }, [isKanaEnabled]);
 
+  // Sync breakdown content with prop changes
+  useEffect(() => {
+    if (breakdown) {
+      setDesktopBreakdownContent(breakdown);
+    }
+  }, [breakdown]);
+
+  // Sync mobile breakdown content with prop changes
+  useEffect(() => {
+    if (mobileBreakdown) {
+      setMobileBreakdownContent(mobileBreakdown);
+    }
+  }, [mobileBreakdown]);
+
   // Handle furigana updates from StandardResponse
   const handleFuriganaGenerated = (newFurigana: string) => {
     setCurrentFurigana(newFurigana);
@@ -791,7 +805,8 @@ export default function GPTResponse({
           response={response}
           reservedBookmarkTitles={reservedBookmarkTitles}
           cachedAudio={null}
-          breakdownContent={currentBreakdownContent}
+          desktopBreakdownContent={desktopBreakdownContent}
+          mobileBreakdownContent={mobileBreakdownContent}
           furigana={currentFurigana}
           isFuriganaEnabled={localFuriganaEnabled}
           isPhoneticEnabled={localPhoneticEnabled}

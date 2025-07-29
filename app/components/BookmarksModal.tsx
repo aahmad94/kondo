@@ -16,7 +16,8 @@ interface BookmarksModalProps {
   response: string;
   reservedBookmarkTitles: string[];
   cachedAudio?: { audio: string; mimeType: string } | null;
-  breakdownContent?: string | null;
+  desktopBreakdownContent?: string | null;
+  mobileBreakdownContent?: string | null;
   furigana?: string | null;
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
@@ -31,7 +32,8 @@ export default function BookmarksModal({
   response, 
   reservedBookmarkTitles,
   cachedAudio,
-  breakdownContent,
+  desktopBreakdownContent,
+  mobileBreakdownContent,
   furigana,
   isFuriganaEnabled,
   isPhoneticEnabled,
@@ -93,7 +95,8 @@ export default function BookmarksModal({
           gptResponseContent: response,
           userId: session.userId,
           cachedAudio,
-          breakdownContent,
+          desktopBreakdownContent,
+          mobileBreakdownContent,
           furigana,
           isFuriganaEnabled,
           isPhoneticEnabled,

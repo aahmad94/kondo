@@ -68,7 +68,9 @@ export async function getAllUserResponsesByLanguage(userId: string) {
         furigana: true,
         isFuriganaEnabled: true,
         isPhoneticEnabled: true,
-        isKanaEnabled: true
+        isKanaEnabled: true,
+        breakdown: true,
+        mobileBreakdown: true
       },
       orderBy: {
         createdAt: 'desc'

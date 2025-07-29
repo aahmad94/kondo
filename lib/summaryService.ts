@@ -11,11 +11,11 @@ interface Response {
 
 export async function generateUserSummary(userId: string, forceRefresh: boolean = false, allLanguages: boolean = false) {
   try {
-    console.log(`[generateUserSummary] Start for user ${userId}, forceRefresh=${forceRefresh}, allLanguages=${allLanguages}`);
+    // console.log(`[generateUserSummary] Start for user ${userId}, forceRefresh=${forceRefresh}, allLanguages=${allLanguages}`);
     let languageIds: string[] = [];
     
     if (allLanguages) {
-      console.log(`[generateUserSummary] Fetching all active languages for user ${userId}`);
+      // console.log(`[generateUserSummary] Fetching all active languages for user ${userId}`);
       const activeLanguages = await prisma.language.findMany({
         where: { 
           isActive: true,
@@ -26,34 +26,34 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
         },
         select: { id: true, code: true, name: true }
       });
-      console.log(`[generateUserSummary] Found ${activeLanguages.length} active languages for user ${userId}`);
+      // console.log(`[generateUserSummary] Found ${activeLanguages.length} active languages for user ${userId}`);
       languageIds = activeLanguages.map(lang => lang.id);
     } else {
-      console.log(`[generateUserSummary] Fetching language preference for user ${userId}`);
+      // console.log(`[generateUserSummary] Fetching language preference for user ${userId}`);
       const userLanguagePreference = await prisma.userLanguagePreference.findUnique({
         where: { userId },
         select: { languageId: true }
       });
-      console.log(`[generateUserSummary] User language preference: ${userLanguagePreference?.languageId}`);
+      // console.log(`[generateUserSummary] User language preference: ${userLanguagePreference?.languageId}`);
       const defaultLanguageId = (await prisma.language.findUnique({
         where: { code: 'ja' },
         select: { id: true }
       }))?.id;
-      console.log(`[generateUserSummary] Default language id: ${defaultLanguageId}`);
+      // console.log(`[generateUserSummary] Default language id: ${defaultLanguageId}`);
       languageIds = [userLanguagePreference?.languageId || defaultLanguageId].filter(Boolean) as string[];
     }
-    console.log(`[generateUserSummary] languageIds for user ${userId}:`, languageIds);
+    // console.log(`[generateUserSummary] languageIds for user ${userId}:`, languageIds);
     if (languageIds.length === 0) {
-      console.error(`[generateUserSummary] No languages found for user ${userId}`);
+      // console.error(`[generateUserSummary] No languages found for user ${userId}`);
       throw new Error('No languages found');
     }
     const allResponses: Response[] = [];
     let createdAt: Date | null = null;
     for (const languageId of languageIds) {
       try {
-        console.log(`[generateUserSummary] Processing language ${languageId} for user ${userId}`);
+        // console.log(`[generateUserSummary] Processing language ${languageId} for user ${userId}`);
         if (!forceRefresh) {
-          console.log(`[generateUserSummary] Checking for existing summary for user ${userId}, language ${languageId}`);
+          // console.log(`[generateUserSummary] Checking for existing summary for user ${userId}, language ${languageId}`);
           const latestSummary = await prisma.dailySummary.findFirst({
             where: { userId, languageId },
             select: {
@@ -71,6 +71,8 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
                   isFuriganaEnabled: true,
                   isPhoneticEnabled: true,
                   isKanaEnabled: true,
+                  breakdown: true,
+                  mobileBreakdown: true,
                   bookmarks: { 
                     select: { 
                       id: true, 
@@ -85,7 +87,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           // when not forceRefresh, also set createdAt to the createdAt of the latestSummary
           createdAt = latestSummary?.createdAt || null;
           if (latestSummary && latestSummary.responses.length > 0) {
-            console.log(`[generateUserSummary] Found existing summary for user ${userId}, language ${languageId}`);
+            // console.log(`[generateUserSummary] Found existing summary for user ${userId}, language ${languageId}`);
             const transformedResponses = latestSummary.responses.map(response => ({
               ...response,
               bookmarks: response.bookmarks.reduce((acc, bookmark) => {
@@ -97,12 +99,12 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
             continue;
           }
         }
-        console.log(`[generateUserSummary] Fetching daily summary bookmark for user ${userId}, language ${languageId}`);
+        // console.log(`[generateUserSummary] Fetching daily summary bookmark for user ${userId}, language ${languageId}`);
         const dailySummaryBookmark = await prisma.bookmark.findFirst({
           where: { userId, languageId, title: 'daily summary' }
         });
         if (!dailySummaryBookmark) {
-          console.log(`[generateUserSummary] No daily summary bookmark for user ${userId}, language ${languageId}`);
+          // console.log(`[generateUserSummary] No daily summary bookmark for user ${userId}, language ${languageId}`);
           continue;
         }
         const bookmarkFilter = {
@@ -119,13 +121,13 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           }
         };
         const getRandomUserResponses = async (rank: number, take: number) => {
-          console.log(`[generateUserSummary] Fetching responses for user ${userId}, language ${languageId}, rank ${rank}`);
+          // console.log(`[generateUserSummary] Fetching responses for user ${userId}, language ${languageId}, rank ${rank}`);
           const query = {
             where: { ...bookmarkFilter, rank: rank },
-            select: { id: true, content: true, createdAt: true, rank: true, isPaused: true, furigana: true, isFuriganaEnabled: true, isPhoneticEnabled: true, isKanaEnabled: true, bookmarks: { select: { id: true, title: true } } }
+            select: { id: true, content: true, createdAt: true, rank: true, isPaused: true, furigana: true, isFuriganaEnabled: true, isPhoneticEnabled: true, isKanaEnabled: true, breakdown: true, mobileBreakdown: true, bookmarks: { select: { id: true, title: true } } }
           };
           const responses = await prisma.gPTResponse.findMany(query);
-          console.log(`[generateUserSummary] Found ${responses.length} responses for user ${userId}, language ${languageId}, rank ${rank}`);
+          // console.log(`[generateUserSummary] Found ${responses.length} responses for user ${userId}, language ${languageId}, rank ${rank}`);
           const transformedResponses = responses.map(response => ({
             ...response,
             bookmarks: response.bookmarks.reduce((acc, bookmark) => {
@@ -143,7 +145,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
         const rank2Responses = await getRandomUserResponses(2, 3);
         const rank3Responses = await getRandomUserResponses(3, 2);
         const languageResponses = [...rank1Responses, ...rank2Responses, ...rank3Responses];
-        console.log(`[generateUserSummary] Total responses to save for user ${userId}, language ${languageId}: ${languageResponses.length}`);
+        // console.log(`[generateUserSummary] Total responses to save for user ${userId}, language ${languageId}: ${languageResponses.length}`);
         if (languageResponses.length > 0) {
           const savedSummary = await prisma.dailySummary.create({
             data: {
@@ -155,14 +157,14 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           });
           // set createdAt to the createdAt of the savedSummary
           createdAt = savedSummary.createdAt;
-          console.log(`[generateUserSummary] Saved new daily summary for user ${userId}, language ${languageId}`);
+          // console.log(`[generateUserSummary] Saved new daily summary for user ${userId}, language ${languageId}`);
           await Promise.all(languageResponses.map(response => 
             prisma.gPTResponse.update({
               where: { id: response.id },
               data: { bookmarks: { connect: { id: dailySummaryBookmark.id } } }
             })
           ));
-          console.log(`[generateUserSummary] Added daily summary bookmark to responses for user ${userId}, language ${languageId}`);
+          // console.log(`[generateUserSummary] Added daily summary bookmark to responses for user ${userId}, language ${languageId}`);
           allResponses.push(...languageResponses);
         }
       } catch (error) {

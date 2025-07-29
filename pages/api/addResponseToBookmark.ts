@@ -3,12 +3,13 @@ import prisma from '../../lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { bookmarkId, gptResponseContent, userId, cachedAudio, breakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled } = req.body as {
+    const { bookmarkId, gptResponseContent, userId, cachedAudio, desktopBreakdownContent, mobileBreakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled } = req.body as {
       bookmarkId: string;
       gptResponseContent: string;
       userId: string;
       cachedAudio?: { audio: string; mimeType: string } | null;
-      breakdownContent?: string | null;
+      desktopBreakdownContent?: string | null;
+      mobileBreakdownContent?: string | null;
       furigana?: string | null;
       isFuriganaEnabled?: boolean | null;
       isPhoneticEnabled?: boolean | null;
@@ -40,8 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             audio: cachedAudio.audio,
             audioMimeType: cachedAudio.mimeType
           }),
-          ...(breakdownContent && {
-            breakdown: breakdownContent
+          ...(desktopBreakdownContent && {
+            breakdown: desktopBreakdownContent
+          }),
+          ...(mobileBreakdownContent && {
+            mobileBreakdown: mobileBreakdownContent
           }),
           ...(furigana && {
             furigana: furigana

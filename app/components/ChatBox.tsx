@@ -51,6 +51,8 @@ interface BookmarkResponse {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  breakdown?: string | null;
+  mobileBreakdown?: string | null;
 }
 
 // Add sortResponses function
@@ -245,6 +247,8 @@ export default function ChatBox({
         isFuriganaEnabled: response.isFuriganaEnabled,
         isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
         isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
+        breakdown: response.breakdown,
+        mobileBreakdown: response.mobileBreakdown,
       }));
 
       // Sort responses using the new function
@@ -282,6 +286,8 @@ export default function ChatBox({
         isFuriganaEnabled: response.isFuriganaEnabled,
         isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
         isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
+        breakdown: response.breakdown,
+        mobileBreakdown: response.mobileBreakdown,
       }]));
       setBookmarkResponses(dict);
       setIsLoading(false);
@@ -683,6 +689,8 @@ export default function ChatBox({
           isFuriganaEnabled: response.isFuriganaEnabled,
           isPhoneticEnabled: response.isPhoneticEnabled,
           isKanaEnabled: response.isKanaEnabled,
+          breakdown: response.breakdown,
+          mobileBreakdown: response.mobileBreakdown,
         }));
 
         // Sort responses using the new function
@@ -827,6 +835,8 @@ export default function ChatBox({
                       isFuriganaEnabled={response.isFuriganaEnabled}
                       isPhoneticEnabled={response.isPhoneticEnabled}
                       isKanaEnabled={response.isKanaEnabled}
+                      breakdown={response.breakdown}
+                      mobileBreakdown={response.mobileBreakdown}
                       onQuote={handleResponseQuote}
                       onRankUpdate={handleRankUpdate}
                       onDelete={handleResponseDelete}
@@ -904,6 +914,8 @@ export default function ChatBox({
                   isFuriganaEnabled={response.isFuriganaEnabled}
                   isPhoneticEnabled={response.isPhoneticEnabled}
                   isKanaEnabled={response.isKanaEnabled}
+                  breakdown={response.breakdown}
+                  mobileBreakdown={response.mobileBreakdown}
                   onQuote={handleResponseQuote}
                   onRankUpdate={handleRankUpdate}
                   onDelete={handleResponseDelete}

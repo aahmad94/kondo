@@ -49,7 +49,9 @@ export default async function handler(
         furigana: true,
         isFuriganaEnabled: true,
         isPhoneticEnabled: true,
-        isKanaEnabled: true
+        isKanaEnabled: true,
+        breakdown: true,
+        mobileBreakdown: true
       },
       orderBy: {
         rank: 'asc'
