@@ -371,8 +371,8 @@ export default function GPTResponse({
         return;
       }
 
-      // Generate the breakdown we need
-      await generateBreakdown(currentIsMobile);
+      // Generate the breakdown we need - show external loading for initial click
+      await generateBreakdown(currentIsMobile, true);
       setIsBreakdownModalOpen(true);
       if (responseId) await trackBreakdownClick(responseId);
     } catch (error: any) {
@@ -381,9 +381,11 @@ export default function GPTResponse({
     }
   };
 
-  const generateBreakdown = async (isMobile: boolean) => {
+  const generateBreakdown = async (isMobile: boolean, showExternalLoading: boolean = true) => {
     setIsBreakdownLoading(true);
-    onLoadingChange?.(true);
+    if (showExternalLoading) {
+      onLoadingChange?.(true);
+    }
     
     try {
       const res = await fetch('/api/breakdown', {
@@ -418,11 +420,13 @@ export default function GPTResponse({
       setCurrentBreakdownContent(data.breakdown);
     } finally {
       setIsBreakdownLoading(false);
-      onLoadingChange?.(false);
+      if (showExternalLoading) {
+        onLoadingChange?.(false);
+      }
     }
   };
 
-  const handleBreakdownToggle = async (toTextView: boolean) => {
+  const handleBreakdownToggle = async (toTextView: boolean, showExternalLoading: boolean = false) => {
     setIsBreakdownTextView(toTextView);
     
     // Check if we have the content for the requested view
@@ -433,7 +437,7 @@ export default function GPTResponse({
       setCurrentBreakdownContent(neededContent);
     } else {
       // We need to generate the content
-      await generateBreakdown(toTextView);
+      await generateBreakdown(toTextView, showExternalLoading);
     }
   };
 
