@@ -41,7 +41,7 @@ export default function ChatBoxMenuBar({
       // Remove glow effect after first click
       const button = event.currentTarget;
       button.classList.remove('button-glow');
-      button.classList.add('bg-gray-900');
+      button.classList.add('bg-card');
     }
     setContentModalType(type);
   };
@@ -69,7 +69,7 @@ export default function ChatBoxMenuBar({
     // Remove glow effect after first click
     const button = event.currentTarget;
     button.classList.remove('button-glow');
-    button.classList.add('bg-gray-900');
+    button.classList.add('bg-card');
     onFlashcardMode();
   };
 
@@ -86,7 +86,7 @@ export default function ChatBoxMenuBar({
 
   return (
     <>
-      <div className="bg-black border-b border-[#222222] px-2 py-2 mx-4 mb-2">
+      <div className="bg-background border-b border-border px-2 py-2 mx-4 mb-2">
         <div className="flex items-center">
           {/* Scrollable buttons container */}
           <div 
@@ -106,7 +106,7 @@ export default function ChatBoxMenuBar({
               {showDojoTips && (
                 <button
                   onClick={() => handleContentModal('tips')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
                   <span>dojo tips</span>
@@ -118,7 +118,7 @@ export default function ChatBoxMenuBar({
                 <button
                   onClick={handleFlashcardClick}
                   disabled={flashcardCount === 0}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
                 >
                   <RectangleStackIcon className="h-4 w-4 flex-shrink-0" />
                   <span>
@@ -134,7 +134,7 @@ export default function ChatBoxMenuBar({
               {showNewReport && (
                 <button
                   onClick={handleNewReportClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <PlusIcon className="h-4 w-4 flex-shrink-0" />
                   <span>new report</span>
@@ -145,7 +145,7 @@ export default function ChatBoxMenuBar({
               {showAdditionalCommands && (
                 <button
                   onClick={(e) => handleContentModal('commands', e)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <CommandLineIcon className="h-4 w-4 flex-shrink-0" />
                   <span>commands</span>
@@ -156,7 +156,7 @@ export default function ChatBoxMenuBar({
               {showStats && (
                 <button
                   onClick={() => handleContentModal('stats')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-900 hover:bg-blue-700 text-white rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <ChartBarIcon className="h-4 w-4 flex-shrink-0" />
                   <span>stats</span>

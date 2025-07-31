@@ -204,24 +204,27 @@ html, body {
   animation: furigana-loading-pulse 1.5s ease-in-out infinite;
 }
 
-/* Button glow animation */
+/* Button glow animation - theme aware */
 @keyframes button-glow {
   0%, 100% {
-    background-color: rgb(17, 24, 39); /* gray-900 */
-    box-shadow: 0 0 8px rgba(17, 24, 39, 0.4);
+    background-color: hsl(var(--card));
+    box-shadow: 0 0 8px hsl(var(--card) / 0.4);
   }
   50% {
-    background-color: rgb(55, 65, 81); /* gray-700 */
-    box-shadow: 0 0 12px rgba(55, 65, 81, 0.6), 0 0 24px rgba(55, 65, 81, 0.3);
+    background-color: hsl(var(--accent));
+    box-shadow: 0 0 12px hsl(var(--accent) / 0.6), 0 0 24px hsl(var(--accent) / 0.3);
   }
 }
 
 .button-glow {
   animation: button-glow 2s ease-in-out infinite;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
 }
 
 .button-glow:hover {
   animation-play-state: paused;
-  background-color: rgb(29, 78, 216) !important; /* blue-700 */
-  box-shadow: 0 0 12px rgba(29, 78, 216, 0.6), 0 0 24px rgba(29, 78, 216, 0.3) !important;
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  box-shadow: 0 0 12px hsl(var(--primary) / 0.6), 0 0 24px hsl(var(--primary) / 0.3) !important;
 }
