@@ -62,7 +62,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
             alt="Kondo Logo"
             width={42}
             height={42}
-            className="mr-2"
+            className={`mr-2 transition-all duration-200 ${theme === 'light' ? 'brightness-0 saturate-100' : ''}`}
           />
           Kondo
         </Link>
