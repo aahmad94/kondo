@@ -113,7 +113,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70]">
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[70]">
           <div className="bg-card rounded-sm p-6 max-w-sm w-full mx-4 border border-border shadow-xl">
             <h2 className="text-xl font-semibold mb-4 text-card-foreground">Confirm Logout</h2>
             <p className="text-muted-foreground mb-6">Are you sure you want to log out?</p>
