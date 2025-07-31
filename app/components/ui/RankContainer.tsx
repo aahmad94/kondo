@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import Tooltip from '../Tooltip';
 import { useIsMobile } from '../../hooks/useIsMobile';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface RankContainerProps {
   rank: number;
@@ -22,6 +23,7 @@ const RankContainer: React.FC<RankContainerProps> = ({
   const upChevronRef = React.useRef<HTMLButtonElement>(null);
   const downChevronRef = React.useRef<HTMLButtonElement>(null);
   const { isMobile } = useIsMobile();
+  const { theme } = useTheme();
 
   const red = '#d93900';
   const yellow = '#b59f3b';
@@ -48,10 +50,9 @@ const RankContainer: React.FC<RankContainerProps> = ({
 
   return (
     <div
-      className={`rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400 ${className}`}
+      className={`rank-container flex items-center gap-1 px-2 rounded-sm transition-colors duration-400 bg-card ${className}`}
       style={{
-        border: `3px solid ${rankContainerOutline}`,
-        backgroundColor: '#111111'
+        border: `3px solid ${rankContainerOutline}`
       }}
     >
       {!isMobile ? (
@@ -64,7 +65,7 @@ const RankContainer: React.FC<RankContainerProps> = ({
             ref={upChevronRef}
             onClick={() => handleRankClick(true)}
             disabled={rank >= 3 || !onRankClick}
-            className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+            className="text-card-foreground hover:text-muted-foreground disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
             onMouseEnter={() => setIsUpChevronHovered(true)}
             onMouseLeave={() => setIsUpChevronHovered(false)}
           >
@@ -76,13 +77,13 @@ const RankContainer: React.FC<RankContainerProps> = ({
           ref={upChevronRef}
           onClick={() => handleRankClick(true)}
           disabled={rank >= 3 || !onRankClick}
-          className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+          className="text-card-foreground hover:text-muted-foreground disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
         >
           <ChevronUpIcon className="h-5 w-5" />
         </button>
       )}
       
-      <span className="px-1.5 rounded text-xs text-white">
+      <span className="px-1.5 rounded text-xs text-card-foreground">
         {rank}
       </span>
       
@@ -96,7 +97,7 @@ const RankContainer: React.FC<RankContainerProps> = ({
             ref={downChevronRef}
             onClick={() => handleRankClick(false)}
             disabled={rank <= 1 || !onRankClick}
-            className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+            className="text-card-foreground hover:text-muted-foreground disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
             onMouseEnter={() => setIsDownChevronHovered(true)}
             onMouseLeave={() => setIsDownChevronHovered(false)}
           >
@@ -108,7 +109,7 @@ const RankContainer: React.FC<RankContainerProps> = ({
           ref={downChevronRef}
           onClick={() => handleRankClick(false)}
           disabled={rank <= 1 || !onRankClick}
-          className="text-white hover:text-gray-300 disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
+          className="text-card-foreground hover:text-muted-foreground disabled:opacity-50 transition-all duration-200 font-bold hover:scale-110 active:scale-95 px-1"
         >
           <ChevronDownIcon className="h-5 w-5" />
         </button>
