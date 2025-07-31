@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import LanguageSelector from './LanguageSelector';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface MenuBarProps {
   onLanguageChange: (languageCode: string) => void;
@@ -18,6 +19,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -33,7 +35,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
   }, []);
 
   if (status === "loading") {
-    return <div className="text-white">Loading...</div>
+    return <div className="text-foreground">Loading...</div>
   }
 
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -49,9 +51,9 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
 
   return (
     <>
-      <nav className="bg-gray-900 shadow-md flex justify-between items-center w-full">
+      <nav className="bg-card border-b border-border shadow-md flex justify-between items-center w-full">
         <Link 
-          className="flex items-center text-2xl pt-2 pl-4 text-white"
+          className="flex items-center text-2xl pt-2 pl-4 text-card-foreground"
           href="/"
           onClick={handleLogoClick}
         >
@@ -80,14 +82,24 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
                 onClick={() => setShowDropdown(!showDropdown)}
               />
               {showDropdown && (
-                <div className="absolute right-0 mt-2 min-w-[100px] w-max rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60]">
+                <div className="absolute right-0 mt-2 min-w-[100px] w-max rounded-md shadow-lg bg-popover ring-1 ring-border z-[60]">
                   <div className="py-1">
+                    <button
+                      onClick={() => {
+                        toggleTheme();
+                        setShowDropdown(false);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
+                    >
+                      <span>{theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
+                      {theme === 'dark' && <span className="text-xs text-muted-foreground ml-2">BETA</span>}
+                    </button>
                     <button
                       onClick={() => {
                         setShowDropdown(false);
                         setShowLogoutModal(true);
                       }}
-                      className="block w-full px-4 py-2 text-sm text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
+                      className="block w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
                     >
                       Log out
                     </button>
@@ -101,20 +113,20 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70]">
-          <div className="bg-gray-800 rounded-sm p-6 max-w-sm w-full mx-4 border border-gray-700 shadow-xl">
-            <h2 className="text-xl font-semibold mb-4 text-white">Confirm Logout</h2>
-            <p className="text-gray-300 mb-6">Are you sure you want to log out?</p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70]">
+          <div className="bg-card rounded-sm p-6 max-w-sm w-full mx-4 border border-border shadow-xl">
+            <h2 className="text-xl font-semibold mb-4 text-card-foreground">Confirm Logout</h2>
+            <p className="text-muted-foreground mb-6">Are you sure you want to log out?</p>
             <div className="flex justify-end gap-4">
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded"
+                className="px-4 py-2 text-muted-foreground hover:text-card-foreground hover:bg-accent rounded"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90"
               >
                 Log out
               </button>

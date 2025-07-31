@@ -776,7 +776,7 @@ export default function ChatBox({
   
 
   return (
-    <div className="container mx-auto bg-[#000000] h-screen flex flex-col max-w-[calc(100vw-48px)]">
+    <div className="container mx-auto bg-background h-screen flex flex-col max-w-[calc(100vw-48px)]">
       <div 
         ref={chatContainerRef}
         className={`overflow-y-auto relative mb-2 ${
@@ -788,7 +788,7 @@ export default function ChatBox({
         }}
       >
         {isLoading && (
-          <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-[90]">
+          <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
             <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
           </div>
         )}
@@ -813,7 +813,7 @@ export default function ChatBox({
               onChange={setSearchQuery}
             />
             {isSearching ? (
-              <div className="fixed inset-0 flex items-center justify-center bg-[#000000] bg-opacity-50 z-[90]">
+              <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
                 <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
               </div>
             ) : Object.values(bookmarkResponses).length > 0 ? (
