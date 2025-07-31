@@ -28,6 +28,7 @@ import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
 import { extractExpressions } from '../../lib/expressionUtils';
 import { prepareTextForSpeech } from '../../lib/audioUtils';
+import { useTheme } from '../contexts/ThemeContext';
 
 import { useIsMobile } from '../hooks/useIsMobile';
 import StandardResponse from './StandardResponse';
@@ -148,6 +149,8 @@ export default function GPTResponse({
   
   // Track current furigana (starts with cached furigana, gets updated when new furigana is generated)
   const [currentFurigana, setCurrentFurigana] = useState<string | null>(furigana || null);
+
+  const { theme } = useTheme();
 
   // Sync local furigana state with prop changes
   useEffect(() => {
@@ -472,13 +475,13 @@ export default function GPTResponse({
 
 
   return (
-    <div className={`pl-3 py-3 rounded text-white w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b border-[#222222]' : ''}`}>
+    <div className={`pl-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b border-border' : ''}`}>
       <div className="header flex justify-between mb-2">
         {/* Left side */}
         <div className="flex pt-2 pb-1 items-center gap-3">
           {/* Header text for instruction type */}
           {type === 'instruction' && (
-            <h2 style={{ color: 'yellow' }}>
+            <h2 className="text-primary underline">
               {selectedBookmarkTitle === 'daily summary' ? 'dojo' : 'Instructions'}
             </h2>
           )}
@@ -545,12 +548,12 @@ export default function GPTResponse({
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
-                className="text-white hover:text-gray-300 transition-colors duration-200"
+                className="text-foreground hover:text-muted-foreground transition-colors duration-200"
               >
                 <ChevronDownIcon className="h-6 w-6" />
               </button>
               {showFuriganaDropdown && (
-                <div className={`absolute left-1/2 transform -translate-x-1/2 top-full mt-2 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60] ${
+                <div className={`absolute left-1/2 transform -translate-x-1/2 top-full mt-2 rounded-md shadow-lg bg-popover ring-1 ring-border z-[60] ${
                   isMobile 
                     ? 'min-w-[80px] w-[100px] max-w-[100px]' 
                     : 'min-w-[120px] w-max'
@@ -560,7 +563,7 @@ export default function GPTResponse({
                     {selectedLanguage === 'ja' && (
                       <button
                         onClick={handleFuriganaToggle}
-                        className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                        className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
                           isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                         }`}
                       >
@@ -578,7 +581,7 @@ export default function GPTResponse({
                     {selectedLanguage === 'ja' && (
                       <button
                         onClick={handleKanaToggle}
-                        className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                        className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
                           isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                         }`}
                       >
@@ -595,7 +598,7 @@ export default function GPTResponse({
                     {/* Phonetic toggle - for all supported languages */}
                     <button
                       onClick={handlePhoneticToggle}
-                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
                         isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                       }`}
                     >
@@ -626,7 +629,7 @@ export default function GPTResponse({
                   onClick={() => onQuote(response, 'input')} 
                   onMouseEnter={() => setIsQuoteHovered(true)}
                   onMouseLeave={() => setIsQuoteHovered(false)}
-                  className="text-white hover:text-gray-300 transition-colors duration-200"
+                  className="text-foreground hover:text-muted-foreground transition-colors duration-200"
                 >
                   <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
                 </button>
@@ -635,7 +638,7 @@ export default function GPTResponse({
               <button 
                 ref={quoteButtonRef}
                 onClick={() => onQuote(response, 'input')} 
-                className="text-white hover:text-gray-300 transition-colors duration-200"
+                className="text-foreground hover:text-muted-foreground transition-colors duration-200"
               >
                 <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
               </button>
@@ -647,7 +650,7 @@ export default function GPTResponse({
             <button 
               onClick={handleDeleteClick}
               disabled={isDeleting}
-              className="text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors duration-200"
+              className="text-destructive hover:text-destructive/80 disabled:opacity-50 transition-colors duration-200"
             >
               <XCircleIcon className="h-6 w-6" />
             </button>
@@ -667,7 +670,7 @@ export default function GPTResponse({
                   onClick={() => setIsBookmarkModalOpen(true)} 
                   onMouseEnter={() => setIsBookmarkHovered(true)}
                   onMouseLeave={() => setIsBookmarkHovered(false)}
-                  className="text-white hover:text-blue-400 transition-colors duration-200"
+                  className="text-foreground hover:text-blue-400 transition-colors duration-200"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
@@ -676,7 +679,7 @@ export default function GPTResponse({
               <button 
                 ref={bookmarkButtonRef}
                 onClick={() => setIsBookmarkModalOpen(true)} 
-                className="text-white hover:text-blue-400 transition-colors duration-200"
+                className="text-foreground hover:text-primary transition-colors duration-200"
               >
                 <PlusIcon className="h-6 w-6" />
               </button>
@@ -711,7 +714,7 @@ export default function GPTResponse({
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
-                    <div className="pr-3" style={{ color: yellow }}>
+                    <div className="pr-3 text-primary">
                       {items.map((item, idx) => {
                         const numberMatch = item.match(/^\s*(\d+)\/\s*/);
                         if (numberMatch) {
@@ -719,7 +722,7 @@ export default function GPTResponse({
                           const originalNumber = numberMatch[1];
                           return (
                             <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
-                              <span style={{ color: '#575b63' }}>{`${originalNumber}.`}</span>{' '}
+                              <span className="text-muted-foreground">{`${originalNumber}.`}</span>{' '}
                               {item.replace(/^\s*\d+\/\s*/, '')}
                             </div>
                           );
@@ -736,7 +739,7 @@ export default function GPTResponse({
                   )
                 ) : (
                                                          // For all other content (tables, regular text, etc.), use Markdown
-           <div className="pr-3" style={{ color: yellow }}>
+           <div className="pr-3 text-primary">
              <div className="overflow-x-auto w-full">
                <StyledMarkdown>
                  {items.join('\n')}
@@ -751,7 +754,7 @@ export default function GPTResponse({
           )
         ) : (
           // Fallback to Markdown for non-list blocks
-          <div className="pr-3" style={{ color: yellow }}>
+          <div className="pr-3 text-primary">
             <div className="overflow-x-auto w-full">
               <StyledMarkdown>
                 {cleanResponse}
