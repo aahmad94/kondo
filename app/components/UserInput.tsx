@@ -103,10 +103,10 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   };
 
   return (
-    <div className="flex items-center bg-[#000000] rounded-sm">
+    <div className="flex items-center bg-background rounded-sm">
       <textarea
         ref={textareaRef}
-        className={`flex-grow m-2 px-4 py-2 bg-[#111111] text-white border border-gray-700 rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 disabled:opacity-50 min-h-[${textareaMinHeight}px] h-[${textareaMinHeight}px] max-h-[${textareaMaxHeight}px] overflow-y-auto leading-[1.5]`}
+        className={`flex-grow m-2 px-4 py-2 bg-card text-card-foreground border border-border rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary placeholder-muted-foreground disabled:opacity-50 min-h-[${textareaMinHeight}px] h-[${textareaMinHeight}px] max-h-[${textareaMaxHeight}px] overflow-y-auto leading-[1.5]`}
         value={prompt}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
@@ -117,7 +117,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
         <button
           onClick={handleSubmit}
           disabled={isLoading || !prompt.trim()}
-          className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-[38px] w-[38px] items-center justify-center"
+          className="p-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors h-[38px] w-[38px] items-center justify-center"
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
