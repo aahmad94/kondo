@@ -98,8 +98,8 @@ export default function Home() {
 
   if (status === "loading") {
     return (
-      <div className="bg-[#000000] h-screen w-full flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+      <div className="bg-background h-screen w-full flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
@@ -138,12 +138,12 @@ export default function Home() {
   };
   
   return (
-    <div className="flex flex-col h-screen bg-[#000000]">
+    <div className="flex flex-col h-screen bg-background">
       <MenuBar
         onClearBookmark={handleClearBookmark}
         onLanguageChange={handleLanguageChange}
       />
-      <div className="flex flex-1 overflow-hidden bg-[#000000]">
+      <div className="flex flex-1 overflow-hidden bg-background">
         <Bookmarks 
           changeSelectedBookmark={handleBookmarkSelect}
           onClearBookmark={handleClearBookmark}
@@ -152,7 +152,7 @@ export default function Home() {
           selectedLanguage={selectedLanguage || 'ja'}
           newBookmark={newBookmark}
         />
-        <div className="flex-1 overflow-hidden bg-[#000000]">
+        <div className="flex-1 overflow-hidden bg-background">
           <ChatBox 
             selectedBookmark={selectedBookmark}
             reservedBookmarkTitles={reservedBookmarkTitles}
