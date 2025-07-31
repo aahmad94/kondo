@@ -204,15 +204,13 @@ html, body {
   animation: furigana-loading-pulse 1.5s ease-in-out infinite;
 }
 
-/* Button glow animation - theme aware */
+/* Button glow animation - theme aware (no shadows) */
 @keyframes button-glow {
   0%, 100% {
     background-color: hsl(var(--card));
-    box-shadow: 0 0 8px hsl(var(--card) / 0.4);
   }
   50% {
     background-color: hsl(var(--accent));
-    box-shadow: 0 0 12px hsl(var(--accent) / 0.6), 0 0 24px hsl(var(--accent) / 0.3);
   }
 }
 
@@ -226,5 +224,4 @@ html, body {
   animation-play-state: paused;
   background-color: hsl(var(--primary)) !important;
   color: hsl(var(--primary-foreground)) !important;
-  box-shadow: 0 0 12px hsl(var(--primary) / 0.6), 0 0 24px hsl(var(--primary) / 0.3) !important;
 }
