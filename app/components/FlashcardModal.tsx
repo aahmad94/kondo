@@ -145,12 +145,12 @@ export default function FlashcardModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[70] p-4">
-      <div className="bg-[#111111] rounded-sm w-[90vw] md:w-[450px] max-w-xl max-h-[90vh] flex flex-col relative">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
+      <div className="bg-card border border-border rounded-sm w-[90vw] md:w-[450px] max-w-xl max-h-[90vh] flex flex-col relative">
         {/* Close button - positioned absolutely in top right */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-2 p-2 text-gray-400 hover:text-white transition-colors duration-200 z-10"
+          className="absolute top-5 right-2 p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200 z-10"
         >
           <XMarkIcon className="h-5 w-5" />
         </button>
@@ -193,14 +193,14 @@ export default function FlashcardModal({
           {/* Previous button */}
           <button
             onClick={handlePrevious}
-            className="p-2 text-gray-400 hover:text-white transition-colors duration-200"
+            className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
           >
             <ChevronLeftIcon className="h-6 w-6" />
           </button>
 
           {/* Just the number indicator */}
           <div className="flex items-center">
-            <span className="text-md text-white">
+            <span className="text-md text-card-foreground">
               {currentIndex + 1} / {responses.length}
             </span>
           </div>
@@ -208,7 +208,7 @@ export default function FlashcardModal({
           {/* Next button */}
           <button
             onClick={handleNext}
-            className="p-2 text-gray-400 hover:text-white transition-colors duration-200"
+            className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
           >
             <ChevronRightIcon className="h-6 w-6" />
           </button>
