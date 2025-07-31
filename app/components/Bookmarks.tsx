@@ -302,25 +302,25 @@ export default function Bookmarks({
   return (
     <>
       {!isOpen && (
-        <div className="fixed top-[56px] h-[50px] w-8 rounded-r-lg bg-gray-900/80 ml-0 flex items-center justify-center z-10">
+        <div className="fixed top-[56px] h-[50px] w-8 rounded-r-lg bg-card/80 border border-border ml-0 flex items-center justify-center z-10">
           <button 
             onClick={handleToggleOpen}
-            className="text-white w-full h-full flex items-center justify-center cursor-pointer"
+            className="text-card-foreground w-full h-full flex items-center justify-center cursor-pointer"
           >
             <ChevronRightIcon className="h-6 w-6 text-blue-400" />
           </button>
         </div>
       )}
       
-      <div className={`flex-none bg-gray-900 transition-[width] duration-300 ease-in-out ${isOpen ? 'w-52' : 'w-0'} h-[calc(100vh-50px)] overflow-hidden`}>
+      <div className={`flex-none bg-card border-r border-border transition-[width] duration-300 ease-in-out ${isOpen ? 'w-52' : 'w-0'} h-[calc(100vh-50px)] overflow-hidden`}>
         <div className="w-52 h-full" style={{ willChange: 'auto', backfaceVisibility: 'hidden' }}>
           {isOpen && (
             <>
               <div className="flex justify-between items-start px-2 py-2">
                 <div className="flex flex-col space-y-1">
                   <div 
-                    className={`daily-summary-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.title === "daily summary" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    className={`daily-summary-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.title === "daily summary" ? 'bg-accent rounded-sm' : ''}`}
                     onClick={() => {
                       const dailySummaryBookmark = bookmarks.find(b => b.title === 'daily summary');
                       if (dailySummaryBookmark) {
@@ -333,8 +333,8 @@ export default function Bookmarks({
                   </div>
 
                   <div
-                    className={`chat-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.id === null && selectedBookmark.title === null ? 'bg-gray-700 rounded-sm' : ''}`}
+                    className={`chat-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.id === null && selectedBookmark.title === null ? 'bg-accent rounded-sm' : ''}`}
                     onClick={handleChatClick}
                   >
                     <ChatBubbleLeftIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
@@ -342,8 +342,8 @@ export default function Bookmarks({
                   </div>
 
                   <div 
-                    className={`search-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.title === "search" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    className={`search-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.title === "search" ? 'bg-accent rounded-sm' : ''}`}
                     onClick={() => handleBookmarkInteraction("search", "search")}
                     onTouchStart={() => handleBookmarkInteraction("search", "search")}
                   >
@@ -352,8 +352,8 @@ export default function Bookmarks({
                   </div>
 
                   <div 
-                    className={`all-responses-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.id === "all" ? 'bg-gray-700 rounded-sm' : ''}`}
+                    className={`all-responses-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.id === "all" ? 'bg-accent rounded-sm' : ''}`}
                     onClick={() => handleBookmarkInteraction("all", "all responses")}
                     onTouchStart={() => handleBookmarkInteraction("all", "all responses")}
                   >
@@ -362,7 +362,7 @@ export default function Bookmarks({
                   </div>
 
                   <div
-                    className="create-bookmark-button cursor-pointer hover:bg-gray-500 hover:bg-opacity-50 hover:rounded-sm transition-all px-2 py-1 inline-block"
+                    className="create-bookmark-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block"
                     onClick={handleCreateNewBookmark}
                   >
                     <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
@@ -372,7 +372,7 @@ export default function Bookmarks({
 
                 <button 
                   onClick={handleToggleOpen} 
-                  className="text-white cursor-pointer"
+                  className="text-card-foreground cursor-pointer"
                 >
                   <ChevronLeftIcon className="h-6 w-6 text-blue-400" />
                 </button>
@@ -388,7 +388,7 @@ export default function Bookmarks({
                         key={index}
                         className="mb-2 pl-2 py-1 flex justify-between items-center"
                       >
-                        <div className="h-5 w-3/4 bg-gray-700 rounded-sm animate-pulse-fast"></div>
+                        <div className="h-5 w-3/4 bg-muted rounded-sm animate-pulse-fast"></div>
                       </div>
                     ))
                   ) : (
@@ -402,34 +402,34 @@ export default function Bookmarks({
                       .map((bookmark) => (
                         <div
                           key={bookmark.id}
-                          className={`mb-2 cursor-pointer hover:bg-gray-700 hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group relative
-                            ${selectedBookmark.id === bookmark.id ? 'bg-gray-700 rounded-sm' : ''}`}
+                          className={`mb-2 cursor-pointer hover:bg-accent hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group relative
+                            ${selectedBookmark.id === bookmark.id ? 'bg-accent rounded-sm' : ''}`}
                           onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
                           onTouchStart={(e) => handleTouchStart(e, bookmark.id, bookmark.title)}
                           onTouchEnd={(e) => handleTouchEnd(e, bookmark.id, bookmark.title)}
                         >
-                          <span className="text-white flex-1 truncate">
+                          <span className="text-card-foreground flex-1 truncate">
                             {bookmark.title}
                           </span>
                           <div className="relative">
                             <ChevronDownIcon
-                              className={`bookmark-chevron-button h-5 w-5 mr-1 text-gray-400 hover:text-white transition-colors duration-200
+                              className={`bookmark-chevron-button h-5 w-5 mr-1 text-muted-foreground hover:text-card-foreground transition-colors duration-200
                                 ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                               onClick={(e) => handleChevronClick(bookmark, e)}
                               onTouchEnd={(e) => handleChevronTouch(bookmark, e)}
                             />
                             {showBookmarkDropdown === bookmark.id && (
-                              <div className="bookmark-dropdown-menu absolute right-0 top-full mt-1 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60] min-w-[80px]">
+                              <div className="bookmark-dropdown-menu absolute right-0 top-full mt-1 rounded-md shadow-lg bg-popover ring-1 ring-border z-[60] min-w-[80px]">
                                 <div className="py-1">
                                   <button
                                     onClick={(e) => handleEditClick(bookmark, e)}
-                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 whitespace-nowrap"
+                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
                                   >
                                     Edit
                                   </button>
                                   <button
                                     onClick={(e) => handleDeleteClick(bookmark, e)}
-                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-red-400 hover:bg-gray-700 whitespace-nowrap"
+                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-destructive hover:bg-accent whitespace-nowrap"
                                   >
                                     Delete
                                   </button>
