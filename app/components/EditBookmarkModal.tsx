@@ -79,10 +79,10 @@ export default function EditBookmarkModal({
           value={bookmarkTitle}
           onChange={(e) => setBookmarkTitle(e.target.value)}
           placeholder="Enter bookmark name"
-          className="w-full p-2 mb-4 bg-gray-700 text-white rounded-sm"
+          className="w-full p-2 mb-4 bg-input text-foreground border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder-muted-foreground"
         />
         {error && (
-          <div className="text-red-500 mb-4 text-sm">
+          <div className="text-destructive mb-4 text-sm">
             {error}
           </div>
         )}
@@ -90,14 +90,14 @@ export default function EditBookmarkModal({
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 bg-gray-600 text-white p-2 rounded-sm hover:bg-gray-700 transition-colors duration-200"
+            className="flex-1 bg-secondary text-secondary-foreground p-2 rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-200"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50"
+            className="flex-1 bg-primary text-primary-foreground p-2 rounded-sm hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50"
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
           </button>
