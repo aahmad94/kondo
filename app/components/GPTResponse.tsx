@@ -656,7 +656,7 @@ export default function GPTResponse({
             </button>
           )}
 
-          {/* Add to bookmark button - only show when not in a bookmark */}
+          {/* Add to bookmark button - only show when not in a bookmark (i.e. in dojo, all responses, search) */}
           {type !== 'instruction' && type !== 'other' && !selectedBookmarkId && (
             !isMobile ? (
               <Tooltip
@@ -769,7 +769,7 @@ export default function GPTResponse({
         <div className="mt-2 pt-1 flex items-center gap-2">
           <span 
             onClick={handleBookmarkClick}
-            className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[120px] truncate"
+            className="text-xs px-2 py-1 bg-[hsl(var(--badge-bg))] text-[hsl(var(--badge-text))] rounded-sm cursor-pointer hover:opacity-80 transition-all duration-200 max-w-[120px] truncate"
           >
             {(() => {
               const nonReservedTitle = Object.values(bookmarks).find(title => 

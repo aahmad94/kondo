@@ -126,6 +126,8 @@ html, body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
     --breakdown-text: 45 60% 35%; /* Darker readable color for light mode */
+    --badge-bg: 0 0% 9%; /* Black background for light mode */
+    --badge-text: 0 0% 98%; /* White text for light mode */
   }
 
   .dark {
@@ -154,6 +156,8 @@ html, body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --breakdown-text: 45 51% 47%; /* #b59f3b equivalent in HSL for dark mode */
+    --badge-bg: 217 91% 60%; /* Blue background for dark mode */
+    --badge-text: 0 0% 98%; /* White text for dark mode */
   }
 }
 
