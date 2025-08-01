@@ -6,14 +6,14 @@ import { ChevronDownIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import { useSession } from "next-auth/react";
 
-// Color constants for consistent styling
+// Color constants for consistent styling - now using CSS custom properties for theme awareness
 const COLORS = {
-  primary: '#b59f3b',           // Main yellow/gold color
-  error: '#d93900',             // Error red color
-  primaryTransparent: 'rgba(181, 159, 59, 0.6)', // Semi-transparent yellow for optional args
-  secondary: '#575B63',          // Gray color for numbering and descriptions
-  accent: '#d97706',            // Amber color for icons
-  // Rank colors (matching RankContainer)
+  primary: 'hsl(var(--primary))',           // Main theme primary color
+  error: 'hsl(var(--destructive))',        // Error red color
+  primaryTransparent: 'hsl(var(--primary) / 0.6)', // Semi-transparent primary for optional args
+  secondary: 'hsl(var(--muted-foreground))', // Muted color for numbering and descriptions
+  accent: 'hsl(var(--accent))',            // Accent color for icons
+  // Rank colors (keeping original for consistency)
   rank1: '#d93900',             // Red for hard/rank 1
   rank2: '#b59f3b',             // Yellow for medium/rank 2  
   rank3: '#2ea149',             // Green for easy/rank 3
@@ -92,7 +92,7 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
 
   if (isLoading) {
     return (
-      <div className="max-w-none flex items-center justify-center py-8" style={{ color: COLORS.primary }}>
+      <div className="max-w-none flex items-center justify-center py-8 text-primary">
         <span className="ml-3">Loading stats</span>
         <span className="dots-animation">
           <style jsx>{`
@@ -115,7 +115,7 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
 
   if (error) {
     return (
-      <div className="max-w-none text-center py-8" style={{ color: COLORS.error }}>
+      <div className="max-w-none text-center py-8 text-destructive">
         <p>{error}</p>
       </div>
     );
@@ -123,7 +123,7 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
 
   if (!stats) {
     return (
-      <div className="max-w-none text-center py-8" style={{ color: COLORS.primary }}>
+      <div className="max-w-none text-center py-8 text-primary">
         <p>No stats available</p>
       </div>
     );
@@ -132,7 +132,7 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
   const formattedStats = formatStats(stats);
 
   return (
-    <div className="max-w-none" style={{ color: COLORS.primary }}>
+    <div className="max-w-none text-primary">
       <pre 
         className="whitespace-pre-wrap font-mono text-base"
         style={{ fontFamily: 'monospace' }}
@@ -154,23 +154,23 @@ export function DojoTipsList() {
     {
       title: 'Hide romanization',
       description: 'challenge yourself by removing pronunciation aids',
-      icon: <ChevronDownIcon className="h-5 w-5 inline text-white" style={{ verticalAlign: 'middle' }} />
+      icon: <ChevronDownIcon className="h-5 w-5 inline text-card-foreground" style={{ verticalAlign: 'middle' }} />
     },
     {
       title: 'Pause strategically',
       description: 'remove mastered content to focus on challenging material',
-      icon: <PauseCircleIcon className="inline h-5 w-5 text-yellow-400 align-text-bottom" style={{ verticalAlign: 'middle' }} />
+      icon: <PauseCircleIcon className="inline h-5 w-5 text-primary align-text-bottom" style={{ verticalAlign: 'middle' }} />
     }
   ];
 
   return (
-    <div className="max-w-none" style={{ color: COLORS.primary }}>
+    <div className="max-w-none text-primary">
       {tips.map((tip, index) => (
         <div key={index} style={{ marginBottom: '1rem' }}>
-          <strong style={{ color: COLORS.secondary }}>{index + 1}.</strong>{' '}
-          <strong style={{ color: COLORS.primary }}>{tip.title}</strong>
+          <strong className="text-muted-foreground">{index + 1}.</strong>{' '}
+          <strong className="text-primary">{tip.title}</strong>
           {tip.icon && <>{' '}{tip.icon}</>}
-          <span style={{ color: COLORS.secondary }}> {tip.description}</span>
+          <span className="text-muted-foreground"> {tip.description}</span>
         </div>
       ))}
     </div>
@@ -250,8 +250,7 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
 
   return (
     <div 
-      className="max-w-none" 
-      style={{ color: COLORS.primary }}
+      className="max-w-none text-primary" 
       dangerouslySetInnerHTML={{ 
         __html: generateCommandsHTML(selectedLanguage) 
       }}
