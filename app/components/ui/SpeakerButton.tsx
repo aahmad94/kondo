@@ -64,8 +64,8 @@ const SpeakerButton: React.FC<SpeakerButtonProps> = ({
             onMouseLeave={() => setIsHovered(false)}
             className={`transition-colors duration-200 ${
               isCurrentlyPlaying
-                ? 'text-green-400 hover:text-green-600'
-                : 'text-blue-400 hover:text-blue-700'
+                ? 'text-green-400 hover:text-green-300'
+                : 'text-blue-400 hover:text-blue-300'
             } relative group ${className}`}
           >
             <SpeakerWaveIcon className="h-6 w-6" />
@@ -77,8 +77,8 @@ const SpeakerButton: React.FC<SpeakerButtonProps> = ({
           onClick={handleClick}
           className={`transition-colors duration-200 ${
             isCurrentlyPlaying
-              ? 'text-green-400 hover:text-green-600'
-              : 'text-blue-400 hover:text-blue-700'
+              ? 'text-green-400 hover:text-green-300'
+              : 'text-blue-400 hover:text-blue-300'
           } relative group ${className}`}
         >
           <SpeakerWaveIcon className="h-6 w-6" />

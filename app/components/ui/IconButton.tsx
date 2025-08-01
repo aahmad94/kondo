@@ -49,17 +49,17 @@ const IconButton: React.FC<IconButtonProps> = ({
       case 'blue':
         return {
           default: 'text-blue-400',
-          hover: 'hover:text-blue-700'
+          hover: 'hover:text-blue-300'
         };
       case 'green-yellow':
         return {
           default: isAlternateState ? 'text-green-500' : 'text-yellow-500',
-          hover: isAlternateState ? 'hover:text-green-700' : 'hover:text-yellow-700'
+          hover: isAlternateState ? 'hover:text-green-400' : 'hover:text-yellow-400'
         };
       default:
         return {
           default: 'text-blue-400',
-          hover: 'hover:text-blue-700'
+          hover: 'hover:text-blue-300'
         };
     }
   };
