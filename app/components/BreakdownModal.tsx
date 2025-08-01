@@ -66,7 +66,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 
   // Loading component with animated dots
   const LoadingContent = ({ type }: { type: 'desktop' | 'mobile' }) => (
-    <div className="flex items-center justify-center py-8" style={{ color: 'hsl(var(--breakdown-text))' }}>
+    <div className="flex items-center justify-center py-8" style={{ color: 'hsl(var(--phrase-text))' }}>
       <span className="font-mono">loading {type} view</span>
       <span className="dots-animation">
         <style jsx>{`
@@ -137,7 +137,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
           </button>
         </div>
         
-        <div className="whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center flex-1" style={{ color: 'hsl(var(--breakdown-text))' }}>
+        <div className="whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center flex-1" style={{ color: 'hsl(var(--phrase-text))' }}>
           {isLoading ? (
             <LoadingContent type={isTextView ? 'mobile' : 'desktop'} />
           ) : (

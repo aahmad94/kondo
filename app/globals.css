@@ -125,9 +125,11 @@ html, body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --breakdown-text: 45 60% 35%; /* Darker readable color for light mode */
+    --phrase-text: 45 60% 35%; /* Darker yellow readable color for light mode */
     --badge-bg: 0 0% 9%; /* Black background for light mode */
     --badge-text: 0 0% 98%; /* White text for light mode */
+    --translation-bg: 0 0% 93%; /* Light grey background for light mode */
+    --translation-text: 0 0% 25%; /* Dark text for light mode */
   }
 
   .dark {
@@ -150,14 +152,16 @@ html, body {
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
+    --chart-1: 220 70% 50%; 
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --breakdown-text: 45 51% 47%; /* #b59f3b equivalent in HSL for dark mode */
+    --phrase-text: 45 51% 47%; /* #b59f3b yellow equivalent in HSL for dark mode */
     --badge-bg: 217 91% 60%; /* Blue background for dark mode */
     --badge-text: 0 0% 98%; /* White text for dark mode */
+    --translation-bg: 217 91% 60% / 0.2; /* Light blue background for dark mode */
+    --translation-text: 217 91% 70%; /* Light blue text for dark mode */
   }
 }
 

@@ -145,7 +145,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
   // If this is a Japanese 4-line response, render the enhanced version
   if (isJapaneseFourLine) {
     return (
-      <div className={`${isFlashcard ? 'min-h-[160px]' : ''} flex flex-col justify-center ${isFlashcard ? 'items-center' : ''}`} style={{ color: '#b59f3b' }}>
+      <div className={`${isFlashcard ? 'min-h-[160px]' : ''} flex flex-col justify-center ${isFlashcard ? 'items-center' : ''}`} style={{ color: 'hsl(var(--phrase-text))' }}>
         <div className={`space-y-2 ${isFlashcard ? 'text-center' : ''}`}>
           {/* First line - Japanese text with or without furigana */}
           {hideContent ? (
@@ -173,7 +173,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             hideContent ? (
               <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} script="hiragana" isFlashcard={isFlashcard} />
             ) : (
-              <div className="text-sm opacity-80">
+              <div className="text-sm opacity-85">
                 {processedItems[1]}
               </div>
             )
@@ -184,14 +184,14 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             hideContent ? (
               <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
-              <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+              <div className="text-sm opacity-70 italic" style={{ color: 'hsl(var(--phrase-text))' }}>
                 {processedItems[2]}
               </div>
             )
           )}
 
           {/* Fourth line - English translation (always show - this is the native language) */}
-          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm p-2 rounded`} style={{ color: 'hsl(var(--translation-text))', backgroundColor: 'hsl(var(--translation-bg))' }}>
             {processedItems[3]}
           </span>
         </div>
@@ -201,7 +201,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
   // Original rendering logic for non-Japanese or non-4-line cases
   return (
-    <div className={`${isFlashcard ? 'min-h-[160px]' : ''} flex flex-col justify-center ${isFlashcard ? 'items-center' : ''}`} style={{ color: '#b59f3b' }}>
+    <div className={`${isFlashcard ? 'min-h-[160px]' : ''} flex flex-col justify-center ${isFlashcard ? 'items-center' : ''}`} style={{ color: 'hsl(var(--phrase-text))' }}>
       <div className={`space-y-2 ${isFlashcard ? 'text-center' : ''}`}>
         {/* First line - larger text for Japanese 4-line responses, regular for others */}
         {hideContent ? (
@@ -221,7 +221,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
         {/* Second line - subtle or blue depending on number of items */}
         {processedItems.length === 2 ? (
           // For 2-item responses, second line is always the native language (always show)
-          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm p-2 rounded`} style={{ color: 'hsl(var(--translation-text))', backgroundColor: 'hsl(var(--translation-bg))' }}>
             {processedItems[1]}
           </span>
         ) : processedItems.length === 3 ? (
@@ -251,7 +251,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
         {/* Third line - italic (for 4 items), or blue (for 3 items) */}
         {processedItems.length === 3 ? (
           // For 3-item responses, third line is the native language (always show)
-          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm p-2 rounded`} style={{ color: 'hsl(var(--translation-text))', backgroundColor: 'hsl(var(--translation-bg))' }}>
             {processedItems[2]}
           </span>
         ) : processedItems.length === 4 ? (
@@ -269,7 +269,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
         {/* Fourth line - blue (for 4 items) - always show as this is native language */}
         {processedItems.length === 4 && (
-          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm text-blue-400 bg-blue-900/20 p-2 rounded`}>
+          <span className={`${isFlashcard ? 'block' : 'inline-block'} text-sm p-2 rounded`} style={{ color: 'hsl(var(--translation-text))', backgroundColor: 'hsl(var(--translation-bg))' }}>
             {processedItems[3]}
           </span>
         )}
