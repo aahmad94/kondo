@@ -91,8 +91,10 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
                       }}
                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
                     >
-                      <span>{theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}</span>
-                      {theme === 'dark' && <span className="text-xs text-muted-foreground ml-2">BETA</span>}
+                      <div className="flex-col w-[110px] text-wrap">
+                        <span>{theme === 'light' ? 'Dark Mode 🌙' : 'Light Mode ☀️'}</span>
+                        {theme === 'dark' && <span className="text-xs text-muted-foreground">BETA</span>}
+                      </div>
                     </button>
                     <button
                       onClick={() => {
