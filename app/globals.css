@@ -130,6 +130,7 @@ html, body {
     --badge-text: 0 0% 98%; /* White text for light mode */
     --translation-bg: 0 0% 93%; /* Light grey background for light mode */
     --translation-text: 0 0% 25%; /* Dark text for light mode */
+    --avatar: 0 0% 9%;
   }
 
   .dark {
@@ -162,6 +163,7 @@ html, body {
     --badge-text: 0 0% 98%; /* White text for dark mode */
     --translation-bg: 217 91% 60% / 0.2; /* Light blue background for dark mode */
     --translation-text: 217 91% 70%; /* Light blue text for dark mode */
+    --avatar: 217 91% 60%; /* rgb(59 130 246) equivalent in HSL for dark mode */
   }
 }
 

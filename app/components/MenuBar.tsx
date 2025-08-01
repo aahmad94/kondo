@@ -74,7 +74,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
           {session?.user?.image && (
             <div className="relative" ref={dropdownRef}>
               <Image
-                className="rounded-full m-2 border-2 border-blue-500 cursor-pointer"
+                className="rounded-full m-2 border-2 border-avatar cursor-pointer"
                 src={session.user.image}
                 alt="User Avatar"
                 width={40}
