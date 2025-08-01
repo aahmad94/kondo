@@ -616,8 +616,8 @@ export default function GPTResponse({
             </div>
           )}
 
-          {/* Quote button - only show when not in a bookmark */}
-          {!selectedBookmarkId && onQuote && (
+          {/* Quote button - always show when onQuote is available */}
+          {onQuote && (
             !isMobile ? (
               <Tooltip
                 content="Ask a question about this response"
@@ -626,7 +626,14 @@ export default function GPTResponse({
               >
                 <button 
                   ref={quoteButtonRef}
-                  onClick={() => onQuote(response, 'input')} 
+                  onClick={() => {
+                    // If we're in a bookmark, clear it and navigate to main chatbox
+                    if (selectedBookmarkId && onBookmarkSelect) {
+                      onBookmarkSelect(null, null);
+                      router.push('/');
+                    }
+                    onQuote(response, 'input');
+                  }} 
                   onMouseEnter={() => setIsQuoteHovered(true)}
                   onMouseLeave={() => setIsQuoteHovered(false)}
                   className="text-foreground hover:text-muted-foreground transition-colors duration-200"
@@ -637,7 +644,14 @@ export default function GPTResponse({
             ) : (
               <button 
                 ref={quoteButtonRef}
-                onClick={() => onQuote(response, 'input')} 
+                onClick={() => {
+                  // If we're in a bookmark, clear it and navigate to main chatbox
+                  if (selectedBookmarkId && onBookmarkSelect) {
+                    onBookmarkSelect(null, null);
+                    router.push('/');
+                  }
+                  onQuote(response, 'input');
+                }} 
                 className="text-foreground hover:text-muted-foreground transition-colors duration-200"
               >
                 <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />

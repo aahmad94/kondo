@@ -963,24 +963,25 @@ export default function ChatBox({
           </div>
         ) : null}
       </div>
+      {/* Show QuoteBar if we have responseQuote, regardless of bookmark status */}
+      {responseQuote && (
+        <QuoteBar 
+          quotedText={responseQuote}
+          onClear={setResponseQuoteToNull}
+          onHeightChange={handleQuoteBarHeightChange}
+        />
+      )}
+      
+      {/* Show UserInput only when not in a bookmark */}
       {!selectedBookmark.id && (
-        <>
-          {responseQuote && (
-            <QuoteBar 
-              quotedText={responseQuote}
-              onClear={setResponseQuoteToNull}
-              onHeightChange={handleQuoteBarHeightChange}
-            />
-          )}
-          <UserInput 
-            onSubmit={handleSubmit} 
-            isLoading={isLoading} 
-            defaultPrompt={null}
-            onUserInputOffset={handleUserInputOffset}
-            onQuoteToNull={setResponseQuoteToNull}
-            selectedLanguage={selectedLanguage}
-          />
-        </>
+        <UserInput 
+          onSubmit={handleSubmit} 
+          isLoading={isLoading} 
+          defaultPrompt={null}
+          onUserInputOffset={handleUserInputOffset}
+          onQuoteToNull={setResponseQuoteToNull}
+          selectedLanguage={selectedLanguage}
+        />
       )}
       
       {/* Flashcard Modal */}
