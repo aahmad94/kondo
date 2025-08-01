@@ -328,8 +328,8 @@ export default function Bookmarks({
                       }
                     }}
                   >
-                    <AcademicCapIcon className="h-4 w-4 inline mr-2" style={{ color: '#b59f3b' }}/>
-                    <span style={{ color: '#b59f3b' }}>dojo</span>
+                    <AcademicCapIcon className="h-4 w-4 inline mr-2 text-phrase-text"/>
+                    <span className="text-phrase-text">dojo</span>
                   </div>
 
                   <div
