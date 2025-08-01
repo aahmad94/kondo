@@ -66,16 +66,16 @@ export default function CreateBookmarkModal({ isOpen, onClose, onBookmarkCreated
           value={bookmarkTitle}
           onChange={(e) => setBookmarkTitle(e.target.value)}
           placeholder="Enter bookmark name"
-          className="w-full p-2 mb-4 bg-gray-700 text-white rounded-sm"
+          className="w-full p-2 mb-4 bg-input text-foreground border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
         />
         {error && (
-          <div className="text-red-500 mb-4 text-sm">
+          <div className="text-destructive mb-4 text-sm">
             {error}
           </div>
         )}
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded-sm hover:bg-blue-600 transition-colors duration-200"
+          className="w-full bg-primary text-primary-foreground p-2 rounded-sm hover:bg-primary/90 transition-colors duration-200"
         >
           {optionalCopy || 'Create Bookmark'}
         </button>

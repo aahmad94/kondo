@@ -148,13 +148,13 @@ export default function BookmarksModal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-gray-800 p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] flex flex-col">
-          <div className="flex justify-between items-center sticky top-0 bg-gray-800 pb-4">
-            <h2 className="text-l text-white">Add to Bookmark</h2>
+      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-50">
+        <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] flex flex-col">
+          <div className="flex justify-between items-center sticky top-0 bg-card pb-4">
+            <h2 className="text-l text-card-foreground">Add to Bookmark</h2>
             <button 
               onClick={onClose} 
-              className="text-white hover:opacity-70 transition-opacity duration-200"
+              className="text-card-foreground hover:text-muted-foreground transition-colors duration-200"
               disabled={isAddingToBookmark}
             >
               <XMarkIcon className="h-6 w-6" />
@@ -162,7 +162,7 @@ export default function BookmarksModal({
           </div>
           <ul className="space-y-2 overflow-y-auto">
             <li
-              className={`cursor-pointer text-blue-400 hover:bg-gray-700 p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`cursor-pointer text-primary hover:bg-accent p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => !isAddingToBookmark && setIsCreateModalOpen(true)}
             >
               <PlusCircleIcon className="h-4 w-4 mr-2" />
@@ -175,14 +175,14 @@ export default function BookmarksModal({
                   key={index}
                   className="p-2"
                 >
-                  <div className="h-6 bg-gray-700 rounded-sm animate-pulse-fast"></div>
+                  <div className="h-6 bg-muted rounded-sm animate-pulse-fast"></div>
                 </li>
               ))
             ) : (
               bookmarks.map((bookmark) => (
                 <li
                   key={bookmark.id}
-                  className={`cursor-pointer text-white hover:bg-gray-700 p-2 rounded-sm ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`cursor-pointer text-card-foreground hover:bg-accent p-2 rounded-sm ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => !isAddingToBookmark && handleAddToBookmark(bookmark.id)}
                 >
                   {bookmark.title}
