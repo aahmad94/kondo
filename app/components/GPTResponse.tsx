@@ -481,7 +481,7 @@ export default function GPTResponse({
         <div className="flex pt-2 pb-1 items-center gap-3">
           {/* Header text for instruction type */}
           {type === 'instruction' && (
-            <h2 className="text-primary underline">
+            <h2 className="text-primary font-bold">
               {selectedBookmarkTitle === 'daily summary' ? 'dojo' : 'Instructions'}
             </h2>
           )}
