@@ -39,19 +39,19 @@ export default function QuoteBar({ quotedText, onClear, onHeightChange }: QuoteB
     .trim();
 
   return (
-    <div ref={quoteBarRef} className="bg-[#111111] border-t border-gray-700 px-4 py-3 mx-2 mb-2 rounded-sm">
+    <div ref={quoteBarRef} className="bg-card border-t border-border px-4 py-3 mx-2 mb-2 rounded-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div 
             className="text-sm leading-relaxed whitespace-pre-wrap"
-            style={{ color: '#b59f3b' }} // Using the same yellow color from GPTResponse
+            style={{ color: 'hsl(var(--phrase-text))' }}
           >
             {truncateText(cleanQuotedText)}
           </div>
         </div>
         <button
           onClick={onClear}
-          className="flex-shrink-0 text-gray-400 hover:text-white transition-colors duration-200 p-1"
+          className="flex-shrink-0 text-muted-foreground hover:text-card-foreground transition-colors duration-200 p-1"
           aria-label="Clear quote"
         >
           <XMarkIcon className="h-4 w-4" />
