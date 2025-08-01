@@ -156,6 +156,9 @@ export default function ChatBox({
 
     // If we have a selected bookmark, fetch its responses
     if (selectedBookmark.id) {
+      // Clear any pending quote when selecting a bookmark
+      setResponseQuote(null);
+      
       if (selectedBookmark.id === "all") {
         fetchAllResponses(session.userId);
       } else if (selectedBookmark.title === 'daily summary') {
