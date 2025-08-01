@@ -180,6 +180,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             <RankContainer 
               rank={rank} 
               onRankClick={onRankClick}
+              forceDarkMode={true}
             />
 
 

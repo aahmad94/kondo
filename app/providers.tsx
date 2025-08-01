@@ -9,11 +9,11 @@ import { ThemeProvider } from './contexts/ThemeContext';
 export function Providers({ children }: { children: React.ReactNode }) {
   
   return (
-    <SessionProvider>
-      <ThemeProvider>
+    <ThemeProvider>
+      <SessionProvider>
         <Suspense fallback={
           <div className="bg-background h-screen w-full flex items-center justify-center">
-            <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
           </div>
         }>
           <AudioProvider>
@@ -22,7 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             </NuqsAdapter>
           </AudioProvider>
         </Suspense>
-      </ThemeProvider>
-    </SessionProvider>
+      </SessionProvider>
+    </ThemeProvider>
   );
 } 
