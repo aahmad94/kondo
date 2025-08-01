@@ -66,7 +66,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 
   // Loading component with animated dots
   const LoadingContent = ({ type }: { type: 'desktop' | 'mobile' }) => (
-    <div className="flex items-center justify-center py-8" style={{ color: '#b59f3b' }}>
+    <div className="flex items-center justify-center py-8 text-primary">
       <span className="font-mono">loading {type} view</span>
       <span className="dots-animation">
         <style jsx>{`
@@ -89,9 +89,9 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[80]">
-      <div className="bg-[#111111] p-6 rounded-sm w-[650px] max-w-[90vw] max-h-[80vh] min-h-[30vh] flex flex-col">
-        <div className="flex justify-between items-center bg-[#111111] pb-4 flex-shrink-0">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[80]">
+      <div className="bg-card border border-border p-6 rounded-sm w-[650px] max-w-[90vw] max-h-[80vh] min-h-[30vh] flex flex-col">
+        <div className="flex justify-between items-center bg-card pb-4 flex-shrink-0">
           {/* Action buttons */}
           <div className="flex items-center gap-3">
             {/* Rank container */}
@@ -132,12 +132,12 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
               />
             )}
           </div>
-          <button onClick={onClose} className="text-white hover:opacity-70 transition-opacity duration-200">
+          <button onClick={onClose} className="text-card-foreground hover:text-muted-foreground transition-colors duration-200">
             <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
         
-        <div className="text-[#b59f3b] whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center flex-1">
+        <div className="text-primary whitespace-pre-wrap overflow-y-auto overflow-x-auto flex justify-center flex-1">
           {isLoading ? (
             <LoadingContent type={isTextView ? 'mobile' : 'desktop'} />
           ) : (
@@ -162,7 +162,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
               <button
                 onClick={handleToggleView}
                 disabled={isLoading}
-                className="font-mono text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-50 rounded-sm text-white transition-colors duration-200"
+                className="font-mono text-xs px-3 py-1.5 bg-secondary hover:bg-accent disabled:bg-muted disabled:opacity-50 rounded-sm text-secondary-foreground hover:text-accent-foreground transition-colors duration-200"
               >
                 {isTextView ? 'desktop/table view' : 'mobile/list view'}
               </button>
