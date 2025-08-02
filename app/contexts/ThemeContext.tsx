@@ -14,11 +14,18 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light'); // Default to light mode
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Immediately check localStorage for theme to prevent flash
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as Theme;
+      return savedTheme || 'light';
+    }
+    return 'light';
+  });
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();
 
-  // Load theme from database when user is authenticated
+  // Load theme from database when user is authenticated, localStorage as fallback
   useEffect(() => {
     const loadTheme = async () => {
       if (status === 'loading') return;
@@ -28,13 +35,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           const response = await fetch('/api/getUserTheme');
           if (response.ok) {
             const data = await response.json();
-            setTheme(data.theme as Theme);
+            const dbTheme = data.theme as Theme;
+            
+            // Update state and localStorage with database theme (authoritative source)
+            setTheme(currentTheme => {
+              if (dbTheme !== currentTheme) {
+                localStorage.setItem('theme', dbTheme);
+                console.log('Updated theme from database:', dbTheme);
+                return dbTheme;
+              }
+              return currentTheme;
+            });
           } else {
             console.error('Failed to load theme, response not ok:', response.status);
           }
         } catch (error) {
           console.error('Error loading user theme:', error);
-          // Keep default theme on error
+          // Keep current theme (from localStorage or default) on error
+        }
+      } else {
+        // Not authenticated, but still apply localStorage theme if available
+        const savedTheme = localStorage.getItem('theme') as Theme;
+        if (savedTheme) {
+          setTheme(currentTheme => savedTheme !== currentTheme ? savedTheme : currentTheme);
         }
       }
       setIsLoading(false);
@@ -46,6 +69,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggleTheme = async () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
+    
+    // Always save to localStorage for immediate access on next visit
+    localStorage.setItem('theme', newTheme);
 
     // Persist to database if user is authenticated
     if (session?.user?.email) {
@@ -63,9 +89,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         }
         
         const data = await response.json();
+        console.log('Theme saved to database:', newTheme);
       } catch (error) {
         console.error('Error saving user theme:', error);
-        // Theme is still changed locally even if save fails
+        // Theme is still changed locally and in localStorage even if database save fails
       }
     }
   };
