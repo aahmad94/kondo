@@ -475,7 +475,7 @@ export default function GPTResponse({
 
 
   return (
-    <div className={`pl-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b border-border' : ''}`}>
+    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b border-border' : ''}`}>
       <div className="header flex justify-between mb-2">
         {/* Left side */}
         <div className="flex pt-2 pb-1 items-center gap-3">

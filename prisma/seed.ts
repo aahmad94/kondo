@@ -3,6 +3,17 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  // Add Japanese language (referenced as default in auth)
+  await prisma.language.upsert({
+    where: { code: 'ja' },
+    update: {},
+    create: {
+      code: 'ja',
+      name: 'Japanese',
+      isActive: true
+    }
+  });
+
   // Add Korean language
   await prisma.language.upsert({
     where: { code: 'ko' },
@@ -32,6 +43,17 @@ async function main() {
     create: {
       code: 'ar',
       name: 'Arabic',
+      isActive: true
+    }
+  });
+
+  // Add Chinese language (has prompts in prompts folder)
+  await prisma.language.upsert({
+    where: { code: 'zh' },
+    update: {},
+    create: {
+      code: 'zh',
+      name: 'Chinese',
       isActive: true
     }
   });

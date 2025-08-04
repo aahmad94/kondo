@@ -7,7 +7,7 @@ interface LanguageInstructions {
 }
 
 const DOJO_INSTRUCTIONS = `
-  This tool pulls up to 9 responses across all your bookmarks after 12:00 EST everyday.`
+  This tool pulls up to 9 responses across all your bookmarks after 12:00 AM EST everyday.`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `

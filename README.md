@@ -1,38 +1,112 @@
 # <img src="public/icon.png" alt="Kondo Icon" width="32" height="32" style="display: inline; vertical-align: middle;"> Kondo
 
-<!-- overview -->
-## generate material to organize into bookmarks
+A language learning application that generates AI-powered content to help organize study material into bookmarks, with features for breakdown analysis, flashcards, and daily summaries.
+
 <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-  <!-- <div style="width: 400px; height: 300px; overflow: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-    <img src="public/assets/kondo_landing_05-22-2025.png" alt="screenshot" style="width: 100%; height: 100%; object-fit: cover;">
-  </div> -->
-  <div style="width: 800px; height: 300px; overflow: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-    <img src="public/assets/06252025/gptresponse_demo.png" alt="screenshot" style="width: 70%; height: 70%; object-fit: cover;">
-  </div>
-  <div style="width: 580px; height: 380px; overflow: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-    <img src="public/assets/06252025/commands.png" alt="screenshot" style="width: 70%; height: 70%; object-fit: cover;">
-  </div>
+  <img src="public/assets/light-mode_08042025.png" width="547" height="500">
 </div>
 
-<!-- dojo -->
-## <img src="public/assets/heroicons/Academic Cap Icon.svg" alt="Academic Cap" width="24" height="24" style="display: inline; vertical-align: middle;"> dojo: lower ranked responses across all bookmarks are compiled daily to study
-<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center">
-  <img src="public/assets/06252025/dojo_06-25-2025.png" alt="screenshot" width="65%">
-</div>
+## ✨ Key Features
 
-<!-- breakdown/dissect -->
-## <img src="public/assets/heroicons/Magnifying Glass Icon.svg" alt="Magnifying Glass" width="24" height="24" style="display: inline; vertical-align: middle;"> dissect/breakdown generated material
-<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center">
-  <img src="public/assets/06252025/table_breakdown_06-25-2025.png" alt="screenshot" width="65%">
-</div>
+- **🎯 AI-Generated Study Material** - Generate contextualized language learning content using OpenAI and organize it into personalized bookmarks
+- **📊 Smart Ranking System** - Rank and organize your bookmarked responses to prioritize study material based on difficulty and mastery
+- **🥋 Daily Dojo Sessions** - Automatically compile lower-ranked responses from all bookmarks into focused daily study sessions
+- **🔍 Content Breakdown & Analysis** - Dissect and analyze generated material with detailed explanations and context
+- **🃏 Interactive Flashcard Mode** - Study with interactive flashcards that hide and reveal content for effective memorization
+- **🌍 Multi-Language Support** - Learn Japanese, Korean, Spanish, Arabic, and Chinese with language-specific features
+- **🎧 Text-to-Speech Integration** - Listen to pronunciations with ElevenLabs voice synthesis
+- **📱 Responsive Design** - Seamless experience across desktop and mobile devices
 
-<!-- flashcards -->
-## <img src="public/assets/heroicons/Rectangle Stack Icon.svg" alt="Rectangle Stack" width="24" height="24" style="display: inline; vertical-align: middle;"> dojo: flashcard mode
-<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-  <div style="width: 440px; height: 330px; overflow: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-    <img src="public/assets/06252025/flashcard_hidden-06-25-2025.png" alt="screenshot" style="width: 60%; height: 60%; object-fit: cover;">
-  </div>
-  <div style="width: 440px; height: 330px; overflow: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-    <img src="public/assets/06252025/flashcard-answer-06-25-2025.png" alt="screenshot" style="width: 60%; height: 60%; object-fit: cover;">
-  </div>
-</div>
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- PostgreSQL database
+- Google OAuth credentials
+- OpenAI API key
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd kondo
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up PostgreSQL database**
+   
+   Create a new PostgreSQL database:
+   ```sql
+   CREATE DATABASE kondo_db;
+   ```
+
+4. **Environment Configuration**
+   
+   Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Fill in your environment variables in `.env`:
+   
+   **Required Variables:**
+   - `DATABASE_URL`: PostgreSQL connection string
+   - `NEXTAUTH_URL`: Your app URL (http://localhost:3000 for development)
+   - `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
+   - `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`: [Get from Google Console](https://console.developers.google.com/)
+   - `OPENAI_API_KEY`: [Get from OpenAI](https://platform.openai.com/api-keys)
+
+   **Optional Variables:**
+   - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY`: For enhanced search
+   - `ELEVENLABS_API_KEY`: For text-to-speech functionality
+   - `NEXT_PUBLIC_AMPLITUDE_API_KEY`: For analytics
+
+5. **Set up Google OAuth**
+   
+   In [Google Console](https://console.developers.google.com/):
+   - Create a new project or select existing
+   - Enable Google+ API
+   - Create OAuth 2.0 credentials
+   - Add authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+
+6. **Database Setup**
+   
+   Run Prisma migrations and seed the database:
+   ```bash
+   npx prisma migrate dev
+   npx prisma db seed
+   ```
+
+7. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Additional Setup Notes
+
+- **Languages**: The app supports Japanese, Korean, Spanish, and Arabic. The seed script creates these languages in the database.
+- **Authentication**: Users sign in with Google OAuth and get default bookmarks created automatically.
+- **Database**: Uses Prisma ORM with PostgreSQL for data management.
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run test` - Run tests
+- `npm run lint` - Run ESLint
+
+### Troubleshooting
+
+- **Database connection issues**: Verify your `DATABASE_URL` is correct and PostgreSQL is running
+- **OAuth errors**: Check your Google Console setup and redirect URIs
+- **Missing languages**: Run `npx prisma db seed` to populate initial language data
+
