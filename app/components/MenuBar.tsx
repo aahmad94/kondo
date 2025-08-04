@@ -91,7 +91,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
                       }}
                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
                     >
-                      <div className="flex-col w-[110px] text-wrap">
+                      <div className="flex-col w-full text-wrap">
                         <span>{theme === 'light' ? 'Dark Mode 🌙' : 'Light Mode ☀️'}</span>
                       </div>
                     </button>
