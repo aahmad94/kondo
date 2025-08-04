@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { updateUserThemeAction } from '../actions/theme';
 
 type Theme = 'light' | 'dark';
 
@@ -76,20 +77,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Persist to database if user is authenticated
     if (session?.user?.email) {
       try {
-        const response = await fetch('/api/updateUserTheme', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ theme: newTheme }),
-        });
+        const result = await updateUserThemeAction(newTheme);
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to update theme');
         }
-        
-        const data = await response.json();
-        console.log('Theme saved to database:', newTheme);
       } catch (error) {
         console.error('Error saving user theme:', error);
         // Theme is still changed locally and in localStorage even if database save fails
