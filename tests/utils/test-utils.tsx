@@ -6,9 +6,11 @@ import { ThemeProvider } from '../../app/contexts/ThemeContext'
 // Mock session for testing
 const mockSession = {
   user: {
+    id: 'test-user-id',
     email: 'test@example.com',
     name: 'Test User',
   },
+  userId: 'test-user-id',
   expires: '2030-01-01',
 }
 
