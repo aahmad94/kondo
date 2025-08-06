@@ -2,13 +2,24 @@
  * @jest-environment node
  */
 
+// Set up environment variables for testing
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
+
 import { updateUserThemeAction } from '../../app/actions/theme'
-import { updateUserTheme } from '@/lib'
 import { getServerSession } from 'next-auth'
 
-// Mock the dependencies
-jest.mock('../../lib/userService')
+// Mock the dependencies - note the order: mocks must come before imports that use them
+jest.mock('../../lib/user', () => ({
+  updateUserTheme: jest.fn()
+}))
+jest.mock('../../pages/api/auth/[...nextauth]', () => ({
+  authOptions: {}
+}))
 jest.mock('next-auth')
+
+// Import the mocked function after mocking
+import { updateUserTheme } from '@/lib/user'
 
 const mockUpdateUserTheme = updateUserTheme as jest.MockedFunction<typeof updateUserTheme>
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>
