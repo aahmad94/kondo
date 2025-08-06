@@ -6,7 +6,7 @@
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key'
 
-import { updateUserThemeAction } from '../../app/actions/theme'
+import { updateUserThemeAction } from '../../actions/theme'
 import { getServerSession } from 'next-auth'
 
 // Mock the dependencies - note the order: mocks must come before imports that use them

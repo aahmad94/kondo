@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { updateUserThemeAction } from '../actions/theme';
+import { updateUserThemeAction } from '../../actions/theme';
 
 type Theme = 'light' | 'dark';
 
