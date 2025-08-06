@@ -6,9 +6,15 @@ This is a Next.js app for language learning with features like GPT responses, bo
   - Core app logic in `/app/` (e.g., components in `/app/components/`, hooks in `/app/hooks/`, contexts in `/app/contexts/`).
   - API routes in `/app/api/` for App Router (e.g., `/app/api/breakdown/route.ts`).
   - Legacy Pages Router in `/pages/` (e.g., `/pages/api/auth/[...nextauth].ts`), but prefer migrating to App Router equivalents.
-  - Services in `/lib/` (e.g., `bookmarkService.ts` for server-side ops, `GPTResponseService.ts` for AI handling).
+  - Services in `/lib/` organized by domain:
+    - `/lib/gpt/` (GPTResponseService.ts, summaryService.ts) - AI and GPT functionality
+    - `/lib/bookmarks/` (bookmarkService.ts, bookmarkClientService.ts) - Bookmark management
+    - `/lib/user/` (userService.ts, languageService.ts) - User preferences and settings  
+    - `/lib/utils/` (audioUtils.ts, expressionUtils.ts, furiganaService.ts) - Utility functions
+    - `/lib/analytics/` (amplitudeService.ts) - Tracking and analytics
+    - `/lib/database/` (prisma.ts, searchService.ts) - Database access layer
   - Prompts in `/prompts/` (e.g., `ja_gpt_prompt.txt` for Japanese).
-  - Database in `/prisma/` (use Prisma client from `/lib/prisma.ts`).
+  - Database in `/prisma/` (use Prisma client from `/lib/database/prisma.ts`).
   - Scripts in `/scripts/`, types in `/types/`, public assets in `/public/assets/`.
 - Do not create new directories or move files without confirmation. For new features, suggest placements like: UI components in `/app/components/`, services in `/lib/`.
 
@@ -16,20 +22,24 @@ This is a Next.js app for language learning with features like GPT responses, bo
 - Prefer App Router for all new routes and features (e.g., use `/app/page.tsx` for home, server actions in route handlers).
 - Migrate Pages Router endpoints (e.g., `/pages/api/createBookmark.ts`) to App Router when possible, using server actions for mutations (e.g., in `/app/api/bookmarks/route.ts`).
 - Use server components by default; only add 'use client' for interactive client-side needs (e.g., in `ChatBox.tsx`).
-- For data fetching/mutations: Use server actions exported from services in `/lib/` (e.g., integrate with Prisma in `bookmarkService.ts`).
+- For data fetching/mutations: Use server actions exported from domain services in `/lib/` (e.g., integrate with Prisma in `/lib/database/prisma.ts`, bookmark operations in `/lib/bookmarks/bookmarkService.ts`).
 - Components: Functional with TypeScript props (interfaces preferred). Use named exports, e.g., `export function GPTResponse() {}`.
 
 # Coding Standards
 - Language: TypeScript everywhere; reference types from `/types/`.
 - Styling: Tailwind CSS from `tailwind.config.ts`; apply classes inline, no custom CSS unless in `globals.css`.
-- Imports: Relative paths; auto-import where possible. Group imports: Next.js/React first, then third-party, then local.
+- Imports: Use path mapping (@/lib/domain) over relative paths; prefer domain-specific imports for clarity:
+  - `import { extractExpressions } from '@/lib/utils'`
+  - `import { trackLanguageChange } from '@/lib/analytics'` 
+  - `import { createGPTResponse } from '@/lib/gpt'`
+  - Group imports: Next.js/React first, then third-party, then local (@/lib imports).
 - Error Handling: Use guard clauses and early returns; integrate with `ErrorModal.tsx`.
-- Performance: Lazy load non-critical components; optimize audio with `audioUtils.ts`.
+- Performance: Lazy load non-critical components; optimize audio with `/lib/utils/audioUtils.ts`.
 - Testing: Suggest unit tests in `/lib/tests/` for services; use Jest or similar.
 
 # AI-Specific Rules
 - For language features: Use prompts from `/prompts/` (e.g., load `ja_gpt_breakdown_prompt.txt` for Japanese breakdowns).
-- When generating GPT-related code, reference `GPTResponseService.ts` and components like `GPTResponse.tsx`.
+- When generating GPT-related code, reference `/lib/gpt/GPTResponseService.ts` and components like `GPTResponse.tsx`.
 
 # Workflow Rules
 - After implementing a feature, fixing a bug, or editing code, suggest a commit message in Conventional Commits format (e.g., 'feat: implement bookmark editing in App Router', 'fix: resolve furigana toggle in LanguageSelector.tsx'). Keep messages under 60 characters.
