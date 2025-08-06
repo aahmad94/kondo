@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkBookmarkExists, createBookmark } from '../../lib/bookmarkService';
-import { getUserLanguageId } from '../../lib/languageService';
+import { checkBookmarkExists, createBookmark, getUserLanguageId } from '@/lib';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {

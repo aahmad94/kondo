@@ -1,8 +1,7 @@
 // pages/api/inngest.ts
 import { serve } from "inngest/next";
 import { Inngest } from 'inngest';
-import prisma from '../../lib/prisma';
-import { generateUserSummary } from '../../lib/summaryService';
+import { prisma, generateUserSummary } from '@/lib';
 
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });

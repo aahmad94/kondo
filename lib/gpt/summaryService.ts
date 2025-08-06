@@ -1,5 +1,5 @@
 import { Bookmark } from '@prisma/client';
-import prisma from './prisma';
+import prisma from '../database/prisma';
 
 interface Response {
   id: string;

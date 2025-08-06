@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getUserResponseStats } from '../../lib/GPTResponseService';
+import { getUserResponseStats } from '@/lib';
 
 export default async function handler(
   req: NextApiRequest,

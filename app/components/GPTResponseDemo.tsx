@@ -5,12 +5,12 @@ import { ChevronDownIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircle
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
-import { addFurigana, containsKanji } from '../../lib/furiganaService';
+import { addFurigana, containsKanji } from '@/lib';
 import FuriganaText from './FuriganaText';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import { extractJapaneseFromDemo } from '../../lib/audioUtils';
+import { extractJapaneseFromDemo } from '@/lib';
 
 interface DemoResponse {
   id: string;

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { convertTextToSpeech } from '@/lib/GPTResponseService';
+import { convertTextToSpeech } from '@/lib';
 
 export async function POST(request: Request) {
   try {

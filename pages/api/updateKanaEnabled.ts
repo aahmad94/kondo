@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { updateKanaEnabled } from '../../lib/GPTResponseService';
+import { updateKanaEnabled } from '@/lib';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {

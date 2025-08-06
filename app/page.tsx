@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import MenuBar from './components/MenuBar';
 import ChatBox from './components/ChatBox';
 import Bookmarks from './components/Bookmarks';
-import { initAmplitude, trackLanguageChange, trackClearBookmark, trackBookmarkSelect } from '../lib/amplitudeService';
+import { initAmplitude, trackLanguageChange, trackClearBookmark, trackBookmarkSelect } from '@/lib/analytics';
 
 export default function Home() {
   const { data: session, status } = useSession()

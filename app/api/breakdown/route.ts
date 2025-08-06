@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getBreakdown } from '@/lib/GPTResponseService';
+import { getBreakdown } from '@/lib';
 
 export async function POST(request: Request) {
   try {

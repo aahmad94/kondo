@@ -25,9 +25,8 @@ import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
 import { StyledMarkdown } from './ui';
 import Tooltip from './Tooltip';
-import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '../../lib/amplitudeService';
-import { extractExpressions } from '../../lib/expressionUtils';
-import { prepareTextForSpeech } from '../../lib/audioUtils';
+import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
+import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 
 import { useIsMobile } from '../hooks/useIsMobile';

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../pages/api/auth/[...nextauth]';
-import { fuzzySearchResponses } from '../../../lib/searchService';
+import { fuzzySearchResponses } from '@/lib/database';
 
 export async function GET(request: Request) {
   try {

@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { checkBookmarkExists } from '../../lib/bookmarkService';
-import prisma from '../../lib/prisma';
+import { checkBookmarkExists, prisma } from '@/lib';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'PUT') {

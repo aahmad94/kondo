@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllUserResponsesByLanguage } from '../../lib/GPTResponseService';
+import { getAllUserResponsesByLanguage } from '@/lib';
 
 export default async function handler(
   req: NextApiRequest,

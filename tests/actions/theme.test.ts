@@ -3,7 +3,7 @@
  */
 
 import { updateUserThemeAction } from '../../app/actions/theme'
-import { updateUserTheme } from '../../lib/userService'
+import { updateUserTheme } from '@/lib'
 import { getServerSession } from 'next-auth'
 
 // Mock the dependencies

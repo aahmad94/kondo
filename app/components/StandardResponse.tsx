@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { addFurigana, containsKanji, extractJapaneseFromLine } from '../../lib/furiganaService';
-import { calculatePlaceholderDimensions } from '../../lib/expressionUtils';
+import { addFurigana, containsKanji, extractJapaneseFromLine, calculatePlaceholderDimensions } from '@/lib/utils';
 import FuriganaText from './FuriganaText';
 
 interface StandardResponseProps {

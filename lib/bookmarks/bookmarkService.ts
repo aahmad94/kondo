@@ -1,5 +1,5 @@
-import prisma from './prisma';
-import { getUserLanguageId } from './languageService';
+import prisma from '../database/prisma';
+import { getUserLanguageId } from '../user/languageService';
 
 /**
  * Gets all bookmarks for a user in their preferred language

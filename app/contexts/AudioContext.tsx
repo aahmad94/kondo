@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useCallback } from 'react';
-import { trackSpeakerClick } from '../../lib/amplitudeService';
+import { trackSpeakerClick } from '@/lib';
 
 interface AudioContextType {
   isPlaying: boolean;

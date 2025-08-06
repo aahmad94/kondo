@@ -7,7 +7,7 @@ import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 import EditBookmarkModal from './EditBookmarkModal';
 import { useRouter } from 'next/navigation';
-import { trackBookmarkSelect, trackClearBookmark, trackCreateBookmark } from '../../lib/amplitudeService';
+import { trackBookmarkSelect, trackClearBookmark, trackCreateBookmark } from '@/lib/analytics';
 import { useIsMobile } from '../hooks/useIsMobile';
 
 interface Bookmark {

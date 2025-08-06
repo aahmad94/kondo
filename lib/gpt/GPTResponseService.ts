@@ -1,5 +1,5 @@
-import prisma from './prisma';
-import { getUserLanguageId } from './languageService';
+import prisma from '../database/prisma';
+import { getUserLanguageId } from '../user/languageService';
 import fs from 'fs';
 import path from 'path';
 

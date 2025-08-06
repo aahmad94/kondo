@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import FormModal from './ui/FormModal';
-import { BookmarkClientService } from '../../lib/bookmarkClientService';
+import { BookmarkClientService } from '@/lib/bookmarks';
 
 interface EditBookmarkModalProps {
   isOpen: boolean;
