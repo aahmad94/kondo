@@ -2,7 +2,6 @@
 
 import { Suspense } from 'react';
 import { SessionProvider } from "next-auth/react";
-import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { AudioProvider } from './contexts/AudioContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
@@ -17,9 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           </div>
         }>
           <AudioProvider>
-            <NuqsAdapter>
-              {children}
-            </NuqsAdapter>
+            {children}
           </AudioProvider>
         </Suspense>
       </ThemeProvider>
