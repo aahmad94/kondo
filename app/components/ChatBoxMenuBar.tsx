@@ -116,18 +116,18 @@ export default function ChatBoxMenuBar({
             }}
           >
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              {/* Dojo Tips Button - Second */}
-              {showDojoTips && (
+              {/* New Report Button - First */}
+              {showNewReport && (
                 <button
-                  onClick={() => handleContentModal('tips')}
+                  onClick={handleNewReportClick}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
-                  <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>dojo tips</span>
+                  <PlusIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>new report</span>
                 </button>
               )}
 
-              {/* Flashcard Mode Button - First */}
+              {/* Flashcard Mode Button - Second */}
               {showFlashcards && (
                 <button
                   onClick={handleFlashcardClick}
@@ -144,18 +144,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* New Report Button - Third */}
-              {showNewReport && (
-                <button
-                  onClick={handleNewReportClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <PlusIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>new report</span>
-                </button>
-              )}
-
-              {/* Email Subscription Button - Fourth (dojo only) */}
+              {/* Email Subscription Button - Third (dojo only) */}
               {showEmailSubscription && (
                 <button
                   onClick={handleEmailModalOpen}
@@ -166,7 +155,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Additional Commands Button - Fifth (root only) */}
+              {/* Additional Commands Button - Fourth (root only) */}
               {showAdditionalCommands && (
                 <button
                   onClick={(e) => handleContentModal('commands', e)}
@@ -177,7 +166,18 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Stats Button - Fifth */}
+              {/* Dojo Tips Button - Second to Last */}
+              {showDojoTips && (
+                <button
+                  onClick={() => handleContentModal('tips')}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>dojo tips</span>
+                </button>
+              )}
+
+              {/* Stats Button - Last */}
               {showStats && (
                 <button
                   onClick={() => handleContentModal('stats')}

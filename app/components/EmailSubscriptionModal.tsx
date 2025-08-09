@@ -190,8 +190,8 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <EnvelopeIcon className="h-6 w-6 text-primary" />
-            <h2 className="text-xl font-semibold text-card-foreground">Email Updates</h2>
+            <EnvelopeIcon className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-card-foreground">Email Updates</h2>
           </div>
           <button 
             onClick={onClose} 
@@ -213,7 +213,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
         {status === 'not-subscribed' && (
           <div>
             <div className="mb-6">
-              <h3 className="text-lg font-medium text-card-foreground mb-2">
+              <h3 className="text-sm font-medium text-card-foreground mb-2">
                 Get Daily Dojo Updates
               </h3>
               <p className="text-muted-foreground text-sm">
@@ -250,7 +250,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
                         value={freq}
                         checked={frequency === freq}
                         onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly')}
-                        className="text-primary focus:ring-primary"
+                        className="text-primary focus:ring-primary focus:ring-offset-0 bg-background border-border"
                       />
                       <span className="text-sm text-card-foreground capitalize">{freq}</span>
                     </label>
@@ -258,20 +258,13 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex pt-4">
                 <button
                   type="submit"
                   disabled={isSubmitting || !hasContent}
-                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="w-full px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isSubmitting ? 'Subscribing...' : 'Subscribe'}
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 border border-border text-card-foreground rounded-sm hover:bg-accent transition-colors duration-200"
-                >
-                  Cancel
                 </button>
               </div>
             </form>
@@ -282,8 +275,8 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
         {status === 'subscribed' && (
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <CheckCircleIcon className="h-5 w-5 text-green-500" />
-              <h3 className="text-lg font-medium text-card-foreground">
+              <CheckCircleIcon className="h-4 w-4 text-green-500" />
+              <h3 className="text-sm font-medium text-card-foreground">
                 You're subscribed!
               </h3>
             </div>
@@ -320,7 +313,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
                         value={freq}
                         checked={frequency === freq}
                         onChange={() => handleFrequencyChange(freq)}
-                        className="text-primary focus:ring-primary"
+                        className="text-primary focus:ring-primary focus:ring-offset-0 bg-background border-border"
                       />
                       <span className="text-sm text-card-foreground capitalize">{freq}</span>
                     </label>
@@ -328,26 +321,20 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-2 pt-4">
                 <button
                   onClick={handleSendTest}
                   disabled={isSendingTest || !hasContent}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="flex-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isSendingTest ? 'Sending...' : 'Send Test Email'}
                 </button>
                 <button
                   onClick={handleUnsubscribe}
                   disabled={isSubmitting}
-                  className="px-4 py-2 border border-red-300 text-red-600 rounded-sm hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="flex-1 px-3 py-1.5 text-sm border border-destructive text-destructive rounded-sm hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isSubmitting ? 'Unsubscribing...' : 'Unsubscribe'}
-                </button>
-                <button
-                  onClick={onClose}
-                  className="px-4 py-2 border border-border text-card-foreground rounded-sm hover:bg-accent transition-colors duration-200"
-                >
-                  Close
                 </button>
               </div>
             </div>
@@ -356,10 +343,10 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
 
         {/* Message Display */}
         {message && (
-          <div className={`mt-4 p-3 rounded-sm ${
-            message.type === 'error' ? 'bg-red-100 text-red-700 border border-red-200' :
-            message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' :
-            'bg-blue-100 text-blue-700 border border-blue-200'
+          <div className={`mt-4 p-3 rounded-sm border ${
+            message.type === 'error' ? 'bg-destructive/10 text-destructive border-destructive/20' :
+            message.type === 'success' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+            'bg-primary/10 text-primary border-primary/20'
           }`}>
             <div className="flex justify-between items-start">
               <p className="text-sm">{message.text}</p>
@@ -375,7 +362,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
 
         {/* Content Warning */}
         {!hasContent && (
-          <div className="mt-4 p-3 bg-yellow-100 text-yellow-700 border border-yellow-200 rounded-sm">
+          <div className="mt-4 p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-sm">
             <p className="text-sm">
               ⚠️ You don't have any content in your Dojo yet. Create some bookmarks first to receive meaningful daily emails!
             </p>
