@@ -1,6 +1,10 @@
 /**
  * @jest-environment node
  */
+
+// Import test environment setup first
+import '../setup/test-env';
+
 import { 
   subscribeToEmailsAction,
   unsubscribeFromEmailsAction,
