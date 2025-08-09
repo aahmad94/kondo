@@ -2,12 +2,14 @@ import { Resend } from 'resend';
 import { prisma } from '@/lib/database';
 import { generateUserSummary } from '@/lib/gpt';
 import { formatResponseHTML, formatResponseText, type EmailResponse, type EmailFormatOptions } from './format';
+import { generateWelcomeEmailHTML, generateWelcomeEmailText } from './welcomeTemplate';
+import { generateDailyDigestHTML, generateDailyDigestText } from './dailyDigestTemplate';
 
 // Lazy initialization of Resend client (server-side only)
 let resendClient: Resend | null = null;
 
 // Helper function to get user's language code for email formatting
-async function getUserLanguageCode(userId: string): Promise<string> {
+export async function getUserLanguageCode(userId: string): Promise<string> {
   try {
     const userLanguagePreference = await prisma.userLanguagePreference.findUnique({
       where: { userId },
@@ -472,153 +474,8 @@ export async function validateUnsubscribeToken(token: string): Promise<string | 
   }
 }
 
-// Email template functions
-function generateWelcomeEmailHTML(userName: string): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Welcome to Kondo</title>
-    </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #2563eb; margin-bottom: 10px;">🥋 Welcome to Kondo!</h1>
-        <p style="color: #666; font-size: 18px;">Your Daily Language Learning Journey Begins</p>
-      </div>
-      
-      <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <p>Hi ${userName},</p>
-        <p>Thank you for subscribing to Kondo's daily email updates! You'll now receive personalized language learning content from your Dojo directly in your inbox.</p>
-        
-        <h3 style="color: #2563eb;">What to expect:</h3>
-        <ul>
-          <li>📚 Daily curated content from your bookmarks</li>
-          <li>🎯 Personalized to your learning level</li>
-          <li>🌐 Support for multiple languages</li>
-          <li>📱 Mobile-friendly format</li>
-        </ul>
-      </div>
-      
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="https://kondoai.com" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Visit Kondo</a>
-      </div>
-      
-      <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; color: #666; font-size: 14px;">
-        <p>Happy learning!</p>
-        <p>The Kondo Team</p>
-      </div>
-    </body>
-    </html>
-  `;
-}
+// Email template functions moved to separate files:
+// - welcomeTemplate.ts: generateWelcomeEmailHTML, generateWelcomeEmailText
+// - dailyDigestTemplate.ts: generateDailyDigestHTML, generateDailyDigestText
 
-function generateWelcomeEmailText(userName: string): string {
-  return `
-🥋 Welcome to Kondo!
 
-Hi ${userName},
-
-Thank you for subscribing to Kondo's daily email updates! You'll now receive personalized language learning content from your Dojo directly in your inbox.
-
-What to expect:
-- Daily curated content from your bookmarks
-- Personalized to your learning level  
-- Support for multiple languages
-- Mobile-friendly format
-
-Visit Kondo: https://kondoai.com
-
-Happy learning!
-The Kondo Team
-  `;
-}
-
-async function generateDailyDigestHTML(userName: string, responses: any[], userId: string, isTest: boolean = false): Promise<string> {
-  const currentDate = new Date().toLocaleDateString('en-US', { 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
-  });
-  
-  const testBadge = isTest ? '<div style="background: #000; color: #fff; padding: 8px 16px; margin-bottom: 20px; text-align: center; font-weight: 600;">🧪 This is a test email</div>' : '';
-  
-  // Get user's language preference for proper formatting
-  const userLanguageCode = await getUserLanguageCode(userId);
-  const formatOptions: EmailFormatOptions = {
-    selectedLanguage: userLanguageCode,
-    isPhoneticEnabled: true,
-    isKanaEnabled: true
-  };
-  
-  const responsesHTML = responses.map((response: EmailResponse, index: number) => {
-    const contentHTML = formatResponseHTML(response, formatOptions);
-    
-    return `<div style="border-left:4px solid #000;padding:16px;margin-bottom:16px">
-<div style="font-weight:bold;margin-bottom:8px">#${index + 1}</div>
-${contentHTML}
-</div>`;
-  }).join('');
-
-  return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>${currentDate} Dojo Report</title>
-</head>
-<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#000">
-${testBadge}
-<div style="text-align:center;margin-bottom:30px">
-<h1>🥋 ${currentDate} Dojo Report</h1>
-<p>Today's language learning content</p>
-</div>
-<p>Hi ${userName},</p>
-<p>Here's your personalized daily content from your Kondo Dojo:</p>
-${responsesHTML}
-<div style="text-align:center;margin:30px 0">
-<a href="https://kondoai.com" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;display:inline-block">Continue Learning on Kondo</a>
-</div>
-<div style="border-top:1px solid #ccc;padding-top:20px;text-align:center;font-size:12px">
-<p>You're receiving this because you subscribed to Kondo daily updates.</p>
-<p><a href="https://kondoai.com/unsubscribe?token={{unsubscribe_token}}">Unsubscribe</a></p>
-</div>
-</body>
-</html>`;
-}
-
-async function generateDailyDigestText(responses: any[], userId: string): Promise<string> {
-  const currentDate = new Date().toLocaleDateString('en-US', { 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
-  });
-  
-  // Get user's language preference for proper formatting
-  const userLanguageCode = await getUserLanguageCode(userId);
-  const formatOptions: EmailFormatOptions = {
-    selectedLanguage: userLanguageCode,
-    isPhoneticEnabled: true,
-    isKanaEnabled: true
-  };
-  
-  const responsesText = responses.map((response: EmailResponse, index: number) => {
-    const contentText = formatResponseText(response, formatOptions);
-    
-    return `${index + 1}. ${contentText}`;
-  }).join('\n\n');
-
-  return `
-🥋 ${currentDate} Dojo Report
-
-Today's language learning content:
-
-${responsesText}
-
-Continue learning: https://kondoai.com
-
----
-You're receiving this because you subscribed to Kondo daily updates.
-Unsubscribe: https://kondoai.com/unsubscribe?token={{unsubscribe_token}}
-  `;
-}

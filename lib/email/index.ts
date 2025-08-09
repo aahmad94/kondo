@@ -12,6 +12,7 @@ export {
   checkUserHasDailyContent,
   generateUnsubscribeToken,
   validateUnsubscribeToken,
+  getUserLanguageCode,
   type EmailPreferences,
   type SubscriptionData,
 } from './emailService';
@@ -20,3 +21,7 @@ export {
 export * from './format';
 export * from './standardFormat';
 export * from './markdownFormat';
+
+// Email template modules
+export * from './welcomeTemplate';
+export * from './dailyDigestTemplate';
