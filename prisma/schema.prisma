@@ -15,6 +15,14 @@ model User {
   name               String?
   subscribed         Boolean?                @default(false)
   theme              String?                 @default("light")
+  
+  // Email subscription fields
+  subscriptionEmail  String?                             // Email for subscriptions (can differ from login email)
+  emailFrequency     String                  @default("daily") // 'daily', 'weekly', 'none'
+  lastEmailSent      DateTime?                           // Track when last email was sent
+  emailSubscribedAt  DateTime?                           // When they first subscribed
+  unsubscribedAt     DateTime?                           // When they unsubscribed (for analytics)
+  
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
   accounts           Account[]
