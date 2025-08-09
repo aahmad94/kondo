@@ -8,29 +8,27 @@ datasource db {
 }
 
 model User {
-  id                 String                  @id @default(cuid())
-  email              String?                 @unique
-  emailVerified      DateTime?
-  image              String?
-  name               String?
-  subscribed         Boolean?                @default(false)
-  theme              String?                 @default("light")
-  
-  // Email subscription fields
-  subscriptionEmail  String?                             // Email for subscriptions (can differ from login email)
-  emailFrequency     String                  @default("daily") // 'daily', 'weekly', 'none'
-  lastEmailSent      DateTime?                           // Track when last email was sent
-  emailSubscribedAt  DateTime?                           // When they first subscribed
-  unsubscribedAt     DateTime?                           // When they unsubscribed (for analytics)
-  
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
-  accounts           Account[]
-  bookmarks          Bookmark[]
-  dailySummaries     DailySummary[]
-  responses          GPTResponse[]
-  sessions           Session[]
-  languagePreference UserLanguagePreference?
+  id                    String                     @id @default(cuid())
+  email                 String?                    @unique
+  emailVerified         DateTime?
+  image                 String?
+  name                  String?
+  subscribed            Boolean?                   @default(false)
+  createdAt             DateTime                   @default(now())
+  updatedAt             DateTime                   @updatedAt
+  theme                 String?                    @default("light")
+  emailFrequency        String?                    @default("daily")
+  emailSubscribedAt     DateTime?
+  lastEmailSent         DateTime?
+  subscriptionEmail     String?
+  unsubscribedAt        DateTime?
+  accounts              Account[]
+  bookmarks             Bookmark[]
+  dailySummaries        DailySummary[]
+  responses             GPTResponse[]
+  sessions              Session[]
+  languagePreference    UserLanguagePreference?
+  languageSubscriptions UserLanguageSubscription[]
 }
 
 model Account {
@@ -74,16 +72,17 @@ model VerificationToken {
 }
 
 model Language {
-  id              String                   @id @default(cuid())
-  code            String                   @unique
+  id              String                     @id @default(cuid())
+  code            String                     @unique
   name            String
-  isActive        Boolean                  @default(true)
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+  isActive        Boolean                    @default(true)
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
   bookmarks       Bookmark[]
   dailySummaries  DailySummary[]
   responses       GPTResponse[]
   userPreferences UserLanguagePreference[]
+  subscriptions   UserLanguageSubscription[]
 }
 
 model UserLanguagePreference {
@@ -96,6 +95,24 @@ model UserLanguagePreference {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model UserLanguageSubscription {
+  id                String    @id @default(cuid())
+  userId            String
+  languageId        String
+  subscribed        Boolean   @default(false)
+  subscriptionEmail String?
+  emailFrequency    String    @default("daily")
+  lastEmailSent     DateTime?
+  emailSubscribedAt DateTime?
+  unsubscribedAt    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  language          Language  @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, languageId])
+}
+
 model GPTResponse {
   id                String         @id @default(cuid())
   content           String
@@ -104,15 +121,15 @@ model GPTResponse {
   rank              Int?           @default(1)
   languageId        String
   isPaused          Boolean        @default(false)
-  isFuriganaEnabled Boolean        @default(false)
-  isPhoneticEnabled Boolean        @default(true)
-  isKanaEnabled     Boolean        @default(true)
   updatedAt         DateTime       @updatedAt
   audio             String?
   audioMimeType     String?
   breakdown         String?
-  mobileBreakdown   String?
   furigana          String?
+  isFuriganaEnabled Boolean        @default(false)
+  isPhoneticEnabled Boolean        @default(true)
+  isKanaEnabled     Boolean        @default(true)
+  mobileBreakdown   String?
   language          Language       @relation(fields: [languageId], references: [id])
   user              User           @relation(fields: [userId], references: [id])
   bookmarks         Bookmark[]     @relation("BookmarksToResponses")

@@ -7,6 +7,8 @@ export {
   validateEmailAddress,
   sendWelcomeEmail,
   sendDailyDigest,
+  sendLanguageSpecificDailyDigest,
+  sendAllLanguageDigests,
   checkUserHasDailyContent,
   generateUnsubscribeToken,
   validateUnsubscribeToken,

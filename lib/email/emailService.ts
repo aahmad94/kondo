@@ -23,6 +23,45 @@ async function getUserLanguageCode(userId: string): Promise<string> {
   }
 }
 
+// Helper function to get language flag emoji
+function getLanguageFlag(languageCode: string): string {
+  const flags: Record<string, string> = {
+    'ja': '🇯🇵',
+    'es': '🇪🇸', 
+    'zh': '🇨🇳',
+    'ko': '🇰🇷',
+    'ar': '🇸🇦'
+  };
+  return flags[languageCode] || '🌐';
+}
+
+// Helper function to get all active language subscriptions for a user
+async function getUserLanguageSubscriptions(userId: string) {
+  try {
+    return await prisma.userLanguageSubscription.findMany({
+      where: {
+        userId,
+        subscribed: true,
+        emailFrequency: {
+          not: 'none'
+        }
+      },
+      include: {
+        language: true,
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error getting user language subscriptions:', error);
+    return [];
+  }
+}
+
 function getResendClient(): Resend {
   // Prevent client-side execution
   if (typeof window !== 'undefined') {
@@ -182,7 +221,7 @@ export async function sendWelcomeEmail(email: string, userName: string): Promise
 }
 
 /**
- * Send daily digest email
+ * Send daily digest email (legacy - uses current user language)
  */
 export async function sendDailyDigest(userId: string, isTest: boolean = false): Promise<void> {
   try {
@@ -229,9 +268,12 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       year: 'numeric' 
     });
     
+    const userLanguageCode = await getUserLanguageCode(userId);
+    const languageFlag = getLanguageFlag(userLanguageCode);
+    
     const subject = isTest 
-      ? `🧪 Test: ${currentDate} Dojo Report` 
-      : `🥋 ${currentDate} Dojo Report`;
+      ? `${languageFlag} Test: ${currentDate} Dojo Report` 
+      : `${languageFlag} ${currentDate} Dojo Report`;
 
     const resend = getResendClient();
     await resend.emails.send({
@@ -254,6 +296,134 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
   } catch (error) {
     console.error('Error sending daily digest:', error);
     throw new Error('Failed to send daily digest');
+  }
+}
+
+/**
+ * Send language-specific daily digest email
+ */
+export async function sendLanguageSpecificDailyDigest(userId: string, languageId: string, isTest: boolean = false): Promise<void> {
+  try {
+    // Get the specific language subscription
+    const subscription = await prisma.userLanguageSubscription.findUnique({
+      where: {
+        userId_languageId: { userId, languageId }
+      },
+      include: {
+        language: true,
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    if (!subscription || !subscription.subscribed) {
+      throw new Error('User not subscribed to emails for this language');
+    }
+
+    const recipientEmail = subscription.subscriptionEmail || subscription.user.email;
+    if (!recipientEmail) {
+      throw new Error('No email address found for user subscription');
+    }
+
+    // Generate daily summary content and filter by language
+    const allSummaryData = await generateUserSummary(userId, false, true); // Get all languages
+    
+    if (!allSummaryData || !allSummaryData.allResponses || allSummaryData.allResponses.length === 0) {
+      console.log(`No daily content available for user ${userId}`);
+      return;
+    }
+
+    // Filter responses for this specific language
+    const languageResponses = await prisma.gPTResponse.findMany({
+      where: {
+        userId,
+        languageId,
+        id: {
+          in: allSummaryData.allResponses.map(r => r.id)
+        }
+      },
+      select: {
+        id: true,
+        content: true,
+        rank: true,
+        breakdown: true,
+        languageId: true
+      }
+    });
+
+    if (languageResponses.length === 0) {
+      console.log(`No daily content available for user ${userId} in language ${languageId}`);
+      return;
+    }
+
+    // Create filtered summary data
+    const summaryData = {
+      ...allSummaryData,
+      allResponses: languageResponses
+    };
+
+    const emailContent = await generateDailyDigestHTML(
+      subscription.user.name || 'Kondo User',
+      summaryData.allResponses.slice(0, 6),
+      userId,
+      isTest
+    );
+
+    const currentDate = new Date().toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+    
+    const languageFlag = getLanguageFlag(subscription.language.code);
+    
+    const subject = isTest 
+      ? `${languageFlag} Test: ${currentDate} Dojo Report` 
+      : `${languageFlag} ${currentDate} Dojo Report`;
+
+    const resend = getResendClient();
+    await resend.emails.send({
+      from: 'Kondo <noreply@kondoai.com>',
+      to: [recipientEmail],
+      subject,
+      html: emailContent,
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId),
+    });
+
+    // Update last email sent timestamp (only for real emails, not tests)
+    if (!isTest) {
+      await prisma.userLanguageSubscription.update({
+        where: {
+          userId_languageId: { userId, languageId }
+        },
+        data: {
+          lastEmailSent: new Date(),
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error sending language-specific daily digest:', error);
+    throw new Error('Failed to send language-specific daily digest');
+  }
+}
+
+/**
+ * Send daily digests for all of a user's language subscriptions
+ */
+export async function sendAllLanguageDigests(userId: string, isTest: boolean = false): Promise<void> {
+  try {
+    const subscriptions = await getUserLanguageSubscriptions(userId);
+    
+    for (const subscription of subscriptions) {
+      await sendLanguageSpecificDailyDigest(userId, subscription.languageId, isTest);
+    }
+  } catch (error) {
+    console.error('Error sending all language digests:', error);
+    throw new Error('Failed to send all language digests');
   }
 }
 
