@@ -1,0 +1,387 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { XMarkIcon, EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+import { 
+  subscribeToEmailsAction,
+  unsubscribeFromEmailsAction,
+  getEmailPreferencesAction,
+  updateEmailFrequencyAction,
+  updateEmailAddressAction,
+  sendTestEmailAction,
+  checkDailyContentAvailableAction
+} from '@/actions/email';
+
+interface EmailSubscriptionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+type SubscriptionStatus = 'loading' | 'not-subscribed' | 'subscribed';
+
+export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscriptionModalProps) {
+  const [status, setStatus] = useState<SubscriptionStatus>('loading');
+  const [email, setEmail] = useState('');
+  const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+  const [hasContent, setHasContent] = useState(true);
+  const [isSendingTest, setIsSendingTest] = useState(false);
+
+  // Load current preferences when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      loadEmailPreferences();
+      checkContentAvailability();
+    }
+  }, [isOpen]);
+
+  const loadEmailPreferences = async () => {
+    try {
+      setStatus('loading');
+      const result = await getEmailPreferencesAction();
+      
+      if (result.success && result.data) {
+        setStatus(result.data.isSubscribed ? 'subscribed' : 'not-subscribed');
+        setEmail(result.data.email || '');
+        setFrequency(result.data.frequency as 'daily' | 'weekly');
+      } else {
+        setStatus('not-subscribed');
+        setMessage({ type: 'error', text: result.error || 'Failed to load preferences' });
+      }
+    } catch (error) {
+      console.error('Error loading email preferences:', error);
+      setStatus('not-subscribed');
+      setMessage({ type: 'error', text: 'Failed to load email preferences' });
+    }
+  };
+
+  const checkContentAvailability = async () => {
+    try {
+      const result = await checkDailyContentAvailableAction();
+      if (result.success) {
+        setHasContent(result.data || false);
+        if (!result.data) {
+          setMessage({ 
+            type: 'info', 
+            text: 'Create some bookmarks in your Dojo first to receive daily content!' 
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking content availability:', error);
+    }
+  };
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email.trim()) {
+      setMessage({ type: 'error', text: 'Please enter your email address' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage(null);
+
+    try {
+      const result = await subscribeToEmailsAction(email.trim(), frequency);
+      
+      if (result.success) {
+        setStatus('subscribed');
+        setMessage({ type: 'success', text: result.message || 'Successfully subscribed!' });
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to subscribe' });
+      }
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      setMessage({ type: 'error', text: 'Failed to subscribe to email updates' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUnsubscribe = async () => {
+    setIsSubmitting(true);
+    setMessage(null);
+
+    try {
+      const result = await unsubscribeFromEmailsAction();
+      
+      if (result.success) {
+        setStatus('not-subscribed');
+        setMessage({ type: 'success', text: 'Successfully unsubscribed from email updates' });
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to unsubscribe' });
+      }
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
+      setMessage({ type: 'error', text: 'Failed to unsubscribe from email updates' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFrequencyChange = async (newFrequency: 'daily' | 'weekly') => {
+    if (status !== 'subscribed') return;
+
+    try {
+      const result = await updateEmailFrequencyAction(newFrequency);
+      
+      if (result.success) {
+        setFrequency(newFrequency);
+        setMessage({ type: 'success', text: `Email frequency updated to ${newFrequency}` });
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to update frequency' });
+      }
+    } catch (error) {
+      console.error('Error updating frequency:', error);
+      setMessage({ type: 'error', text: 'Failed to update email frequency' });
+    }
+  };
+
+  const handleEmailChange = async (newEmail: string) => {
+    if (status !== 'subscribed' || !newEmail.trim()) return;
+
+    try {
+      const result = await updateEmailAddressAction(newEmail.trim());
+      
+      if (result.success) {
+        setEmail(newEmail.trim());
+        setMessage({ type: 'success', text: 'Email address updated successfully' });
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to update email' });
+      }
+    } catch (error) {
+      console.error('Error updating email:', error);
+      setMessage({ type: 'error', text: 'Failed to update email address' });
+    }
+  };
+
+  const handleSendTest = async () => {
+    setIsSendingTest(true);
+    setMessage(null);
+
+    try {
+      const result = await sendTestEmailAction();
+      
+      if (result.success) {
+        setMessage({ type: 'success', text: 'Test email sent! Check your inbox.' });
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to send test email' });
+      }
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      setMessage({ type: 'error', text: 'Failed to send test email' });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
+  const clearMessage = () => {
+    setMessage(null);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+      <div className="bg-card border border-border p-6 rounded-sm w-[500px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <EnvelopeIcon className="h-6 w-6 text-primary" />
+            <h2 className="text-xl font-semibold text-card-foreground">Email Updates</h2>
+          </div>
+          <button 
+            onClick={onClose} 
+            className="text-card-foreground hover:text-muted-foreground transition-colors duration-200"
+          >
+            <XMarkIcon className="h-6 w-6" />
+          </button>
+        </div>
+
+        {/* Loading State */}
+        {status === 'loading' && (
+          <div className="text-center py-8">
+            <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading preferences...</p>
+          </div>
+        )}
+
+        {/* Not Subscribed State */}
+        {status === 'not-subscribed' && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-card-foreground mb-2">
+                Get Daily Dojo Updates
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Subscribe to receive your personalized language learning content via email.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubscribe} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-card-foreground mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full px-3 py-2 border border-border rounded-sm bg-background text-card-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-card-foreground mb-2">
+                  Frequency
+                </label>
+                <div className="flex gap-4">
+                  {(['daily', 'weekly'] as const).map((freq) => (
+                    <label key={freq} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="frequency"
+                        value={freq}
+                        checked={frequency === freq}
+                        onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly')}
+                        className="text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm text-card-foreground capitalize">{freq}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !hasContent}
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 border border-border text-card-foreground rounded-sm hover:bg-accent transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Subscribed State */}
+        {status === 'subscribed' && (
+          <div>
+            <div className="flex items-center gap-2 mb-6">
+              <CheckCircleIcon className="h-5 w-5 text-green-500" />
+              <h3 className="text-lg font-medium text-card-foreground">
+                You're subscribed!
+              </h3>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="subscribed-email" className="block text-sm font-medium text-card-foreground mb-2">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="subscribed-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={(e) => {
+                    if (e.target.value !== email) {
+                      handleEmailChange(e.target.value);
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-border rounded-sm bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-card-foreground mb-2">
+                  Frequency
+                </label>
+                <div className="flex gap-4">
+                  {(['daily', 'weekly'] as const).map((freq) => (
+                    <label key={freq} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="frequency"
+                        value={freq}
+                        checked={frequency === freq}
+                        onChange={() => handleFrequencyChange(freq)}
+                        className="text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm text-card-foreground capitalize">{freq}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleSendTest}
+                  disabled={isSendingTest || !hasContent}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {isSendingTest ? 'Sending...' : 'Send Test Email'}
+                </button>
+                <button
+                  onClick={handleUnsubscribe}
+                  disabled={isSubmitting}
+                  className="px-4 py-2 border border-red-300 text-red-600 rounded-sm hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {isSubmitting ? 'Unsubscribing...' : 'Unsubscribe'}
+                </button>
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 border border-border text-card-foreground rounded-sm hover:bg-accent transition-colors duration-200"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Message Display */}
+        {message && (
+          <div className={`mt-4 p-3 rounded-sm ${
+            message.type === 'error' ? 'bg-red-100 text-red-700 border border-red-200' :
+            message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-200' :
+            'bg-blue-100 text-blue-700 border border-blue-200'
+          }`}>
+            <div className="flex justify-between items-start">
+              <p className="text-sm">{message.text}</p>
+              <button
+                onClick={clearMessage}
+                className="ml-2 text-current opacity-70 hover:opacity-100"
+              >
+                <XMarkIcon className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Content Warning */}
+        {!hasContent && (
+          <div className="mt-4 p-3 bg-yellow-100 text-yellow-700 border border-yellow-200 rounded-sm">
+            <p className="text-sm">
+              ⚠️ You don't have any content in your Dojo yet. Create some bookmarks first to receive meaningful daily emails!
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
