@@ -402,7 +402,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
         {message && (
           <div className={`mt-4 p-3 rounded-sm border ${
             message.type === 'error' ? 'bg-destructive/10 text-destructive border-destructive/20' :
-            message.type === 'success' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+            message.type === 'success' ? 'bg-primary/10 text-primary border-primary/20' :
             'bg-primary/10 text-primary border-primary/20'
           }`}>
             <div className="flex justify-between items-start">
