@@ -2,7 +2,24 @@ import { Resend } from 'resend';
 import { prisma } from '@/lib/database';
 import { generateUserSummary } from '@/lib/gpt';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization of Resend client (server-side only)
+let resendClient: Resend | null = null;
+
+function getResendClient(): Resend {
+  // Prevent client-side execution
+  if (typeof window !== 'undefined') {
+    throw new Error('Resend client can only be used server-side');
+  }
+  
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY environment variable is required');
+    }
+    resendClient = new Resend(apiKey);
+  }
+  return resendClient;
+}
 
 export interface EmailPreferences {
   isSubscribed: boolean;
@@ -132,6 +149,7 @@ export function validateEmailAddress(email: string): boolean {
  */
 export async function sendWelcomeEmail(email: string, userName: string): Promise<void> {
   try {
+    const resend = getResendClient();
     await resend.emails.send({
       from: 'Kondo <noreply@kondoai.com>',
       to: [email],
@@ -189,6 +207,7 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       ? '🧪 Test: Your Daily Kondo Dojo Update' 
       : '🥋 Your Daily Kondo Dojo Update';
 
+    const resend = getResendClient();
     await resend.emails.send({
       from: 'Kondo <noreply@kondoai.com>',
       to: [recipientEmail],
