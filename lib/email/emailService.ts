@@ -274,8 +274,8 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
     const languageFlag = getLanguageFlag(userLanguageCode);
     
     const subject = isTest 
-      ? `${languageFlag} Test: ${currentDate} Dojo Report` 
-      : `${languageFlag} ${currentDate} Dojo Report`;
+      ? `${languageFlag} Test: Dojo Report ${currentDate}` 
+      : `${languageFlag} Dojo Report ${currentDate}`;
 
     const resend = getResendClient();
     await resend.emails.send({
@@ -384,8 +384,8 @@ export async function sendLanguageSpecificDailyDigest(userId: string, languageId
     const languageFlag = getLanguageFlag(subscription.language.code);
     
     const subject = isTest 
-      ? `${languageFlag} Test: ${currentDate} Dojo Report` 
-      : `${languageFlag} ${currentDate} Dojo Report`;
+      ? `${languageFlag} Test: Dojo Report ${currentDate}` 
+      : `${languageFlag} Dojo Report ${currentDate}`;
 
     const resend = getResendClient();
     await resend.emails.send({

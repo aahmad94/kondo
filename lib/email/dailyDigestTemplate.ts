@@ -40,15 +40,15 @@ ${contentHTML}
 <!-- Email ID: ${Date.now()} -->
 ${testBadge}
 <div style="text-align:center;margin-bottom:30px">
-<h1>Dojo Report<br/>${currentDate}</h1>
+<h1 style="color:#000">Dojo Report<br/>${currentDate}</h1>
 </div>
 ${responsesHTML}
 <div style="text-align:center;margin:30px 0">
 <a href="https://kondoai.com" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;display:inline-block">Continue Learning on Kondo</a>
 </div>
-<div style="border-top:1px solid #ccc;padding-top:20px;text-align:center;font-size:12px">
-<p>You're receiving this because you subscribed to Kondo daily updates.</p>
-<p><a href="https://kondoai.com/unsubscribe?token={{unsubscribe_token}}">Unsubscribe</a></p>
+<div style="border-top:1px solid #ccc;padding-top:20px;text-align:center;font-size:12px;color:#000">
+<p style="color:#000">You're receiving this because you subscribed to Kondo daily updates.</p>
+<p style="color:#000"><a href="https://kondoai.com/unsubscribe?token={{unsubscribe_token}}" style="color:#000">Unsubscribe</a></p>
 </div>
 </body>
 </html>`;

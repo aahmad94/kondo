@@ -18,6 +18,21 @@ import {
   sendLanguageTestEmailAction
 } from '@/actions/email';
 
+// Shared dots animation CSS
+const DOTS_ANIMATION_CSS = `
+  .dots-animation::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+  }
+  
+  @keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60% { content: '...'; }
+    80%, 100% { content: ''; }
+  }
+`;
+
 interface EmailSubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -227,9 +242,11 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
 
         {/* Loading State */}
         {status === 'loading' && (
-          <div className="text-center py-8">
-            <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading preferences...</p>
+          <div className="text-center py-8 text-muted-foreground">
+            <span className="font-mono">Loading preferences</span>
+            <span className="dots-animation">
+              <style jsx>{DOTS_ANIMATION_CSS}</style>
+            </span>
           </div>
         )}
 
@@ -359,7 +376,14 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
                   disabled={isSendingTest || !hasContent}
                   className="flex-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
-                  {isSendingTest ? 'Sending...' : 'Send Test Email'}
+                  {isSendingTest ? (
+                    <>
+                      <span>Sending</span>
+                      <span className="dots-animation">
+                        <style jsx>{DOTS_ANIMATION_CSS}</style>
+                      </span>
+                    </>
+                  ) : 'Send Test Email'}
                 </button>
                 <button
                   onClick={handleUnsubscribe}
