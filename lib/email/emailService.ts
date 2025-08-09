@@ -1,9 +1,27 @@
 import { Resend } from 'resend';
 import { prisma } from '@/lib/database';
 import { generateUserSummary } from '@/lib/gpt';
+import { formatResponseHTML, formatResponseText, type EmailResponse, type EmailFormatOptions } from './format';
 
 // Lazy initialization of Resend client (server-side only)
 let resendClient: Resend | null = null;
+
+// Helper function to get user's language code for email formatting
+async function getUserLanguageCode(userId: string): Promise<string> {
+  try {
+    const userLanguagePreference = await prisma.userLanguagePreference.findUnique({
+      where: { userId },
+      include: {
+        language: true
+      }
+    });
+
+    return userLanguagePreference?.language?.code || 'ja'; // Default to Japanese
+  } catch (error) {
+    console.error('Error getting user language code:', error);
+    return 'ja'; // Default fallback
+  }
+}
 
 function getResendClient(): Resend {
   // Prevent client-side execution
@@ -172,6 +190,7 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
+        id: true,
         name: true,
         subscribed: true,
         subscriptionEmail: true,
@@ -197,15 +216,22 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       return;
     }
 
-    const emailContent = generateDailyDigestHTML(
+    const emailContent = await generateDailyDigestHTML(
       user.name || 'Kondo User',
-      summaryData.allResponses.slice(0, 6), // Limit to 6 responses for email
+      summaryData.allResponses.slice(0, 6), // Show 6 responses since Gmail truncation persists anyway
+      user.id,
       isTest
     );
 
+    const currentDate = new Date().toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+    
     const subject = isTest 
-      ? '🧪 Test: Your Daily Kondo Dojo Update' 
-      : '🥋 Your Daily Kondo Dojo Update';
+      ? `🧪 Test: ${currentDate} Dojo Report` 
+      : `🥋 ${currentDate} Dojo Report`;
 
     const resend = getResendClient();
     await resend.emails.send({
@@ -213,7 +239,7 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       to: [recipientEmail],
       subject,
       html: emailContent,
-      text: generateDailyDigestText(summaryData.allResponses.slice(0, 6)),
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), user.id),
     });
 
     // Update last email sent timestamp (only for real emails, not tests)
@@ -339,60 +365,81 @@ The Kondo Team
   `;
 }
 
-function generateDailyDigestHTML(userName: string, responses: any[], isTest: boolean = false): string {
-  const testBadge = isTest ? '<div style="background: #fbbf24; color: #92400e; padding: 8px 16px; border-radius: 4px; margin-bottom: 20px; text-align: center; font-weight: 600;">🧪 This is a test email</div>' : '';
+async function generateDailyDigestHTML(userName: string, responses: any[], userId: string, isTest: boolean = false): Promise<string> {
+  const currentDate = new Date().toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
   
-  const responsesHTML = responses.map((response, index) => `
-    <div style="background: #f8fafc; padding: 16px; border-radius: 6px; margin-bottom: 16px; border-left: 4px solid #2563eb;">
-      <div style="font-weight: 600; color: #1e40af; margin-bottom: 8px;">#${index + 1}</div>
-      <div style="font-size: 16px; margin-bottom: 8px;">${response.content}</div>
-      ${response.breakdown ? `<div style="font-size: 14px; color: #666; border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 8px;">${response.breakdown}</div>` : ''}
-    </div>
-  `).join('');
+  const testBadge = isTest ? '<div style="background: #000; color: #fff; padding: 8px 16px; margin-bottom: 20px; text-align: center; font-weight: 600;">🧪 This is a test email</div>' : '';
+  
+  // Get user's language preference for proper formatting
+  const userLanguageCode = await getUserLanguageCode(userId);
+  const formatOptions: EmailFormatOptions = {
+    selectedLanguage: userLanguageCode,
+    isPhoneticEnabled: true,
+    isKanaEnabled: true
+  };
+  
+  const responsesHTML = responses.map((response: EmailResponse, index: number) => {
+    const contentHTML = formatResponseHTML(response, formatOptions);
+    
+    return `<div style="border-left:4px solid #000;padding:16px;margin-bottom:16px">
+<div style="font-weight:bold;margin-bottom:8px">#${index + 1}</div>
+${contentHTML}
+</div>`;
+  }).join('');
 
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Your Daily Kondo Update</title>
-    </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-      ${testBadge}
-      
-      <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #2563eb; margin-bottom: 10px;">🥋 Your Daily Dojo</h1>
-        <p style="color: #666;">Today's language learning content</p>
-      </div>
-      
-      <div style="margin-bottom: 20px;">
-        <p>Hi ${userName},</p>
-        <p>Here's your personalized daily content from your Kondo Dojo:</p>
-      </div>
-      
-      ${responsesHTML}
-      
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="https://kondoai.com" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Continue Learning on Kondo</a>
-      </div>
-      
-      <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; text-align: center; color: #666; font-size: 12px;">
-        <p>You're receiving this because you subscribed to Kondo daily updates.</p>
-        <p><a href="https://kondoai.com/unsubscribe?token={{unsubscribe_token}}" style="color: #666;">Unsubscribe</a></p>
-      </div>
-    </body>
-    </html>
-  `;
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${currentDate} Dojo Report</title>
+</head>
+<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#000">
+${testBadge}
+<div style="text-align:center;margin-bottom:30px">
+<h1>🥋 ${currentDate} Dojo Report</h1>
+<p>Today's language learning content</p>
+</div>
+<p>Hi ${userName},</p>
+<p>Here's your personalized daily content from your Kondo Dojo:</p>
+${responsesHTML}
+<div style="text-align:center;margin:30px 0">
+<a href="https://kondoai.com" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;display:inline-block">Continue Learning on Kondo</a>
+</div>
+<div style="border-top:1px solid #ccc;padding-top:20px;text-align:center;font-size:12px">
+<p>You're receiving this because you subscribed to Kondo daily updates.</p>
+<p><a href="https://kondoai.com/unsubscribe?token={{unsubscribe_token}}">Unsubscribe</a></p>
+</div>
+</body>
+</html>`;
 }
 
-function generateDailyDigestText(responses: any[]): string {
-  const responsesText = responses.map((response, index) => 
-    `${index + 1}. ${response.content}\n${response.breakdown ? `   ${response.breakdown}\n` : ''}`
-  ).join('\n');
+async function generateDailyDigestText(responses: any[], userId: string): Promise<string> {
+  const currentDate = new Date().toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+  
+  // Get user's language preference for proper formatting
+  const userLanguageCode = await getUserLanguageCode(userId);
+  const formatOptions: EmailFormatOptions = {
+    selectedLanguage: userLanguageCode,
+    isPhoneticEnabled: true,
+    isKanaEnabled: true
+  };
+  
+  const responsesText = responses.map((response: EmailResponse, index: number) => {
+    const contentText = formatResponseText(response, formatOptions);
+    
+    return `${index + 1}. ${contentText}`;
+  }).join('\n\n');
 
   return `
-🥋 Your Daily Kondo Dojo
+🥋 ${currentDate} Dojo Report
 
 Today's language learning content:
 

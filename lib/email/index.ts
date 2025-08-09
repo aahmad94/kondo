@@ -13,3 +13,8 @@ export {
   type EmailPreferences,
   type SubscriptionData,
 } from './emailService';
+
+// Email formatting modules
+export * from './format';
+export * from './standardFormat';
+export * from './markdownFormat';
