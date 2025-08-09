@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
+import { useSession } from 'next-auth/react';
 import { 
   subscribeToEmailsAction,
   unsubscribeFromEmailsAction,
@@ -26,6 +27,7 @@ interface EmailSubscriptionModalProps {
 type SubscriptionStatus = 'loading' | 'not-subscribed' | 'subscribed';
 
 export default function EmailSubscriptionModal({ isOpen, onClose, selectedLanguage }: EmailSubscriptionModalProps) {
+  const { data: session } = useSession();
   const [status, setStatus] = useState<SubscriptionStatus>('loading');
   const [email, setEmail] = useState('');
   const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily');
@@ -34,6 +36,13 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [hasContent, setHasContent] = useState(true);
   const [isSendingTest, setIsSendingTest] = useState(false);
+
+  // Initialize email with user's session email
+  useEffect(() => {
+    if (session?.user?.email && !email) {
+      setEmail(session.user.email);
+    }
+  }, [session?.user?.email, email]);
 
   // Load current preferences when modal opens or language changes
   useEffect(() => {
@@ -50,16 +59,21 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
       
       if (result.success && result.data) {
         setStatus(result.data.isSubscribed ? 'subscribed' : 'not-subscribed');
-        setEmail(result.data.email || '');
+        // Use subscription email, fallback to user's email from session, then empty string
+        setEmail(result.data.email || session?.user?.email || '');
         setFrequency(result.data.frequency as 'daily' | 'weekly');
         setLanguageName(result.data.languageName);
       } else {
         setStatus('not-subscribed');
+        // If we can't load preferences, still populate with user's email
+        setEmail(session?.user?.email || '');
         setMessage({ type: 'error', text: result.error || 'Failed to load preferences' });
       }
     } catch (error) {
       console.error('Error loading email preferences:', error);
       setStatus('not-subscribed');
+      // Even on error, populate with user's email
+      setEmail(session?.user?.email || '');
       setMessage({ type: 'error', text: 'Failed to load email preferences' });
     }
   };
@@ -200,7 +214,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
           <div className="flex items-center gap-2">
             <EnvelopeIcon className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-card-foreground">
-              {languageName ? `${languageName} ` : ''}Email Updates
+              Email Updates {languageName ? `(${languageName})` : ''}
             </h2>
           </div>
           <button 
@@ -224,10 +238,10 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
           <div>
             <div className="mb-6">
               <h3 className="text-sm font-medium text-card-foreground mb-2">
-                Get Daily {languageName || selectedLanguage} Dojo Updates
+                Get reminders for Dojo
               </h3>
               <p className="text-muted-foreground text-sm">
-                Subscribe to receive your personalized {languageName || selectedLanguage} language learning content via email.
+                Subscribe to receive your Dojo Report for {languageName || selectedLanguage} via email.
               </p>
             </div>
 
@@ -243,6 +257,10 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   className="w-full px-3 py-2 border border-border rounded-sm bg-background text-card-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{
+                    WebkitBoxShadow: '0 0 0 1000px hsl(var(--background)) inset',
+                    WebkitTextFillColor: 'hsl(var(--card-foreground))',
+                  }}
                   required
                 />
               </div>
@@ -272,7 +290,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
                 <button
                   type="submit"
                   disabled={isSubmitting || !hasContent}
-                  className="w-full px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="w-1/2 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </button>
@@ -307,6 +325,10 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
                     }
                   }}
                   className="w-full px-3 py-2 border border-border rounded-sm bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  style={{
+                    WebkitBoxShadow: '0 0 0 1000px hsl(var(--background)) inset',
+                    WebkitTextFillColor: 'hsl(var(--card-foreground))',
+                  }}
                 />
               </div>
 
