@@ -11,12 +11,15 @@ import {
   validateEmailAddress,
   sendWelcomeEmail,
   sendDailyDigest,
+  sendLanguageSpecificDailyDigest,
+  sendAllLanguageDigests,
   checkUserHasDailyContent,
   generateUnsubscribeToken,
   validateUnsubscribeToken,
   type EmailPreferences,
   type SubscriptionData
 } from "@/lib/email";
+import { prisma } from "@/lib/database";
 
 // Type definitions for return values
 type ActionResult<T = any> = {
@@ -24,6 +27,15 @@ type ActionResult<T = any> = {
   data?: T;
   error?: string;
   message?: string;
+};
+
+// Language-specific subscription data
+type LanguageSubscriptionData = {
+  isSubscribed: boolean;
+  email: string;
+  frequency: 'daily' | 'weekly';
+  languageCode: string;
+  languageName: string;
 };
 
 /**
@@ -355,6 +367,294 @@ export async function checkDailyContentAvailableAction(): Promise<ActionResult<b
     return {
       success: false,
       error: 'Failed to check daily content availability'
+    };
+  }
+}
+
+/**
+ * Subscribe user to language-specific email updates
+ * Called from EmailSubscriptionModal when user subscribes to a specific language
+ */
+export async function subscribeToLanguageEmailsAction(
+  languageCode: string,
+  email: string, 
+  frequency: 'daily' | 'weekly'
+): Promise<ActionResult<LanguageSubscriptionData>> {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.userId) {
+      throw new Error('Unauthorized: No user session found');
+    }
+
+    // Validate email format
+    if (!validateEmailAddress(email)) {
+      throw new Error('Invalid email address format');
+    }
+
+    // Get language information
+    const language = await prisma.language.findUnique({
+      where: { code: languageCode },
+      select: { id: true, name: true, code: true }
+    });
+
+    if (!language) {
+      throw new Error('Invalid language selected');
+    }
+
+    // Create or update language-specific subscription
+    const subscription = await prisma.userLanguageSubscription.upsert({
+      where: {
+        userId_languageId: {
+          userId: session.userId,
+          languageId: language.id
+        }
+      },
+      update: {
+        subscribed: true,
+        subscriptionEmail: email,
+        emailFrequency: frequency,
+        emailSubscribedAt: new Date(),
+        unsubscribedAt: null
+      },
+      create: {
+        userId: session.userId,
+        languageId: language.id,
+        subscribed: true,
+        subscriptionEmail: email,
+        emailFrequency: frequency,
+        emailSubscribedAt: new Date()
+      }
+    });
+
+    // Send welcome email
+    await sendWelcomeEmail(email, session.user?.name || 'Kondo User');
+
+    return {
+      success: true,
+      data: {
+        isSubscribed: true,
+        email,
+        frequency,
+        languageCode: language.code,
+        languageName: language.name
+      },
+      message: `Successfully subscribed to ${frequency} ${language.name} email updates`
+    };
+  } catch (error) {
+    console.error('Error subscribing to language emails:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to subscribe to language emails'
+    };
+  }
+}
+
+/**
+ * Unsubscribe user from language-specific email updates
+ */
+export async function unsubscribeFromLanguageEmailsAction(
+  languageCode: string
+): Promise<ActionResult> {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.userId) {
+      throw new Error('Unauthorized: No user session found');
+    }
+
+    // Get language information
+    const language = await prisma.language.findUnique({
+      where: { code: languageCode },
+      select: { id: true, name: true }
+    });
+
+    if (!language) {
+      throw new Error('Invalid language selected');
+    }
+
+    // Update subscription status
+    await prisma.userLanguageSubscription.updateMany({
+      where: {
+        userId: session.userId,
+        languageId: language.id
+      },
+      data: {
+        subscribed: false,
+        unsubscribedAt: new Date()
+      }
+    });
+
+    return {
+      success: true,
+      message: `Successfully unsubscribed from ${language.name} email updates`
+    };
+  } catch (error) {
+    console.error('Error unsubscribing from language emails:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to unsubscribe from language emails'
+    };
+  }
+}
+
+/**
+ * Get current user's language-specific email preferences
+ */
+export async function getLanguageEmailPreferencesAction(
+  languageCode: string
+): Promise<ActionResult<LanguageSubscriptionData>> {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.userId) {
+      throw new Error('Unauthorized: No user session found');
+    }
+
+    // Get language information
+    const language = await prisma.language.findUnique({
+      where: { code: languageCode },
+      select: { id: true, name: true, code: true }
+    });
+
+    if (!language) {
+      throw new Error('Invalid language selected');
+    }
+
+    // Get user's subscription for this language
+    const subscription = await prisma.userLanguageSubscription.findUnique({
+      where: {
+        userId_languageId: {
+          userId: session.userId,
+          languageId: language.id
+        }
+      },
+      include: {
+        user: {
+          select: { email: true }
+        }
+      }
+    });
+
+    // Return subscription data or default values
+    const subscriptionData: LanguageSubscriptionData = {
+      isSubscribed: subscription?.subscribed || false,
+      email: subscription?.subscriptionEmail || subscription?.user?.email || '',
+      frequency: (subscription?.emailFrequency as 'daily' | 'weekly') || 'daily',
+      languageCode: language.code,
+      languageName: language.name
+    };
+
+    return {
+      success: true,
+      data: subscriptionData
+    };
+  } catch (error) {
+    console.error('Error fetching language email preferences:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch language email preferences'
+    };
+  }
+}
+
+/**
+ * Update language-specific email frequency
+ */
+export async function updateLanguageEmailFrequencyAction(
+  languageCode: string,
+  frequency: 'daily' | 'weekly'
+): Promise<ActionResult<LanguageSubscriptionData>> {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.userId) {
+      throw new Error('Unauthorized: No user session found');
+    }
+
+    // Get language information
+    const language = await prisma.language.findUnique({
+      where: { code: languageCode },
+      select: { id: true, name: true, code: true }
+    });
+
+    if (!language) {
+      throw new Error('Invalid language selected');
+    }
+
+    // Update the subscription frequency
+    const subscription = await prisma.userLanguageSubscription.update({
+      where: {
+        userId_languageId: {
+          userId: session.userId,
+          languageId: language.id
+        }
+      },
+      data: {
+        emailFrequency: frequency
+      },
+      include: {
+        user: {
+          select: { email: true }
+        }
+      }
+    });
+
+    return {
+      success: true,
+      data: {
+        isSubscribed: subscription.subscribed,
+        email: subscription.subscriptionEmail || subscription.user?.email || '',
+        frequency: frequency,
+        languageCode: language.code,
+        languageName: language.name
+      },
+      message: `${language.name} email frequency updated to ${frequency}`
+    };
+  } catch (error) {
+    console.error('Error updating language email frequency:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update language email frequency'
+    };
+  }
+}
+
+/**
+ * Send test email for specific language
+ */
+export async function sendLanguageTestEmailAction(
+  languageCode: string
+): Promise<ActionResult> {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.userId) {
+      throw new Error('Unauthorized: No user session found');
+    }
+
+    // Get language information
+    const language = await prisma.language.findUnique({
+      where: { code: languageCode },
+      select: { id: true, name: true }
+    });
+
+    if (!language) {
+      throw new Error('Invalid language selected');
+    }
+
+    // Send test email for this specific language
+    await sendLanguageSpecificDailyDigest(session.userId, language.id, true);
+
+    return {
+      success: true,
+      message: `Test ${language.name} email sent successfully!`
+    };
+  } catch (error) {
+    console.error('Error sending language test email:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to send language test email'
     };
   }
 }

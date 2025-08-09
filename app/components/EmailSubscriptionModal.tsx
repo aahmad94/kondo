@@ -9,42 +9,50 @@ import {
   updateEmailFrequencyAction,
   updateEmailAddressAction,
   sendTestEmailAction,
-  checkDailyContentAvailableAction
+  checkDailyContentAvailableAction,
+  subscribeToLanguageEmailsAction,
+  unsubscribeFromLanguageEmailsAction,
+  getLanguageEmailPreferencesAction,
+  updateLanguageEmailFrequencyAction,
+  sendLanguageTestEmailAction
 } from '@/actions/email';
 
 interface EmailSubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedLanguage: string; // Language code (e.g., 'ja', 'es')
 }
 
 type SubscriptionStatus = 'loading' | 'not-subscribed' | 'subscribed';
 
-export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscriptionModalProps) {
+export default function EmailSubscriptionModal({ isOpen, onClose, selectedLanguage }: EmailSubscriptionModalProps) {
   const [status, setStatus] = useState<SubscriptionStatus>('loading');
   const [email, setEmail] = useState('');
   const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily');
+  const [languageName, setLanguageName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
   const [hasContent, setHasContent] = useState(true);
   const [isSendingTest, setIsSendingTest] = useState(false);
 
-  // Load current preferences when modal opens
+  // Load current preferences when modal opens or language changes
   useEffect(() => {
     if (isOpen) {
       loadEmailPreferences();
       checkContentAvailability();
     }
-  }, [isOpen]);
+  }, [isOpen, selectedLanguage]);
 
   const loadEmailPreferences = async () => {
     try {
       setStatus('loading');
-      const result = await getEmailPreferencesAction();
+      const result = await getLanguageEmailPreferencesAction(selectedLanguage);
       
       if (result.success && result.data) {
         setStatus(result.data.isSubscribed ? 'subscribed' : 'not-subscribed');
         setEmail(result.data.email || '');
         setFrequency(result.data.frequency as 'daily' | 'weekly');
+        setLanguageName(result.data.languageName);
       } else {
         setStatus('not-subscribed');
         setMessage({ type: 'error', text: result.error || 'Failed to load preferences' });
@@ -64,7 +72,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
         if (!result.data) {
           setMessage({ 
             type: 'info', 
-            text: 'Create some bookmarks in your Dojo first to receive daily content!' 
+            text: `Create some ${languageName || selectedLanguage} bookmarks in your Dojo first to receive daily content!` 
           });
         }
       }
@@ -85,7 +93,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
     setMessage(null);
 
     try {
-      const result = await subscribeToEmailsAction(email.trim(), frequency);
+      const result = await subscribeToLanguageEmailsAction(selectedLanguage, email.trim(), frequency);
       
       if (result.success) {
         setStatus('subscribed');
@@ -106,11 +114,11 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
     setMessage(null);
 
     try {
-      const result = await unsubscribeFromEmailsAction();
+      const result = await unsubscribeFromLanguageEmailsAction(selectedLanguage);
       
       if (result.success) {
         setStatus('not-subscribed');
-        setMessage({ type: 'success', text: 'Successfully unsubscribed from email updates' });
+        setMessage({ type: 'success', text: result.message || 'Successfully unsubscribed from email updates' });
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to unsubscribe' });
       }
@@ -126,7 +134,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
     if (status !== 'subscribed') return;
 
     try {
-      const result = await updateEmailFrequencyAction(newFrequency);
+      const result = await updateLanguageEmailFrequencyAction(selectedLanguage, newFrequency);
       
       if (result.success) {
         setFrequency(newFrequency);
@@ -163,7 +171,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
     setMessage(null);
 
     try {
-      const result = await sendTestEmailAction();
+      const result = await sendLanguageTestEmailAction(selectedLanguage);
       
       if (result.success) {
         setMessage({ type: 'success', text: 'Test email sent! Check your inbox.' });
@@ -191,7 +199,9 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <EnvelopeIcon className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold text-card-foreground">Email Updates</h2>
+            <h2 className="text-lg font-semibold text-card-foreground">
+              {languageName ? `${languageName} ` : ''}Email Updates
+            </h2>
           </div>
           <button 
             onClick={onClose} 
@@ -214,10 +224,10 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
           <div>
             <div className="mb-6">
               <h3 className="text-sm font-medium text-card-foreground mb-2">
-                Get Daily Dojo Updates
+                Get Daily {languageName || selectedLanguage} Dojo Updates
               </h3>
               <p className="text-muted-foreground text-sm">
-                Subscribe to receive your personalized language learning content via email.
+                Subscribe to receive your personalized {languageName || selectedLanguage} language learning content via email.
               </p>
             </div>
 
@@ -364,7 +374,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose }: EmailSubscri
         {!hasContent && (
           <div className="mt-4 p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-sm">
             <p className="text-sm">
-              ⚠️ You don't have any content in your Dojo yet. Create some bookmarks first to receive meaningful daily emails!
+              ⚠️ You don't have any {languageName || selectedLanguage} content in your Dojo yet. Create some bookmarks first to receive meaningful daily emails!
             </p>
           </div>
         )}

@@ -241,6 +241,7 @@ export default function ChatBoxMenuBar({
       <EmailSubscriptionModal
         isOpen={showEmailModal}
         onClose={handleEmailModalClose}
+        selectedLanguage={selectedLanguage}
       />
     </>
   );
