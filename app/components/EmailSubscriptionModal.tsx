@@ -62,6 +62,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
   // Load current preferences when modal opens or language changes
   useEffect(() => {
     if (isOpen) {
+      setMessage(null); // Clear any previous messages
       loadEmailPreferences();
       checkContentAvailability();
     }
