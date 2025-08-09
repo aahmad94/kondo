@@ -1,0 +1,15 @@
+export {
+  subscribeUserToEmails,
+  unsubscribeUserFromEmails,
+  getUserEmailPreferences,
+  updateEmailFrequency,
+  updateUserEmailAddress,
+  validateEmailAddress,
+  sendWelcomeEmail,
+  sendDailyDigest,
+  checkUserHasDailyContent,
+  generateUnsubscribeToken,
+  validateUnsubscribeToken,
+  type EmailPreferences,
+  type SubscriptionData,
+} from './emailService';

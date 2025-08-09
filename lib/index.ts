@@ -5,3 +5,4 @@ export * from './user';
 export * from './utils';
 export * from './analytics';
 export * from './database';
+export * from './email';
