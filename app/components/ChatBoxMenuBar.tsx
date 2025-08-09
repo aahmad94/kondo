@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
 import { DojoTipsList, StatsContent, AdditionalCommands } from './ui/ContentModalItems';
+import EmailSubscriptionModal from './EmailSubscriptionModal';
 
 interface ChatBoxMenuBarProps {
   onNewReport: () => void;
@@ -34,6 +35,9 @@ export default function ChatBoxMenuBar({
   
   // New report confirmation modal state
   const [showNewReportConfirmation, setShowNewReportConfirmation] = useState(false);
+  
+  // Email subscription modal state
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   // Handle content modal types
   const handleContentModal = (type: 'tips' | 'stats' | 'commands', event?: React.MouseEvent<HTMLButtonElement>) => {
@@ -63,6 +67,15 @@ export default function ChatBoxMenuBar({
   const handleNewReportCancel = () => {
     setShowNewReportConfirmation(false);
   };
+  
+  // Handle email modal
+  const handleEmailModalOpen = () => {
+    setShowEmailModal(true);
+  };
+  
+  const handleEmailModalClose = () => {
+    setShowEmailModal(false);
+  };
 
   // Handle flashcard mode with click tracking
   const handleFlashcardClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -81,6 +94,7 @@ export default function ChatBoxMenuBar({
   const showFlashcards = isDojo || isOtherBookmark;
   const showDojoTips = isDojo;
   const showNewReport = isDojo;
+  const showEmailSubscription = isDojo; // Only show email button in Dojo
   const showAdditionalCommands = isRoot;
   const showStats = true; // Show stats for all bookmark types
 
@@ -141,7 +155,18 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Additional Commands Button - Fourth (root only) */}
+              {/* Email Subscription Button - Fourth (dojo only) */}
+              {showEmailSubscription && (
+                <button
+                  onClick={handleEmailModalOpen}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <EnvelopeIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>email updates</span>
+                </button>
+              )}
+
+              {/* Additional Commands Button - Fifth (root only) */}
               {showAdditionalCommands && (
                 <button
                   onClick={(e) => handleContentModal('commands', e)}
@@ -210,6 +235,12 @@ export default function ChatBoxMenuBar({
         confirmText="Yes"
         cancelText="Cancel"
         confirmButtonColor="blue"
+      />
+
+      {/* Email Subscription Modal */}
+      <EmailSubscriptionModal
+        isOpen={showEmailModal}
+        onClose={handleEmailModalClose}
       />
     </>
   );
