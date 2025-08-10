@@ -56,7 +56,7 @@ const dailyEmailTriggerFunction = inngest.createFunction(
       console.log("[Inngest] Starting daily email trigger (fan-out)...");
       
       // Get all users with daily email subscriptions
-      const users = await step.run("fetch-email-subscribers", async () => {
+      const userSubscriptions = await step.run("fetch-email-subscribers", async () => {
         const subscriptions = await prisma.userLanguageSubscription.findMany({
           where: {
             subscribed: true,
@@ -70,15 +70,15 @@ const dailyEmailTriggerFunction = inngest.createFunction(
       });
       
       // Fan out email events
-      await Promise.all(users.map(user =>
+      await Promise.all(userSubscriptions.map(subscription =>
         step.sendEvent("send.daily.emails", { 
           name: "send.daily.emails", 
-          data: { userId: user.userId }
+          data: { userId: subscription.userId }
         })
       ));
       
       console.log("[Inngest] Daily email fan-out completed");
-      return { success: true, usersProcessed: users.length };
+      return { success: true, usersProcessed: userSubscriptions.length };
     } catch (error) {
       console.error("[Inngest] Error in daily email fan-out:", error);
       throw error;
