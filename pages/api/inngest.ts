@@ -7,9 +7,9 @@ import { sendAllLanguageDigests } from '@/lib/email';
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
 
-// Main function: fetch users and fan out events
-const testFunction = inngest.createFunction(
-  { id: "daily-response-logger" },
+// Main function: fetch users and fan out summary generation events
+const initDojoFanOutFunction = inngest.createFunction(
+  { id: "init-dojo-fan-out" },
   { cron: "TZ=America/New_York 1 0 * * *" },
   async ({ step, event }) => {
     try {
@@ -26,34 +26,75 @@ const testFunction = inngest.createFunction(
         console.log(`[Inngest] Found ${users.length} users with bookmarked responses`);
         return users;
       });
-      // Fan out: send an event for each user (not inside step.run)
+      
+      // Fan out summary generation events
       await Promise.all(users.map(user =>
         step.sendEvent("generate.user.summary", { 
           name: "generate.user.summary", 
           data: { userId: user.userId }
         })
       ));
+      
       await prisma.$disconnect();
-      console.log("[Inngest] Fan-out completed");
+      console.log("[Inngest] Summary generation fan-out completed");
       return { success: true, usersProcessed: users.length };
     } catch (error) {
-      console.error("[Inngest] Error in fan-out:", error);
+      console.error("[Inngest] Error in summary generation fan-out:", error);
       await prisma.$disconnect();
       throw error;
     }
   }
 );
 
-// Worker function: process a single user
-const generateUserSummaryFunction = inngest.createFunction(
-  { id: "generate-user-summary" },
+// Email trigger function: runs 30 minutes after summary generation
+const dailyEmailTriggerFunction = inngest.createFunction(
+  { id: "daily-email-trigger" },
+  { cron: "TZ=America/New_York 30 1 * * *" }, // 1:30 AM EST - 30 minutes after summaries
+  async ({ step, event }) => {
+    try {
+      console.log("[Inngest] Starting daily email trigger (fan-out)...");
+      
+      // Get all users with daily email subscriptions
+      const users = await step.run("fetch-email-subscribers", async () => {
+        const subscriptions = await prisma.userLanguageSubscription.findMany({
+          where: {
+            subscribed: true,
+            emailFrequency: 'daily'
+          },
+          select: { userId: true },
+          distinct: ['userId']
+        });
+        console.log(`[Inngest] Found ${subscriptions.length} users with daily email subscriptions`);
+        return subscriptions;
+      });
+      
+      // Fan out email events
+      await Promise.all(users.map(user =>
+        step.sendEvent("send.daily.emails", { 
+          name: "send.daily.emails", 
+          data: { userId: user.userId }
+        })
+      ));
+      
+      console.log("[Inngest] Daily email fan-out completed");
+      return { success: true, usersProcessed: users.length };
+    } catch (error) {
+      console.error("[Inngest] Error in daily email fan-out:", error);
+      throw error;
+    }
+  }
+);
+
+// Worker function: process a single user summary (no emails)
+const buildDojoReportFunction = inngest.createFunction(
+  { id: "build-dojo-report" },
   { event: "generate.user.summary" },
   async ({ event, step }) => {
     const { userId } = event.data;
     try {
       console.log(`[Inngest] Generating summary for user ${userId}`);
       
-      // Step 1: Generate summary
+      // Generate summary only - no email logic
       const data = await step.run("generate-summary", async () => {
         return await generateUserSummary(userId, true, true);
       });
@@ -61,49 +102,62 @@ const generateUserSummaryFunction = inngest.createFunction(
       const { allResponses: responses, createdAt } = data;
       console.log(`[Inngest] Successfully generated summary for user ${userId} with ${responses?.length || 0} responses`);
       
-      // Step 2: Send emails if user has content and subscriptions
-      if (responses && responses.length > 0) {
-        await step.run("send-daily-emails", async () => {
-          try {
-            console.log(`[Inngest] Checking email subscriptions for user ${userId}`);
-            
-            // Get user's language subscriptions
-            const subscriptions = await prisma.userLanguageSubscription.findMany({
-              where: {
-                userId,
-                subscribed: true,
-                emailFrequency: 'daily' // Only send daily emails in this job
-              },
-              include: {
-                language: true,
-                user: {
-                  select: { name: true, email: true }
-                }
-              }
-            });
-            
-            if (subscriptions.length > 0) {
-              console.log(`[Inngest] Found ${subscriptions.length} daily email subscriptions for user ${userId}`);
-              await sendAllLanguageDigests(userId, false);
-              console.log(`[Inngest] Successfully sent daily emails for user ${userId}`);
-              return { emailsSent: subscriptions.length };
-            } else {
-              console.log(`[Inngest] No daily email subscriptions found for user ${userId}`);
-              return { emailsSent: 0 };
-            }
-          } catch (emailError) {
-            console.error(`[Inngest] Error sending emails for user ${userId}:`, emailError);
-            // Don't throw - we don't want email failures to break summary generation
-            return { emailsSent: 0, emailError: emailError instanceof Error ? emailError.message : String(emailError) };
-          }
-        });
-      } else {
-        console.log(`[Inngest] No content available for user ${userId}, skipping emails`);
-      }
-      
       return { success: true, userId, responsesCount: responses?.length || 0 };
     } catch (error) {
       console.error(`[Inngest] Error processing user ${userId}:`, error);
+      throw error;
+    }
+  }
+);
+
+// Dedicated email function: process daily emails for a single user
+const sendDailyEmailsFunction = inngest.createFunction(
+  { id: "send-daily-emails" },
+  { event: "send.daily.emails" },
+  async ({ event, step }) => {
+    const { userId } = event.data;
+    try {
+      console.log(`[Inngest] Processing daily emails for user ${userId}`);
+      
+      // Check if user has email subscriptions
+      const subscriptions = await step.run("check-subscriptions", async () => {
+        const subs = await prisma.userLanguageSubscription.findMany({
+          where: {
+            userId,
+            subscribed: true,
+            emailFrequency: 'daily'
+          },
+          include: {
+            language: true,
+            user: {
+              select: { name: true, email: true }
+            }
+          }
+        });
+        console.log(`[Inngest] Found ${subs.length} daily email subscriptions for user ${userId}`);
+        return subs;
+      });
+      
+      if (subscriptions.length === 0) {
+        console.log(`[Inngest] No daily email subscriptions found for user ${userId}`);
+        return { success: true, userId, emailsSent: 0 };
+      }
+      
+      // Send emails
+      const emailResult = await step.run("send-emails", async () => {
+        try {
+          await sendAllLanguageDigests(userId, false);
+          console.log(`[Inngest] Successfully sent daily emails for user ${userId}`);
+          return { emailsSent: subscriptions.length };
+        } catch (emailError) {
+          console.error(`[Inngest] Error sending emails for user ${userId}:`, emailError);
+          throw emailError;
+        }
+      });
+      
+      return { success: true, userId, ...emailResult };
+    } catch (error) {
+      console.error(`[Inngest] Error processing daily emails for user ${userId}:`, error);
       throw error;
     }
   }
@@ -179,8 +233,10 @@ const sendWeeklyEmailsFunction = inngest.createFunction(
 export default serve({
   client: inngest,
   functions: [
-    testFunction, 
-    generateUserSummaryFunction,
+    initDojoFanOutFunction,
+    dailyEmailTriggerFunction,
+    buildDojoReportFunction,
+    sendDailyEmailsFunction,
     weeklyEmailFunction,
     sendWeeklyEmailsFunction
   ],
