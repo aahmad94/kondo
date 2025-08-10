@@ -17,7 +17,7 @@ export default async function handler(
 
   try {
     // First get the bookmark to get its languageId
-    const bookmark = await prisma.bookmark.findUnique({
+    const bookmarkInfo = await prisma.bookmark.findUnique({
       where: {
         id: bookmarkId
       },
@@ -26,7 +26,7 @@ export default async function handler(
       }
     });
 
-    if (!bookmark) {
+    if (!bookmarkInfo) {
       return res.status(404).json({ message: 'Bookmark not found' });
     }
 
@@ -37,7 +37,7 @@ export default async function handler(
             id: bookmarkId
           }
         },
-        languageId: bookmark.languageId // Use the bookmark's languageId
+        languageId: bookmarkInfo.languageId // Use the bookmark's languageId
       },
       select: {
         id: true,
@@ -58,23 +58,23 @@ export default async function handler(
       }
     });
 
-    const bookmarks = await prisma.bookmark.findMany({
+    const bookmark = await prisma.bookmark.findUnique({
       where: {
-        id: bookmarkId,
-        responses: {
-          some: {
-            id: {
-              in: responses.map(response => response.id)
-            }
-          }
-        }
+        id: bookmarkId
+      },
+      select: {
+        id: true,
+        title: true
       }
     });
 
-    const bookmarkDict: Record<string, string> = {};
-    responses.forEach(response => {
-      bookmarkDict[response.id] = bookmarkId;
-    });
+    if (!bookmark) {
+      return res.status(404).json({ message: 'Bookmark not found' });
+    }
+
+    const bookmarkDict: Record<string, string> = {
+      [bookmark.id]: bookmark.title
+    };
 
     const formattedResponses = responses.map(response => ({
       ...response,

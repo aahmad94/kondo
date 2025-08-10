@@ -474,7 +474,7 @@ export default function GPTResponse({
 
 
   return (
-    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b border-border' : ''}`}>
+    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
       <div className="header flex justify-between mb-2">
         {/* Left side */}
         <div className="flex pt-2 pb-1 items-center gap-3">
@@ -778,24 +778,34 @@ export default function GPTResponse({
       </div>
 
       {/* Bookmark badge in bottom left corner with pause toggle */}
-      {(selectedBookmarkTitle === 'daily summary' || selectedBookmarkTitle === 'all responses' || selectedBookmarkTitle === 'search') && bookmarks && Object.keys(bookmarks).length > 0 && (
+      {bookmarks && Object.keys(bookmarks).length > 0 && (
         <div className="mt-2 pt-1 flex items-center gap-2">
-          <span 
-            onClick={handleBookmarkClick}
-            className="text-xs px-2 py-1 bg-[hsl(var(--badge-bg))] text-[hsl(var(--badge-text))] rounded-sm cursor-pointer hover:opacity-80 transition-all duration-200 max-w-[120px] truncate"
-          >
-            {(() => {
-              const nonReservedTitle = Object.values(bookmarks).find(title => 
-                !reservedBookmarkTitles.includes(title)
-              );
-              if (nonReservedTitle) return nonReservedTitle;
-              const firstTitle = Object.values(bookmarks)[0];
-              return firstTitle === 'daily summary' ? 'Dojo' : firstTitle;
-            })()}
-          </span>
+          {(() => {
+            const nonReservedTitle = Object.values(bookmarks).find(title => 
+              !reservedBookmarkTitles.includes(title)
+            );
+            const displayTitle = nonReservedTitle || Object.values(bookmarks)[0];
+            const finalDisplayTitle = displayTitle === 'daily summary' ? 'Dojo' : displayTitle;
+            const isCurrentBookmark = finalDisplayTitle === selectedBookmarkTitle || 
+                                    (displayTitle === 'daily summary' && selectedBookmarkTitle === 'daily summary') ||
+                                    (finalDisplayTitle === 'Dojo' && selectedBookmarkTitle === 'daily summary');
+            
+            return (
+              <span 
+                onClick={isCurrentBookmark ? undefined : handleBookmarkClick}
+                className={`text-xs px-2 py-1 rounded-sm transition-all duration-200 max-w-[120px] truncate ${
+                  isCurrentBookmark 
+                    ? 'bg-muted text-muted-foreground cursor-default'
+                    : 'bg-[hsl(var(--badge-bg))] text-[hsl(var(--badge-text))] cursor-pointer hover:opacity-80'
+                }`}
+              >
+                {finalDisplayTitle}
+              </span>
+            );
+          })()}
           
-          {/* Pause button - only show when bookmark is "daily summary" */}
-          {selectedBookmarkTitle === 'daily summary' && selectedBookmarkId && responseId && onPauseToggle && (
+          {/* Pause button - show for all bookmarks */}
+          {selectedBookmarkId && responseId && onPauseToggle && (
             <IconButton
               icon={<PauseCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
               alternateIcon={<PlayCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}

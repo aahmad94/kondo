@@ -45,6 +45,7 @@ interface BookmarkResponse {
   content: string;
   rank: number;
   isPaused?: boolean;
+  bookmarks?: Record<string, string>;
   createdAt: Date;
   updatedAt: Date;
   furigana?: string | null;
@@ -244,6 +245,7 @@ export default function ChatBox({
         content: response.content,
         rank: response.rank,
         isPaused: response.isPaused,
+        bookmarks: response.bookmarks,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
         furigana: response.furigana,
