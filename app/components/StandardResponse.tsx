@@ -87,25 +87,22 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     }
   }, [furiganaText, onFuriganaGenerated]);
 
-  // Sync furigana text with cached furigana prop changes
+  // Sync furigana text with cached furigana prop changes and reset when content changes
   useEffect(() => {
-    setFuriganaText(cachedFurigana || '');
-  }, [cachedFurigana]);
-
-  // Reset furigana text when response content changes
-  useEffect(() => {
-    if (!cachedFurigana) {
+    if (cachedFurigana) {
+      setFuriganaText(cachedFurigana);
+    } else {
       setFuriganaText('');
+      setRetryCount(0); // Reset retry count when content changes
     }
-  }, [processedItems[0], cachedFurigana]);
+  }, [cachedFurigana, processedItems[0], processedItems[1]]);
 
   useEffect(() => {
     const generateFurigana = async () => {
       if (!shouldUseFurigana) return;
       
-      // If we already have cached furigana, don't make an API call
-      if (cachedFurigana) {
-        setFuriganaText(cachedFurigana);
+      // If we already have cached furigana or current furigana text, don't make an API call
+      if (cachedFurigana || furiganaText) {
         return;
       }
 
@@ -139,7 +136,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     };
 
     generateFurigana();
-  }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount, responseId, cachedFurigana]);
+  }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount, responseId]);
 
   // If this is a Japanese 4-line response, render the enhanced version
   if (isJapaneseFourLine) {
