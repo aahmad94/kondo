@@ -302,6 +302,128 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
 }
 
 /**
+ * Send language-specific daily digest email using language code
+ */
+export async function sendDailyDigestByLanguageCode(userId: string, languageCode: string, isTest: boolean = false): Promise<void> {
+  try {
+    // Get the language by code first
+    const language = await prisma.language.findUnique({
+      where: { code: languageCode },
+      select: { id: true, code: true, name: true }
+    });
+
+    if (!language) {
+      throw new Error(`Language not found for code: ${languageCode}`);
+    }
+
+    // Get the specific language subscription
+    const subscription = await prisma.userLanguageSubscription.findUnique({
+      where: {
+        userId_languageId: { userId, languageId: language.id }
+      },
+      include: {
+        language: true,
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    if (!subscription || !subscription.subscribed) {
+      throw new Error(`User not subscribed to emails for language: ${languageCode}`);
+    }
+
+    const recipientEmail = subscription.subscriptionEmail || subscription.user.email;
+    if (!recipientEmail) {
+      throw new Error('No email address found for user subscription');
+    }
+
+    // Generate daily summary content and filter by language
+    const allSummaryData = await generateUserSummary(userId, false, true); // Get all languages
+    
+    if (!allSummaryData || !allSummaryData.allResponses || allSummaryData.allResponses.length === 0) {
+      console.log(`No daily content available for user ${userId}`);
+      return;
+    }
+
+    // Filter responses for this specific language
+    const languageResponses = await prisma.gPTResponse.findMany({
+      where: {
+        userId,
+        languageId: language.id,
+        id: {
+          in: allSummaryData.allResponses.map(r => r.id)
+        }
+      },
+      select: {
+        id: true,
+        content: true,
+        rank: true,
+        breakdown: true,
+        languageId: true
+      }
+    });
+
+    if (languageResponses.length === 0) {
+      console.log(`No daily content available for user ${userId} in language ${languageCode}`);
+      return;
+    }
+
+    // Create filtered summary data
+    const summaryData = {
+      ...allSummaryData,
+      allResponses: languageResponses
+    };
+
+    const emailContent = await generateDailyDigestHTML(
+      subscription.user.name || 'Kondo User',
+      summaryData.allResponses.slice(0, 6),
+      userId,
+      isTest
+    );
+
+    const currentDate = new Date().toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+    
+    const languageFlag = getLanguageFlag(language.code);
+    
+    const subject = isTest 
+      ? `${languageFlag} Test: Dojo Report ${currentDate}` 
+      : `${languageFlag} Dojo Report ${currentDate}`;
+
+    const resend = getResendClient();
+    await resend.emails.send({
+      from: 'Kondo <noreply@kondoai.com>',
+      to: [recipientEmail],
+      subject,
+      html: emailContent,
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId),
+    });
+
+    // Update last email sent timestamp (only for real emails, not tests)
+    if (!isTest) {
+      await prisma.userLanguageSubscription.update({
+        where: {
+          userId_languageId: { userId, languageId: language.id }
+        },
+        data: {
+          lastEmailSent: new Date(),
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Error sending daily digest by language code:', error);
+    throw new Error('Failed to send daily digest by language code');
+  }
+}
+
+/**
  * Send language-specific daily digest email
  */
 export async function sendLanguageSpecificDailyDigest(userId: string, languageId: string, isTest: boolean = false): Promise<void> {

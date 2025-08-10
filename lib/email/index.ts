@@ -8,6 +8,7 @@ export {
   sendWelcomeEmail,
   sendDailyDigest,
   sendLanguageSpecificDailyDigest,
+  sendDailyDigestByLanguageCode,
   sendAllLanguageDigests,
   checkUserHasDailyContent,
   generateUnsubscribeToken,

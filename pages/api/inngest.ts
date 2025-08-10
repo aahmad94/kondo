@@ -3,6 +3,7 @@ import { serve } from "inngest/next";
 import { Inngest } from 'inngest';
 import { prisma, generateUserSummary } from '@/lib';
 import { sendAllLanguageDigests } from '@/lib/email';
+import { sendDailyDigestByLanguageCode } from '@/lib/email/emailService';
 
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
@@ -128,7 +129,9 @@ const sendDailyEmailsFunction = inngest.createFunction(
             emailFrequency: 'daily'
           },
           include: {
-            language: true,
+            language: {
+              select: { code: true, name: true, id: true }
+            },
             user: {
               select: { name: true, email: true }
             }
@@ -143,12 +146,24 @@ const sendDailyEmailsFunction = inngest.createFunction(
         return { success: true, userId, emailsSent: 0 };
       }
       
-      // Send emails
+      // Send emails for each daily subscription
       const emailResult = await step.run("send-emails", async () => {
         try {
-          await sendAllLanguageDigests(userId, false);
-          console.log(`[Inngest] Successfully sent daily emails for user ${userId}`);
-          return { emailsSent: subscriptions.length };
+          let emailsSent = 0;
+          
+          for (const subscription of subscriptions) {
+            try {
+              await sendDailyDigestByLanguageCode(userId, subscription.language.code, false);
+              emailsSent++;
+              console.log(`[Inngest] Sent daily email for user ${userId}, language ${subscription.language.name} (${subscription.language.code})`);
+            } catch (langError) {
+              console.error(`[Inngest] Error sending email for user ${userId}, language ${subscription.language.name} (${subscription.language.code}):`, langError);
+              // Continue with other languages even if one fails
+            }
+          }
+          
+          console.log(`[Inngest] Successfully sent ${emailsSent} daily emails for user ${userId}`);
+          return { emailsSent };
         } catch (emailError) {
           console.error(`[Inngest] Error sending emails for user ${userId}:`, emailError);
           throw emailError;
