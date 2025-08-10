@@ -9,6 +9,111 @@ interface Response {
   bookmarks: Record<string, string>;
 }
 
+/**
+ * Retrieve existing user summary without regenerating
+ * Used by email functions to get already-generated daily summaries
+ */
+export async function getUserSummary(userId: string, languageCode?: string) {
+  try {
+    console.log(`[getUserSummary] Retrieving summary for user ${userId}, language: ${languageCode || 'all'}`);
+    
+    let languageIds: string[] = [];
+    
+    if (languageCode) {
+      // Get specific language by code
+      const language = await prisma.language.findUnique({
+        where: { code: languageCode },
+        select: { id: true }
+      });
+      
+      if (!language) {
+        throw new Error(`Language not found for code: ${languageCode}`);
+      }
+      
+      languageIds = [language.id];
+    } else {
+      // Get all languages for user
+      const activeLanguages = await prisma.language.findMany({
+        where: { 
+          isActive: true,
+          OR: [
+            { responses: { some: { userId } } },
+            { bookmarks: { some: { userId } } }
+          ]
+        },
+        select: { id: true }
+      });
+      languageIds = activeLanguages.map(lang => lang.id);
+    }
+    
+    if (languageIds.length === 0) {
+      console.log(`[getUserSummary] No languages found for user ${userId}`);
+      return { allResponses: [], createdAt: null };
+    }
+    
+    const allResponses: Response[] = [];
+    let latestCreatedAt: Date | null = null;
+    
+    for (const languageId of languageIds) {
+      // Get the most recent daily summary for this language
+      const latestSummary = await prisma.dailySummary.findFirst({
+        where: { userId, languageId },
+        select: {
+          id: true,
+          createdAt: true,
+          responses: { 
+            where: { languageId }, 
+            select: { 
+              id: true, 
+              content: true, 
+              createdAt: true, 
+              rank: true, 
+              isPaused: true,
+              furigana: true,
+              isFuriganaEnabled: true,
+              isPhoneticEnabled: true,
+              isKanaEnabled: true,
+              breakdown: true,
+              mobileBreakdown: true,
+              bookmarks: { 
+                select: { 
+                  id: true, 
+                  title: true 
+                } 
+              } 
+            } 
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+      
+      if (latestSummary && latestSummary.responses.length > 0) {
+        // Transform responses to match expected format
+        const transformedResponses = latestSummary.responses.map(response => ({
+          ...response,
+          bookmarks: response.bookmarks.reduce((acc, bookmark) => {
+            acc[bookmark.id] = bookmark.title;
+            return acc;
+          }, {} as Record<string, string>)
+        }));
+        
+        allResponses.push(...transformedResponses);
+        
+        // Track the latest createdAt
+        if (!latestCreatedAt || latestSummary.createdAt > latestCreatedAt) {
+          latestCreatedAt = latestSummary.createdAt;
+        }
+      }
+    }
+    
+    console.log(`[getUserSummary] Retrieved ${allResponses.length} responses for user ${userId}`);
+    return { allResponses, createdAt: latestCreatedAt };
+  } catch (error) {
+    console.error(`[getUserSummary] Error retrieving summary for user ${userId}:`, error);
+    throw error;
+  }
+}
+
 export async function generateUserSummary(userId: string, forceRefresh: boolean = false, allLanguages: boolean = false) {
   try {
     // console.log(`[generateUserSummary] Start for user ${userId}, forceRefresh=${forceRefresh}, allLanguages=${allLanguages}`);

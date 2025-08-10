@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import { prisma } from '@/lib/database';
-import { generateUserSummary } from '@/lib/gpt';
+import { generateUserSummary, getUserSummary } from '@/lib/gpt';
 import { formatResponseHTML, formatResponseText, type EmailResponse, type EmailFormatOptions } from './format';
 import { generateWelcomeEmailHTML, generateWelcomeEmailText } from './welcomeTemplate';
 import { generateDailyDigestHTML, generateDailyDigestText } from './dailyDigestTemplate';
@@ -302,9 +302,9 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
 }
 
 /**
- * Send language-specific daily digest email using language code
+ * Send language-specific Dojo report email using language code
  */
-export async function sendDailyDigestByLanguageCode(userId: string, languageCode: string, isTest: boolean = false): Promise<void> {
+export async function sendDojoReportByLanguageCode(userId: string, languageCode: string, isTest: boolean = false): Promise<void> {
   try {
     // Get the language by code first
     const language = await prisma.language.findUnique({
@@ -341,42 +341,13 @@ export async function sendDailyDigestByLanguageCode(userId: string, languageCode
       throw new Error('No email address found for user subscription');
     }
 
-    // Generate daily summary content and filter by language
-    const allSummaryData = await generateUserSummary(userId, false, true); // Get all languages
+    // Retrieve existing daily summary for this specific language
+    const summaryData = await getUserSummary(userId, languageCode);
     
-    if (!allSummaryData || !allSummaryData.allResponses || allSummaryData.allResponses.length === 0) {
-      console.log(`No daily content available for user ${userId}`);
-      return;
-    }
-
-    // Filter responses for this specific language
-    const languageResponses = await prisma.gPTResponse.findMany({
-      where: {
-        userId,
-        languageId: language.id,
-        id: {
-          in: allSummaryData.allResponses.map(r => r.id)
-        }
-      },
-      select: {
-        id: true,
-        content: true,
-        rank: true,
-        breakdown: true,
-        languageId: true
-      }
-    });
-
-    if (languageResponses.length === 0) {
+    if (!summaryData || !summaryData.allResponses || summaryData.allResponses.length === 0) {
       console.log(`No daily content available for user ${userId} in language ${languageCode}`);
       return;
     }
-
-    // Create filtered summary data
-    const summaryData = {
-      ...allSummaryData,
-      allResponses: languageResponses
-    };
 
     const emailContent = await generateDailyDigestHTML(
       subscription.user.name || 'Kondo User',
@@ -418,8 +389,8 @@ export async function sendDailyDigestByLanguageCode(userId: string, languageCode
       });
     }
   } catch (error) {
-    console.error('Error sending daily digest by language code:', error);
-    throw new Error('Failed to send daily digest by language code');
+    console.error('Error sending Dojo report by language code:', error);
+    throw new Error('Failed to send Dojo report by language code');
   }
 }
 

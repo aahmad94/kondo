@@ -1,9 +1,9 @@
 // pages/api/inngest.ts
 import { serve } from "inngest/next";
 import { Inngest } from 'inngest';
-import { prisma, generateUserSummary } from '@/lib';
+import { prisma, generateUserSummary, getUserSummary } from '@/lib';
 import { sendAllLanguageDigests } from '@/lib/email';
-import { sendDailyDigestByLanguageCode } from '@/lib/email/emailService';
+import { sendDojoReportByLanguageCode } from '@/lib/email/emailService';
 
 // Initialize the Inngest client
 const inngest = new Inngest({ id: 'Kondo' });
@@ -153,7 +153,7 @@ const sendDailyEmailsFunction = inngest.createFunction(
           
           for (const subscription of subscriptions) {
             try {
-              await sendDailyDigestByLanguageCode(userId, subscription.language.code, false);
+              await sendDojoReportByLanguageCode(userId, subscription.language.code, false);
               emailsSent++;
               console.log(`[Inngest] Sent daily email for user ${userId}, language ${subscription.language.name} (${subscription.language.code})`);
             } catch (langError) {
@@ -221,24 +221,64 @@ const weeklyEmailFunction = inngest.createFunction(
 const sendWeeklyEmailsFunction = inngest.createFunction(
   { id: "send-weekly-emails" },
   { event: "send.weekly.emails" },
-  async ({ event }) => {
+  async ({ event, step }) => {
     const { userId } = event.data;
     try {
-      console.log(`[Inngest] Sending weekly emails for user ${userId}`);
+      console.log(`[Inngest] Processing weekly emails for user ${userId}`);
       
-      // Check if user has responses to send
-      const summaryData = await generateUserSummary(userId, false, false);
+      // Check if user has weekly email subscriptions
+      const subscriptions = await step.run("check-weekly-subscriptions", async () => {
+        const subs = await prisma.userLanguageSubscription.findMany({
+          where: {
+            userId,
+            subscribed: true,
+            emailFrequency: 'weekly'
+          },
+          include: {
+            language: {
+              select: { code: true, name: true, id: true }
+            },
+            user: {
+              select: { name: true, email: true }
+            }
+          }
+        });
+        console.log(`[Inngest] Found ${subs.length} weekly email subscriptions for user ${userId}`);
+        return subs;
+      });
       
-      if (summaryData && summaryData.allResponses && summaryData.allResponses.length > 0) {
-        await sendAllLanguageDigests(userId, false);
-        console.log(`[Inngest] Successfully sent weekly emails for user ${userId}`);
-        return { success: true, userId };
-      } else {
-        console.log(`[Inngest] No content available for weekly email for user ${userId}`);
-        return { success: true, userId, skipped: true };
+      if (subscriptions.length === 0) {
+        console.log(`[Inngest] No weekly email subscriptions found for user ${userId}`);
+        return { success: true, userId, emailsSent: 0 };
       }
+      
+      // Send emails for each weekly subscription
+      const emailResult = await step.run("send-weekly-emails", async () => {
+        try {
+          let emailsSent = 0;
+          
+          for (const subscription of subscriptions) {
+            try {
+              await sendDojoReportByLanguageCode(userId, subscription.language.code, false);
+              emailsSent++;
+              console.log(`[Inngest] Sent weekly email for user ${userId}, language ${subscription.language.name} (${subscription.language.code})`);
+            } catch (langError) {
+              console.error(`[Inngest] Error sending weekly email for user ${userId}, language ${subscription.language.name} (${subscription.language.code}):`, langError);
+              // Continue with other languages even if one fails
+            }
+          }
+          
+          console.log(`[Inngest] Successfully sent ${emailsSent} weekly emails for user ${userId}`);
+          return { emailsSent };
+        } catch (emailError) {
+          console.error(`[Inngest] Error sending weekly emails for user ${userId}:`, emailError);
+          throw emailError;
+        }
+      });
+      
+      return { success: true, userId, ...emailResult };
     } catch (error) {
-      console.error(`[Inngest] Error sending weekly emails for user ${userId}:`, error);
+      console.error(`[Inngest] Error processing weekly emails for user ${userId}:`, error);
       throw error;
     }
   }
