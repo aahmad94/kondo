@@ -172,7 +172,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
   return (
     <>
-      <div className="pl-3 pt-3 rounded text-white w-full border-b border-[#222222]" style={{ backgroundColor: '#000000' }}>
+      <div className="pl-3 pt-3 rounded text-foreground w-full border border-border bg-card shadow-lg">
         {/* Header */}
         <div className="header flex justify-between mb-2 pb-1">          
           <div className="flex items-center gap-3">
@@ -180,7 +180,6 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             <RankContainer 
               rank={rank} 
               onRankClick={onRankClick}
-              forceDarkMode={true}
             />
 
 
@@ -218,12 +217,12 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
-                className="text-white hover:text-gray-300 transition-colors duration-200"
+                className="text-foreground hover:text-muted-foreground transition-colors duration-200"
               >
                 <ChevronDownIcon className="h-6 w-6" />
               </button>
               {showFuriganaDropdown && (
-                <div className={`absolute left-1/2 transform -translate-x-1/2 top-full mt-2 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-[60] ${
+                <div className={`absolute left-1/2 transform -translate-x-1/2 top-full mt-2 rounded-md shadow-lg bg-popover border border-border ring-1 ring-border ring-opacity-5 z-[60] ${
                   isMobile 
                     ? 'min-w-[80px] w-[100px] max-w-[100px]' 
                     : 'min-w-[120px] w-max'
@@ -232,7 +231,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     {/* Furigana toggle - only for Japanese */}
                     <button
                       onClick={handleFuriganaToggle}
-                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
                         isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                       }`}
                     >
@@ -248,7 +247,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     {/* Kana toggle - only for Japanese */}
                     <button
                       onClick={handleKanaToggle}
-                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
                         isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                       }`}
                     >
@@ -264,7 +263,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                     {/* Phonetic toggle */}
                     <button
                       onClick={handlePhoneticToggle}
-                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-gray-200 hover:bg-gray-700 ${
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
                         isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
                       }`}
                     >
@@ -292,7 +291,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
                   ref={plusButtonRef}
                   onMouseEnter={() => setIsPlusHovered(true)}
                   onMouseLeave={() => setIsPlusHovered(false)}
-                  className="text-white hover:text-blue-400 transition-colors duration-200 pr-3"
+                  className="text-foreground hover:text-blue-400 transition-colors duration-200 pr-3"
                 >
                   <PlusIcon className="h-6 w-6" />
                 </button>
@@ -300,7 +299,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             ) : (
               <button 
                 ref={plusButtonRef}
-                className="text-white hover:text-blue-400 transition-colors duration-200 pr-3"
+                className="text-foreground hover:text-blue-400 transition-colors duration-200 pr-3"
               >
                 <PlusIcon className="h-6 w-6" />
               </button>
@@ -310,7 +309,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
         {/* Response content */}
         <div className="whitespace-pre-wrap overflow-x-auto w-[95%]">
-          <div className="pr-3" style={{ color: '#b59f3b' }}>
+          <div className="pr-3 text-[hsl(var(--phrase-text))]">
             <div className="space-y-2">
               {shouldUseFurigana ? (
                 <>
@@ -332,13 +331,13 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
                   {/* Romanized text */}
                   {isPhoneticEnabled && (
-                    <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+                    <div className="text-sm opacity-60 italic text-[hsl(var(--phrase-text))]">
                       {response.content.romanized}
                     </div>
                   )}
 
                   {/* English translation */}
-                  <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+                  <span className="inline-block text-sm text-[hsl(var(--translation-text))] bg-[hsl(var(--translation-bg))] p-2 rounded">
                     {response.content.english}
                   </span>
                 </>
@@ -358,13 +357,13 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
 
                   {/* Romanized text */}
                   {isPhoneticEnabled && (
-                    <div className="text-sm opacity-80 italic" style={{ color: 'rgb(181, 159, 59, 0.60)' }}>
+                    <div className="text-sm opacity-60 italic text-[hsl(var(--phrase-text))]">
                       {response.content.romanized}
                     </div>
                   )}
 
                   {/* English translation */}
-                  <span className="inline-block text-sm text-blue-400 bg-blue-900/20 p-2 rounded">
+                  <span className="inline-block text-sm text-[hsl(var(--translation-text))] bg-[hsl(var(--translation-bg))] p-2 rounded">
                     {response.content.english}
                   </span>
                 </>
@@ -384,7 +383,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             >
               <button 
                 ref={bookmarkButtonRef}
-                className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[120px] truncate text-white"
+                className="text-xs px-2 py-1 bg-[hsl(var(--badge-bg))] rounded-sm cursor-pointer hover:bg-[hsl(var(--badge-bg))]/80 transition-colors duration-200 active:bg-[hsl(var(--badge-bg))]/90 max-w-[120px] truncate text-[hsl(var(--badge-text))]"
                 onMouseEnter={() => setIsBookmarkHovered(true)}
                 onMouseLeave={() => setIsBookmarkHovered(false)}
               >
@@ -392,7 +391,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
               </button>
             </Tooltip>
           ) : (
-            <button className="text-xs px-2 py-1 bg-blue-500 rounded-sm cursor-pointer hover:bg-blue-600 transition-colors duration-200 active:bg-blue-700 max-w-[120px] truncate text-white">
+            <button className="text-xs px-2 py-1 bg-[hsl(var(--badge-bg))] rounded-sm cursor-pointer hover:bg-[hsl(var(--badge-bg))]/80 transition-colors duration-200 active:bg-[hsl(var(--badge-bg))]/90 max-w-[120px] truncate text-[hsl(var(--badge-text))]">
               {response.bookmark}
             </button>
           )}

@@ -70,7 +70,7 @@ export default function KondoDemo() {
   if (loading) {
     return (
       <div className="flex items-center justify-center max-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
       </div>
     );
   }
@@ -78,7 +78,7 @@ export default function KondoDemo() {
   if (responses.length === 0) {
     return (
       <div className="text-center h-screen flex items-center justify-center">
-        <p className="text-gray-400">No demo data available</p>
+        <p className="text-muted-foreground">No demo data available</p>
       </div>
     );
   }
@@ -89,10 +89,10 @@ export default function KondoDemo() {
       <div className="flex-1 flex flex-col items-center justify-center min-h-0">
         {/* Demo header */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
             Interactive Demo
           </h2>
-          <p className="text-gray-300 text-sm max-w-xl">
+          <p className="text-muted-foreground text-sm max-w-xl">
             Try out the features below - hover and click through the icons for grammar and audio guides
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function KondoDemo() {
           {/* Left arrow */}
           <button
             onClick={goToPrevious}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-transparent hover:bg-transparent focus:bg-transparent"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-transparent hover:bg-transparent focus:bg-transparent"
             disabled={responses.length <= 1}
             aria-label="Previous"
           >
@@ -121,7 +121,7 @@ export default function KondoDemo() {
           {/* Right arrow */}
           <button
             onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-transparent hover:bg-transparent focus:bg-transparent"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-transparent hover:bg-transparent focus:bg-transparent"
             disabled={responses.length <= 1}
             aria-label="Next"
           >
@@ -138,8 +138,8 @@ export default function KondoDemo() {
                 onClick={() => setCurrentIndex(index)}
                 className={`w-1.5 h-1.5 rounded-full border transition-colors focus:outline-none ${
                   index === currentIndex
-                    ? 'bg-white border-white'
-                    : 'bg-gray-500 border-gray-400 hover:bg-gray-300'
+                    ? 'bg-foreground border-foreground'
+                    : 'bg-muted-foreground border-muted-foreground hover:bg-foreground/70'
                 }`}
                 aria-label={`Go to response ${index + 1}`}
               />

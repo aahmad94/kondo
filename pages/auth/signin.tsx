@@ -16,6 +16,20 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   const [activeIndex, setActiveIndex] = useState(0);
   const { isMobile, offset } = useIsMobile();
   const yellow = '#b59f3b'
+  
+  // Theme detection state
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  
+  // Check localStorage for theme on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
+      const detectedTheme = savedTheme || 'light'; // Default to light
+      setTheme(detectedTheme);
+      // Apply theme class to document element
+      document.documentElement.className = detectedTheme;
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,7 +54,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   }, [swiperInstance]);
 
   return (
-    <div className="min-h-screen max-h-screen bg-gray-900 flex flex-col p-0 font-mono overflow-hidden">
+    <div className="min-h-screen max-h-screen bg-background flex flex-col p-0 font-mono overflow-hidden">
       <Head>
         <title>Sign in to Kondo</title>
       </Head>
@@ -58,27 +72,27 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
       >
         {/* Slide 1: Kondo description + sign-in */}
         <SwiperSlide>
-          <div className={`flex items-center justify-center w-full bg-gray-900 relative ${isMobile ? 'min-h-[100dvh] py-4' : 'min-h-screen'}`}>
-            <div className={`w-full max-w-4xl bg-gray-800 rounded-sm shadow-lg overflow-hidden ${isMobile ? 'mx-4 my-auto' : 'm-4'}`}>
+          <div className={`flex items-center justify-center w-full bg-background relative ${isMobile ? 'min-h-[100dvh] py-4' : 'min-h-screen'}`}>
+            <div className={`w-full max-w-4xl bg-card border border-border rounded-sm shadow-lg overflow-hidden ${isMobile ? 'mx-4 my-auto' : 'm-4'}`}>
               <div className="flex flex-col md:flex-row">
                 {/* Left section with headers */}
                 <div className="p-8 md:w-2/3">
-                  <h1 className="text-4xl font-bold text-white mb-3">Kondo</h1>
-                  <p className="text-gray-300 text-lg mb-6">
+                  <h1 className="text-4xl font-bold text-foreground mb-3">Kondo</h1>
+                  <p className="text-muted-foreground text-lg mb-6">
                     Leverage AI to generate and organize study material to learn new languages
                   </p>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Sign in to start your language learning journey with Kondo's AI-powered tools.
                   </p>
                 </div>
                 
                 {/* Right section with login button */}
-                <div className="bg-gray-700 p-8 md:w-1/3 flex flex-col justify-center">
+                <div className="bg-muted p-8 md:w-1/3 flex flex-col justify-center">
                   {Object.values(providers || {}).map((provider: any) => (
                     <div key={provider.id} className="mb-3">
                       <button
                         onClick={() => signIn(provider.id, { callbackUrl: '/' })}
-                        className="w-full flex items-center justify-center gap-3 bg-[#ffffff] hover:bg-[#eeeeee] text-gray-800 font-semibold py-3 px-4 rounded-sm transition-colors"
+                        className="w-full flex items-center justify-center gap-3 bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-800 font-medium py-3 px-4 rounded-sm transition-colors shadow-sm"
                       >
                         {provider.id === 'google' && (
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
@@ -100,7 +114,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 2: Interactive Demo */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-hidden flex flex-col items-center relative swiper-nested bg-gray-900">
+          <div ref={scrollableRef} className="h-screen overflow-hidden flex flex-col items-center relative swiper-nested bg-background">
             <div className="w-full h-[100vh] flex flex-col items-end justify-end">
               <div className="w-full">
                 <KondoDemo />
@@ -112,7 +126,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                     <div key={provider.id} className="mb-3">
                       <button
                         onClick={() => signIn(provider.id, { callbackUrl: '/' })}
-                        className="text-gray-300 flex items-center justify-center gap-3 bg-[#111111] hover:bg-[#222222] py-3 px-4 rounded-sm transition-colors"
+                        className="text-muted-foreground flex items-center justify-center gap-3 bg-secondary hover:bg-secondary/80 py-3 px-4 rounded-sm transition-colors"
                       >
                         {provider.id === 'google' && (
                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
@@ -138,10 +152,10 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
         <div 
           className={`fixed left-[calc(50%-75px)] flex flex-col items-center opacity-80 animate-bounce z-40 ${isMobile ? 'bottom-8' : 'bottom-3 md:bottom-12'}`}
         >
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-8 h-8 text-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
-          <span className="text-white max-w-[150px] text-center text-wrap text-sm mt-1">Scroll down to view demo</span>
+          <span className="text-foreground max-w-[150px] text-center text-wrap text-sm mt-1">Scroll down to view demo</span>
         </div>
       )}
     </div>

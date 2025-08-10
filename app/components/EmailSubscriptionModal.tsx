@@ -370,7 +370,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
                 <button
                   onClick={handleSendTest}
                   disabled={isSendingTest || !hasContent}
-                  className="flex-1 px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="flex-1 px-3 py-1.5 text-sm bg-secondary text-secondary-foreground border border-border rounded-sm hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isSendingTest ? (
                     <>
@@ -384,7 +384,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
                 <button
                   onClick={handleUnsubscribe}
                   disabled={isSubmitting}
-                  className="flex-1 px-3 py-1.5 text-sm border border-destructive text-destructive rounded-sm hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="flex-1 px-3 py-1.5 text-sm bg-destructive text-destructive-foreground rounded-sm hover:bg-destructive/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isSubmitting ? 'Unsubscribing...' : 'Unsubscribe'}
                 </button>
