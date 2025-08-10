@@ -4,12 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { XMarkIcon, EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/solid';
 import { useSession } from 'next-auth/react';
 import { 
-  subscribeToEmailsAction,
-  unsubscribeFromEmailsAction,
-  getEmailPreferencesAction,
-  updateEmailFrequencyAction,
   updateEmailAddressAction,
-  sendTestEmailAction,
   checkDailyContentAvailableAction,
   subscribeToLanguageEmailsAction,
   unsubscribeFromLanguageEmailsAction,
@@ -204,7 +199,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
       const result = await sendLanguageTestEmailAction(selectedLanguage);
       
       if (result.success) {
-        setMessage({ type: 'success', text: 'Test email sent! Check your inbox.' });
+        setMessage({ type: 'success', text: 'Test email sent, check your inbox.' });
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to send test email' });
       }
@@ -227,8 +222,8 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
       <div className="bg-card border border-border p-6 rounded-sm w-[500px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <EnvelopeIcon className="h-5 w-5 text-primary" />
+          <div className="flex flex-row items-start gap-2">
+            <EnvelopeIcon className="h-5 w-5 text-primary mt-1" />
             <h2 className="text-lg font-semibold text-card-foreground">
               Email Updates {languageName ? `(${languageName})` : ''}
             </h2>
@@ -402,8 +397,8 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
         {message && (
           <div className={`mt-4 p-3 rounded-sm border ${
             message.type === 'error' ? 'bg-destructive/10 text-destructive border-destructive/20' :
-            message.type === 'success' ? 'bg-primary/10 text-primary border-primary/20' :
-            'bg-primary/10 text-primary border-primary/20'
+            message.type === 'success' ? 'bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20' :
+            'bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20'
           }`}>
             <div className="flex justify-between items-start">
               <p className="text-sm">{message.text}</p>
