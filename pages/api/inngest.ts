@@ -5,7 +5,8 @@ import { prisma } from '@/lib';
 import { 
   sendDailyEmailsFunction, 
   sendWeeklyEmailsFunction, 
-  buildDojoReportFunction 
+  buildDojoReportFunction,
+  retryFailedSummaryFunction
 } from '@/lib/inngest';
 
 // Initialize the Inngest client
@@ -31,13 +32,32 @@ const initDojoFanOutFunction = inngest.createFunction(
         return users;
       });
       
-      // Fan out summary generation events
-      await Promise.all(users.map(user =>
-        step.sendEvent("generate.user.summary", { 
-          name: "generate.user.summary", 
-          data: { userId: user.userId }
-        })
-      ));
+      // Fan out summary generation events in batches to prevent overload
+      const BATCH_SIZE = 2; // Process 2 users at a time
+      const userBatches = [];
+      
+      for (let i = 0; i < users.length; i += BATCH_SIZE) {
+        userBatches.push(users.slice(i, i + BATCH_SIZE));
+      }
+      
+      console.log(`[Inngest] Processing ${users.length} users in ${userBatches.length} batches of ${BATCH_SIZE}`);
+      
+      for (let batchIndex = 0; batchIndex < userBatches.length; batchIndex++) {
+        const batch = userBatches[batchIndex];
+        console.log(`[Inngest] Processing batch ${batchIndex + 1}/${userBatches.length} with ${batch.length} users`);
+        
+        await Promise.all(batch.map(user =>
+          step.sendEvent("generate.user.summary", { 
+            name: "generate.user.summary", 
+            data: { userId: user.userId }
+          })
+        ));
+        
+        // Add a small delay between batches to prevent overwhelming the system
+        if (batchIndex < userBatches.length - 1) {
+          await step.sleep("batch-delay", 2000); // 2 second delay between batches
+        }
+      }
       
       await prisma.$disconnect();
       console.log("[Inngest] Summary generation fan-out completed");
@@ -143,6 +163,7 @@ export default serve({
     
     // Worker functions (imported from lib/inngest)
     buildDojoReportFunction,
+    retryFailedSummaryFunction,
     sendDailyEmailsFunction,
     sendWeeklyEmailsFunction
   ],
