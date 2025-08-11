@@ -3,7 +3,7 @@
 A language learning application that generates AI-powered content to help organize study material into bookmarks, with features for breakdown analysis, flashcards, and daily summaries.
 
 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
-  <img src="public/assets/light-mode_08042025.png" width="547" height="500">
+  <img src="public/assets/preview/08112025/kondo_preview_08112025.png">
 </div>
 
 ## ✨ Key Features
