@@ -113,7 +113,7 @@ export default function LanguageSelector({ onClearBookmark, onLanguageChange }: 
   return (
     <Listbox value={selectedLanguage} onChange={handleLanguageChange}>
       <div className="relative w-32">
-        <Listbox.Button className="relative w-full cursor-pointer rounded-sm bg-card border border-border py-2 pl-3 pr-10 text-left text-card-foreground focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-background text-xs">
+        <Listbox.Button className="relative w-full cursor-pointer rounded-sm bg-card border border-border py-2 pl-3 pr-10 text-left text-card-foreground focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
           <span className="block truncate">{selectedLanguage.name}</span>
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronUpDownIcon
@@ -128,12 +128,12 @@ export default function LanguageSelector({ onClearBookmark, onLanguageChange }: 
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-sm bg-popover/95 backdrop-blur-sm py-2 text-xs shadow-lg ring-1 ring-border focus:outline-none z-50">
+          <Listbox.Options className="absolute max-h-60 w-full overflow-auto rounded-sm bg-popover/95 backdrop-blur-sm py-1 text-base shadow-lg ring-1 ring-border focus:outline-none z-50">
             {languages.map((language) => (
               <Listbox.Option
                 key={language.id}
                 className={({ active }) =>
-                  `relative cursor-pointer select-none py-1 pl-10 pr-4 ${
+                  `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
                     active ? 'bg-accent text-accent-foreground' : 'text-popover-foreground'
                   }`
                 }
