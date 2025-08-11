@@ -154,7 +154,23 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
     }
     const allResponses: Response[] = [];
     let createdAt: Date | null = null;
-    for (const languageId of languageIds) {
+    
+    // Process languages in batches to prevent database overload
+    const LANGUAGE_BATCH_SIZE = 2; // Process 2 languages at a time
+    const languageBatches = [];
+    
+    for (let i = 0; i < languageIds.length; i += LANGUAGE_BATCH_SIZE) {
+      languageBatches.push(languageIds.slice(i, i + LANGUAGE_BATCH_SIZE));
+    }
+    
+    console.log(`[generateUserSummary] Processing ${languageIds.length} languages in ${languageBatches.length} batches for user ${userId}`);
+    
+    for (let batchIndex = 0; batchIndex < languageBatches.length; batchIndex++) {
+      const languageBatch = languageBatches[batchIndex];
+      console.log(`[generateUserSummary] Processing language batch ${batchIndex + 1}/${languageBatches.length} with ${languageBatch.length} languages for user ${userId}`);
+      
+      // Process languages in this batch sequentially to avoid overwhelming DB
+      for (const languageId of languageBatch) {
       try {
         // console.log(`[generateUserSummary] Processing language ${languageId} for user ${userId}`);
         if (!forceRefresh) {
@@ -263,12 +279,27 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           // set createdAt to the createdAt of the savedSummary
           createdAt = savedSummary.createdAt;
           // console.log(`[generateUserSummary] Saved new daily summary for user ${userId}, language ${languageId}`);
-          await Promise.all(languageResponses.map(response => 
-            prisma.gPTResponse.update({
-              where: { id: response.id },
-              data: { bookmarks: { connect: { id: dailySummaryBookmark.id } } }
-            })
-          ));
+          
+          // Batch bookmark updates to reduce database load
+          const BOOKMARK_BATCH_SIZE = 10;
+          const responseBatches = [];
+          for (let i = 0; i < languageResponses.length; i += BOOKMARK_BATCH_SIZE) {
+            responseBatches.push(languageResponses.slice(i, i + BOOKMARK_BATCH_SIZE));
+          }
+          
+          for (const responseBatch of responseBatches) {
+            await Promise.all(responseBatch.map(response => 
+              prisma.gPTResponse.update({
+                where: { id: response.id },
+                data: { bookmarks: { connect: { id: dailySummaryBookmark.id } } }
+              })
+            ));
+            
+            // Small delay between bookmark batches if there are multiple batches
+            if (responseBatches.length > 1) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+          }
           // console.log(`[generateUserSummary] Added daily summary bookmark to responses for user ${userId}, language ${languageId}`);
           allResponses.push(...languageResponses);
         }
@@ -276,6 +307,13 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
         console.error(`[generateUserSummary] Error generating summary for user ${userId}, language ${languageId}:`, error);
       }
     }
+    
+    // Add a small delay between language batches to prevent database overload
+    if (batchIndex < languageBatches.length - 1) {
+      console.log(`[generateUserSummary] Waiting 1 second before next language batch for user ${userId}`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
     console.log(`[generateUserSummary] Returning ${allResponses.length} responses for user ${userId}`);
     return {allResponses, createdAt};
   } catch (error) {
