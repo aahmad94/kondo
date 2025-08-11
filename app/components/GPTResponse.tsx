@@ -778,7 +778,7 @@ export default function GPTResponse({
       </div>
 
       {/* Bookmark badge in bottom left corner with pause toggle */}
-      {bookmarks && Object.keys(bookmarks).length > 0 && (
+      {bookmarks && Object.keys(bookmarks).length > 0 && selectedBookmarkTitle !== 'flashcard' && (
         <div className="mt-2 pt-1 flex items-center gap-2">
           {(() => {
             const nonReservedTitle = Object.values(bookmarks).find(title => 
