@@ -6,4 +6,4 @@ export * from './utils';
 export * from './analytics';
 export * from './database';
 export * from './email';
-export * from './inngest';
+// Note: inngest functions are server-side only, imported directly in API routes

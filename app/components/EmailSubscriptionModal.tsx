@@ -221,7 +221,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
       <div className="bg-card border border-border p-6 rounded-sm w-[500px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-start mb-6">
           <div className="flex flex-row items-start gap-2">
             <EnvelopeIcon className="h-5 w-5 text-primary mt-1" />
             <h2 className="text-lg font-semibold text-card-foreground">
