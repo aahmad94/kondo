@@ -104,7 +104,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
 
   // Loading component with animated dots
   const LoadingContent = ({ type }: { type: 'desktop' | 'mobile' }) => (
-    <div className="flex items-center justify-center py-8" style={{ color: '#b59f3b' }}>
+    <div className="flex items-center justify-center py-8" style={{ color: 'hsl(var(--phrase-text))' }}>
       <span className="font-mono">generating {type} breakdown</span>
       <span className="dots-animation">
         <style jsx>{`
@@ -136,7 +136,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -150,7 +150,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-[650px] max-w-[90vw] transform overflow-visible rounded-sm bg-[#111111] p-6 text-left align-middle shadow-xl transition-all flex flex-col max-h-[80vh]">
+              <Dialog.Panel className="w-[650px] max-w-[90vw] transform overflow-visible rounded-sm bg-card border border-border p-6 text-left align-middle shadow-xl transition-all flex flex-col max-h-[80vh]">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-2 flex-shrink-0">
                   {/* Left: action icons */}
@@ -200,7 +200,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                   <div>
                     <button
                       type="button"
-                      className="text-white hover:opacity-70 transition-opacity duration-200"
+                      className="text-card-foreground hover:text-muted-foreground transition-colors duration-200"
                       onClick={onClose}
                     >
                       <XMarkIcon className="h-6 w-6" />
@@ -213,7 +213,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                   {isLoading ? (
                     <LoadingContent type={loadingType} />
                   ) : (
-                    <div className="text-white whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-full flex justify-center" style={{ color: '#b59f3b' }}>
+                    <div className="whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-full flex justify-center" style={{ color: 'hsl(var(--phrase-text))' }}>
                       <div className="w-full">
                         <StyledMarkdown 
                           components={{
@@ -237,7 +237,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                     <button
                       onClick={handleViewToggle}
                       disabled={isLoading}
-                      className="font-mono text-xs px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-800 disabled:opacity-50 rounded-sm text-white transition-colors duration-200"
+                      className="font-mono text-xs px-3 py-1.5 bg-secondary hover:bg-accent disabled:bg-muted disabled:opacity-50 rounded-sm text-secondary-foreground hover:text-accent-foreground transition-colors duration-200"
                     >
                       {isLoading 
                         ? `loading ${loadingType === 'mobile' ? 'text' : 'table'} view...`
