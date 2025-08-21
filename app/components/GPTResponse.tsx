@@ -503,7 +503,26 @@ export default function GPTResponse({
                   alternateIcon={<EyeSlashIcon className="h-6 w-6" />}
                   isAlternateState={showAnswer}
                   onClick={onToggleAnswer}
-                  tooltipContent={showAnswer ? "Hide answer" : "Show answer"}
+                  tooltipContent={{
+                    default: (
+                      <div>
+                        <div className="text-white">Show answer</div>
+                        <div className="text-gray-300 flex items-center gap-1">
+                          <span className="text-sm">⏎</span>
+                          <span>enter</span>
+                        </div>
+                      </div>
+                    ),
+                    alternate: (
+                      <div>
+                        <div className="text-white">Hide answer</div>
+                        <div className="text-gray-300 flex items-center gap-1">
+                          <span className="text-sm">⏎</span>
+                          <span>enter</span>
+                        </div>
+                      </div>
+                    )
+                  }}
                   colorScheme="blue"
                 />
               )}

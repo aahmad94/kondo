@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, EyeIcon } from '@heroicons/react/24/solid';
 import GPTResponse from './GPTResponse';
+import Tooltip from './Tooltip';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface Response {
   id: string | null;
@@ -47,6 +49,17 @@ export default function FlashcardModal({
   const [showAnswer, setShowAnswer] = useState(false);
   const [containerWidth, setContainerWidth] = useState<number>(20); // Default fallback in rem
   const contentRef = useRef<HTMLDivElement>(null);
+  
+  // Mobile detection
+  const { isMobile } = useIsMobile();
+  
+  // Tooltip states
+  const [isLeftArrowHovered, setIsLeftArrowHovered] = useState(false);
+  const [isRightArrowHovered, setIsRightArrowHovered] = useState(false);
+  
+  // Button refs for tooltips
+  const leftArrowButtonRef = useRef<HTMLButtonElement>(null);
+  const rightArrowButtonRef = useRef<HTMLButtonElement>(null);
 
   // Measure container width when modal opens or resizes
   useEffect(() => {
@@ -191,12 +204,38 @@ export default function FlashcardModal({
         {/* Navigation Footer - simplified like demo */}
         <div className="flex items-center justify-between px-4 py-1">
           {/* Previous button */}
-          <button
-            onClick={handlePrevious}
-            className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
-          >
-            <ChevronLeftIcon className="h-6 w-6" />
-          </button>
+          {!isMobile ? (
+            <Tooltip
+              content={
+                <div>
+                  <div className="text-white">Previous card</div>
+                  <div className="text-gray-300 flex items-center gap-1">
+                    <span className="text-sm">←</span>
+                    <span>left arrow</span>
+                  </div>
+                </div>
+              }
+              isVisible={isLeftArrowHovered}
+              buttonRef={leftArrowButtonRef}
+            >
+              <button
+                ref={leftArrowButtonRef}
+                onClick={handlePrevious}
+                onMouseEnter={() => setIsLeftArrowHovered(true)}
+                onMouseLeave={() => setIsLeftArrowHovered(false)}
+                className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
+              >
+                <ChevronLeftIcon className="h-6 w-6" />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              onClick={handlePrevious}
+              className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
+            >
+              <ChevronLeftIcon className="h-6 w-6" />
+            </button>
+          )}
 
           {/* Just the number indicator */}
           <div className="flex items-center">
@@ -206,12 +245,38 @@ export default function FlashcardModal({
           </div>
 
           {/* Next button */}
-          <button
-            onClick={handleNext}
-            className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
-          >
-            <ChevronRightIcon className="h-6 w-6" />
-          </button>
+          {!isMobile ? (
+            <Tooltip
+              content={
+                <div>
+                  <div className="text-white">Next card</div>
+                  <div className="text-gray-300 flex items-center gap-1">
+                    <span className="text-sm">→</span>
+                    <span>right arrow</span>
+                  </div>
+                </div>
+              }
+              isVisible={isRightArrowHovered}
+              buttonRef={rightArrowButtonRef}
+            >
+              <button
+                ref={rightArrowButtonRef}
+                onClick={handleNext}
+                onMouseEnter={() => setIsRightArrowHovered(true)}
+                onMouseLeave={() => setIsRightArrowHovered(false)}
+                className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
+              >
+                <ChevronRightIcon className="h-6 w-6" />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="p-2 text-muted-foreground hover:text-card-foreground transition-colors duration-200"
+            >
+              <ChevronRightIcon className="h-6 w-6" />
+            </button>
+          )}
         </div>
       </div>
     </div>

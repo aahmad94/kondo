@@ -9,7 +9,7 @@ interface IconButtonProps {
   alternateIcon?: React.ReactNode; // For state-dependent icons like pause/play
   isAlternateState?: boolean; // Whether to show alternate icon
   onClick: () => void | Promise<void>;
-  tooltipContent: string | { default: string; alternate: string }; // Can be state-dependent
+  tooltipContent: string | React.ReactNode | { default: string | React.ReactNode; alternate: string | React.ReactNode }; // Can be state-dependent
   buttonRef?: React.RefObject<HTMLButtonElement>;
   className?: string;
   colorScheme?: 'blue' | 'green-yellow' | 'custom';
@@ -71,11 +71,13 @@ const IconButton: React.FC<IconButtonProps> = ({
   const currentIcon = (alternateIcon && isAlternateState) ? alternateIcon : icon;
 
   // Determine tooltip content
-  const currentTooltip = typeof tooltipContent === 'string' 
+  const currentTooltip = typeof tooltipContent === 'string' || React.isValidElement(tooltipContent)
     ? tooltipContent 
-    : isAlternateState 
-      ? tooltipContent.alternate 
-      : tooltipContent.default;
+    : typeof tooltipContent === 'object' && tooltipContent !== null && 'default' in tooltipContent
+      ? isAlternateState 
+        ? tooltipContent.alternate 
+        : tooltipContent.default
+      : tooltipContent;
 
   return (
     <>
