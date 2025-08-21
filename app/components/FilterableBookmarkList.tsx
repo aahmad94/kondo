@@ -79,7 +79,7 @@ export function FilterableBookmarkList({
         </div>
 
         {/* Bookmark List */}
-        <div className="overflow-y-auto bookmark-list max-h-[60vh]">
+        <div className="overflow-y-auto bookmark-list max-h-[60vh] min-h-[200px] pb-16">
           {isLoading ? (
             // Skeleton loading state
             Array.from({ length: 10 }).map((_, index) => (
@@ -162,7 +162,7 @@ export function FilterableBookmarkList({
       </div>
 
       {/* Bookmark List */}
-      <ul className="space-y-2 overflow-y-auto max-h-[40vh]">
+      <ul className="space-y-2 overflow-y-auto max-h-[40vh] min-h-[150px] pb-4">
         {isLoading ? (
           // Skeleton loading state
           Array.from({ length: 7 }).map((_, index) => (
