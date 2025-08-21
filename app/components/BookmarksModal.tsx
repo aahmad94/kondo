@@ -3,6 +3,7 @@ import { XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { useSession } from 'next-auth/react';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import { useRouter } from 'next/navigation';
+import { FilterableBookmarkList } from './FilterableBookmarkList';
 
 interface Bookmark {
   id: string;
@@ -160,36 +161,24 @@ export default function BookmarksModal({
               <XMarkIcon className="h-6 w-6" />
             </button>
           </div>
-          <ul className="space-y-2 overflow-y-auto">
-            <li
+          <div className="space-y-2 overflow-y-auto">
+            <div
               className={`cursor-pointer text-primary hover:bg-accent p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => !isAddingToBookmark && setIsCreateModalOpen(true)}
             >
               <PlusCircleIcon className="h-4 w-4 mr-2" />
               <span>new bookmark</span>
-            </li>
-            {isLoading ? (
-              // Skeleton loading state
-              Array.from({ length: 7 }).map((_, index) => (
-                <li
-                  key={index}
-                  className="p-2"
-                >
-                  <div className="h-6 bg-muted rounded-sm animate-pulse-fast"></div>
-                </li>
-              ))
-            ) : (
-              bookmarks.map((bookmark) => (
-                <li
-                  key={bookmark.id}
-                  className={`cursor-pointer text-card-foreground hover:bg-accent p-2 rounded-sm ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={() => !isAddingToBookmark && handleAddToBookmark(bookmark.id)}
-                >
-                  {bookmark.title}
-                </li>
-              ))
-            )}
-          </ul>
+            </div>
+            
+            <FilterableBookmarkList
+              bookmarks={bookmarks}
+              reservedBookmarkTitles={reservedBookmarkTitles}
+              variant="modal"
+              onBookmarkSelect={(id, title) => handleAddToBookmark(id)}
+              isLoading={isLoading}
+              isAddingToBookmark={isAddingToBookmark}
+            />
+          </div>
         </div>
       </div>
 

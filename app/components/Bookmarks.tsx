@@ -9,6 +9,7 @@ import EditBookmarkModal from './EditBookmarkModal';
 import { useRouter } from 'next/navigation';
 import { trackBookmarkSelect, trackClearBookmark, trackCreateBookmark } from '@/lib/analytics';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { FilterableBookmarkList } from './FilterableBookmarkList';
 
 interface Bookmark {
   id: string;
@@ -379,68 +380,21 @@ export default function Bookmarks({
               </div>
 
               <div className="flex flex-col p-2">
-
-                <div className={`overflow-y-auto bookmark-list ${isMobile ? 'max-h-[55vh]' : 'max-h-[70vh]'}`}>
-                  {isLoading ? (
-                    // Skeleton loading state
-                    Array.from({ length: 10 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="mb-2 pl-2 py-1 flex justify-between items-center"
-                      >
-                        <div className="h-5 w-3/4 bg-muted rounded-sm animate-pulse-fast"></div>
-                      </div>
-                    ))
-                  ) : (
-                    bookmarks
-                      .filter(bookmark => !reservedBookmarkTitles.includes(bookmark.title))
-                      .sort((a: Bookmark, b: Bookmark) => {
-                        if (!a.updatedAt) return 1;
-                        if (!b.updatedAt) return -1;
-                        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-                      })
-                      .map((bookmark) => (
-                        <div
-                          key={bookmark.id}
-                          className={`mb-2 cursor-pointer hover:bg-accent hover:rounded-sm transition-all pl-2 py-1 flex justify-between items-center group relative
-                            ${selectedBookmark.id === bookmark.id ? 'bg-accent rounded-sm' : ''}`}
-                          onClick={() => handleBookmarkInteraction(bookmark.id, bookmark.title)}
-                          onTouchStart={(e) => handleTouchStart(e, bookmark.id, bookmark.title)}
-                          onTouchEnd={(e) => handleTouchEnd(e, bookmark.id, bookmark.title)}
-                        >
-                          <span className="text-card-foreground flex-1 truncate">
-                            {bookmark.title}
-                          </span>
-                          <div className="relative">
-                            <ChevronDownIcon
-                              className={`bookmark-chevron-button h-5 w-5 mr-1 text-muted-foreground hover:text-card-foreground transition-colors duration-200
-                                ${selectedBookmark.id === bookmark.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                              onClick={(e) => handleChevronClick(bookmark, e)}
-                              onTouchEnd={(e) => handleChevronTouch(bookmark, e)}
-                            />
-                            {showBookmarkDropdown === bookmark.id && (
-                              <div className="bookmark-dropdown-menu absolute right-0 top-full mt-1 rounded-md shadow-lg bg-popover ring-1 ring-border z-[60] min-w-[80px]">
-                                <div className="py-1">
-                                  <button
-                                    onClick={(e) => handleEditClick(bookmark, e)}
-                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    onClick={(e) => handleDeleteClick(bookmark, e)}
-                                    className="flex items-center w-full px-3 py-1.5 text-xs text-left text-destructive hover:bg-accent whitespace-nowrap"
-                                  >
-                                    Delete
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                  )}
-                </div>
+                <FilterableBookmarkList
+                  bookmarks={bookmarks}
+                  reservedBookmarkTitles={reservedBookmarkTitles}
+                  variant="sidebar"
+                  onBookmarkSelect={handleBookmarkInteraction}
+                  selectedBookmarkId={selectedBookmark.id || undefined}
+                  isLoading={isLoading}
+                  showBookmarkDropdown={showBookmarkDropdown}
+                  onChevronClick={handleChevronClick}
+                  onChevronTouch={handleChevronTouch}
+                  onEditClick={handleEditClick}
+                  onDeleteClick={handleDeleteClick}
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                />
               </div>
             </>
           )}
