@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   PlusIcon, 
@@ -65,6 +65,7 @@ interface GPTResponseProps {
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
   onBreakdownClick?: () => void;
+  onBreakdownToggle?: React.MutableRefObject<(() => void) | null>;
   containerWidth?: number;
 }
 
@@ -100,6 +101,7 @@ export default function GPTResponse({
   selectedLanguage = 'ja',
   onLoadingChange,
   onBreakdownClick,
+  onBreakdownToggle,
   onBookmarkCreated,
   containerWidth
 }: GPTResponseProps) {
@@ -397,6 +399,24 @@ export default function GPTResponse({
     }
   };
 
+  // Create a modal toggle function for external components
+  const handleBreakdownModalToggle = useCallback(() => {
+    if (isBreakdownModalOpen) {
+      // If modal is open, close it
+      setIsBreakdownModalOpen(false);
+    } else {
+      // If modal is closed, open it
+      handleBreakdownClick();
+    }
+  }, [isBreakdownModalOpen, handleBreakdownClick]);
+
+  // Expose the toggle function to parent component
+  useEffect(() => {
+    if (onBreakdownToggle) {
+      onBreakdownToggle.current = handleBreakdownModalToggle;
+    }
+  }, [onBreakdownToggle, handleBreakdownModalToggle]);
+
   const generateBreakdown = async (isMobile: boolean, showExternalLoading: boolean = true) => {
     setIsBreakdownLoading(true);
     if (showExternalLoading) {
@@ -442,7 +462,7 @@ export default function GPTResponse({
     }
   };
 
-  const handleBreakdownToggle = async (toTextView: boolean, showExternalLoading: boolean = false) => {
+  const handleBreakdownFormatToggle = async (toTextView: boolean, showExternalLoading: boolean = false) => {
     setIsBreakdownTextView(toTextView);
     
     // Check if we have the content for the requested view
@@ -532,7 +552,19 @@ export default function GPTResponse({
                 <IconButton 
                   icon={<TableCellsIcon className="h-6 w-6" />}
                   onClick={handleBreakdownClick}
-                  tooltipContent="Breakdown phrase"
+                  tooltipContent={
+                    selectedBookmarkTitle === 'flashcard'
+                      ? (
+                          <div>
+                            <div className="text-white">Breakdown phrase</div>
+                              <div className="text-gray-300 flex items-center gap-1">
+                                <span className="text-sm">/</span>
+                                <span>slash</span>
+                              </div>
+                          </div>
+                        )
+                      : "Breakdown phrase"
+                  }
                   buttonRef={breakdownButtonRef}
                   colorScheme="blue"
                 />
@@ -547,6 +579,19 @@ export default function GPTResponse({
                   cachedAudio={null}
                   buttonRef={speakerButtonRef}
                   onLoadingChange={onLoadingChange}
+                  tooltipContent={
+                    selectedBookmarkTitle === 'flashcard' 
+                      ? (
+                          <div>
+                            <div className="text-white">Listen to pronunciation</div>
+                            <div className="text-gray-300 flex items-center gap-1">
+                              <span className="text-sm">⇧</span>
+                              <span>shift</span>
+                            </div>
+                          </div>
+                        )
+                      : "Listen to pronunciation"
+                  }
                   onError={(error) => {
                     setErrorMessage(error);
                     setIsErrorModalOpen(true);
@@ -888,7 +933,7 @@ export default function GPTResponse({
             setErrorMessage(error);
             setIsErrorModalOpen(true);
           }}
-          onToggleView={handleBreakdownToggle}
+          onToggleView={handleBreakdownFormatToggle}
         />
       )}
 

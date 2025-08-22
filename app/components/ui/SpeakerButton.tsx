@@ -11,7 +11,7 @@ interface SpeakerButtonProps {
   textToSpeak: string;
   selectedLanguage: string;
   cachedAudio?: { audio: string; mimeType: string } | null;
-  tooltipContent?: string;
+  tooltipContent?: string | React.ReactNode;
   buttonRef?: React.RefObject<HTMLButtonElement>;
   className?: string;
   onLoadingChange?: (loading: boolean) => void;

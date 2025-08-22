@@ -5,6 +5,8 @@ import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, EyeIcon } from '@heroicon
 import GPTResponse from './GPTResponse';
 import Tooltip from './Tooltip';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { useAudio } from '../contexts/AudioContext';
+import { prepareTextForSpeech } from '@/lib/utils';
 
 interface Response {
   id: string | null;
@@ -48,10 +50,14 @@ export default function FlashcardModal({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [containerWidth, setContainerWidth] = useState<number>(20); // Default fallback in rem
+  const breakdownToggleRef = useRef<(() => void) | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   
   // Mobile detection
   const { isMobile } = useIsMobile();
+  
+  // Audio context for spacebar audio toggle
+  const { playAudio } = useAudio();
   
   // Tooltip states
   const [isLeftArrowHovered, setIsLeftArrowHovered] = useState(false);
@@ -115,6 +121,30 @@ export default function FlashcardModal({
     setShowAnswer(!showAnswer);
   };
 
+  const handleAudioToggle = async () => {
+    const currentResponse = responses[currentIndex];
+    if (currentResponse?.id) {
+      try {
+        await playAudio(
+          currentResponse.id,
+          null, // No cached audio for now
+          prepareTextForSpeech(currentResponse.content),
+          selectedLanguage,
+          onLoadingChange,
+          (error) => console.error('Audio error:', error)
+        );
+      } catch (error) {
+        console.error('Failed to play audio:', error);
+      }
+    }
+  };
+
+  const handleBreakdownTrigger = () => {
+    if (breakdownToggleRef.current) {
+      breakdownToggleRef.current();
+    }
+  };
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -129,10 +159,21 @@ export default function FlashcardModal({
           event.preventDefault();
           handleNext();
           break;
-        case ' ':
+        case 'Shift':
+          event.preventDefault();
+          if (showAnswer) {
+            handleAudioToggle();
+          }
+          break;
         case 'Enter':
           event.preventDefault();
           toggleAnswer();
+          break;
+        case '/':
+          event.preventDefault();
+          if (showAnswer) {
+            handleBreakdownTrigger();
+          }
           break;
         case 'Escape':
           event.preventDefault();
@@ -145,7 +186,7 @@ export default function FlashcardModal({
       document.addEventListener('keydown', handleKeyPress);
       return () => document.removeEventListener('keydown', handleKeyPress);
     }
-  }, [isOpen, handlePrevious, handleNext, toggleAnswer, onClose]);
+  }, [isOpen, handlePrevious, handleNext, toggleAnswer, handleAudioToggle, handleBreakdownTrigger, onClose, showAnswer]);
 
   if (!isOpen || responses.length === 0) return null;
 
@@ -196,6 +237,7 @@ export default function FlashcardModal({
                     hideContent={!showAnswer} // This is the key prop for flashcard mode
                     showAnswer={showAnswer}
                     onToggleAnswer={toggleAnswer}
+                    onBreakdownToggle={breakdownToggleRef}
                     containerWidth={containerWidth}
                 />
             </div>
