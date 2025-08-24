@@ -109,9 +109,6 @@ export default function ChatBox({
     }
   }, [bookmarkResponses, isFlashcardModalOpen]);
 
-  const bookmarkContainerHeight = () => {
-    return window.innerWidth < 768 ? 'h-[80%]' : 'h-[91%]';
-  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -781,14 +778,22 @@ export default function ChatBox({
   
 
   return (
-    <div className="container mx-auto bg-background h-screen flex flex-col max-w-[calc(100vw-48px)]">
+    <div className="container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)]">
+      {/* ChatBox Menu Bar - Show for all cases */}
+      <ChatBoxMenuBar
+        onNewReport={() => handleGenerateSummary(true)}
+        onFlashcardMode={handleFlashcardMode}
+        flashcardCount={getFlashcardResponses().length}
+        selectedLanguage={selectedLanguage}
+        summaryTimestamp={summaryTimestamp}
+        selectedBookmark={selectedBookmark}
+        isFlashcardModalOpen={isFlashcardModalOpen}
+      />
+      
       <div 
         ref={chatContainerRef}
-        className={`overflow-y-auto relative mb-2 ${
-          selectedBookmark.id ? bookmarkContainerHeight() : ''
-        }`}
+        className="overflow-y-auto relative flex-1"
         style={{ 
-          height: selectedBookmark.id ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset + quoteBarHeight}px)`,
           paddingBottom: 'env(safe-area-inset-bottom)' 
         }}
       >
@@ -798,17 +803,6 @@ export default function ChatBox({
           </div>
         )}
         
-        {/* ChatBox Menu Bar - Show for all cases */}
-        <ChatBoxMenuBar
-          onNewReport={() => handleGenerateSummary(true)}
-          onFlashcardMode={handleFlashcardMode}
-          flashcardCount={getFlashcardResponses().length}
-          selectedLanguage={selectedLanguage}
-          summaryTimestamp={summaryTimestamp}
-          selectedBookmark={selectedBookmark}
-          isFlashcardModalOpen={isFlashcardModalOpen}
-        />
-
         {selectedBookmark.title === 'search' && (
           <div>
             <SearchBar
