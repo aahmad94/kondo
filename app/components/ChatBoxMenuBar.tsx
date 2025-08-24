@@ -159,7 +159,7 @@ export default function ChatBoxMenuBar({
               {showAdditionalCommands && (
                 <button
                   onClick={(e) => handleContentModal('commands', e)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <CommandLineIcon className="h-4 w-4 flex-shrink-0" />
                   <span>commands</span>
