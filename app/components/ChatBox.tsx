@@ -796,7 +796,9 @@ export default function ChatBox({
         ref={chatContainerRef}
         className="overflow-y-auto relative flex-1"
         style={{ 
-          paddingBottom: selectedBookmark.id ? 'env(safe-area-inset-bottom)' : `calc(80px + env(safe-area-inset-bottom))`,
+          paddingBottom: selectedBookmark.id 
+            ? 'env(safe-area-inset-bottom)' 
+            : `calc(80px + ${baseUserInputOffset}px + env(safe-area-inset-bottom))`,
         }}
       >
         {isLoading && (
