@@ -376,9 +376,11 @@ export default function ChatBox({
     const userAgent = navigator.userAgent;
     // Add 60px to account for ChatBoxMenuBar height (py-2 + mb-2 + button height)
     const menuBarHeight = 60;
+    // Add extra space for mobile browsers with bottom URL bars (Safari, Chrome on iOS)
+    const mobileBottomBarSpace = 80;
   
     if (/Mobile/i.test(userAgent)) {
-      setBaseUserInputOffset(250 + menuBarHeight);
+      setBaseUserInputOffset(250 + menuBarHeight + mobileBottomBarSpace);
     } else {
       setBaseUserInputOffset(140 + menuBarHeight);
     }
