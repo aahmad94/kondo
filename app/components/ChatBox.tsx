@@ -375,12 +375,11 @@ export default function ChatBox({
   function initBaseUserInputOffset() {
     const userAgent = navigator.userAgent;
     // Add extra space for mobile browsers with bottom URL bars (Safari, Chrome on iOS)
-    const mobileBottomBarSpace = 80;
+    const mobileBottomBarSpace = 82.5;
     
     const isMobile = /Mobile/i.test(userAgent);
     const offset = isMobile ? mobileBottomBarSpace : 0;
     
-    console.log('initBaseUserInputOffset:', { isMobile, offset, userAgent });
     setBaseUserInputOffset(offset);
   }
   
@@ -971,7 +970,7 @@ export default function ChatBox({
         <div 
           className="absolute left-0 right-0 bg-background"
           style={{ 
-            bottom: `calc(80px + ${baseUserInputOffset}px + env(safe-area-inset-bottom))` 
+            bottom: `calc(60px + ${baseUserInputOffset}px + env(safe-area-inset-bottom))` 
           }}
         >
           <QuoteBar 

@@ -39,7 +39,7 @@ export default function QuoteBar({ quotedText, onClear, onHeightChange }: QuoteB
     .trim();
 
   return (
-    <div ref={quoteBarRef} className="bg-card border-t border-border px-4 py-3 mx-2 mb-2 rounded-sm">
+    <div ref={quoteBarRef} className="bg-card border-t border-border px-4 py-3 mx-2 rounded-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div 
