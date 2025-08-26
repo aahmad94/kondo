@@ -374,11 +374,13 @@ export default function ChatBox({
   // Initializes the base user input offset based on the user's browser
   function initBaseUserInputOffset() {
     const userAgent = navigator.userAgent;
+    // Add 60px to account for ChatBoxMenuBar height (py-2 + mb-2 + button height)
+    const menuBarHeight = 60;
   
     if (/Mobile/i.test(userAgent)) {
-      setBaseUserInputOffset(250);
+      setBaseUserInputOffset(250 + menuBarHeight);
     } else {
-      setBaseUserInputOffset(140);
+      setBaseUserInputOffset(140 + menuBarHeight);
     }
   }
   
@@ -794,6 +796,7 @@ export default function ChatBox({
         ref={chatContainerRef}
         className="overflow-y-auto relative flex-1"
         style={{ 
+          height: selectedBookmark.id ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset + quoteBarHeight}px)`,
           paddingBottom: 'env(safe-area-inset-bottom)' 
         }}
       >
