@@ -374,16 +374,14 @@ export default function ChatBox({
   // Initializes the base user input offset based on the user's browser
   function initBaseUserInputOffset() {
     const userAgent = navigator.userAgent;
-    // Add 60px to account for ChatBoxMenuBar height (py-2 + mb-2 + button height)
-    const menuBarHeight = 60;
     // Add extra space for mobile browsers with bottom URL bars (Safari, Chrome on iOS)
     const mobileBottomBarSpace = 80;
-  
-    if (/Mobile/i.test(userAgent)) {
-      setBaseUserInputOffset(250 + menuBarHeight + mobileBottomBarSpace);
-    } else {
-      setBaseUserInputOffset(140 + menuBarHeight);
-    }
+    
+    const isMobile = /Mobile/i.test(userAgent);
+    const offset = isMobile ? mobileBottomBarSpace : 0;
+    
+    console.log('initBaseUserInputOffset:', { isMobile, offset, userAgent });
+    setBaseUserInputOffset(offset);
   }
   
 
@@ -782,7 +780,7 @@ export default function ChatBox({
   
 
   return (
-    <div className="container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)]">
+    <div className="container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)] relative">
       {/* ChatBox Menu Bar - Show for all cases */}
       <ChatBoxMenuBar
         onNewReport={() => handleGenerateSummary(true)}
@@ -798,8 +796,7 @@ export default function ChatBox({
         ref={chatContainerRef}
         className="overflow-y-auto relative flex-1"
         style={{ 
-          height: selectedBookmark.id ? undefined : `calc(100% - ${baseUserInputOffset + userInputOffset + quoteBarHeight}px)`,
-          paddingBottom: 'env(safe-area-inset-bottom)' 
+          paddingBottom: selectedBookmark.id ? 'env(safe-area-inset-bottom)' : `calc(80px + env(safe-area-inset-bottom))`,
         }}
       >
         {isLoading && (
@@ -968,24 +965,38 @@ export default function ChatBox({
         ) : null}
       </div>
       {/* Show QuoteBar if we have responseQuote, regardless of bookmark status */}
-      {responseQuote && (
-        <QuoteBar 
-          quotedText={responseQuote}
-          onClear={setResponseQuoteToNull}
-          onHeightChange={handleQuoteBarHeightChange}
-        />
+      {responseQuote && !selectedBookmark.id && (
+        <div 
+          className="absolute left-0 right-0 bg-background"
+          style={{ 
+            bottom: `calc(80px + ${baseUserInputOffset}px + env(safe-area-inset-bottom))` 
+          }}
+        >
+          <QuoteBar 
+            quotedText={responseQuote}
+            onClear={setResponseQuoteToNull}
+            onHeightChange={handleQuoteBarHeightChange}
+          />
+        </div>
       )}
       
-      {/* Show UserInput only when not in a bookmark */}
+      {/* Show UserInput only when not in a bookmark - positioned at bottom */}
       {!selectedBookmark.id && (
-        <UserInput 
-          onSubmit={handleSubmit} 
-          isLoading={isLoading} 
-          defaultPrompt={null}
-          onUserInputOffset={handleUserInputOffset}
-          onQuoteToNull={setResponseQuoteToNull}
-          selectedLanguage={selectedLanguage}
-        />
+        <div 
+          className="absolute bottom-0 left-0 right-0 bg-background" 
+          style={{ 
+            paddingBottom: `calc(${baseUserInputOffset}px + env(safe-area-inset-bottom))` 
+          }}
+        >
+          <UserInput 
+            onSubmit={handleSubmit} 
+            isLoading={isLoading} 
+            defaultPrompt={null}
+            onUserInputOffset={handleUserInputOffset}
+            onQuoteToNull={setResponseQuoteToNull}
+            selectedLanguage={selectedLanguage}
+          />
+        </div>
       )}
       
       {/* Flashcard Modal */}
