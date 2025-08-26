@@ -375,7 +375,7 @@ export default function ChatBox({
   function initBaseUserInputOffset() {
     const userAgent = navigator.userAgent;
     // Add extra space for mobile browsers with bottom URL bars (Safari, Chrome on iOS)
-    const mobileBottomBarSpace = 82.5;
+    const mobileBottomBarSpace = 85;
     
     const isMobile = /Mobile/i.test(userAgent);
     const offset = isMobile ? mobileBottomBarSpace : 0;
