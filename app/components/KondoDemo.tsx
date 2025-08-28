@@ -69,7 +69,7 @@ export default function KondoDemo() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center max-h-screen">
+      <div className="flex items-center justify-center max-h-dvh">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
       </div>
     );
@@ -77,14 +77,14 @@ export default function KondoDemo() {
 
   if (responses.length === 0) {
     return (
-      <div className="text-center h-screen flex items-center justify-center">
+      <div className="text-center h-dvh flex items-center justify-center">
         <p className="text-muted-foreground">No demo data available</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto h-screen flex flex-col">
+    <div className="w-full max-w-4xl mx-auto h-dvh flex flex-col">
       {/* Centered carousel and navigation */}
       <div className="flex-1 flex flex-col items-center justify-center min-h-0">
         {/* Demo header */}

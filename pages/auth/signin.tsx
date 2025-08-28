@@ -54,7 +54,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   }, [swiperInstance]);
 
   return (
-    <div className="min-h-[100dvh] max-h-[100dvh] bg-background flex flex-col p-0 font-mono overflow-hidden">
+    <div className="min-h-dvh max-h-dvh bg-background flex flex-col p-0 font-mono overflow-hidden">
       <Head>
         <title>Sign in to Kondo</title>
       </Head>
@@ -67,7 +67,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
         slidesPerView={1}
         mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 3 }}
         modules={[Mousewheel]}
-        className="h-[100dvh] w-full"
+        className="h-dvh w-full"
         onActiveIndexChange={(swiper) => setActiveIndex(swiper.activeIndex)}
       >
         {/* Slide 1: Kondo description + sign-in */}
@@ -114,8 +114,8 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 2: Interactive Demo */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-[100dvh] overflow-hidden flex flex-col items-center relative swiper-nested bg-background">
-            <div className="w-full h-[100dvh] flex flex-col items-end justify-end">
+          <div ref={scrollableRef} className="h-dvh overflow-hidden flex flex-col items-center relative swiper-nested bg-background">
+            <div className="w-full h-dvh flex flex-col items-end justify-end">
               <div className="w-full">
                 <KondoDemo />
               </div>
