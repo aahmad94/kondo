@@ -135,7 +135,7 @@ export default function GPTResponse({
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { isMobile, offset } = useIsMobile();
+  const { isMobile, mobileOffset } = useIsMobile();
   
   // Furigana toggle state - initialize from props
   const [localFuriganaEnabled, setLocalFuriganaEnabled] = useState(isFuriganaEnabled);

@@ -13,6 +13,7 @@ import { extractExpressions } from '@/lib/utils';
 import ChatBoxMenuBar from './ChatBoxMenuBar';
 import FlashcardModal from './FlashcardModal';
 import QuoteBar from './QuoteBar';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -80,6 +81,7 @@ export default function ChatBox({
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
+  const { isMobile, mobileOffset } = useIsMobile();
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, Response>>({});
   const [responses, setResponses] = useState<Record<string, Response>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -953,7 +955,7 @@ export default function ChatBox({
         <div 
           className="bg-background" 
           style={{ 
-            paddingBottom: 'env(safe-area-inset-bottom)' 
+            paddingBottom: `calc(${mobileOffset}px + env(safe-area-inset-bottom))` 
           }}
         >
           <UserInput 

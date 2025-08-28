@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 interface MobileInfo {
   isMobile: boolean;
   browser: string;
-  offset: number;
+  mobileOffset: number;
 }
 
 export function useIsMobile(): MobileInfo {
   const [mobileInfo, setMobileInfo] = useState<MobileInfo>({
     isMobile: false,
     browser: 'unknown',
-    offset: 0
+    mobileOffset: 0
   });
 
   useEffect(() => {
@@ -21,30 +21,33 @@ export function useIsMobile(): MobileInfo {
       const isMobile = isMobileDevice || isMobileWidth;
       
       let browser = 'unknown';
-      let offset = 0;
+      let mobileOffset = 0;
 
       if (!isMobile) {
-        setMobileInfo({ isMobile, browser, offset });
+        setMobileInfo({ isMobile, browser, mobileOffset });
         return;
       }
 
-      // Detect browser
-      if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
-        browser = 'safari';
-        // iOS Safari: Estimate URL bar + toolbar height
-        offset = 70; // Conservative estimate for top address bar + bottom toolbar
+      // Detect browser and set appropriate offset for mobile browser bars
+      if (userAgent.includes('chrome') && userAgent.includes('android')) {
+        browser = 'chrome-android';
+        mobileOffset = 140; // Chrome Android has both top URL bar and bottom nav bar
       } else if (userAgent.includes('chrome')) {
         browser = 'chrome';
-        offset = 0; // Typical Chrome address bar height on Android
+        mobileOffset = 140; // Chrome mobile (iOS or other)
+      } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+        browser = 'safari';
+        mobileOffset = 80; // Safari iOS
       } else if (userAgent.includes('firefox')) {
         browser = 'firefox';
-        offset = 70; // Similar to Chrome, may vary
+        mobileOffset = 80; // Firefox mobile
       } else {
-        // Fallback for other browsers
-        offset = 70; // Safe default
+        // Fallback for other mobile browsers
+        browser = 'other';
+        mobileOffset = 80; // Safe default
       }
 
-      setMobileInfo({ isMobile, browser, offset });
+      setMobileInfo({ isMobile, browser, mobileOffset });
     };
 
     // Initial check
