@@ -754,7 +754,7 @@ export default function ChatBox({
   
 
   return (
-    <div className="h-[calc(100vh-50px)] container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)]">
+    <div className="bg-background h-full flex flex-col w-full">
       {/* ChatBox Menu Bar - Show for all cases */}
       <ChatBoxMenuBar
         onNewReport={() => handleGenerateSummary(true)}
@@ -766,13 +766,15 @@ export default function ChatBox({
         isFlashcardModalOpen={isFlashcardModalOpen}
       />
       
-      <div 
-        ref={chatContainerRef}
-        className="overflow-y-auto flex-1"
-        style={{ 
-          paddingBottom: 'env(safe-area-inset-bottom)'
-        }}
-      >
+      <div className="flex flex-col justify-between flex-1 h-0">
+        {/* Chat Content Container */}
+        <div 
+          ref={chatContainerRef}
+          className="overflow-y-auto flex-1 min-h-0"
+          style={{ 
+            paddingBottom: 'env(safe-area-inset-bottom)'
+          }}
+        >
         {isLoading && (
           <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
             <div className="animate-spin h-8 w-8 border-4 border-foreground border-t-transparent rounded-full"></div>
@@ -937,37 +939,41 @@ export default function ChatBox({
             </div>
           </div>
         ) : null}
+        </div>
+        
+        {/* Bottom section: QuoteBar + UserInput */}
+        {!selectedBookmark.id && (
+          <div className="flex-shrink-0">
+            {/* Show QuoteBar if we have responseQuote */}
+            {responseQuote && (
+              <div className="bg-background">
+                <QuoteBar 
+                  quotedText={responseQuote}
+                  onClear={setResponseQuoteToNull}
+                  onHeightChange={handleQuoteBarHeightChange}
+                />
+              </div>
+            )}
+            
+            {/* UserInput at the very bottom */}
+            <div 
+              className="bg-background" 
+              style={{ 
+                paddingBottom: 'env(safe-area-inset-bottom)' 
+              }}
+            >
+              <UserInput 
+                onSubmit={handleSubmit} 
+                isLoading={isLoading} 
+                defaultPrompt={null}
+                onUserInputOffset={handleUserInputOffset}
+                onQuoteToNull={setResponseQuoteToNull}
+                selectedLanguage={selectedLanguage}
+              />
+            </div>
+          </div>
+        )}
       </div>
-      
-      {/* Show QuoteBar if we have responseQuote - positioned naturally above UserInput */}
-      {responseQuote && !selectedBookmark.id && (
-        <div className="bg-background">
-          <QuoteBar 
-            quotedText={responseQuote}
-            onClear={setResponseQuoteToNull}
-            onHeightChange={handleQuoteBarHeightChange}
-          />
-        </div>
-      )}
-      
-      {/* Show UserInput only when not in a bookmark - positioned naturally at bottom */}
-      {!selectedBookmark.id && (
-        <div 
-          className="bg-background" 
-          style={{ 
-            paddingBottom: `env(safe-area-inset-bottom)` 
-          }}
-        >
-          <UserInput 
-            onSubmit={handleSubmit} 
-            isLoading={isLoading} 
-            defaultPrompt={null}
-            onUserInputOffset={handleUserInputOffset}
-            onQuoteToNull={setResponseQuoteToNull}
-            selectedLanguage={selectedLanguage}
-          />
-        </div>
-      )}
       
       {/* Flashcard Modal */}
       <FlashcardModal
