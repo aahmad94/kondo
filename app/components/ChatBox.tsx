@@ -374,13 +374,21 @@ export default function ChatBox({
   // Initializes the base user input offset based on the user's browser
   function initBaseUserInputOffset() {
     const userAgent = navigator.userAgent;
-    // Add extra space for mobile browsers with bottom URL bars (Safari, Chrome on iOS)
-    const mobileBottomBarSpace = 85;
     
-    const isMobile = /Mobile/i.test(userAgent);
-    const offset = isMobile ? mobileBottomBarSpace : 0;
+    // Detect if we're on mobile
+    const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
     
-    setBaseUserInputOffset(offset);
+    // Chrome mobile has both top URL bar and bottom nav bar - needs extra space
+    const isChromeAndroid = /Chrome/.test(userAgent) && /Android/i.test(userAgent);
+    
+    let mobileBottomBarSpace = 0;
+    if (isMobile) {
+      // Chrome Android needs more space due to dual bars
+      mobileBottomBarSpace = isChromeAndroid ? 120 : 85;
+    }
+    
+    console.log('Mobile detection:', { isMobile, isChromeAndroid, offset: mobileBottomBarSpace, userAgent });
+    setBaseUserInputOffset(mobileBottomBarSpace);
   }
   
 

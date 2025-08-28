@@ -11,6 +11,25 @@ body {
     text-wrap: balance;
   }
   
+  /* Mobile viewport height utilities */
+  .h-dvh {
+    height: 100dvh; /* Dynamic viewport height - excludes browser chrome */
+  }
+  
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+  
+  /* Fallback for browsers that don't support dvh */
+  @supports not (height: 100dvh) {
+    .h-dvh {
+      height: 100vh;
+    }
+    .min-h-dvh {
+      min-height: 100vh;
+    }
+  }
+  
   /* Hide scrollbar but keep scrolling functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
