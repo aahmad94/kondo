@@ -31,10 +31,10 @@ export function useIsMobile(): MobileInfo {
       // Detect browser and set appropriate offset for mobile browser bars
       if (userAgent.includes('chrome') && userAgent.includes('android')) {
         browser = 'chrome-android';
-        mobileOffset = 140; // Chrome Android has both top URL bar and bottom nav bar
+        mobileOffset = 160; // Chrome Android has both top URL bar and bottom nav bar
       } else if (userAgent.includes('chrome')) {
         browser = 'chrome';
-        mobileOffset = 140; // Chrome mobile (iOS or other)
+        mobileOffset = 160; // Chrome mobile (iOS or other)
       } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
         browser = 'safari';
         mobileOffset = 80; // Safari iOS
