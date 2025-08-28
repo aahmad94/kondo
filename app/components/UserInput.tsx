@@ -103,7 +103,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   };
 
   return (
-    <div className="flex items-center bg-background rounded-sm">
+    <div className="flex mb-4 items-center bg-background rounded-sm">
       <textarea
         ref={textareaRef}
         className={`flex-grow m-2 px-4 py-2 bg-card text-card-foreground border border-border rounded-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary placeholder-muted-foreground disabled:opacity-50 min-h-[${textareaMinHeight}px] h-[${textareaMinHeight}px] max-h-[${textareaMaxHeight}px] overflow-y-auto leading-[1.5]`}

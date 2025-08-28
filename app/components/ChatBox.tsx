@@ -86,7 +86,7 @@ export default function ChatBox({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
-  const [baseUserInputOffset, setBaseUserInputOffset] = useState<number>(140);
+
   const [quoteBarHeight, setQuoteBarHeight] = useState<number>(0);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '', dojoDetailed: '' });
   const [dailySummaryCache, setDailySummaryCache] = useState<Record<string, Response> | null>(null);
@@ -108,20 +108,6 @@ export default function ChatBox({
       setFlashcardResponses(getFlashcardResponses());
     }
   }, [bookmarkResponses, isFlashcardModalOpen]);
-
-
-  useEffect(() => {
-    const handleResize = () => {
-      initBaseUserInputOffset();
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
 
   // Update instructions when language changes
   useEffect(() => {
@@ -370,27 +356,6 @@ export default function ChatBox({
   const handleUserInputOffset = (offset: number) => {
     setUserInputOffset(offset);
   };
-
-  // Initializes the base user input offset based on the user's browser
-  function initBaseUserInputOffset() {
-    const userAgent = navigator.userAgent;
-    
-    // Detect if we're on mobile
-    const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-    
-    // Chrome mobile has both top URL bar and bottom nav bar - needs extra space
-    const isChromeAndroid = /Chrome/.test(userAgent) && /Android/i.test(userAgent);
-    
-    let mobileBottomBarSpace = 0;
-    if (isMobile) {
-      // Chrome Android needs more space due to dual bars
-      mobileBottomBarSpace = isChromeAndroid ? 120 : 85;
-    }
-    
-    console.log('Mobile detection:', { isMobile, isChromeAndroid, offset: mobileBottomBarSpace, userAgent });
-    setBaseUserInputOffset(mobileBottomBarSpace);
-  }
-  
 
   // Deletes response from database and updates state locally
   const handleResponseDelete = async (responseId: string, bookmarks?: Record<string, string>) => {
@@ -787,7 +752,7 @@ export default function ChatBox({
   
 
   return (
-    <div className="container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)] relative">
+    <div className="container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)]">
       {/* ChatBox Menu Bar - Show for all cases */}
       <ChatBoxMenuBar
         onNewReport={() => handleGenerateSummary(true)}
@@ -801,11 +766,9 @@ export default function ChatBox({
       
       <div 
         ref={chatContainerRef}
-        className="overflow-y-auto relative flex-1"
+        className="overflow-y-auto flex-1"
         style={{ 
-          paddingBottom: selectedBookmark.id 
-            ? 'env(safe-area-inset-bottom)' 
-            : `calc(80px + ${baseUserInputOffset}px + env(safe-area-inset-bottom))`,
+          paddingBottom: 'env(safe-area-inset-bottom)'
         }}
       >
         {isLoading && (
@@ -973,14 +936,10 @@ export default function ChatBox({
           </div>
         ) : null}
       </div>
-      {/* Show QuoteBar if we have responseQuote, regardless of bookmark status */}
+      
+      {/* Show QuoteBar if we have responseQuote - positioned naturally above UserInput */}
       {responseQuote && !selectedBookmark.id && (
-        <div 
-          className="absolute left-0 right-0 bg-background"
-          style={{ 
-            bottom: `calc(60px + ${baseUserInputOffset}px + env(safe-area-inset-bottom))` 
-          }}
-        >
+        <div className="bg-background">
           <QuoteBar 
             quotedText={responseQuote}
             onClear={setResponseQuoteToNull}
@@ -989,12 +948,12 @@ export default function ChatBox({
         </div>
       )}
       
-      {/* Show UserInput only when not in a bookmark - positioned at bottom */}
+      {/* Show UserInput only when not in a bookmark - positioned naturally at bottom */}
       {!selectedBookmark.id && (
         <div 
-          className="absolute bottom-0 left-0 right-0 bg-background" 
+          className="bg-background" 
           style={{ 
-            paddingBottom: `calc(${baseUserInputOffset}px + env(safe-area-inset-bottom))` 
+            paddingBottom: 'env(safe-area-inset-bottom)' 
           }}
         >
           <UserInput 
