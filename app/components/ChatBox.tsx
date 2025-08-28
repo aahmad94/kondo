@@ -754,7 +754,7 @@ export default function ChatBox({
   
 
   return (
-    <div className="container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)]">
+    <div className="h-[calc(100vh-50px)] container mx-auto bg-background h-full flex flex-col max-w-[calc(100vw-48px)]">
       {/* ChatBox Menu Bar - Show for all cases */}
       <ChatBoxMenuBar
         onNewReport={() => handleGenerateSummary(true)}
@@ -955,7 +955,7 @@ export default function ChatBox({
         <div 
           className="bg-background" 
           style={{ 
-            paddingBottom: `calc(${mobileOffset}px + env(safe-area-inset-bottom))` 
+            paddingBottom: `env(safe-area-inset-bottom)` 
           }}
         >
           <UserInput 
