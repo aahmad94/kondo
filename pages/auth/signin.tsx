@@ -150,7 +150,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
       {/* Animated down arrow cue: only show on first slide */}
       {activeIndex === 0 && (
         <div 
-          className={`fixed left-[calc(50%-75px)] flex flex-col items-center opacity-80 animate-bounce z-50 ${isMobile ? 'bottom-16' : 'bottom-3 md:bottom-12'}`}
+          className={`fixed left-[calc(50%-75px)] flex flex-col items-center opacity-80 animate-bounce z-50 ${isMobile ? 'bottom-4' : 'bottom-8'}`}
         >
           <svg className="w-8 h-8 text-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
