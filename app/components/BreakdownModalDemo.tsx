@@ -150,7 +150,7 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-[650px] max-w-[90vw] transform overflow-visible rounded-sm bg-card border border-border p-6 text-left align-middle shadow-xl transition-all flex flex-col max-h-[80vh]">
+              <Dialog.Panel className="w-[650px] max-w-[90vw] h-[80vh] transform overflow-hidden rounded-sm bg-card border border-border p-6 text-left align-middle shadow-xl transition-all flex flex-col">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-2 flex-shrink-0">
                   {/* Left: action icons */}
@@ -209,23 +209,25 @@ const BreakdownModalDemo: React.FC<BreakdownModalDemoProps> = ({
                 </div>
 
                 {/* Breakdown content */}
-                <div className="pt-2 flex-1 overflow-hidden">
+                <div className="pt-2 flex-1 min-h-0 overflow-hidden">
                   {isLoading ? (
                     <LoadingContent type={loadingType} />
                   ) : (
-                    <div className="whitespace-pre-line leading-relaxed overflow-y-auto overflow-x-auto max-h-full flex justify-center" style={{ color: 'hsl(var(--phrase-text))' }}>
-                      <div className="w-full">
-                        <StyledMarkdown 
-                          components={{
-                            table: ({ children, ...props }) => (
-                              <table {...props} className="mx-auto border-collapse">
-                                {children}
-                              </table>
-                            )
-                          }}
-                        >
-                          {displayedContent}
-                        </StyledMarkdown>
+                    <div className="h-full overflow-y-auto overflow-x-auto">
+                      <div className="whitespace-pre-line leading-relaxed flex justify-center" style={{ color: 'hsl(var(--phrase-text))' }}>
+                        <div className="w-full">
+                          <StyledMarkdown 
+                            components={{
+                              table: ({ children, ...props }) => (
+                                <table {...props} className="mx-auto border-collapse">
+                                  {children}
+                                </table>
+                              )
+                            }}
+                          >
+                            {displayedContent}
+                          </StyledMarkdown>
+                        </div>
                       </div>
                     </div>
                   )}
