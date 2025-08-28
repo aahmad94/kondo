@@ -54,7 +54,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   }, [swiperInstance]);
 
   return (
-    <div className="min-h-screen max-h-screen bg-background flex flex-col p-0 font-mono overflow-hidden">
+    <div className="min-h-[100dvh] max-h-[100dvh] bg-background flex flex-col p-0 font-mono overflow-hidden">
       <Head>
         <title>Sign in to Kondo</title>
       </Head>
@@ -67,7 +67,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
         slidesPerView={1}
         mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 3 }}
         modules={[Mousewheel]}
-        className="h-screen w-full"
+        className="h-[100dvh] w-full"
         onActiveIndexChange={(swiper) => setActiveIndex(swiper.activeIndex)}
       >
         {/* Slide 1: Kondo description + sign-in */}
@@ -114,8 +114,8 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
 
         {/* Slide 2: Interactive Demo */}
         <SwiperSlide>
-          <div ref={scrollableRef} className="h-screen overflow-hidden flex flex-col items-center relative swiper-nested bg-background">
-            <div className="w-full h-[100vh] flex flex-col items-end justify-end">
+          <div ref={scrollableRef} className="h-[100dvh] overflow-hidden flex flex-col items-center relative swiper-nested bg-background">
+            <div className="w-full h-[100dvh] flex flex-col items-end justify-end">
               <div className="w-full">
                 <KondoDemo />
               </div>
@@ -150,7 +150,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
       {/* Animated down arrow cue: only show on first slide */}
       {activeIndex === 0 && (
         <div 
-          className={`fixed left-[calc(50%-75px)] flex flex-col items-center opacity-80 animate-bounce z-40 ${isMobile ? 'bottom-8' : 'bottom-3 md:bottom-12'}`}
+          className={`fixed left-[calc(50%-75px)] flex flex-col items-center opacity-80 animate-bounce z-50 ${isMobile ? 'bottom-16' : 'bottom-3 md:bottom-12'}`}
         >
           <svg className="w-8 h-8 text-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
