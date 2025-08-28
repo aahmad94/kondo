@@ -11,6 +11,17 @@ body {
     text-wrap: balance;
   }
   
+  /* Dynamic viewport height for mobile browser compatibility */
+  .h-dvh {
+    height: 100dvh;
+  }
+  
+  /* Fallback for browsers that don't support dvh */
+  @supports not (height: 100dvh) {
+    .h-dvh {
+      height: 100vh;
+    }
+  }
 
   /* Hide scrollbar but keep scrolling functionality */
   .scrollbar-hide {

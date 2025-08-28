@@ -138,7 +138,7 @@ export default function Home() {
   };
   
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-dvh bg-background">
       <MenuBar
         onClearBookmark={handleClearBookmark}
         onLanguageChange={handleLanguageChange}
