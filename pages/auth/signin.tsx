@@ -81,7 +81,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                     <img 
                       src="/icon.png" 
                       alt="Kondo" 
-                      className="w-12 h-12 mr-3"
+                      className={`w-12 h-12 mr-3 ${theme === 'light' ? 'brightness-0 saturate-100' : ''}`}
                     />
                     <h1 className="text-4xl font-medium text-foreground">Kondo</h1>
                   </div>
