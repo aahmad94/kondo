@@ -84,15 +84,15 @@ export default function KondoDemo() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto h-dvh flex flex-col">
+    <div className="h-dvh w-full max-w-4xl mx-auto flex flex-col items-center justify-center">
       {/* Centered carousel and navigation */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-0">
+      <div className="flex flex-col items-center justify-center min-h-0">
         {/* Demo header */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-4">
+          <h2 className="px-2 text-2xl font-bold text-foreground mb-4">
             Interactive Demo
           </h2>
-          <p className="text-muted-foreground text-sm max-w-xl">
+          <p className="px-2 text-muted-foreground text-sm max-w-xl">
             Try out the features below - hover and click through the icons for grammar and audio guides
           </p>
         </div>
