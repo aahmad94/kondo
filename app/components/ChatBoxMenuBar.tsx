@@ -100,7 +100,7 @@ export default function ChatBoxMenuBar({
 
   return (
     <>
-      <div className="bg-background border-b border-border px-4 py-2 mx-4 mb-2">
+      <div className="bg-background border-b border-border py-2 mb-2">
         <div className="flex items-center">
           {/* Scrollable buttons container */}
           <div 
@@ -115,7 +115,7 @@ export default function ChatBoxMenuBar({
               WebkitOverflowScrolling: 'touch'
             }}
           >
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="flex items-center px-4 mx-4 gap-2 sm:gap-3 flex-shrink-0">
               {/* New Report Button - First */}
               {showNewReport && (
                 <button

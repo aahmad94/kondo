@@ -303,7 +303,7 @@ export default function Bookmarks({
   return (
     <>
       {!isOpen && (
-        <div className="fixed top-[56px] h-[50px] w-8 rounded-r-lg bg-card/80 border border-border ml-0 flex items-center justify-center z-10">
+        <div className="fixed top-[56px] h-[50px] w-8 rounded-r-md bg-card/80 border-t border-r border-b border-border ml-0 flex items-center justify-center z-10">
           <button 
             onClick={handleToggleOpen}
             className="text-card-foreground w-full h-full flex items-center justify-center cursor-pointer"
