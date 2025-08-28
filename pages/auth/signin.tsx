@@ -14,7 +14,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { isMobile, offset } = useIsMobile();
+  const { isMobile, mobileOffset } = useIsMobile();
   const yellow = '#b59f3b'
   
   // Theme detection state
