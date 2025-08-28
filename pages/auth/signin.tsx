@@ -72,13 +72,20 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
       >
         {/* Slide 1: Kondo description + sign-in */}
         <SwiperSlide>
-          <div className={`flex items-center justify-center w-full bg-background relative ${isMobile ? 'min-h-[100dvh] py-4' : 'min-h-screen'}`}>
+          <div className={`flex items-center justify-center w-full bg-background relative h-dvh`}>
             <div className={`w-full max-w-4xl bg-card border border-border rounded-sm shadow-lg overflow-hidden ${isMobile ? 'mx-4 my-auto' : 'm-4'}`}>
               <div className="flex flex-col md:flex-row">
                 {/* Left section with headers */}
                 <div className="p-8 md:w-2/3">
-                  <h1 className="text-4xl font-bold text-foreground mb-3">Kondo</h1>
-                  <p className="text-muted-foreground text-lg mb-6">
+                  <div className="flex items-center mb-3">
+                    <img 
+                      src="/icon.png" 
+                      alt="Kondo" 
+                      className="w-12 h-12 mr-3"
+                    />
+                    <h1 className="text-4xl font-medium text-foreground">Kondo</h1>
+                  </div>
+                  <p className="text-muted-foreground text-md mb-6">
                     Leverage AI to generate and organize study material to learn new languages
                   </p>
                   <p className="text-muted-foreground text-sm">
