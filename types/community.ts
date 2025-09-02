@@ -1,0 +1,110 @@
+// Community Response types
+export interface CommunityResponse {
+  id: string;
+  originalResponseId: string;
+  creatorAlias: string;
+  creatorUserId: string;
+  bookmarkTitle: string;
+  languageId: string;
+  content: string;
+  breakdown?: string | null;
+  mobileBreakdown?: string | null;
+  furigana?: string | null;
+  audio?: string | null;
+  audioMimeType?: string | null;
+  isActive: boolean;
+  importCount: number;
+  viewCount: number;
+  sharedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CommunityResponseWithRelations extends CommunityResponse {
+  creator: {
+    alias: string | null;
+  };
+  language: {
+    code: string;
+    name: string;
+  };
+}
+
+// Community Import types
+export interface CommunityImport {
+  id: string;
+  userId: string;
+  communityResponseId: string;
+  importedResponseId: string;
+  importedBookmarkId: string;
+  wasBookmarkCreated: boolean;
+  importedAt: Date;
+}
+
+// Filter and pagination types
+export interface CommunityFilters {
+  bookmarkTitle?: string;
+  creatorAlias?: string;
+  languageId?: string;
+  minImports?: number;
+  sortBy?: 'recent' | 'popular' | 'imports';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface CommunityPagination {
+  page: number;
+  limit: number;
+}
+
+// User profile types
+export interface CommunityUserProfile {
+  alias: string;
+  totalShared: number;
+  totalImports: number;
+  languagesShared: number;
+  memberSince: Date;
+}
+
+export interface UserSharingStats {
+  totalLocal: number;
+  totalImported: number;
+  totalShared: number;
+  totalImportsByOthers: number;
+}
+
+// API Response types
+export interface ShareToCommunityResponse {
+  success: boolean;
+  communityResponse?: CommunityResponseWithRelations;
+  error?: string;
+}
+
+export interface ImportFromCommunityResponse {
+  success: boolean;
+  response?: any; // GPTResponse with relations
+  bookmark?: any; // Bookmark
+  wasBookmarkCreated?: boolean;
+  error?: string;
+}
+
+export interface CommunityFeedResponse {
+  responses: CommunityResponseWithRelations[];
+  totalCount: number;
+  hasMore: boolean;
+}
+
+// Alias management types
+export interface AliasValidationResult {
+  isValid: boolean;
+  error?: string;
+}
+
+export interface AliasOperationResult {
+  success: boolean;
+  error?: string;
+}
+
+export interface UserAliasInfo {
+  alias: string | null;
+  isPublic: boolean;
+}
