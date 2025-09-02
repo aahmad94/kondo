@@ -22,6 +22,9 @@ model User {
   lastEmailSent         DateTime?
   subscriptionEmail     String?
   unsubscribedAt        DateTime?
+  alias                 String?                    @unique
+  isAliasPublic         Boolean                    @default(false)
+  aliasCreatedAt        DateTime?
   accounts              Account[]
   bookmarks             Bookmark[]
   dailySummaries        DailySummary[]
@@ -29,6 +32,8 @@ model User {
   sessions              Session[]
   languagePreference    UserLanguagePreference?
   languageSubscriptions UserLanguageSubscription[]
+  communityResponses    CommunityResponse[]
+  communityImports      CommunityImport[]
 }
 
 model Account {
@@ -72,17 +77,18 @@ model VerificationToken {
 }
 
 model Language {
-  id              String                     @id @default(cuid())
-  code            String                     @unique
-  name            String
-  isActive        Boolean                    @default(true)
-  createdAt       DateTime                   @default(now())
-  updatedAt       DateTime                   @updatedAt
-  bookmarks       Bookmark[]
-  dailySummaries  DailySummary[]
-  responses       GPTResponse[]
-  userPreferences UserLanguagePreference[]
-  subscriptions   UserLanguageSubscription[]
+  id                String                     @id @default(cuid())
+  code              String                     @unique
+  name              String
+  isActive          Boolean                    @default(true)
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  bookmarks         Bookmark[]
+  dailySummaries    DailySummary[]
+  responses         GPTResponse[]
+  userPreferences   UserLanguagePreference[]
+  subscriptions     UserLanguageSubscription[]
+  communityResponses CommunityResponse[]
 }
 
 model UserLanguagePreference {
@@ -114,39 +120,45 @@ model UserLanguageSubscription {
 }
 
 model GPTResponse {
-  id                String         @id @default(cuid())
-  content           String
-  createdAt         DateTime       @default(now())
-  userId            String
-  rank              Int?           @default(1)
-  languageId        String
-  isPaused          Boolean        @default(false)
-  updatedAt         DateTime       @updatedAt
-  audio             String?
-  audioMimeType     String?
-  breakdown         String?
-  furigana          String?
-  isFuriganaEnabled Boolean        @default(false)
-  isPhoneticEnabled Boolean        @default(true)
-  isKanaEnabled     Boolean        @default(true)
-  mobileBreakdown   String?
-  language          Language       @relation(fields: [languageId], references: [id])
-  user              User           @relation(fields: [userId], references: [id])
-  bookmarks         Bookmark[]     @relation("BookmarksToResponses")
-  dailySummaries    DailySummary[] @relation("DailySummaryToResponses")
+  id                  String               @id @default(cuid())
+  content             String
+  createdAt           DateTime             @default(now())
+  userId              String
+  rank                Int?                 @default(1)
+  languageId          String
+  isPaused            Boolean              @default(false)
+  updatedAt           DateTime             @updatedAt
+  audio               String?
+  audioMimeType       String?
+  breakdown           String?
+  furigana            String?
+  isFuriganaEnabled   Boolean              @default(false)
+  isPhoneticEnabled   Boolean              @default(true)
+  isKanaEnabled       Boolean              @default(true)
+  mobileBreakdown     String?
+  source              String               @default("local")
+  communityResponseId String?
+  language            Language             @relation(fields: [languageId], references: [id])
+  user                User                 @relation(fields: [userId], references: [id])
+  bookmarks           Bookmark[]           @relation("BookmarksToResponses")
+  dailySummaries      DailySummary[]       @relation("DailySummaryToResponses")
+  communityResponse   CommunityResponse?   @relation("ImportedResponses", fields: [communityResponseId], references: [id])
+  originalCommunityPost CommunityResponse? @relation("OriginalResponses")
+  communityImport     CommunityImport?
 }
 
 model Bookmark {
-  id         String        @id @default(cuid())
-  title      String
-  userId     String
-  languageId String
-  isReserved Boolean       @default(false)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  language   Language      @relation(fields: [languageId], references: [id])
-  user       User          @relation(fields: [userId], references: [id])
-  responses  GPTResponse[] @relation("BookmarksToResponses")
+  id               String            @id @default(cuid())
+  title            String
+  userId           String
+  languageId       String
+  isReserved       Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  language         Language          @relation(fields: [languageId], references: [id])
+  user             User              @relation(fields: [userId], references: [id])
+  responses        GPTResponse[]     @relation("BookmarksToResponses")
+  communityImports CommunityImport[]
 }
 
 model DailySummary {
@@ -158,4 +170,53 @@ model DailySummary {
   language   Language      @relation(fields: [languageId], references: [id])
   user       User          @relation(fields: [userId], references: [id])
   responses  GPTResponse[] @relation("DailySummaryToResponses")
+}
+
+model CommunityResponse {
+  id                String            @id @default(cuid())
+  originalResponseId String           @unique
+  creatorAlias      String
+  creatorUserId     String
+  bookmarkTitle     String
+  languageId        String
+  content           String
+  breakdown         String?
+  mobileBreakdown   String?
+  furigana          String?
+  audio             String?
+  audioMimeType     String?
+  isActive          Boolean           @default(true)
+  importCount       Int               @default(0)
+  viewCount         Int               @default(0)
+  sharedAt          DateTime          @default(now())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  creator           User              @relation(fields: [creatorUserId], references: [id])
+  language          Language          @relation(fields: [languageId], references: [id])
+  originalResponse  GPTResponse       @relation("OriginalResponses", fields: [originalResponseId], references: [id])
+  importedResponses GPTResponse[]     @relation("ImportedResponses")
+  imports           CommunityImport[]
+  
+  @@index([languageId, sharedAt])
+  @@index([creatorUserId])
+  @@index([bookmarkTitle])
+  @@index([importCount])
+}
+
+model CommunityImport {
+  id                  String            @id @default(cuid())
+  userId              String
+  communityResponseId String
+  importedResponseId  String            @unique
+  importedBookmarkId  String
+  wasBookmarkCreated  Boolean           @default(false)
+  importedAt          DateTime          @default(now())
+  
+  user                User              @relation(fields: [userId], references: [id])
+  communityResponse   CommunityResponse @relation(fields: [communityResponseId], references: [id])
+  importedResponse    GPTResponse       @relation(fields: [importedResponseId], references: [id])
+  importedBookmark    Bookmark          @relation(fields: [importedBookmarkId], references: [id])
+  
+  @@unique([userId, communityResponseId])
 }
