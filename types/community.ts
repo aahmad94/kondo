@@ -45,7 +45,7 @@ export interface CommunityImport {
 export interface CommunityFilters {
   bookmarkTitle?: string;
   creatorAlias?: string;
-  languageId?: string;
+  languageId?: string; // Set automatically by API based on user's current language
   minImports?: number;
   sortBy?: 'recent' | 'popular' | 'imports';
   sortOrder?: 'asc' | 'desc';

@@ -16,6 +16,9 @@ export {
   getUserSharingStats
 } from './communityService';
 
+// Client-side API service
+export { CommunityClientService } from './communityClientService';
+
 // Types
 export type { 
   CommunityFilters, 

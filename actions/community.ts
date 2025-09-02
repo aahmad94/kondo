@@ -1,0 +1,249 @@
+'use server'
+
+import { getServerSession } from "next-auth";
+import { authOptions } from "../pages/api/auth/[...nextauth]";
+import { 
+  shareToCommunity,
+  importFromCommunity,
+  createAlias,
+  updateAlias,
+  validateAlias,
+  getUserSharingStats
+} from "@/lib/community";
+
+/**
+ * Server action to share a GPTResponse to the community feed
+ */
+export async function shareResponseToCommunityAction(responseId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to share responses' 
+      };
+    }
+
+    // Get user ID from email (assuming you have a way to get this)
+    // For now, I'll use the session.user.id if available, otherwise we need to look up by email
+    const userId = (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await shareToCommunity(userId, responseId);
+    
+    if (result.success) {
+      return {
+        success: true,
+        communityResponse: result.communityResponse,
+        message: 'Response shared to community successfully!'
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to share response'
+      };
+    }
+  } catch (error) {
+    console.error('Error in shareResponseToCommunityAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to share response to community'
+    };
+  }
+}
+
+/**
+ * Server action to import a community response
+ */
+export async function importCommunityResponseAction(communityResponseId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to import responses' 
+      };
+    }
+
+    const userId = (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await importFromCommunity(userId, communityResponseId);
+    
+    if (result.success) {
+      return {
+        success: true,
+        response: result.response,
+        bookmark: result.bookmark,
+        wasBookmarkCreated: result.wasBookmarkCreated,
+        message: result.wasBookmarkCreated 
+          ? 'Response imported and new bookmark created!'
+          : 'Response imported to existing bookmark!'
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to import response'
+      };
+    }
+  } catch (error) {
+    console.error('Error in importCommunityResponseAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to import community response'
+    };
+  }
+}
+
+/**
+ * Server action to create a user alias
+ */
+export async function createUserAliasAction(alias: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to create an alias' 
+      };
+    }
+
+    const userId = (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await createAlias(userId, alias);
+    
+    if (result.success) {
+      return {
+        success: true,
+        message: 'Alias created successfully! You can now share responses to the community.'
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to create alias'
+      };
+    }
+  } catch (error) {
+    console.error('Error in createUserAliasAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to create alias'
+    };
+  }
+}
+
+/**
+ * Server action to update a user alias
+ */
+export async function updateUserAliasAction(newAlias: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to update your alias' 
+      };
+    }
+
+    const userId = (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await updateAlias(userId, newAlias);
+    
+    if (result.success) {
+      return {
+        success: true,
+        message: 'Alias updated successfully!'
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to update alias'
+      };
+    }
+  } catch (error) {
+    console.error('Error in updateUserAliasAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update alias'
+    };
+  }
+}
+
+/**
+ * Server action to validate an alias (for real-time validation)
+ */
+export async function validateAliasAction(alias: string) {
+  try {
+    const result = await validateAlias(alias);
+    return result;
+  } catch (error) {
+    console.error('Error in validateAliasAction:', error);
+    return {
+      isValid: false,
+      error: 'Unable to validate alias. Please try again.'
+    };
+  }
+}
+
+/**
+ * Server action to get user's sharing statistics
+ */
+export async function getUserSharingStatsAction() {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to view statistics' 
+      };
+    }
+
+    const userId = (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const stats = await getUserSharingStats(userId);
+    
+    return {
+      success: true,
+      stats
+    };
+  } catch (error) {
+    console.error('Error in getUserSharingStatsAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to get sharing statistics'
+    };
+  }
+}
