@@ -15,6 +15,7 @@ interface UseCommunityFeedReturn {
   hasMore: boolean;
   totalCount: number;
   refetch: () => Promise<void>;
+  refetchFresh: () => Promise<void>;
   loadMore: () => Promise<void>;
   updateFilters: (newFilters: Partial<CommunityFilters>) => void;
   filters: CommunityFilters;
@@ -72,6 +73,13 @@ export function useCommunityFeed(
     await fetchCommunityFeed(filters, { ...pagination, page: 1 });
   }, [filters, pagination, fetchCommunityFeed]);
 
+  const refetchFresh = useCallback(async () => {
+    // Always fetch fresh data, ignoring any caching
+    setPagination({ page: 1, limit: 20 });
+    setFilters({});
+    await fetchCommunityFeed({}, { page: 1, limit: 20 });
+  }, [fetchCommunityFeed]);
+
   const loadMore = useCallback(async () => {
     if (hasMore && !loading) {
       const nextPage = pagination.page + 1;
@@ -92,6 +100,7 @@ export function useCommunityFeed(
     hasMore,
     totalCount,
     refetch,
+    refetchFresh,
     loadMore,
     updateFilters,
     filters,

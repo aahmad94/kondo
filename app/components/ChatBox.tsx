@@ -122,6 +122,7 @@ export default function ChatBox({
     hasMore: communityHasMore,
     totalCount: communityTotalCount,
     refetch: refetchCommunity,
+    refetchFresh: refetchCommunityFresh,
     loadMore: loadMoreCommunity,
     updateFilters: updateCommunityFilters,
     filters: communityFilters
@@ -138,6 +139,8 @@ export default function ChatBox({
   const previousLanguageRef = useRef(selectedLanguage);
   // Add ref to track ongoing rank updates to prevent duplicates
   const ongoingRankUpdatesRef = useRef<Set<string>>(new Set());
+  // Add ref to track previous bookmark to detect community mode entry
+  const previousBookmarkRef = useRef(selectedBookmark.title);
   // Flashcard mode state
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [flashcardResponses, setFlashcardResponses] = useState<Response[]>([]);
@@ -157,6 +160,21 @@ export default function ChatBox({
       setFlashcardResponses(getFlashcardResponses());
     }
   }, [bookmarkResponses, isFlashcardModalOpen]);
+
+  // Refetch fresh community data when entering community mode
+  useEffect(() => {
+    const currentBookmark = selectedBookmark.title;
+    const previousBookmark = previousBookmarkRef.current;
+    
+    // If we just entered community mode, fetch fresh data
+    if (currentBookmark === 'community' && previousBookmark !== 'community') {
+      console.log('Entering community mode - fetching fresh data');
+      refetchCommunityFresh();
+    }
+    
+    // Update ref for next comparison
+    previousBookmarkRef.current = currentBookmark;
+  }, [selectedBookmark.title, refetchCommunityFresh]);
 
   // Update instructions when language changes
   useEffect(() => {
@@ -756,8 +774,8 @@ export default function ChatBox({
     try {
       const result = await importCommunityResponseAction(communityResponseId);
       if (result.success) {
-        // Optionally refresh community feed to update import counts
-        refetchCommunity();
+        // Refresh community feed to update import counts with fresh data
+        refetchCommunityFresh();
         
         // Show success message
         console.log('Successfully imported response:', result.message);
@@ -802,8 +820,8 @@ export default function ChatBox({
         setSharedResponseTitle(bookmarkTitle || 'your response');
         setShowShareSuccessModal(true);
         
-        // Refresh community feed
-        refetchCommunity();
+        // Refresh community feed with fresh data
+        refetchCommunityFresh();
       } else {
         console.error('Failed to share to community:', result.error);
         
@@ -846,8 +864,8 @@ export default function ChatBox({
       const result = await deleteCommunityResponseAction(communityResponseId);
       if (result.success) {
         console.log('Successfully deleted community response:', result.message);
-        // Refresh community feed to remove deleted response
-        refetchCommunity();
+        // Refresh community feed to remove deleted response with fresh data
+        refetchCommunityFresh();
       } else {
         console.error('Failed to delete community response:', result.error);
       }
