@@ -1133,7 +1133,7 @@ Imported responses will be added to your bookmarks for studying and review."
           </div>
         )}
         
-        {selectedBookmark.id && selectedBookmark.id !== 'search' ? (
+        {selectedBookmark.id && selectedBookmark.id !== 'search' && !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
               {Object.values(bookmarkResponses).map((response: Response, index: number) => (
@@ -1171,7 +1171,7 @@ Imported responses will be added to your bookmarks for studying and review."
             </div>
           </div>
         ) :
-        selectedBookmark.id !== 'search' ? (
+        selectedBookmark.id !== 'search' && !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
               {Object.values(responses).map((response, index) => (
