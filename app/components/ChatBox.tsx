@@ -3,12 +3,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
 import Response from './Response';
 import FilterBar from './FilterBar';
 import CreateAliasModal from './CreateAliasModal';
+import ConfirmationModal from './ui/ConfirmationModal';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
@@ -20,7 +22,8 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { useCommunityFeed } from '../hooks/useCommunityFeed';
 import { 
   shareResponseToCommunityAction, 
-  importCommunityResponseAction 
+  importCommunityResponseAction,
+  checkResponseSharedAction
 } from '@/actions/community';
 import type { 
   CommunityResponseWithRelations, 
@@ -140,6 +143,11 @@ export default function ChatBox({
   
   // Alias modal state
   const [isCreateAliasModalOpen, setIsCreateAliasModalOpen] = useState(false);
+  
+  // Success modal state
+  const [showShareSuccessModal, setShowShareSuccessModal] = useState(false);
+  const [showAlreadySharedModal, setShowAlreadySharedModal] = useState(false);
+  const [sharedResponseTitle, setSharedResponseTitle] = useState('');
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -761,10 +769,33 @@ export default function ChatBox({
 
   const handleShareToCommunity = async (responseId: string) => {
     try {
+      // First check if already shared
+      const shareCheck = await checkResponseSharedAction(responseId);
+      if (shareCheck.success && shareCheck.isShared) {
+        // Get the bookmark title for the message
+        const response = Object.values(responses).find(r => r.id === responseId) || 
+                         Object.values(bookmarkResponses).find(r => r.id === responseId);
+        const bookmarkTitle = response?.bookmarks ? Object.values(response.bookmarks)[0] : 'Unknown';
+        
+        setSharedResponseTitle(bookmarkTitle || 'your response');
+        setShowAlreadySharedModal(true);
+        return;
+      }
+
+      // Proceed with sharing
       const result = await shareResponseToCommunityAction(responseId);
       if (result.success) {
         console.log('Successfully shared to community:', result.message);
-        // Optionally refresh community feed
+        
+        // Get the bookmark title for the success message
+        const response = Object.values(responses).find(r => r.id === responseId) || 
+                         Object.values(bookmarkResponses).find(r => r.id === responseId);
+        const bookmarkTitle = response?.bookmarks ? Object.values(response.bookmarks)[0] : 'Unknown';
+        
+        setSharedResponseTitle(bookmarkTitle || 'your response');
+        setShowShareSuccessModal(true);
+        
+        // Refresh community feed
         refetchCommunity();
       } else {
         console.error('Failed to share to community:', result.error);
@@ -772,6 +803,14 @@ export default function ChatBox({
         // If the error is about missing alias, show alias creation modal
         if (result.error?.includes('alias')) {
           setIsCreateAliasModalOpen(true);
+        } else if (result.error?.includes('already been shared')) {
+          // Handle the case where server-side detects duplicate (backup)
+          const response = Object.values(responses).find(r => r.id === responseId) || 
+                           Object.values(bookmarkResponses).find(r => r.id === responseId);
+          const bookmarkTitle = response?.bookmarks ? Object.values(response.bookmarks)[0] : 'Unknown';
+          
+          setSharedResponseTitle(bookmarkTitle || 'your response');
+          setShowAlreadySharedModal(true);
         }
       }
     } catch (error) {
@@ -1184,6 +1223,48 @@ Imported responses will be added to your bookmarks for studying and review."
         onClose={() => setIsCreateAliasModalOpen(false)}
         onAliasCreated={handleAliasCreated}
       />
+
+      {/* Share Success Modal */}
+      {showShareSuccessModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-l text-card-foreground">Shared to Community!</h2>
+              <button 
+                onClick={() => setShowShareSuccessModal(false)} 
+                className="text-card-foreground hover:text-muted-foreground transition-colors"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-card-foreground">
+              The response has successfully been shared to the community feed. Other people can now discover and import it.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Already Shared Modal */}
+      {showAlreadySharedModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-l text-card-foreground">Already Shared</h2>
+              <button 
+                onClick={() => setShowAlreadySharedModal(false)} 
+                className="text-card-foreground hover:text-muted-foreground transition-colors"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-card-foreground">
+              This response from "{sharedResponseTitle}" has already been shared to the community feed.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

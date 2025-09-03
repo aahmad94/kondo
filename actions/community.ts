@@ -8,7 +8,8 @@ import {
   createAlias,
   updateAlias,
   validateAlias,
-  getUserSharingStats
+  getUserSharingStats,
+  isResponseShared
 } from "@/lib/community";
 
 /**
@@ -209,6 +210,26 @@ export async function validateAliasAction(alias: string) {
     return {
       isValid: false,
       error: 'Unable to validate alias. Please try again.'
+    };
+  }
+}
+
+/**
+ * Server action to check if a response has already been shared
+ */
+export async function checkResponseSharedAction(responseId: string) {
+  try {
+    const result = await isResponseShared(responseId);
+    return {
+      success: true,
+      isShared: result.isShared,
+      communityResponse: result.communityResponse
+    };
+  } catch (error) {
+    console.error('Error in checkResponseSharedAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to check sharing status'
     };
   }
 }

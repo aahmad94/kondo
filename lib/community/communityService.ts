@@ -319,6 +319,32 @@ export async function getCommunityFeed(
 }
 
 /**
+ * Checks if a GPTResponse has already been shared to community
+ */
+export async function isResponseShared(responseId: string): Promise<{
+  isShared: boolean;
+  communityResponse?: any;
+}> {
+  try {
+    const communityResponse = await prisma.communityResponse.findUnique({
+      where: { originalResponseId: responseId },
+      include: {
+        creator: { select: { alias: true } },
+        language: { select: { code: true, name: true } }
+      }
+    });
+
+    return {
+      isShared: !!communityResponse,
+      communityResponse: communityResponse || undefined
+    };
+  } catch (error) {
+    console.error('Error checking if response is shared:', error);
+    return { isShared: false };
+  }
+}
+
+/**
  * Gets user's sharing statistics
  */
 export async function getUserSharingStats(userId: string): Promise<UserSharingStats> {

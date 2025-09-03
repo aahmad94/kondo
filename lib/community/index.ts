@@ -13,7 +13,8 @@ export {
   shareToCommunity,
   importFromCommunity,
   getCommunityFeed,
-  getUserSharingStats
+  getUserSharingStats,
+  isResponseShared
 } from './communityService';
 
 // Client-side API service
