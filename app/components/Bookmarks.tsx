@@ -245,6 +245,19 @@ export default function Bookmarks({
     await trackClearBookmark();
   };
 
+  const handleCommunityClick = async () => {
+    // Update URL to community bookmark
+    router.push('/?bookmarkTitle=community');
+    changeSelectedBookmark(null, 'community');
+    // Track community selection
+    await trackBookmarkSelect('community', 'community');
+    
+    // Close bookmarks if on mobile
+    if (window.innerWidth < 768) {
+      setIsOpen(false);
+    }
+  };
+
   const handleToggleOpen = () => {
     setIsOpen(!isOpen);
   };
@@ -319,6 +332,15 @@ export default function Bookmarks({
             <>
               <div className="flex justify-between items-start px-2 py-2">
                 <div className="flex flex-col space-y-1">
+                  <div
+                    className={`community-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.title === "community" ? 'bg-accent rounded-sm' : ''}`}
+                    onClick={handleCommunityClick}
+                  >
+                    <QueueListIcon className="h-4 w-4 inline mr-2 text-purple-400"/>
+                    <span className="text-purple-400">community</span>
+                  </div>
+
                   <div 
                     className={`daily-summary-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
                       ${selectedBookmark.title === "daily summary" ? 'bg-accent rounded-sm' : ''}`}
