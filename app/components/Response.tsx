@@ -29,7 +29,7 @@ import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import { StyledMarkdown } from './ui';
+import { StyledMarkdown, DeleteIcon } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
 import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
@@ -82,6 +82,7 @@ export default function Response(props: ResponseProps) {
 
   // Community-specific state
   const [isImporting, setIsImporting] = useState(false);
+  const [isDeletingCommunity, setIsDeletingCommunity] = useState(false);
 
   // Refs and other hooks
   const router = useRouter();
@@ -253,6 +254,19 @@ export default function Response(props: ResponseProps) {
     }
   };
 
+  const handleCommunityDelete = async () => {
+    if (!isCommunityResponseProps(props) || !props.onDelete) return;
+
+    try {
+      setIsDeletingCommunity(true);
+      await props.onDelete(data.id);
+    } catch (error) {
+      console.error('Error deleting community response:', error);
+    } finally {
+      setIsDeletingCommunity(false);
+    }
+  };
+
   // Render action buttons based on response type
   const renderActionButtons = () => {
     if (isGPTResponseProps(props)) {
@@ -366,6 +380,8 @@ export default function Response(props: ResponseProps) {
   const renderCommunityActionButtons = () => {
     if (!isCommunityResponseProps(props)) return null;
 
+    const isCreator = props.currentUserId === props.data.creatorUserId;
+
     return (
       <>
         {/* Breakdown button */}
@@ -389,8 +405,16 @@ export default function Response(props: ResponseProps) {
           </button>
         )}
 
-        {/* Import button */}
-        {props.onImport && (
+        {/* Delete button - only show for creator */}
+        {isCreator && props.onDelete && (
+          <DeleteIcon
+            onClick={handleCommunityDelete}
+            disabled={isDeletingCommunity}
+          />
+        )}
+
+        {/* Import button - only show for non-creators */}
+        {!isCreator && props.onImport && (
           <button 
             onClick={handleImport}
             disabled={isImporting}

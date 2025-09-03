@@ -14,7 +14,8 @@ export {
   importFromCommunity,
   getCommunityFeed,
   getUserSharingStats,
-  isResponseShared
+  isResponseShared,
+  deleteCommunityResponse
 } from './communityService';
 
 // Client-side API service

@@ -24,7 +24,7 @@ import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import { StyledMarkdown } from './ui';
+import { StyledMarkdown, DeleteIcon } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
 import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
@@ -749,13 +749,10 @@ export default function GPTResponse({
 
           {/* Delete button */}
           {type !== 'instruction' && selectedBookmarkId && responseId && onDelete && (
-            <button 
+            <DeleteIcon
               onClick={handleDeleteClick}
               disabled={isDeleting}
-              className="text-destructive hover:text-destructive/80 disabled:opacity-50 transition-colors duration-200"
-            >
-              <XCircleIcon className="h-6 w-6" />
-            </button>
+            />
           )}
 
           {/* Add to bookmark button - only show when not in a bookmark (i.e. in dojo, all responses, search) */}

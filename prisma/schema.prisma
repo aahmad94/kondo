@@ -194,7 +194,7 @@ model CommunityResponse {
   
   creator           User              @relation(fields: [creatorUserId], references: [id])
   language          Language          @relation(fields: [languageId], references: [id])
-  originalResponse  GPTResponse       @relation("OriginalResponses", fields: [originalResponseId], references: [id])
+  originalResponse  GPTResponse       @relation("OriginalResponses", fields: [originalResponseId], references: [id], onDelete: Cascade)
   importedResponses GPTResponse[]     @relation("ImportedResponses")
   imports           CommunityImport[]
   

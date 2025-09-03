@@ -9,7 +9,8 @@ import {
   updateAlias,
   validateAlias,
   getUserSharingStats,
-  isResponseShared
+  isResponseShared,
+  deleteCommunityResponse
 } from "@/lib/community";
 
 /**
@@ -230,6 +231,51 @@ export async function checkResponseSharedAction(responseId: string) {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to check sharing status'
+    };
+  }
+}
+
+/**
+ * Server action to delete a community response
+ */
+export async function deleteCommunityResponseAction(communityResponseId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to delete responses' 
+      };
+    }
+
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await deleteCommunityResponse(userId, communityResponseId);
+    
+    if (result.success) {
+      return {
+        success: true,
+        message: 'Response removed from community feed successfully!'
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to delete response'
+      };
+    }
+  } catch (error) {
+    console.error('Error in deleteCommunityResponseAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete community response'
     };
   }
 }

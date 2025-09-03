@@ -23,7 +23,8 @@ import { useCommunityFeed } from '../hooks/useCommunityFeed';
 import { 
   shareResponseToCommunityAction, 
   importCommunityResponseAction,
-  checkResponseSharedAction
+  checkResponseSharedAction,
+  deleteCommunityResponseAction
 } from '@/actions/community';
 import type { 
   CommunityResponseWithRelations, 
@@ -147,6 +148,7 @@ export default function ChatBox({
   // Success modal state
   const [showShareSuccessModal, setShowShareSuccessModal] = useState(false);
   const [showAlreadySharedModal, setShowAlreadySharedModal] = useState(false);
+  const [showSelfImportModal, setShowSelfImportModal] = useState(false);
   const [sharedResponseTitle, setSharedResponseTitle] = useState('');
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
@@ -761,6 +763,11 @@ export default function ChatBox({
         console.log('Successfully imported response:', result.message);
       } else {
         console.error('Failed to import response:', result.error);
+        
+        // If the error is about importing own response, show self-import modal
+        if (result.error?.includes('your own shared response')) {
+          setShowSelfImportModal(true);
+        }
       }
     } catch (error) {
       console.error('Error importing community response:', error);
@@ -832,6 +839,21 @@ export default function ChatBox({
 
   const handleCommunityFiltersChange = (filters: CommunityFilters) => {
     updateCommunityFilters(filters);
+  };
+
+  const handleCommunityDelete = async (communityResponseId: string) => {
+    try {
+      const result = await deleteCommunityResponseAction(communityResponseId);
+      if (result.success) {
+        console.log('Successfully deleted community response:', result.message);
+        // Refresh community feed to remove deleted response
+        refetchCommunity();
+      } else {
+        console.error('Failed to delete community response:', result.error);
+      }
+    } catch (error) {
+      console.error('Error deleting community response:', error);
+    }
   };
 
 
@@ -1061,7 +1083,9 @@ Imported responses will be added to your bookmarks for studying and review."
                       } as CommunityResponseData}
                       selectedBookmarkTitle="community"
                       selectedLanguage={selectedLanguage}
+                      currentUserId={(session as any)?.userId || (session?.user as any)?.id}
                       onImport={handleCommunityImport}
+                      onDelete={handleCommunityDelete}
                       onViewProfile={handleViewProfile}
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
@@ -1261,6 +1285,27 @@ Imported responses will be added to your bookmarks for studying and review."
             
             <p className="text-card-foreground">
               This response from "{sharedResponseTitle}" has already been shared to the community feed.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Self Import Prevention Modal */}
+      {showSelfImportModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-l text-card-foreground">Can't Import Own Response</h2>
+              <button 
+                onClick={() => setShowSelfImportModal(false)} 
+                className="text-card-foreground hover:text-muted-foreground transition-colors"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-card-foreground">
+              You cannot import your own shared responses. This response is already available in your personal bookmarks.
             </p>
           </div>
         </div>

@@ -112,6 +112,11 @@ export async function importFromCommunity(userId: string, communityResponseId: s
       return { success: false, error: 'Community response not found or no longer available' };
     }
 
+    // Check if user is trying to import their own response
+    if (communityResponse.creatorUserId === userId) {
+      return { success: false, error: 'You cannot import your own shared response' };
+    }
+
     // Check if user already imported this response
     const existingImport = await prisma.communityImport.findUnique({
       where: {
@@ -341,6 +346,44 @@ export async function isResponseShared(responseId: string): Promise<{
   } catch (error) {
     console.error('Error checking if response is shared:', error);
     return { isShared: false };
+  }
+}
+
+/**
+ * Deletes a community response (only by creator)
+ */
+export async function deleteCommunityResponse(userId: string, communityResponseId: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    // Get the community response to verify ownership
+    const communityResponse = await prisma.communityResponse.findUnique({
+      where: { id: communityResponseId },
+      select: { creatorUserId: true, bookmarkTitle: true }
+    });
+
+    if (!communityResponse) {
+      return { success: false, error: 'Community response not found' };
+    }
+
+    // Verify ownership
+    if (communityResponse.creatorUserId !== userId) {
+      return { success: false, error: 'You can only delete your own shared responses' };
+    }
+
+    // Delete the community response (this will also delete related CommunityImports due to foreign keys)
+    await prisma.communityResponse.delete({
+      where: { id: communityResponseId }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting community response:', error);
+    return {
+      success: false,
+      error: 'Failed to delete community response. Please try again.'
+    };
   }
 }
 
