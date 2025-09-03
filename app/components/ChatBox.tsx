@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
+import Response from './Response';
+import FilterBar from './FilterBar';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
@@ -14,6 +16,19 @@ import ChatBoxMenuBar from './ChatBoxMenuBar';
 import FlashcardModal from './FlashcardModal';
 import QuoteBar from './QuoteBar';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { useCommunityFeed } from '../hooks/useCommunityFeed';
+import { 
+  shareResponseToCommunityAction, 
+  importCommunityResponseAction 
+} from '@/actions/community';
+import type { 
+  CommunityResponseWithRelations, 
+  CommunityFilters
+} from '@/lib/community';
+import type {
+  GPTResponseData,
+  CommunityResponseData
+} from '../../types/response';
 
 interface ChatBoxProps {
   selectedBookmark: { id: string | null, title: string | null };
@@ -82,12 +97,30 @@ export default function ChatBox({
   const { data: session, status } = useSession()
   const router = useRouter();
   const { isMobile, mobileOffset } = useIsMobile();
+  
+  // Mode detection
+  const isCommunityMode = selectedBookmark.title === 'community';
+  
+  // Personal mode state
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, Response>>({});
   const [responses, setResponses] = useState<Record<string, Response>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
+  
+  // Community mode state and hooks
+  const {
+    responses: communityResponses,
+    loading: communityLoading,
+    error: communityError,
+    hasMore: communityHasMore,
+    totalCount: communityTotalCount,
+    refetch: refetchCommunity,
+    loadMore: loadMoreCommunity,
+    updateFilters: updateCommunityFilters,
+    filters: communityFilters
+  } = useCommunityFeed();
 
   const [quoteBarHeight, setQuoteBarHeight] = useState<number>(0);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '', dojoDetailed: '' });
@@ -704,6 +737,49 @@ export default function ChatBox({
     return Object.values(compiledInstructions).filter(Boolean).join('\n\n');
   }
 
+  // Community-specific handlers
+  const handleCommunityImport = async (communityResponseId: string) => {
+    try {
+      const result = await importCommunityResponseAction(communityResponseId);
+      if (result.success) {
+        // Optionally refresh community feed to update import counts
+        refetchCommunity();
+        
+        // Show success message
+        console.log('Successfully imported response:', result.message);
+      } else {
+        console.error('Failed to import response:', result.error);
+      }
+    } catch (error) {
+      console.error('Error importing community response:', error);
+    }
+  };
+
+  const handleShareToCommunity = async (responseId: string) => {
+    try {
+      const result = await shareResponseToCommunityAction(responseId);
+      if (result.success) {
+        console.log('Successfully shared to community:', result.message);
+        // Optionally refresh community feed
+        refetchCommunity();
+      } else {
+        console.error('Failed to share to community:', result.error);
+      }
+    } catch (error) {
+      console.error('Error sharing to community:', error);
+    }
+  };
+
+  const handleViewProfile = (userId: string) => {
+    // Navigate to user profile or show profile modal
+    console.log('View profile for user:', userId);
+    // TODO: Implement profile viewing functionality
+  };
+
+  const handleCommunityFiltersChange = (filters: CommunityFilters) => {
+    updateCommunityFilters(filters);
+  };
+
 
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
@@ -833,7 +909,7 @@ export default function ChatBox({
           </div>
         )}
         
-        {!selectedBookmark.id && (
+        {!selectedBookmark.id && !isCommunityMode && (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
               <GPTResponse
@@ -868,6 +944,94 @@ export default function ChatBox({
                 selectedLanguage={selectedLanguage}
                 onLoadingChange={setIsLoading}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Community Mode */}
+        {selectedBookmark.title === 'community' && (
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
+              {/* Community Instructions - Use GPTResponse for consistency */}
+              <GPTResponse
+                type="instruction"
+                response="Discover and import language learning responses shared by other users. Filter by bookmark titles, creators, or popularity to find content that matches your learning goals.
+
+Imported responses will be added to your bookmarks for studying and review."
+                selectedBookmarkId={null}
+                selectedBookmarkTitle="community"
+                reservedBookmarkTitles={reservedBookmarkTitles}
+                responseId={null}
+                onBookmarkSelect={onBookmarkSelect}
+                selectedLanguage={selectedLanguage}
+                onLoadingChange={setIsLoading}
+              />
+
+              {/* Community Responses */}
+              {communityError ? (
+                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive">
+                  <p>Error loading community feed: {communityError}</p>
+                  <button 
+                    onClick={refetchCommunity}
+                    className="mt-2 px-3 py-1 bg-destructive text-destructive-foreground rounded text-sm hover:bg-destructive/80"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : communityResponses.length > 0 ? (
+                <>
+                  {communityResponses.map((communityResponse: CommunityResponseWithRelations) => (
+                    <Response
+                      key={communityResponse.id}
+                      type="community"
+                      data={{
+                        id: communityResponse.id,
+                        content: communityResponse.content,
+                        createdAt: communityResponse.createdAt,
+                        updatedAt: communityResponse.updatedAt,
+                        languageId: communityResponse.languageId,
+                        breakdown: communityResponse.breakdown,
+                        mobileBreakdown: communityResponse.mobileBreakdown,
+                        furigana: communityResponse.furigana,
+                        audio: communityResponse.audio,
+                        audioMimeType: communityResponse.audioMimeType,
+                        originalResponseId: communityResponse.originalResponseId,
+                        creatorAlias: communityResponse.creatorAlias,
+                        creatorUserId: communityResponse.creatorUserId,
+                        bookmarkTitle: communityResponse.bookmarkTitle,
+                        isActive: communityResponse.isActive,
+                        importCount: communityResponse.importCount,
+                        viewCount: communityResponse.viewCount,
+                        sharedAt: communityResponse.sharedAt
+                      } as CommunityResponseData}
+                      selectedBookmarkTitle="community"
+                      selectedLanguage={selectedLanguage}
+                      onImport={handleCommunityImport}
+                      onViewProfile={handleViewProfile}
+                      onQuote={handleResponseQuote}
+                      onLoadingChange={setIsLoading}
+                    />
+                  ))}
+                  
+                  {/* Load More Button */}
+                  {communityHasMore && (
+                    <div className="flex justify-center mt-4">
+                      <button
+                        onClick={loadMoreCommunity}
+                        disabled={communityLoading}
+                        className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/80 disabled:opacity-50 transition-colors"
+                      >
+                        {communityLoading ? 'Loading...' : 'Load More'}
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : !communityLoading ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <p>No community responses found.</p>
+                  <p className="text-sm mt-2">Be the first to share a response with the community!</p>
+                </div>
+              ) : null}
             </div>
           </div>
         )}
@@ -941,11 +1105,11 @@ export default function ChatBox({
         ) : null}
         </div>
         
-        {/* Bottom section: QuoteBar + UserInput */}
-        {!selectedBookmark.id && (
+        {/* Bottom section: QuoteBar + Input (UserInput or FilterBar) */}
+        {(!selectedBookmark.id || isCommunityMode) && (
           <div className="flex-shrink-0">
-            {/* Show QuoteBar if we have responseQuote */}
-            {responseQuote && (
+            {/* Show QuoteBar if we have responseQuote (only in chat mode) */}
+            {responseQuote && !isCommunityMode && (
               <div className="bg-background">
                 <QuoteBar 
                   quotedText={responseQuote}
@@ -955,21 +1119,29 @@ export default function ChatBox({
               </div>
             )}
             
-            {/* UserInput at the very bottom */}
+            {/* Input at the very bottom - UserInput for chat, FilterBar for community */}
             <div 
               className="bg-background" 
               style={{ 
                 paddingBottom: 'env(safe-area-inset-bottom)' 
               }}
             >
-              <UserInput 
-                onSubmit={handleSubmit} 
-                isLoading={isLoading} 
-                defaultPrompt={null}
-                onUserInputOffset={handleUserInputOffset}
-                onQuoteToNull={setResponseQuoteToNull}
-                selectedLanguage={selectedLanguage}
-              />
+              {isCommunityMode ? (
+                <FilterBar
+                  onFiltersChange={handleCommunityFiltersChange}
+                  isLoading={communityLoading}
+                  initialFilters={{}} // Start with empty filters
+                />
+              ) : (
+                <UserInput 
+                  onSubmit={handleSubmit} 
+                  isLoading={isLoading} 
+                  defaultPrompt={null}
+                  onUserInputOffset={handleUserInputOffset}
+                  onQuoteToNull={setResponseQuoteToNull}
+                  selectedLanguage={selectedLanguage}
+                />
+              )}
             </div>
           </div>
         )}

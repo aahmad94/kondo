@@ -4,13 +4,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   MagnifyingGlassIcon, 
-  FunnelIcon, 
   XMarkIcon,
-  ChevronDownIcon,
   FireIcon,
   ClockIcon,
-  HeartIcon,
-  AdjustmentsHorizontalIcon
+  HeartIcon
 } from '@heroicons/react/24/outline';
 import { useIsMobile } from '../hooks/useIsMobile';
 import type { CommunityFilters } from '@/lib/community';
@@ -29,27 +26,22 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
   // Filter states
   const [bookmarkTitle, setBookmarkTitle] = useState(initialFilters.bookmarkTitle || '');
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
-  const [minImports, setMinImports] = useState(initialFilters.minImports || 0);
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'imports'>(initialFilters.sortBy || 'recent');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(initialFilters.sortOrder || 'desc');
   
   // UI states
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchDebounceTimer, setSearchDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   
   // Refs
   const bookmarkInputRef = useRef<HTMLInputElement>(null);
   const creatorInputRef = useRef<HTMLInputElement>(null);
-  const minImportsInputRef = useRef<HTMLInputElement>(null);
 
   // Debounced filter update
   const updateFilters = useCallback((newFilters: Partial<CommunityFilters>) => {
     const filters: CommunityFilters = {
       bookmarkTitle: bookmarkTitle || undefined,
       creatorAlias: creatorAlias || undefined,
-      minImports: minImports > 0 ? minImports : undefined,
       sortBy,
-      sortOrder,
+      sortOrder: 'desc', // Always descending (most recent/popular/imported first)
       ...newFilters
     };
 
@@ -71,28 +63,16 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
       params.delete('creatorAlias');
     }
     
-    if (filters.minImports && filters.minImports > 0) {
-      params.set('minImports', filters.minImports.toString());
-    } else {
-      params.delete('minImports');
-    }
-    
     if (filters.sortBy && filters.sortBy !== 'recent') {
       params.set('sortBy', filters.sortBy);
     } else {
       params.delete('sortBy');
     }
-    
-    if (filters.sortOrder && filters.sortOrder !== 'desc') {
-      params.set('sortOrder', filters.sortOrder);
-    } else {
-      params.delete('sortOrder');
-    }
 
     // Update URL without navigation
     const newUrl = params.toString() ? `?${params.toString()}` : '/';
     window.history.replaceState({}, '', newUrl);
-  }, [bookmarkTitle, creatorAlias, minImports, sortBy, sortOrder, onFiltersChange, searchParams]);
+  }, [bookmarkTitle, creatorAlias, sortBy, onFiltersChange, searchParams]);
 
   // Debounced search handlers
   const handleBookmarkSearch = (value: string) => {
@@ -126,36 +106,21 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
   // Immediate update handlers
   const handleSortChange = (newSortBy: 'recent' | 'popular' | 'imports') => {
     setSortBy(newSortBy);
-    updateFilters({ sortBy: newSortBy });
+    updateFilters({ sortBy: newSortBy, sortOrder: 'desc' });
   };
 
-  const handleMinImportsChange = (value: number) => {
-    setMinImports(value);
-    updateFilters({ minImports: value > 0 ? value : undefined });
-  };
-
-  const handleSortOrderToggle = () => {
-    const newOrder = sortOrder === 'desc' ? 'asc' : 'desc';
-    setSortOrder(newOrder);
-    updateFilters({ sortOrder: newOrder });
-  };
-
-  // Clear all filters
+  // Clear all filters (reset to recent)
   const clearAllFilters = () => {
     setBookmarkTitle('');
     setCreatorAlias('');
-    setMinImports(0);
     setSortBy('recent');
-    setSortOrder('desc');
     
     if (bookmarkInputRef.current) bookmarkInputRef.current.value = '';
     if (creatorInputRef.current) creatorInputRef.current.value = '';
-    if (minImportsInputRef.current) minImportsInputRef.current.value = '0';
     
     updateFilters({
       bookmarkTitle: undefined,
       creatorAlias: undefined,
-      minImports: undefined,
       sortBy: 'recent',
       sortOrder: 'desc'
     });
@@ -167,11 +132,10 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
     
     const urlBookmarkTitle = searchParams.get('bookmarkTitle');
     const urlCreatorAlias = searchParams.get('creatorAlias');
-    const urlMinImports = searchParams.get('minImports');
     const urlSortBy = searchParams.get('sortBy') as 'recent' | 'popular' | 'imports';
-    const urlSortOrder = searchParams.get('sortOrder') as 'asc' | 'desc';
 
-    if (urlBookmarkTitle) {
+    // Only set bookmark title filter if it's not a navigation bookmark (community, daily summary, etc.)
+    if (urlBookmarkTitle && !['community', 'daily summary', 'dojo', 'search', 'all responses'].includes(urlBookmarkTitle)) {
       setBookmarkTitle(urlBookmarkTitle);
       if (bookmarkInputRef.current) bookmarkInputRef.current.value = urlBookmarkTitle;
     }
@@ -181,18 +145,8 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
       if (creatorInputRef.current) creatorInputRef.current.value = urlCreatorAlias;
     }
     
-    if (urlMinImports) {
-      const minImportsValue = parseInt(urlMinImports);
-      setMinImports(minImportsValue);
-      if (minImportsInputRef.current) minImportsInputRef.current.value = minImportsValue.toString();
-    }
-    
     if (urlSortBy && ['recent', 'popular', 'imports'].includes(urlSortBy)) {
       setSortBy(urlSortBy);
-    }
-    
-    if (urlSortOrder && ['asc', 'desc'].includes(urlSortOrder)) {
-      setSortOrder(urlSortOrder);
     }
   }, [searchParams]);
 
@@ -205,11 +159,11 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
     };
   }, [searchDebounceTimer]);
 
-  // Check if any filters are active
-  const hasActiveFilters = bookmarkTitle || creatorAlias || minImports > 0 || sortBy !== 'recent' || sortOrder !== 'desc';
+  // Check if any filters are active (only search filters, not sort)
+  const hasActiveFilters = bookmarkTitle || creatorAlias;
 
   return (
-    <div className="bg-background border border-border rounded-lg p-4 mb-4">
+    <div className="bg-background border border-border rounded-lg p-4 mx-2 my-2">
       <div className="flex flex-col gap-4">
         {/* Main search row */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -220,7 +174,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
               <input
                 ref={bookmarkInputRef}
                 type="text"
-                placeholder="Search bookmark titles..."
+                placeholder="bookmark title..."
                 className="w-full pl-10 pr-4 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 onChange={(e) => handleBookmarkSearch(e.target.value)}
                 disabled={isLoading}
@@ -235,7 +189,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
               <input
                 ref={creatorInputRef}
                 type="text"
-                placeholder="Creator alias..."
+                placeholder="creator alias..."
                 className="w-full pl-8 pr-4 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 onChange={(e) => handleCreatorSearch(e.target.value)}
                 disabled={isLoading}
@@ -283,18 +237,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
             </button>
           </div>
 
-          {/* Advanced filters toggle */}
-          <button
-            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className="flex items-center gap-1 px-3 py-2 border border-input rounded-md bg-background text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-            disabled={isLoading}
-          >
-            <AdjustmentsHorizontalIcon className="h-4 w-4" />
-            {!isMobile && 'Filters'}
-            <ChevronDownIcon className={`h-3 w-3 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
-          </button>
-
-          {/* Clear filters */}
+          {/* Clear search filters */}
           {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
@@ -306,57 +249,6 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
             </button>
           )}
         </div>
-
-        {/* Advanced filters */}
-        {showAdvancedFilters && (
-          <div className="flex items-center gap-4 pt-3 border-t border-border flex-wrap">
-            {/* Minimum imports filter */}
-            <div className="flex items-center gap-2">
-              <label htmlFor="minImports" className="text-sm text-muted-foreground whitespace-nowrap">
-                Min imports:
-              </label>
-              <input
-                ref={minImportsInputRef}
-                id="minImports"
-                type="number"
-                min="0"
-                max="1000"
-                defaultValue="0"
-                className="w-20 px-2 py-1 border border-input rounded bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                onChange={(e) => handleMinImportsChange(parseInt(e.target.value) || 0)}
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Sort order toggle */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Sort:</span>
-              <button
-                onClick={handleSortOrderToggle}
-                className="flex items-center gap-1 px-2 py-1 border border-input rounded bg-background text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                disabled={isLoading}
-              >
-                {sortOrder === 'desc' ? '↓ Newest first' : '↑ Oldest first'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Active filters summary */}
-        {hasActiveFilters && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <FunnelIcon className="h-3 w-3" />
-            <span>
-              Filtering by: {[
-                bookmarkTitle && `bookmark "${bookmarkTitle}"`,
-                creatorAlias && `creator "@${creatorAlias}"`,
-                minImports > 0 && `min ${minImports} imports`,
-                sortBy !== 'recent' && `sorted by ${sortBy}`,
-                sortOrder !== 'desc' && 'ascending order'
-              ].filter(Boolean).join(', ')}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );

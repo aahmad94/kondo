@@ -25,9 +25,8 @@ export async function shareResponseToCommunityAction(responseId: string) {
       };
     }
 
-    // Get user ID from email (assuming you have a way to get this)
-    // For now, I'll use the session.user.id if available, otherwise we need to look up by email
-    const userId = (session.user as any).id;
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
     if (!userId) {
       return { 
         success: false, 
@@ -72,7 +71,8 @@ export async function importCommunityResponseAction(communityResponseId: string)
       };
     }
 
-    const userId = (session.user as any).id;
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
     if (!userId) {
       return { 
         success: false, 
@@ -121,7 +121,8 @@ export async function createUserAliasAction(alias: string) {
       };
     }
 
-    const userId = (session.user as any).id;
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
     if (!userId) {
       return { 
         success: false, 
@@ -165,7 +166,8 @@ export async function updateUserAliasAction(newAlias: string) {
       };
     }
 
-    const userId = (session.user as any).id;
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
     if (!userId) {
       return { 
         success: false, 
@@ -225,7 +227,8 @@ export async function getUserSharingStatsAction() {
       };
     }
 
-    const userId = (session.user as any).id;
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
     if (!userId) {
       return { 
         success: false, 

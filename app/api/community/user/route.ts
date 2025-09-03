@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userId = (session.user as any).id;
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
     if (!userId) {
       return NextResponse.json(
         { error: 'Unable to identify user' },
