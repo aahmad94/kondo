@@ -13,7 +13,8 @@ import {
   CheckIcon,
   TableCellsIcon,
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
+  ShareIcon
 } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import BookmarksModal from './BookmarksModal';
@@ -61,6 +62,7 @@ interface GPTResponseProps {
   onKanaToggle?: (responseId: string, isKanaEnabled: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
+  onShare?: (responseId: string) => Promise<void>;
   bookmarks?: Record<string, string>;
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
@@ -97,6 +99,7 @@ export default function GPTResponse({
   onKanaToggle,
   onGenerateSummary,
   onBookmarkSelect,
+  onShare,
   bookmarks,
   selectedLanguage = 'ja',
   onLoadingChange,
@@ -116,16 +119,19 @@ export default function GPTResponse({
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const router = useRouter();
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
   const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
+  const [isShareHovered, setIsShareHovered] = useState(false);
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
   const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
   const refreshButtonRef = React.useRef<HTMLButtonElement>(null);
+  const shareButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [desktopBreakdownContent, setDesktopBreakdownContent] = useState(breakdown || '');
   const [mobileBreakdownContent, setMobileBreakdownContent] = useState(mobileBreakdown || '');
@@ -483,6 +489,25 @@ export default function GPTResponse({
     if (!onPauseToggle) return;
     await onPauseToggle(responseId, newIsPaused);
     await trackPauseToggle(newIsPaused);
+  };
+
+  const handleShareToCommunity = async () => {
+    console.log('Share button clicked!', { onShare: !!onShare, responseId });
+    
+    if (!onShare || !responseId) {
+      console.log('Share cancelled - missing handler or responseId', { onShare: !!onShare, responseId });
+      return;
+    }
+    
+    try {
+      setIsSharing(true);
+      console.log('Calling onShare with responseId:', responseId);
+      await onShare(responseId);
+    } catch (error) {
+      console.error('Error sharing to community:', error);
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   const handleAddToBookmark = async (bookmarkId: string, bookmarkTitle: string) => {
@@ -883,6 +908,47 @@ export default function GPTResponse({
               colorScheme="green-yellow"
               className="relative group"
             />
+          )}
+
+          {/* Share to community button - show for all bookmarks */}
+          {(() => {
+            const shouldShow = selectedBookmarkId && responseId && onShare && type !== 'instruction';
+            console.log('Share button render conditions:', { 
+              selectedBookmarkId, 
+              responseId, 
+              hasOnShare: !!onShare, 
+              type, 
+              shouldShow 
+            });
+            return shouldShow;
+          })() && (
+            !isMobile ? (
+              <Tooltip
+                content="Share this response to the community feed"
+                isVisible={isShareHovered}
+                buttonRef={shareButtonRef}
+              >
+                <button 
+                  ref={shareButtonRef}
+                  onClick={handleShareToCommunity}
+                  onMouseEnter={() => setIsShareHovered(true)}
+                  onMouseLeave={() => setIsShareHovered(false)}
+                  disabled={isSharing}
+                  className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
+                >
+                  <ShareIcon className="h-5 w-5" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button 
+                ref={shareButtonRef}
+                onClick={handleShareToCommunity}
+                disabled={isSharing}
+                className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
+              >
+                <ShareIcon className="h-5 w-5" />
+              </button>
+            )
           )}
         </div>
       )}

@@ -238,7 +238,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
           </div>
 
           {/* Clear search filters */}
-          {hasActiveFilters && (
+          {/* {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
               className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -247,7 +247,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
               <XMarkIcon className="h-4 w-4" />
               Clear
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </div>

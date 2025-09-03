@@ -7,6 +7,9 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import LanguageSelector from './LanguageSelector';
 import { useTheme } from '../contexts/ThemeContext';
+import CreateAliasModal from './CreateAliasModal';
+import EditAliasModal from './EditAliasModal';
+import { useUserAlias } from '../hooks/useUserAlias';
 
 interface MenuBarProps {
   onLanguageChange: (languageCode: string) => void;
@@ -18,8 +21,13 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isCreateAliasModalOpen, setIsCreateAliasModalOpen] = useState(false);
+  const [isEditAliasModalOpen, setIsEditAliasModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
+  
+  // Get user alias information
+  const { alias, isPublic, refreshData } = useUserAlias();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -47,6 +55,27 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' });
+  };
+
+  const handleAliasCreated = (newAlias: string) => {
+    setIsCreateAliasModalOpen(false);
+    setShowDropdown(false);
+    refreshData();
+  };
+
+  const handleAliasUpdated = (newAlias: string) => {
+    setIsEditAliasModalOpen(false);
+    setShowDropdown(false);
+    refreshData();
+  };
+
+  const handleAliasMenuClick = () => {
+    setShowDropdown(false);
+    if (alias && isPublic) {
+      setIsEditAliasModalOpen(true);
+    } else {
+      setIsCreateAliasModalOpen(true);
+    }
   };
 
   return (
@@ -84,6 +113,16 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
               {showDropdown && (
                 <div className="absolute right-0 mt-2 min-w-[100px] w-max rounded-md shadow-lg bg-popover ring-1 ring-border z-[60]">
                   <div className="py-1">
+                    <button
+                      onClick={handleAliasMenuClick}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
+                    >
+                      <div className="flex-col w-full text-wrap">
+                        <span>
+                          {alias && isPublic ? `Edit Alias (@${alias})` : 'Create Alias'}
+                        </span>
+                      </div>
+                    </button>
                     <button
                       onClick={() => {
                         toggleTheme();
@@ -135,6 +174,20 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
           </div>
         </div>
       )}
+
+      {/* Alias Management Modals */}
+      <CreateAliasModal
+        isOpen={isCreateAliasModalOpen}
+        onClose={() => setIsCreateAliasModalOpen(false)}
+        onAliasCreated={handleAliasCreated}
+      />
+
+      <EditAliasModal
+        isOpen={isEditAliasModalOpen}
+        onClose={() => setIsEditAliasModalOpen(false)}
+        onAliasUpdated={handleAliasUpdated}
+        currentAlias={alias || ''}
+      />
     </>
   )
 }

@@ -18,7 +18,8 @@ import {
   ArrowDownTrayIcon,
   UserIcon,
   CalendarIcon,
-  HeartIcon
+  HeartIcon,
+  ShareIcon
 } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import BookmarksModal from './BookmarksModal';

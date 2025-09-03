@@ -8,6 +8,7 @@ import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
 import Response from './Response';
 import FilterBar from './FilterBar';
+import CreateAliasModal from './CreateAliasModal';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
@@ -136,6 +137,9 @@ export default function ChatBox({
   // Flashcard mode state
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [flashcardResponses, setFlashcardResponses] = useState<Response[]>([]);
+  
+  // Alias modal state
+  const [isCreateAliasModalOpen, setIsCreateAliasModalOpen] = useState(false);
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -764,10 +768,21 @@ export default function ChatBox({
         refetchCommunity();
       } else {
         console.error('Failed to share to community:', result.error);
+        
+        // If the error is about missing alias, show alias creation modal
+        if (result.error?.includes('alias')) {
+          setIsCreateAliasModalOpen(true);
+        }
       }
     } catch (error) {
       console.error('Error sharing to community:', error);
     }
+  };
+
+  const handleAliasCreated = (newAlias: string) => {
+    setIsCreateAliasModalOpen(false);
+    console.log('Alias created successfully:', newAlias);
+    // Optionally show success message or auto-retry the share
   };
 
   const handleViewProfile = (userId: string) => {
@@ -898,6 +913,7 @@ export default function ChatBox({
                       onPhoneticToggle={handlePhoneticToggle}
                       onKanaToggle={handleKanaToggle}
                       onBookmarkSelect={onBookmarkSelect}
+                      onShare={handleShareToCommunity}
                       selectedLanguage={selectedLanguage}
                       onLoadingChange={setIsLoading}
                       onBreakdownClick={() => trackBreakdownClick(response.id!)}
@@ -1065,6 +1081,7 @@ Imported responses will be added to your bookmarks for studying and review."
                   onPhoneticToggle={handlePhoneticToggle}
                   onKanaToggle={handleKanaToggle}
                   onBookmarkSelect={onBookmarkSelect}
+                  onShare={handleShareToCommunity}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
                   onBreakdownClick={() => trackBreakdownClick(response.id!)}
@@ -1159,6 +1176,13 @@ Imported responses will be added to your bookmarks for studying and review."
         onPhoneticToggle={handlePhoneticToggle}
         onKanaToggle={handleKanaToggle}
         onLoadingChange={setIsLoading}
+      />
+
+      {/* Alias Creation Modal */}
+      <CreateAliasModal
+        isOpen={isCreateAliasModalOpen}
+        onClose={() => setIsCreateAliasModalOpen(false)}
+        onAliasCreated={handleAliasCreated}
       />
     </div>
   );
