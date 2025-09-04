@@ -7,7 +7,7 @@ import { XMarkIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import UserInput from './UserInput';
 import GPTResponse from './GPTResponse';
-import Response from './Response';
+import CommunityResponse from './CommunityResponse';
 import FilterBar from './FilterBar';
 import CreateAliasModal from './CreateAliasModal';
 import ConfirmationModal from './ui/ConfirmationModal';
@@ -1062,7 +1062,7 @@ export default function ChatBox({
               ) : communityResponses.length > 0 ? (
                 <>
                   {communityResponses.map((communityResponse: CommunityResponseWithRelations) => (
-                    <Response
+                    <CommunityResponse
                       key={communityResponse.id}
                       type="community"
                       data={{
