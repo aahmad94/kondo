@@ -11,6 +11,17 @@ interface Bookmark {
   updatedAt?: string;
 }
 
+interface CommunityResponseForImport {
+  id: string;
+  bookmarkTitle: string;
+  content: string;
+  breakdown?: string | null;
+  mobileBreakdown?: string | null;
+  furigana?: string | null;
+  audio?: string | null;
+  audioMimeType?: string | null;
+}
+
 interface BookmarksModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,6 +36,9 @@ interface BookmarksModalProps {
   isKanaEnabled?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
+  // Community import props
+  communityResponse?: CommunityResponseForImport;
+  onCommunityImport?: (communityResponseId: string, bookmarkId?: string, createNew?: boolean) => Promise<void>;
 }
 
 export default function BookmarksModal({ 
@@ -40,7 +54,9 @@ export default function BookmarksModal({
   isPhoneticEnabled,
   isKanaEnabled,
   onBookmarkCreated,
-  onBookmarkSelect
+  onBookmarkSelect,
+  communityResponse,
+  onCommunityImport
 }: BookmarksModalProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -135,7 +151,11 @@ export default function BookmarksModal({
       onBookmarkCreated(newBookmark);
     }
 
-    if (!isAddingToBookmark) {
+    if (communityResponse && onCommunityImport) {
+      // For community imports, use the community import handler
+      await onCommunityImport(communityResponse.id, newBookmark.id);
+    } else if (!isAddingToBookmark) {
+      // For regular responses, use the regular add handler
       await handleAddToBookmark(newBookmark.id);
     }
 
@@ -144,6 +164,26 @@ export default function BookmarksModal({
     // Notify parent component of bookmark selection
     onBookmarkSelect?.(newBookmark.id, newBookmark.title);
   };
+
+  // Handler for community response imports
+  const handleCommunityImport = async (bookmarkId?: string, createNew?: boolean) => {
+    if (!communityResponse || !onCommunityImport) return;
+
+    try {
+      setIsAddingToBookmark(true);
+      await onCommunityImport(communityResponse.id, bookmarkId, createNew);
+      onClose();
+    } catch (error) {
+      console.error('Error importing community response:', error);
+    } finally {
+      setIsAddingToBookmark(false);
+    }
+  };
+
+  // Check if user has a bookmark matching the community response title
+  const existingCommunityBookmark = communityResponse 
+    ? bookmarks.find(bookmark => bookmark.title.toLowerCase() === communityResponse.bookmarkTitle.toLowerCase())
+    : null;
 
   if (!isOpen) return null;
 
@@ -162,9 +202,24 @@ export default function BookmarksModal({
             </button>
           </div>
           <div className="space-y-2 overflow-y-auto">
+            {/* Community response suggested bookmark option */}
+            {communityResponse && (
+              <div
+                className={`cursor-pointer text-primary hover:bg-accent p-2 rounded-sm flex items-center border border-primary/20 bg-primary/5 ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={() => !isAddingToBookmark && handleCommunityImport(existingCommunityBookmark?.id, !existingCommunityBookmark)}
+              >
+                <PlusCircleIcon className="h-4 w-4 mr-2" />
+                <span>
+                  add to "{communityResponse.bookmarkTitle}"
+                  {existingCommunityBookmark ? '' : ' (will create)'}
+                </span>
+              </div>
+            )}
+            
+            {/* Regular new bookmark option */}
             <div
               className={`cursor-pointer text-primary hover:bg-accent p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => !isAddingToBookmark && setIsCreateModalOpen(true)}
+              onClick={() => !isAddingToBookmark && (communityResponse ? handleCommunityImport(undefined, true) : setIsCreateModalOpen(true))}
             >
               <PlusCircleIcon className="h-4 w-4 mr-2" />
               <span>new bookmark</span>
@@ -174,7 +229,7 @@ export default function BookmarksModal({
               bookmarks={bookmarks}
               reservedBookmarkTitles={reservedBookmarkTitles}
               variant="modal"
-              onBookmarkSelect={(id, title) => handleAddToBookmark(id)}
+              onBookmarkSelect={(id, title) => communityResponse ? handleCommunityImport(id) : handleAddToBookmark(id)}
               isLoading={isLoading}
               isAddingToBookmark={isAddingToBookmark}
             />

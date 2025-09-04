@@ -10,6 +10,7 @@ import GPTResponse from './GPTResponse';
 import CommunityResponse from './CommunityResponse';
 import FilterBar from './FilterBar';
 import CreateAliasModal from './CreateAliasModal';
+import BookmarksModal from './BookmarksModal';
 import ConfirmationModal from './ui/ConfirmationModal';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
@@ -152,6 +153,10 @@ export default function ChatBox({
   const [showShareSuccessModal, setShowShareSuccessModal] = useState(false);
   const [showAlreadySharedModal, setShowAlreadySharedModal] = useState(false);
   const [showSelfImportModal, setShowSelfImportModal] = useState(false);
+  const [communityImportModal, setCommunityImportModal] = useState<{
+    isOpen: boolean;
+    communityResponse: any;
+  }>({ isOpen: false, communityResponse: null });
   const [sharedResponseTitle, setSharedResponseTitle] = useState('');
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
@@ -792,6 +797,48 @@ export default function ChatBox({
     }
   };
 
+  // New modal-based import handler
+  const handleCommunityImportWithModal = (communityResponse: any) => {
+    setCommunityImportModal({
+      isOpen: true,
+      communityResponse
+    });
+  };
+
+  // Handle import from BookmarksModal
+  const handleCommunityImportFromModal = async (communityResponseId: string, bookmarkId?: string, createNew?: boolean) => {
+    try {
+      // If creating new bookmark, use the service that auto-creates
+      if (createNew || !bookmarkId) {
+        const result = await importCommunityResponseAction(communityResponseId);
+        if (result.success) {
+          refetchCommunityFresh();
+          console.log('Successfully imported response:', result.message);
+        } else {
+          console.error('Failed to import response:', result.error);
+          if (result.error?.includes('your own shared response')) {
+            setShowSelfImportModal(true);
+          }
+        }
+      } else {
+        // Import to specific bookmark - we'll need to extend the service for this
+        // For now, use the auto-create approach
+        const result = await importCommunityResponseAction(communityResponseId);
+        if (result.success) {
+          refetchCommunityFresh();
+          console.log('Successfully imported response:', result.message);
+        } else {
+          console.error('Failed to import response:', result.error);
+          if (result.error?.includes('your own shared response')) {
+            setShowSelfImportModal(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error importing community response:', error);
+    }
+  };
+
   const handleShareToCommunity = async (responseId: string) => {
     try {
       // First check if already shared
@@ -1097,7 +1144,7 @@ export default function ChatBox({
                       selectedBookmarkTitle="community"
                       selectedLanguage={selectedLanguage}
                       currentUserId={(session as any)?.userId || (session?.user as any)?.id}
-                      onImport={handleCommunityImport}
+                      onImportWithModal={handleCommunityImportWithModal}
                       onDelete={handleCommunityDelete}
                       onViewProfile={handleViewProfile}
                       onQuote={handleResponseQuote}
@@ -1315,6 +1362,25 @@ export default function ChatBox({
           </div>
         </div>
       )}
+
+      {/* Community Import BookmarksModal */}
+      <BookmarksModal
+        isOpen={communityImportModal.isOpen}
+        onClose={() => setCommunityImportModal({ isOpen: false, communityResponse: null })}
+        response={communityImportModal.communityResponse?.content || ''}
+        reservedBookmarkTitles={reservedBookmarkTitles}
+        communityResponse={communityImportModal.communityResponse ? {
+          id: communityImportModal.communityResponse.id,
+          bookmarkTitle: communityImportModal.communityResponse.bookmarkTitle,
+          content: communityImportModal.communityResponse.content,
+          breakdown: communityImportModal.communityResponse.breakdown,
+          mobileBreakdown: communityImportModal.communityResponse.mobileBreakdown,
+          furigana: communityImportModal.communityResponse.furigana,
+          audio: communityImportModal.communityResponse.audio,
+          audioMimeType: communityImportModal.communityResponse.audioMimeType
+        } : undefined}
+        onCommunityImport={handleCommunityImportFromModal}
+      />
     </div>
   );
 }

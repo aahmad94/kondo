@@ -244,15 +244,20 @@ export default function CommunityResponse(props: ResponseProps) {
 
   // Community-specific handlers
   const handleImport = async () => {
-    if (!isCommunityResponseProps(props) || !props.onImport) return;
+    if (!isCommunityResponseProps(props)) return;
 
-    try {
-      setIsImporting(true);
-      await props.onImport(data.id);
-    } catch (error) {
-      console.error('Error importing response:', error);
-    } finally {
-      setIsImporting(false);
+    // Use modal approach if available, otherwise fall back to direct import
+    if (props.onImportWithModal) {
+      props.onImportWithModal(props.data);
+    } else if (props.onImport) {
+      try {
+        setIsImporting(true);
+        await props.onImport(data.id);
+      } catch (error) {
+        console.error('Error importing response:', error);
+      } finally {
+        setIsImporting(false);
+      }
     }
   };
 
@@ -506,7 +511,7 @@ export default function CommunityResponse(props: ResponseProps) {
         </span>
 
         {/* Import button - badge style (disabled for creators) */}
-        {props.onImport && (
+        {(props.onImport || props.onImportWithModal) && (
           <ImportBadgeButton
             onClick={handleImport}
             disabled={isDeletingCommunity || isCreator}
