@@ -35,7 +35,8 @@ import {
   SpeakerButton,
   BreakdownButton,
   QuoteButton,
-  ImportButton
+  ImportButton,
+  ImportBadgeButton
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
@@ -407,15 +408,6 @@ export default function CommunityResponse(props: ResponseProps) {
           />
         )}
 
-        {/* Import button - only show for non-creators */}
-        {!isCreator && props.onImport && (
-          <ImportButton
-            onClick={handleImport}
-            disabled={isDeletingCommunity}
-            isImporting={isImporting}
-            buttonRef={quoteButtonRef}
-          />
-        )}
       </>
     );
   };
@@ -490,6 +482,7 @@ export default function CommunityResponse(props: ResponseProps) {
     if (!isCommunityResponseProps(props)) return null;
 
     const communityData = props.data;
+    const isCreator = props.currentUserId === props.data.creatorUserId;
 
     return (
       <div className="mt-2 pt-1 flex items-center gap-2 flex-wrap">
@@ -511,6 +504,16 @@ export default function CommunityResponse(props: ResponseProps) {
           <CalendarIcon className="h-3 w-3" />
           {format(communityData.sharedAt, 'MMM d')}
         </span>
+
+        {/* Import button - badge style (disabled for creators) */}
+        {props.onImport && (
+          <ImportBadgeButton
+            onClick={handleImport}
+            disabled={isDeletingCommunity || isCreator}
+            isImporting={isImporting}
+            buttonRef={quoteButtonRef}
+          />
+        )}
       </div>
     );
   };
