@@ -32,13 +32,18 @@ export default function Home() {
     if (searchParams && !hasSyncedRef.current) {
       const bookmarkId = searchParams.get('bookmarkId');
       const bookmarkTitle = searchParams.get('bookmarkTitle');
+      
       if (bookmarkId && bookmarkTitle) {
+        // Regular bookmark with ID and title
         setSelectedBookmark({ id: bookmarkId, title: bookmarkTitle });
+      } else if (bookmarkTitle && reservedBookmarkTitles.includes(bookmarkTitle)) {
+        // Reserved bookmark (community, daily summary, etc.) with only title
+        setSelectedBookmark({ id: null, title: bookmarkTitle });
       }
       hasSyncedRef.current = true;
     }
     // Do NOT sync from URL again after initial load
-  }, [searchParams]);
+  }, [searchParams, reservedBookmarkTitles]);
   
 
   // Handle authentication
