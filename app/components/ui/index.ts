@@ -8,4 +8,4 @@ export { default as FormModal } from './FormModal';
 export { default as ContentModal } from './ContentModal';
 export { default as DeleteIcon } from './DeleteIcon';
 export { StatsContent, DojoTipsList, AdditionalCommands, CommunityInstructions } from './ContentModalItems';
-export * from './icons'; 
+export * from './buttons'; 

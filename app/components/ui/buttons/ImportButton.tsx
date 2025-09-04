@@ -1,21 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import Tooltip from '../../Tooltip';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 
-interface QuoteIconProps {
+interface ImportButtonProps {
   onClick: () => void;
   disabled?: boolean;
+  isImporting?: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement>;
 }
 
-export default function QuoteIcon({ 
+export default function ImportButton({ 
   onClick, 
   disabled = false,
+  isImporting = false,
   buttonRef 
-}: QuoteIconProps) {
+}: ImportButtonProps) {
   const { isMobile } = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -24,17 +26,17 @@ export default function QuoteIcon({
       <button 
         ref={buttonRef}
         onClick={onClick}
-        disabled={disabled}
-        className="text-foreground hover:text-muted-foreground disabled:opacity-50 transition-colors duration-200"
+        disabled={disabled || isImporting}
+        className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
       >
-        <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
+        <ArrowDownTrayIcon className="h-6 w-6" />
       </button>
     );
   }
 
   return (
     <Tooltip
-      content="Quote this response"
+      content="Import this response to your bookmarks"
       isVisible={isHovered}
       buttonRef={buttonRef || React.createRef()}
     >
@@ -43,10 +45,10 @@ export default function QuoteIcon({
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        disabled={disabled}
-        className="text-foreground hover:text-muted-foreground disabled:opacity-50 transition-colors duration-200"
+        disabled={disabled || isImporting}
+        className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
       >
-        <ChatBubbleLeftEllipsisIcon className="h-6 w-6" />
+        <ArrowDownTrayIcon className="h-6 w-6" />
       </button>
     </Tooltip>
   );

@@ -33,9 +33,9 @@ import {
   DeleteIcon, 
   UserAliasContainer,
   SpeakerButton,
-  BreakdownIcon,
-  QuoteIcon,
-  ImportIcon
+  BreakdownButton,
+  QuoteButton,
+  ImportButton
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
@@ -393,7 +393,7 @@ export default function CommunityResponse(props: ResponseProps) {
       <>
         {/* Quote button */}
         {onQuote && (
-          <QuoteIcon
+          <QuoteButton
             onClick={() => onQuote(data.content, 'input')}
             buttonRef={quoteButtonRef}
           />
@@ -409,7 +409,7 @@ export default function CommunityResponse(props: ResponseProps) {
 
         {/* Import button - only show for non-creators */}
         {!isCreator && props.onImport && (
-          <ImportIcon
+          <ImportButton
             onClick={handleImport}
             disabled={isDeletingCommunity}
             isImporting={isImporting}
@@ -546,7 +546,7 @@ export default function CommunityResponse(props: ResponseProps) {
           )}
 
           {/* Breakdown and Speaker on the left (matching GPTResponse) */}
-          <BreakdownIcon 
+          <BreakdownButton 
             onClick={handleBreakdownClick}
             disabled={isBreakdownLoading}
             buttonRef={breakdownButtonRef}

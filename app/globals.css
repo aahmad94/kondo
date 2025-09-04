@@ -173,8 +173,8 @@ html, body {
     --translation-bg: 217 91% 60% / 0.2; /* Light blue background for dark mode */
     --translation-text: 217 91% 70%; /* Light blue text for dark mode */
     --avatar: 0 0% 14.9%; /* Same as --border for dark mode */
-    --alias-bg: 264, 96%, 75%; /* Purple background for alias in dark mode */
-    --alias-text: 0 0% 100%; /* White text for alias in dark mode */
+    --alias-bg: 0 0% 90%; /* Light grey background for alias in dark mode */
+    --alias-text: 0 0% 10%; /* Dark grey text for alias in dark mode */
   }
 }
 

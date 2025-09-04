@@ -1,24 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TableCellsIcon } from '@heroicons/react/24/solid';
 import Tooltip from '../../Tooltip';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 
-interface BreakdownIconProps {
+interface BreakdownButtonProps {
   onClick: () => void;
   disabled?: boolean;
   isLoading?: boolean;
   buttonRef?: React.RefObject<HTMLButtonElement>;
 }
 
-export default function BreakdownIcon({ 
+export default function BreakdownButton({ 
   onClick, 
   disabled = false, 
   isLoading = false,
   buttonRef 
-}: BreakdownIconProps) {
+}: BreakdownButtonProps) {
   const { isMobile } = useIsMobile();
+  const [isHovered, setIsHovered] = useState(false);
 
   if (isMobile) {
     return (
@@ -35,13 +36,15 @@ export default function BreakdownIcon({
 
   return (
     <Tooltip
-      content="View breakdown"
-      isVisible={false}
+      content="Breakdown phrase"
+      isVisible={isHovered}
       buttonRef={buttonRef || React.createRef()}
     >
       <button 
         ref={buttonRef}
         onClick={onClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         disabled={disabled || isLoading}
         className="text-blue-400 hover:text-blue-300 disabled:opacity-50 transition-colors duration-200"
       >
