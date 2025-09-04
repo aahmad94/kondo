@@ -98,7 +98,7 @@ export default function ChatBoxMenuBar({
   const showNewReport = isDojo;
   const showEmailSubscription = isDojo; // Only show email button in Dojo
   const showAdditionalCommands = isRoot;
-  const showStats = true; // Show stats for all bookmark types
+  const showStats = !isCommunity; // Hide stats in community mode
 
   return (
     <>
