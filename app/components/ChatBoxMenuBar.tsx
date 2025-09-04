@@ -5,7 +5,7 @@ import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, Comman
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
-import { DojoTipsList, StatsContent, AdditionalCommands } from './ui/ContentModalItems';
+import { DojoTipsList, StatsContent, AdditionalCommands, CommunityInstructions } from './ui/ContentModalItems';
 import EmailSubscriptionModal from './EmailSubscriptionModal';
 
 interface ChatBoxMenuBarProps {
@@ -31,7 +31,7 @@ export default function ChatBoxMenuBar({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Content modal state - managed within ChatBoxMenuBar
-  const [contentModalType, setContentModalType] = useState<'tips' | 'stats' | 'commands' | null>(null);
+  const [contentModalType, setContentModalType] = useState<'tips' | 'stats' | 'commands' | 'community' | null>(null);
   
   // New report confirmation modal state
   const [showNewReportConfirmation, setShowNewReportConfirmation] = useState(false);
@@ -40,7 +40,7 @@ export default function ChatBoxMenuBar({
   const [showEmailModal, setShowEmailModal] = useState(false);
 
   // Handle content modal types
-  const handleContentModal = (type: 'tips' | 'stats' | 'commands', event?: React.MouseEvent<HTMLButtonElement>) => {
+  const handleContentModal = (type: 'tips' | 'stats' | 'commands' | 'community', event?: React.MouseEvent<HTMLButtonElement>) => {
     if (type === 'commands' && event) {
       // Remove glow effect after first click
       const button = event.currentTarget;
@@ -94,6 +94,7 @@ export default function ChatBoxMenuBar({
   
   const showFlashcards = isDojo || isOtherBookmark; // Exclude community from flashcards
   const showDojoTips = isDojo;
+  const showCommunityInstructions = isCommunity;
   const showNewReport = isDojo;
   const showEmailSubscription = isDojo; // Only show email button in Dojo
   const showAdditionalCommands = isRoot;
@@ -178,6 +179,17 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
+              {/* Community Instructions Button */}
+              {showCommunityInstructions && (
+                <button
+                  onClick={() => handleContentModal('community')}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>community guide</span>
+                </button>
+              )}
+
               {/* Stats Button - Last */}
               {showStats && (
                 <button
@@ -200,6 +212,14 @@ export default function ChatBoxMenuBar({
         onClose={closeContentModal}
         title="Dojo Tips"
         contentComponent={<DojoTipsList />}
+      />
+
+      {/* Community Instructions Modal */}
+      <ContentModal
+        isOpen={contentModalType === 'community'}
+        onClose={closeContentModal}
+        title="Community Guide"
+        contentComponent={<CommunityInstructions />}
       />
 
       {/* Additional Commands Modal */}

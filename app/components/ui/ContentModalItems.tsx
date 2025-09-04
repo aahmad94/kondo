@@ -256,4 +256,43 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
       }}
     />
   );
+}
+
+// --- Community Instructions ---
+export function CommunityInstructions() {
+  const content = `
+    <div style="color: ${COLORS.secondary}; line-height: 1.6;">
+      <h3 style="color: ${COLORS.primary}; margin-bottom: 1rem; font-size: 1.1rem;">Community Feed</h3>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <p style="margin-bottom: 0.8rem;">Discover and import language learning responses shared by other users. Filter by bookmark titles, creators, or popularity to find content that matches your learning goals.</p>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h4 style="color: ${COLORS.primary}; margin-bottom: 0.8rem; font-size: 1rem;">How it works:</h4>
+        <div style="margin-bottom: 0.5rem;">
+          <strong style="color: ${COLORS.secondary};">1.</strong> <strong>Browse</strong> responses shared by the community
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+          <strong style="color: ${COLORS.secondary};">2.</strong> <strong>Filter</strong> by bookmark titles, creators, or popularity
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+          <strong style="color: ${COLORS.secondary};">3.</strong> <strong>Import</strong> interesting responses to your bookmarks
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+          <strong style="color: ${COLORS.secondary};">4.</strong> <strong>Share</strong> your own responses to help others learn
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <h4 style="color: ${COLORS.primary}; margin-bottom: 0.8rem; font-size: 1rem;">Sharing Your Responses:</h4>
+        <p style="margin-bottom: 0.5rem;">Click the blue share button (next to the pause button) on any of your bookmarked responses to share it with the community.</p>
+        <p style="color: ${COLORS.primaryTransparent}; font-size: 0.9rem;">Note: You need to create an alias before sharing (available in your user menu).</p>
+      </div>
+    </div>
+  `;
+
+  return (
+    <div dangerouslySetInnerHTML={{ __html: content }} />
+  );
 } 

@@ -1047,20 +1047,6 @@ export default function ChatBox({
         {selectedBookmark.title === 'community' && (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
-              {/* Community Instructions - Use GPTResponse for consistency */}
-              <GPTResponse
-                type="instruction"
-                response="Discover and import language learning responses shared by other users. Filter by bookmark titles, creators, or popularity to find content that matches your learning goals.
-
-Imported responses will be added to your bookmarks for studying and review."
-                selectedBookmarkId={null}
-                selectedBookmarkTitle="community"
-                reservedBookmarkTitles={reservedBookmarkTitles}
-                responseId={null}
-                onBookmarkSelect={onBookmarkSelect}
-                selectedLanguage={selectedLanguage}
-                onLoadingChange={setIsLoading}
-              />
 
               {/* Community Responses */}
               {communityError ? (

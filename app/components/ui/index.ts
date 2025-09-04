@@ -6,4 +6,4 @@ export { default as ConfirmationModal } from './ConfirmationModal';
 export { default as FormModal } from './FormModal';
 export { default as ContentModal } from './ContentModal';
 export { default as DeleteIcon } from './DeleteIcon';
-export { StatsContent, DojoTipsList, AdditionalCommands } from './ContentModalItems'; 
+export { StatsContent, DojoTipsList, AdditionalCommands, CommunityInstructions } from './ContentModalItems'; 
