@@ -2,7 +2,7 @@
 // Reusable content components for ContentModal (e.g., tips lists, help, etc.)
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDownIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, PauseCircleIcon, ShareIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import { useSession } from "next-auth/react";
 
@@ -260,39 +260,32 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
 
 // --- Community Instructions ---
 export function CommunityInstructions() {
-  const content = `
-    <div style="color: ${COLORS.secondary}; line-height: 1.6;">
-      <h3 style="color: ${COLORS.primary}; margin-bottom: 1rem; font-size: 1.1rem;">Community Feed</h3>
-      
-      <div style="margin-bottom: 1.5rem;">
-        <p style="margin-bottom: 0.8rem;">Discover and import language learning responses shared by other users. Filter by bookmark titles, creators, or popularity to find content that matches your learning goals.</p>
-      </div>
-
-      <div style="margin-bottom: 1.5rem;">
-        <h4 style="color: ${COLORS.primary}; margin-bottom: 0.8rem; font-size: 1rem;">How it works:</h4>
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="color: ${COLORS.secondary};">1.</strong> <strong>Browse</strong> responses shared by the community
+  return (
+    <div className="max-w-none text-primary" style={{ color: COLORS.secondary, lineHeight: 1.6 }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Import content shared by the community:</h4>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>1.</strong> <strong>Browse</strong> responses shared by the community
         </div>
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="color: ${COLORS.secondary};">2.</strong> <strong>Filter</strong> by bookmark titles, creators, or popularity
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>2.</strong> <strong>Filter</strong> by bookmark titles, creators, or popularity
         </div>
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="color: ${COLORS.secondary};">3.</strong> <strong>Import</strong> interesting responses to your bookmarks
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>3.</strong> <strong>Import</strong> interesting responses to your bookmarks
         </div>
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="color: ${COLORS.secondary};">4.</strong> <strong>Share</strong> your own responses to help others learn
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>4.</strong> <strong>Share</strong> your own responses to help others learn
         </div>
       </div>
 
-      <div style="margin-bottom: 1rem;">
-        <h4 style="color: ${COLORS.primary}; margin-bottom: 0.8rem; font-size: 1rem;">Sharing Your Responses:</h4>
-        <p style="margin-bottom: 0.5rem;">Click the blue share button (next to the pause button) on any of your bookmarked responses to share it with the community.</p>
-        <p style="color: ${COLORS.primaryTransparent}; font-size: 0.9rem;">Note: You need to create an alias before sharing (available in your user menu).</p>
+      <div style={{ marginBottom: '1rem' }}>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>How to share your content:</h4>
+        <p style={{ marginBottom: '0.5rem' }}>
+          Click the blue share button{' '}
+          <ShareIcon className="h-5 w-5 inline text-blue-500" style={{ verticalAlign: 'middle' }} />{' '}
+          on the bottom of any of your bookmarked responses.
+        </p>
       </div>
     </div>
-  `;
-
-  return (
-    <div dangerouslySetInnerHTML={{ __html: content }} />
   );
 } 

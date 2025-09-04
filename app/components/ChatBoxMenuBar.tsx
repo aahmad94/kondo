@@ -186,7 +186,7 @@ export default function ChatBoxMenuBar({
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>community guide</span>
+                  <span>instructions</span>
                 </button>
               )}
 
@@ -218,7 +218,7 @@ export default function ChatBoxMenuBar({
       <ContentModal
         isOpen={contentModalType === 'community'}
         onClose={closeContentModal}
-        title="Community Guide"
+        title="Community Feed Instructions"
         contentComponent={<CommunityInstructions />}
       />
 
