@@ -24,7 +24,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
   const searchParams = useSearchParams();
   
   // Filter states
-  const [bookmarkTitle, setBookmarkTitle] = useState(initialFilters.bookmarkTitle || '');
+  const [bookmarkTitle, setBookmarkTitle] = useState(''); // Always start empty, no URL autopopulation
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'imports'>(initialFilters.sortBy || 'recent');
   
@@ -130,16 +130,10 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
   useEffect(() => {
     if (!searchParams) return;
     
-    const urlBookmarkTitle = searchParams.get('bookmarkTitle');
     const urlCreatorAlias = searchParams.get('creatorAlias');
     const urlSortBy = searchParams.get('sortBy') as 'recent' | 'popular' | 'imports';
 
-    // Only set bookmark title filter if it's not a navigation bookmark (community, daily summary, etc.)
-    if (urlBookmarkTitle && !['community', 'daily summary', 'dojo', 'search', 'all responses'].includes(urlBookmarkTitle)) {
-      setBookmarkTitle(urlBookmarkTitle);
-      if (bookmarkInputRef.current) bookmarkInputRef.current.value = urlBookmarkTitle;
-    }
-    
+    // Only initialize creator alias and sort from URL, not bookmark title
     if (urlCreatorAlias) {
       setCreatorAlias(urlCreatorAlias);
       if (creatorInputRef.current) creatorInputRef.current.value = urlCreatorAlias;
@@ -168,7 +162,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
         {/* Main search row */}
         <div className="flex items-center gap-3 flex-wrap">
           {/* Bookmark title search */}
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-[180px]">
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input

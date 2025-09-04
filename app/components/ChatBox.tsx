@@ -936,6 +936,15 @@ export default function ChatBox({
         isFlashcardModalOpen={isFlashcardModalOpen}
       />
       
+      {/* Community Filter Bar - positioned after menu bar */}
+      {isCommunityMode && (
+        <FilterBar
+          onFiltersChange={handleCommunityFiltersChange}
+          isLoading={communityLoading}
+          initialFilters={{}} // Start with empty filters
+        />
+      )}
+      
       <div className="flex flex-col justify-between flex-1 h-0">
         {/* Chat Content Container */}
         <div 
@@ -1189,11 +1198,11 @@ export default function ChatBox({
         ) : null}
         </div>
         
-        {/* Bottom section: QuoteBar + Input (UserInput or FilterBar) */}
-        {(!selectedBookmark.id || isCommunityMode) && (
+        {/* Bottom section: QuoteBar + Input (UserInput only, FilterBar moved to top) */}
+        {!selectedBookmark.id && !isCommunityMode && (
           <div className="flex-shrink-0">
             {/* Show QuoteBar if we have responseQuote (only in chat mode) */}
-            {responseQuote && !isCommunityMode && (
+            {responseQuote && (
               <div className="bg-background">
                 <QuoteBar 
                   quotedText={responseQuote}
@@ -1203,29 +1212,21 @@ export default function ChatBox({
               </div>
             )}
             
-            {/* Input at the very bottom - UserInput for chat, FilterBar for community */}
+            {/* Input at the very bottom - UserInput only */}
             <div 
               className="bg-background" 
               style={{ 
                 paddingBottom: 'env(safe-area-inset-bottom)' 
               }}
             >
-              {isCommunityMode ? (
-                <FilterBar
-                  onFiltersChange={handleCommunityFiltersChange}
-                  isLoading={communityLoading}
-                  initialFilters={{}} // Start with empty filters
-                />
-              ) : (
-                <UserInput 
-                  onSubmit={handleSubmit} 
-                  isLoading={isLoading} 
-                  defaultPrompt={null}
-                  onUserInputOffset={handleUserInputOffset}
-                  onQuoteToNull={setResponseQuoteToNull}
-                  selectedLanguage={selectedLanguage}
-                />
-              )}
+              <UserInput 
+                onSubmit={handleSubmit} 
+                isLoading={isLoading} 
+                defaultPrompt={null}
+                onUserInputOffset={handleUserInputOffset}
+                onQuoteToNull={setResponseQuoteToNull}
+                selectedLanguage={selectedLanguage}
+              />
             </div>
           </div>
         )}
