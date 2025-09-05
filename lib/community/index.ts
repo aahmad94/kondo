@@ -12,6 +12,7 @@ export {
 export {
   shareToCommunity,
   importFromCommunity,
+  importFromCommunityToBookmark,
   getCommunityFeed,
   getUserSharingStats,
   isResponseShared,

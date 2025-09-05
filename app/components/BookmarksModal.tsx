@@ -154,15 +154,21 @@ export default function BookmarksModal({
     if (communityResponse && onCommunityImport) {
       // For community imports, use the community import handler
       await onCommunityImport(communityResponse.id, newBookmark.id);
+      // Close the main BookmarksModal after successful community import
+      onClose();
     } else if (!isAddingToBookmark) {
       // For regular responses, use the regular add handler
       await handleAddToBookmark(newBookmark.id);
+      // handleAddToBookmark already calls onClose() internally
     }
 
     setIsCreateModalOpen(false);
     
-    // Notify parent component of bookmark selection
-    onBookmarkSelect?.(newBookmark.id, newBookmark.title);
+    // For regular responses, notify parent component of bookmark selection for navigation
+    // For community imports, don't navigate - just show success modal instead
+    if (!communityResponse && onBookmarkSelect) {
+      onBookmarkSelect(newBookmark.id, newBookmark.title);
+    }
   };
 
   // Handler for community response imports
@@ -219,7 +225,7 @@ export default function BookmarksModal({
             {/* Regular new bookmark option */}
             <div
               className={`cursor-pointer text-primary hover:bg-accent p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => !isAddingToBookmark && (communityResponse ? handleCommunityImport(undefined, true) : setIsCreateModalOpen(true))}
+              onClick={() => !isAddingToBookmark && setIsCreateModalOpen(true)}
             >
               <PlusCircleIcon className="h-4 w-4 mr-2" />
               <span>create new bookmark</span>

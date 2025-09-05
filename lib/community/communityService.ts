@@ -230,6 +230,131 @@ export async function importFromCommunity(userId: string, communityResponseId: s
 }
 
 /**
+ * Imports a community response to a specific bookmark
+ */
+export async function importFromCommunityToBookmark(
+  userId: string, 
+  communityResponseId: string, 
+  targetBookmarkId: string
+): Promise<ImportFromCommunityResponse> {
+  try {
+    // Get the community response
+    const communityResponse = await prisma.communityResponse.findUnique({
+      where: { id: communityResponseId },
+      include: {
+        creator: { select: { alias: true } },
+        language: { select: { id: true, code: true } }
+      }
+    });
+
+    if (!communityResponse || !communityResponse.isActive) {
+      return { success: false, error: 'Community response not found or no longer available' };
+    }
+
+    // Check if user is trying to import their own response
+    if (communityResponse.creatorUserId === userId) {
+      return { success: false, error: 'You cannot import your own shared response' };
+    }
+
+    // Check if user already imported this response
+    const existingImport = await prisma.communityImport.findUnique({
+      where: {
+        userId_communityResponseId: {
+          userId,
+          communityResponseId
+        }
+      }
+    });
+
+    if (existingImport) {
+      return { success: false, error: 'You have already imported this response' };
+    }
+
+    // Verify the target bookmark exists and belongs to the user
+    const targetBookmark = await prisma.bookmark.findFirst({
+      where: {
+        id: targetBookmarkId,
+        userId
+      }
+    });
+
+    if (!targetBookmark) {
+      return { success: false, error: 'Target bookmark not found or does not belong to you' };
+    }
+
+    // Get user's language ID to ensure consistency
+    const userLanguageId = await getUserLanguageId(userId);
+
+    // Use transaction to ensure atomicity
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the imported GPTResponse
+      const importedResponse = await tx.gPTResponse.create({
+        data: {
+          content: communityResponse.content,
+          userId,
+          languageId: userLanguageId,
+          source: 'imported',
+          communityResponseId,
+          breakdown: communityResponse.breakdown,
+          mobileBreakdown: communityResponse.mobileBreakdown,
+          furigana: communityResponse.furigana,
+          audio: communityResponse.audio,
+          audioMimeType: communityResponse.audioMimeType,
+          bookmarks: {
+            connect: { id: targetBookmarkId }
+          }
+        },
+        include: {
+          language: { select: { code: true, name: true } },
+          bookmarks: { select: { title: true } }
+        }
+      });
+
+      // Create import tracking record
+      const communityImport = await tx.communityImport.create({
+        data: {
+          userId,
+          communityResponseId,
+          importedResponseId: importedResponse.id,
+          importedBookmarkId: targetBookmarkId,
+          wasBookmarkCreated: false // Since we're using an existing bookmark
+        }
+      });
+
+      // Increment import count on community response
+      await tx.communityResponse.update({
+        where: { id: communityResponseId },
+        data: {
+          importCount: {
+            increment: 1
+          }
+        }
+      });
+
+      return {
+        response: importedResponse,
+        bookmark: targetBookmark,
+        wasBookmarkCreated: false,
+        communityImport
+      };
+    });
+
+    return {
+      success: true,
+      response: result.response,
+      bookmark: result.bookmark,
+      wasBookmarkCreated: result.wasBookmarkCreated
+    };
+  } catch (error) {
+    console.error('Error importing from community to bookmark:', error);
+    return {
+      success: false,
+      error: 'Failed to import response. Please try again.'
+    };
+  }
+}
+
+/**
  * Gets community feed with filtering and pagination
  */
 export async function getCommunityFeed(

@@ -5,6 +5,7 @@ import { authOptions } from "../pages/api/auth/[...nextauth]";
 import { 
   shareToCommunity,
   importFromCommunity,
+  importFromCommunityToBookmark,
   createAlias,
   updateAlias,
   validateAlias,
@@ -105,6 +106,40 @@ export async function importCommunityResponseAction(communityResponseId: string)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to import community response'
+    };
+  }
+}
+
+/**
+ * Server action to import a community response to a specific bookmark
+ */
+export async function importCommunityResponseToBookmarkAction(communityResponseId: string, targetBookmarkId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to import responses' 
+      };
+    }
+
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await importFromCommunityToBookmark(userId, communityResponseId, targetBookmarkId);
+    return result;
+  } catch (error) {
+    console.error('Error in importCommunityResponseToBookmarkAction:', error);
+    return { 
+      success: false, 
+      error: 'Failed to import response to bookmark' 
     };
   }
 }

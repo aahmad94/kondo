@@ -24,6 +24,7 @@ import { useCommunityFeed } from '../hooks/useCommunityFeed';
 import { 
   shareResponseToCommunityAction, 
   importCommunityResponseAction,
+  importCommunityResponseToBookmarkAction,
   checkResponseSharedAction,
   deleteCommunityResponseAction
 } from '@/actions/community';
@@ -153,6 +154,10 @@ export default function ChatBox({
   const [showShareSuccessModal, setShowShareSuccessModal] = useState(false);
   const [showAlreadySharedModal, setShowAlreadySharedModal] = useState(false);
   const [showSelfImportModal, setShowSelfImportModal] = useState(false);
+  const [showImportSuccessModal, setShowImportSuccessModal] = useState(false);
+  const [showImportErrorModal, setShowImportErrorModal] = useState(false);
+  const [importedBookmarkTitle, setImportedBookmarkTitle] = useState('');
+  const [importErrorMessage, setImportErrorMessage] = useState('');
   const [communityImportModal, setCommunityImportModal] = useState<{
     isOpen: boolean;
     communityResponse: any;
@@ -808,30 +813,41 @@ export default function ChatBox({
   // Handle import from BookmarksModal
   const handleCommunityImportFromModal = async (communityResponseId: string, bookmarkId?: string, createNew?: boolean) => {
     try {
-      // If creating new bookmark, use the service that auto-creates
-      if (createNew || !bookmarkId) {
-        const result = await importCommunityResponseAction(communityResponseId);
-        if (result.success) {
-          refetchCommunityFresh();
-          console.log('Successfully imported response:', result.message);
-        } else {
-          console.error('Failed to import response:', result.error);
-          if (result.error?.includes('your own shared response')) {
-            setShowSelfImportModal(true);
-          }
+      let result;
+      
+      if (bookmarkId && !createNew) {
+        // Import to specific existing bookmark
+        result = await importCommunityResponseToBookmarkAction(communityResponseId, bookmarkId);
+      } else {
+        // Create new bookmark or use auto-create approach
+        result = await importCommunityResponseAction(communityResponseId);
+      }
+      
+      if (result.success) {
+        refetchCommunityFresh();
+        console.log('Successfully imported response');
+        
+        // If a new bookmark was created, notify the parent to refresh bookmarks bar
+        if (result.wasBookmarkCreated && result.bookmark && onBookmarkCreated) {
+          onBookmarkCreated(result.bookmark);
+        }
+        
+        // Show success confirmation instead of navigating away
+        // This allows users to continue importing multiple responses
+        setShowImportSuccessModal(true);
+        if (result.bookmark) {
+          setImportedBookmarkTitle(result.bookmark.title);
         }
       } else {
-        // Import to specific bookmark - we'll need to extend the service for this
-        // For now, use the auto-create approach
-        const result = await importCommunityResponseAction(communityResponseId);
-        if (result.success) {
-          refetchCommunityFresh();
-          console.log('Successfully imported response:', result.message);
+        console.error('Failed to import response:', result.error);
+        
+        // Show specific error modals based on error type
+        if (result.error?.includes('your own shared response')) {
+          setShowSelfImportModal(true);
         } else {
-          console.error('Failed to import response:', result.error);
-          if (result.error?.includes('your own shared response')) {
-            setShowSelfImportModal(true);
-          }
+          // Show generic import error modal for other failures
+          setImportErrorMessage(result.error || 'Failed to import response');
+          setShowImportErrorModal(true);
         }
       }
     } catch (error) {
@@ -1363,6 +1379,48 @@ export default function ChatBox({
         </div>
       )}
 
+      {/* Import Success Modal */}
+      {showImportSuccessModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-l text-card-foreground">Successfully Imported!</h2>
+              <button 
+                onClick={() => setShowImportSuccessModal(false)} 
+                className="text-card-foreground hover:text-muted-foreground transition-colors"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-card-foreground">
+              The response has been successfully imported to "{importedBookmarkTitle}". You can continue browsing the community feed or visit your bookmark to see the imported content.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Import Error Modal */}
+      {showImportErrorModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-l text-destructive">Import Failed</h2>
+              <button 
+                onClick={() => setShowImportErrorModal(false)} 
+                className="text-card-foreground hover:text-muted-foreground transition-colors"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-card-foreground">
+              {importErrorMessage}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Community Import BookmarksModal */}
       <BookmarksModal
         isOpen={communityImportModal.isOpen}
@@ -1380,6 +1438,7 @@ export default function ChatBox({
           audioMimeType: communityImportModal.communityResponse.audioMimeType
         } : undefined}
         onCommunityImport={handleCommunityImportFromModal}
+        onBookmarkCreated={onBookmarkCreated}
       />
     </div>
   );
