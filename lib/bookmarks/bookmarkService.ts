@@ -28,27 +28,56 @@ export async function getBookmarks(userId: string) {
 
 export async function deleteBookmark(userId: string, bookmarkId: string) {
   try {
-    // First, delete all GPTResponses associated with this bookmark
-    await prisma.gPTResponse.deleteMany({
-      where: {
-        bookmarks: {
-          some: {
-            id: bookmarkId,
-            userId: userId
+    return await prisma.$transaction(async (tx) => {
+      // First, get all GPTResponses associated with this bookmark to handle community imports
+      const responsesToDelete = await tx.gPTResponse.findMany({
+        where: {
+          bookmarks: {
+            some: {
+              id: bookmarkId,
+              userId: userId
+            }
           }
+        },
+        include: {
+          communityImport: true
+        }
+      });
+
+      // Handle community import count decrements for imported responses
+      for (const response of responsesToDelete) {
+        if (response.communityImport) {
+          // This is an imported response, decrement the community response import count
+          await tx.communityResponse.update({
+            where: { id: response.communityImport.communityResponseId },
+            data: { importCount: { decrement: 1 } }
+          });
         }
       }
-    });
 
-    // Then, delete the bookmark itself
-    const deletedBookmark = await prisma.bookmark.deleteMany({
-      where: {
-        id: bookmarkId,
-        userId: userId
-      }
-    });
+      // Delete all GPTResponses associated with this bookmark
+      // The onDelete: Cascade will handle CommunityImport deletion
+      await tx.gPTResponse.deleteMany({
+        where: {
+          bookmarks: {
+            some: {
+              id: bookmarkId,
+              userId: userId
+            }
+          }
+        }
+      });
 
-    return deletedBookmark;
+      // Finally, delete the bookmark itself
+      const deletedBookmark = await tx.bookmark.deleteMany({
+        where: {
+          id: bookmarkId,
+          userId: userId
+        }
+      });
+
+      return deletedBookmark;
+    });
   } catch (error) {
     console.error('Error deleting bookmark:', error);
     throw error;
