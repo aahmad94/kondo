@@ -496,13 +496,27 @@ export default function CommunityResponse(props: ResponseProps) {
           {communityData.bookmarkTitle}
         </span>
 
-        {/* Import count - muted theme colors */}
-        {communityData.importCount > 0 && (
-          <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
-            <HeartIcon className="h-3 w-3" />
-            {communityData.importCount}
-          </span>
-        )}
+        {/* Import count with tooltip - always visible, red heart when > 0 */}
+        <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
+          <IconButton
+            icon={<HeartIcon className={`h-3 w-3 ${communityData.importCount > 0 ? 'text-red-500' : 'text-muted-foreground'}`} />}
+            onClick={() => {}} // No-op since it's just a display element
+            tooltipContent={
+              communityData.importCount === 0
+                ? "Be the first to import this"
+                : communityData.importCount === 1
+                ? "This has been imported 1 time"
+                : `This has been imported ${communityData.importCount} times`
+            }
+            className="!p-0 !text-inherit cursor-default"
+            colorScheme="custom"
+            customColors={{
+              default: 'text-inherit',
+              hover: 'text-inherit'
+            }}
+          />
+          <span>{communityData.importCount}</span>
+        </span>
 
         {/* Shared date - muted theme colors */}
         <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
