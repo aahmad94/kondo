@@ -887,6 +887,9 @@ export default function ChatBox({
       if (result.success) {
         console.log('Successfully shared to community:', result.message);
         
+        // Immediately update local state to disable the share button
+        updateResponseInCaches(responseId, { isSharedToCommunity: true });
+        
         // Get the bookmark title for the success message
         const response = Object.values(responses).find(r => r.id === responseId) || 
                          Object.values(bookmarkResponses).find(r => r.id === responseId);
