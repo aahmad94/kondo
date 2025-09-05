@@ -580,6 +580,7 @@ export default function CommunityResponse(props: ResponseProps) {
             selectedLanguage={selectedLanguage}
             buttonRef={speakerButtonRef}
             cachedAudio={data.audio && data.audioMimeType ? { audio: data.audio, mimeType: data.audioMimeType } : null}
+            onLoadingChange={onLoadingChange}
           />
         </div>
 
