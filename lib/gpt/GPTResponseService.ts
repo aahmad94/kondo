@@ -70,7 +70,15 @@ export async function getAllUserResponsesByLanguage(userId: string) {
         isPhoneticEnabled: true,
         isKanaEnabled: true,
         breakdown: true,
-        mobileBreakdown: true
+        mobileBreakdown: true,
+        source: true,
+        communityResponseId: true,
+        communityResponse: {
+          select: {
+            id: true,
+            isActive: true
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc'
@@ -78,13 +86,19 @@ export async function getAllUserResponsesByLanguage(userId: string) {
     });
 
     // Transform bookmarks into a dictionary format
-    const transformedResponses = responses.map(response => ({
-      ...response,
-      bookmarks: response.bookmarks.reduce((acc, bookmark) => {
-        acc[bookmark.id] = bookmark.title;
-        return acc;
-      }, {} as Record<string, string>)
-    }));
+    const transformedResponses = responses.map(response => {
+      // Determine if this response has been shared to community
+      const isSharedToCommunity = response.source === 'local' && response.communityResponse?.isActive === true;
+      
+      return {
+        ...response,
+        bookmarks: response.bookmarks.reduce((acc, bookmark) => {
+          acc[bookmark.id] = bookmark.title;
+          return acc;
+        }, {} as Record<string, string>),
+        isSharedToCommunity
+      };
+    });
 
     return transformedResponses;
   } catch (error) {

@@ -63,6 +63,9 @@ interface GPTResponseProps {
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   onBookmarkSelect?: (id: string | null, title: string | null) => void;
   onShare?: (responseId: string) => Promise<void>;
+  source?: 'local' | 'imported';
+  communityResponseId?: string | null;
+  isSharedToCommunity?: boolean;
   bookmarks?: Record<string, string>;
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
@@ -100,6 +103,9 @@ export default function GPTResponse({
   onGenerateSummary,
   onBookmarkSelect,
   onShare,
+  source,
+  communityResponseId,
+  isSharedToCommunity,
   bookmarks,
   selectedLanguage = 'ja',
   onLoadingChange,
@@ -120,6 +126,14 @@ export default function GPTResponse({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  
+  // Determine if share button should be disabled
+  const isShareDisabled = source === 'imported' || isSharedToCommunity || isSharing;
+  
+  // Debug logging
+  if (responseId && source) {
+    console.log(`GPTResponse ${responseId}: source=${source}, isSharedToCommunity=${isSharedToCommunity}, isShareDisabled=${isShareDisabled}`);
+  }
 
   const router = useRouter();
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -930,7 +944,7 @@ export default function GPTResponse({
                   onClick={handleShareToCommunity}
                   onMouseEnter={() => setIsShareHovered(true)}
                   onMouseLeave={() => setIsShareHovered(false)}
-                  disabled={isSharing}
+                  disabled={isShareDisabled}
                   className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
                 >
                   <ShareIcon className="h-5 w-5" />
@@ -940,7 +954,7 @@ export default function GPTResponse({
               <button 
                 ref={shareButtonRef}
                 onClick={handleShareToCommunity}
-                disabled={isSharing}
+                disabled={isShareDisabled}
                 className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
               >
                 <ShareIcon className="h-5 w-5" />

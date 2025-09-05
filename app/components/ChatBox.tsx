@@ -60,6 +60,9 @@ interface Response {
   isKanaEnabled?: boolean;
   breakdown?: string | null;
   mobileBreakdown?: string | null;
+  source?: 'local' | 'imported';
+  communityResponseId?: string | null;
+  isSharedToCommunity?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
 }
 
@@ -77,6 +80,9 @@ interface BookmarkResponse {
   isKanaEnabled?: boolean;
   breakdown?: string | null;
   mobileBreakdown?: string | null;
+  source?: 'local' | 'imported';
+  communityResponseId?: string | null;
+  isSharedToCommunity?: boolean;
 }
 
 // Add sortResponses function
@@ -297,7 +303,13 @@ export default function ChatBox({
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       scrollToTop();
-      const data = await res.json();      
+      const data = await res.json();
+      
+      // Debug: Check if source and sharing fields are present
+      console.log('getBookmarkResponses API response:', data);
+      data.forEach((response: any) => {
+        console.log(`Response ${response.id}: source=${response.source}, isSharedToCommunity=${response.isSharedToCommunity}, communityResponseId=${response.communityResponseId}`);
+      });      
       
       // Transform the response data
       const transformedResponses = data.map((response: BookmarkResponse) => ({
@@ -314,6 +326,9 @@ export default function ChatBox({
         isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
         breakdown: response.breakdown,
         mobileBreakdown: response.mobileBreakdown,
+        source: response.source,
+        communityResponseId: response.communityResponseId,
+        isSharedToCommunity: response.isSharedToCommunity,
       }));
 
       // Sort responses using the new function
@@ -339,6 +354,14 @@ export default function ChatBox({
       }
       scrollToTop();
       const data = await res.json();
+      
+      // Debug: Check if source and sharing fields are present
+      console.log('getUserResponses API response:', data);
+      if (data.length > 0) {
+        data.slice(0, 3).forEach((response: any) => {
+          console.log(`Response ${response.id}: source=${response.source}, isSharedToCommunity=${response.isSharedToCommunity}, communityResponseId=${response.communityResponseId}`);
+        });
+      }
       const dict = Object.fromEntries(data.map((response: Response) => [response.id, {
         id: response.id,
         content: response.content,
@@ -353,6 +376,9 @@ export default function ChatBox({
         isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
         breakdown: response.breakdown,
         mobileBreakdown: response.mobileBreakdown,
+        source: response.source,
+        communityResponseId: response.communityResponseId,
+        isSharedToCommunity: response.isSharedToCommunity,
       }]));
       setBookmarkResponses(dict);
       setIsLoading(false);
@@ -1065,6 +1091,9 @@ export default function ChatBox({
                       onKanaToggle={handleKanaToggle}
                       onBookmarkSelect={onBookmarkSelect}
                       onShare={handleShareToCommunity}
+                      source={response.source}
+                      communityResponseId={response.communityResponseId}
+                      isSharedToCommunity={response.isSharedToCommunity}
                       selectedLanguage={selectedLanguage}
                       onLoadingChange={setIsLoading}
                       onBreakdownClick={() => trackBreakdownClick(response.id!)}
@@ -1221,6 +1250,9 @@ export default function ChatBox({
                   onKanaToggle={handleKanaToggle}
                   onBookmarkSelect={onBookmarkSelect}
                   onShare={handleShareToCommunity}
+                  source={response.source}
+                  communityResponseId={response.communityResponseId}
+                  isSharedToCommunity={response.isSharedToCommunity}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
                   onBreakdownClick={() => trackBreakdownClick(response.id!)}
@@ -1251,6 +1283,9 @@ export default function ChatBox({
                   onPhoneticToggle={handlePhoneticToggle}
                   onKanaToggle={handleKanaToggle}
                   onBookmarkSelect={onBookmarkSelect}
+                  source={response.source}
+                  communityResponseId={response.communityResponseId}
+                  isSharedToCommunity={response.isSharedToCommunity}
                   selectedLanguage={selectedLanguage}
                   onLoadingChange={setIsLoading}
                   onBookmarkCreated={onBookmarkCreated}

@@ -51,7 +51,15 @@ export default async function handler(
         isPhoneticEnabled: true,
         isKanaEnabled: true,
         breakdown: true,
-        mobileBreakdown: true
+        mobileBreakdown: true,
+        source: true,
+        communityResponseId: true,
+        communityResponse: {
+          select: {
+            id: true,
+            isActive: true
+          }
+        }
       },
       orderBy: {
         rank: 'asc'
@@ -76,10 +84,16 @@ export default async function handler(
       [bookmark.id]: bookmark.title
     };
 
-    const formattedResponses = responses.map(response => ({
-      ...response,
-      bookmarks: bookmarkDict
-    }));
+    const formattedResponses = responses.map(response => {
+      // Determine if this response has been shared to community
+      const isSharedToCommunity = response.source === 'local' && response.communityResponse?.isActive === true;
+      
+      return {
+        ...response,
+        bookmarks: bookmarkDict,
+        isSharedToCommunity
+      };
+    });
 
     return res.status(200).json(formattedResponses);
   } catch (error) {
