@@ -20,31 +20,52 @@ export default async function handler(
   }
 
   try {
-    // Disconnect all bookmarks first
-    if (bookmarks && Object.keys(bookmarks).length > 0) {
-      await prisma.gPTResponse.update({
-        where: { id: gptResponseId },
-        data: {
-          bookmarks: {
-            disconnect: Object.keys(bookmarks).map(id => ({ id }))
-          }
-        }
+    // Use transaction to ensure atomicity
+    await prisma.$transaction(async (tx) => {
+      // Check if this is an imported response and get community import info
+      const communityImport = await tx.communityImport.findUnique({
+        where: { importedResponseId: gptResponseId },
+        include: { communityResponse: true }
       });
 
-      // Update all affected bookmarks' updatedAt field to reflect the interaction
-      await prisma.bookmark.updateMany({
-        where: {
-          id: {
-            in: Object.keys(bookmarks)
+      // Disconnect all bookmarks first
+      if (bookmarks && Object.keys(bookmarks).length > 0) {
+        await tx.gPTResponse.update({
+          where: { id: gptResponseId },
+          data: {
+            bookmarks: {
+              disconnect: Object.keys(bookmarks).map(id => ({ id }))
+            }
           }
-        },
-        data: { updatedAt: new Date() }
-      });
-    }
+        });
 
-    // Then delete the response itself
-    await prisma.gPTResponse.delete({
-      where: { id: gptResponseId }
+        // Update all affected bookmarks' updatedAt field to reflect the interaction
+        await tx.bookmark.updateMany({
+          where: {
+            id: {
+              in: Object.keys(bookmarks)
+            }
+          },
+          data: { updatedAt: new Date() }
+        });
+      }
+
+      // If this was an imported response, decrement the import count on the community response
+      if (communityImport) {
+        await tx.communityResponse.update({
+          where: { id: communityImport.communityResponseId },
+          data: {
+            importCount: {
+              decrement: 1
+            }
+          }
+        });
+      }
+
+      // Delete the response itself (this will cascade delete the CommunityImport due to the schema)
+      await tx.gPTResponse.delete({
+        where: { id: gptResponseId }
+      });
     });
 
     return res.status(200).json({ message: 'Response deleted successfully' });

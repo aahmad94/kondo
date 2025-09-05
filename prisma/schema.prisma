@@ -215,7 +215,7 @@ model CommunityImport {
   
   user                User              @relation(fields: [userId], references: [id])
   communityResponse   CommunityResponse @relation(fields: [communityResponseId], references: [id])
-  importedResponse    GPTResponse       @relation(fields: [importedResponseId], references: [id])
+  importedResponse    GPTResponse       @relation(fields: [importedResponseId], references: [id], onDelete: Cascade)
   importedBookmark    Bookmark          @relation(fields: [importedBookmarkId], references: [id])
   
   @@unique([userId, communityResponseId])
