@@ -359,7 +359,8 @@ export async function importFromCommunityToBookmark(
  */
 export async function getCommunityFeed(
   filters: CommunityFilters = {},
-  pagination: CommunityPagination = { page: 1, limit: 20 }
+  pagination: CommunityPagination = { page: 1, limit: 20 },
+  userId?: string
 ): Promise<CommunityFeedResponse> {
   try {
     const { page, limit } = pagination;
@@ -433,8 +434,27 @@ export async function getCommunityFeed(
       });
     }
 
+    // Check which community responses the user has already imported (if userId provided)
+    let userImportedResponseIds: Set<string> = new Set();
+    if (userId && responseIds.length > 0) {
+      const userImports = await prisma.communityImport.findMany({
+        where: {
+          userId,
+          communityResponseId: { in: responseIds }
+        },
+        select: { communityResponseId: true }
+      });
+      userImportedResponseIds = new Set(userImports.map(import_ => import_.communityResponseId));
+    }
+
+    // Add hasUserImported field to each response
+    const responsesWithImportStatus = responses.map(response => ({
+      ...response,
+      hasUserImported: userImportedResponseIds.has(response.id)
+    }));
+
     return {
-      responses,
+      responses: responsesWithImportStatus,
       totalCount,
       hasMore: offset + limit < totalCount
     };

@@ -133,6 +133,7 @@ export default function ChatBox({
     refetchFresh: refetchCommunityFresh,
     loadMore: loadMoreCommunity,
     updateFilters: updateCommunityFilters,
+    updateResponse: updateCommunityResponse,
     filters: communityFilters
   } = useCommunityFeed();
 
@@ -836,6 +837,9 @@ export default function ChatBox({
       }
       
       if (result.success) {
+        // Immediately update local state to disable the import button
+        updateCommunityResponse(communityResponseId, { hasUserImported: true });
+        
         refetchCommunityFresh();
         console.log('Successfully imported response');
         
@@ -1151,7 +1155,7 @@ export default function ChatBox({
                 </div>
               ) : communityResponses.length > 0 ? (
                 <>
-                  {communityResponses.map((communityResponse: CommunityResponseWithRelations) => (
+                  {communityResponses.map((communityResponse) => (
                     <CommunityResponse
                       key={communityResponse.id}
                       type="community"
@@ -1173,7 +1177,8 @@ export default function ChatBox({
                         isActive: communityResponse.isActive,
                         importCount: communityResponse.importCount,
                         viewCount: communityResponse.viewCount,
-                        sharedAt: communityResponse.sharedAt
+                        sharedAt: communityResponse.sharedAt,
+                        hasUserImported: communityResponse.hasUserImported
                       } as CommunityResponseData}
                       selectedBookmarkTitle="community"
                       selectedLanguage={selectedLanguage}
@@ -1408,7 +1413,7 @@ export default function ChatBox({
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
           <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-l text-card-foreground">Successfully Imported!</h2>
+              <h2 className="text-l text-card-foreground">Successfully Imported</h2>
               <button 
                 onClick={() => setShowImportSuccessModal(false)} 
                 className="text-card-foreground hover:text-muted-foreground transition-colors"
@@ -1418,7 +1423,7 @@ export default function ChatBox({
             </div>
             
             <p className="text-card-foreground">
-              The response has been successfully imported to "{importedBookmarkTitle}". You can continue browsing the community feed or visit your bookmark to see the imported content.
+              The response has been successfully imported to '{importedBookmarkTitle}'. You can continue browsing the community feed or visit your bookmark to see the imported content.
             </p>
           </div>
         </div>

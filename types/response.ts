@@ -35,6 +35,7 @@ export interface CommunityResponseData extends BaseResponseData {
   importCount: number;
   viewCount: number;
   sharedAt: Date;
+  hasUserImported?: boolean;
 }
 
 // Shared props for both response types

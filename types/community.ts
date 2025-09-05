@@ -30,6 +30,10 @@ export interface CommunityResponseWithRelations extends CommunityResponse {
   };
 }
 
+export interface CommunityResponseForFeed extends CommunityResponseWithRelations {
+  hasUserImported: boolean;
+}
+
 // Community Import types
 export interface CommunityImport {
   id: string;
@@ -88,7 +92,7 @@ export interface ImportFromCommunityResponse {
 }
 
 export interface CommunityFeedResponse {
-  responses: CommunityResponseWithRelations[];
+  responses: CommunityResponseForFeed[];
   totalCount: number;
   hasMore: boolean;
 }

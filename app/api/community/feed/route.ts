@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get community feed
-    const result = await getCommunityFeed(filters, pagination);
+    const result = await getCommunityFeed(filters, pagination, userId);
 
     return NextResponse.json({
       success: true,

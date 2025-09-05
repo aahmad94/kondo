@@ -5,11 +5,12 @@ import { CommunityClientService } from '@/lib/community';
 import type { 
   CommunityFilters, 
   CommunityPagination, 
-  CommunityResponseWithRelations 
+  CommunityResponseWithRelations,
+  CommunityResponseForFeed
 } from '@/lib/community';
 
 interface UseCommunityFeedReturn {
-  responses: CommunityResponseWithRelations[];
+  responses: CommunityResponseForFeed[];
   loading: boolean;
   error: string | null;
   hasMore: boolean;
@@ -18,6 +19,7 @@ interface UseCommunityFeedReturn {
   refetchFresh: () => Promise<void>;
   loadMore: () => Promise<void>;
   updateFilters: (newFilters: Partial<CommunityFilters>) => void;
+  updateResponse: (responseId: string, updates: Partial<CommunityResponseForFeed>) => void;
   filters: CommunityFilters;
   pagination: CommunityPagination;
 }
@@ -26,7 +28,7 @@ export function useCommunityFeed(
   initialFilters: CommunityFilters = {},
   initialPagination: CommunityPagination = { page: 1, limit: 20 }
 ): UseCommunityFeedReturn {
-  const [responses, setResponses] = useState<CommunityResponseWithRelations[]>([]);
+  const [responses, setResponses] = useState<CommunityResponseForFeed[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
@@ -93,6 +95,14 @@ export function useCommunityFeed(
     setPagination(prev => ({ ...prev, page: 1 }));
   }, []);
 
+  const updateResponse = useCallback((responseId: string, updates: Partial<CommunityResponseForFeed>) => {
+    setResponses(prev => prev.map(response => 
+      response.id === responseId 
+        ? { ...response, ...updates }
+        : response
+    ));
+  }, []);
+
   return {
     responses,
     loading,
@@ -103,6 +113,7 @@ export function useCommunityFeed(
     refetchFresh,
     loadMore,
     updateFilters,
+    updateResponse,
     filters,
     pagination
   };

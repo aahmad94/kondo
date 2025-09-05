@@ -36,5 +36,6 @@ export type {
   CommunityUserProfile,
   CommunityResponse,
   CommunityResponseWithRelations,
+  CommunityResponseForFeed,
   CommunityImport
 } from '../../types/community';

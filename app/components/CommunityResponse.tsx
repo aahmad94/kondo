@@ -524,11 +524,11 @@ export default function CommunityResponse(props: ResponseProps) {
           {format(communityData.sharedAt, 'MMM d')}
         </span>
 
-        {/* Import button - badge style (disabled for creators) */}
+        {/* Import button - badge style (disabled for creators and already imported) */}
         {(props.onImport || props.onImportWithModal) && (
           <ImportBadgeButton
             onClick={handleImport}
-            disabled={isDeletingCommunity || isCreator}
+            disabled={isDeletingCommunity || isCreator || communityData.hasUserImported}
             isImporting={isImporting}
             buttonRef={quoteButtonRef}
           />
