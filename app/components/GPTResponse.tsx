@@ -129,11 +129,6 @@ export default function GPTResponse({
   
   // Determine if share button should be disabled
   const isShareDisabled = source === 'imported' || isSharedToCommunity || isSharing;
-  
-  // Debug logging
-  if (responseId && source) {
-    console.log(`GPTResponse ${responseId}: source=${source}, isSharedToCommunity=${isSharedToCommunity}, isShareDisabled=${isShareDisabled}`);
-  }
 
   const router = useRouter();
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -945,7 +940,7 @@ export default function GPTResponse({
                   onMouseEnter={() => setIsShareHovered(true)}
                   onMouseLeave={() => setIsShareHovered(false)}
                   disabled={isShareDisabled}
-                  className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
+                  className="text-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:hover:text-blue-500 transition-colors duration-200"
                 >
                   <ShareIcon className="h-5 w-5" />
                 </button>
@@ -955,7 +950,7 @@ export default function GPTResponse({
                 ref={shareButtonRef}
                 onClick={handleShareToCommunity}
                 disabled={isShareDisabled}
-                className="text-blue-500 hover:text-blue-400 disabled:opacity-50 transition-colors duration-200"
+                className="text-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:hover:text-blue-500 transition-colors duration-200"
               >
                 <ShareIcon className="h-5 w-5" />
               </button>

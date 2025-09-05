@@ -78,6 +78,12 @@ export async function getAllUserResponsesByLanguage(userId: string) {
             id: true,
             isActive: true
           }
+        },
+        originalCommunityPost: {
+          select: {
+            id: true,
+            isActive: true
+          }
         }
       },
       orderBy: {
@@ -88,7 +94,9 @@ export async function getAllUserResponsesByLanguage(userId: string) {
     // Transform bookmarks into a dictionary format
     const transformedResponses = responses.map(response => {
       // Determine if this response has been shared to community
-      const isSharedToCommunity = response.source === 'local' && response.communityResponse?.isActive === true;
+      // For local responses: check if there's an active originalCommunityPost
+      // For imported responses: they can't be shared (handled by source check in frontend)
+      const isSharedToCommunity = response.source === 'local' && response.originalCommunityPost?.isActive === true;
       
       return {
         ...response,
