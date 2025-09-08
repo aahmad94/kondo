@@ -11,7 +11,9 @@ import {
   validateAlias,
   getUserSharingStats,
   isResponseShared,
-  deleteCommunityResponse
+  deleteCommunityResponse,
+  checkGPTResponseDeletionImpact,
+  deleteGPTResponseWithCascade
 } from "@/lib/community";
 
 /**
@@ -43,7 +45,7 @@ export async function shareResponseToCommunityAction(responseId: string) {
       return {
         success: true,
         communityResponse: result.communityResponse,
-        message: 'Response shared to community successfully!'
+        message: 'Response shared to community successfully'
       };
     } else {
       return {
@@ -349,6 +351,89 @@ export async function getUserSharingStatsAction() {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to get sharing statistics'
+    };
+  }
+}
+
+/**
+ * Server action to check deletion impact for a GPT response
+ */
+export async function checkGPTResponseDeletionImpactAction(responseId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to check deletion impact' 
+      };
+    }
+
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await checkGPTResponseDeletionImpact(userId, responseId);
+    
+    return {
+      success: true,
+      ...result
+    };
+  } catch (error) {
+    console.error('Error in checkGPTResponseDeletionImpactAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to check deletion impact'
+    };
+  }
+}
+
+/**
+ * Server action to delete a GPT response with proper cascade handling
+ */
+export async function deleteGPTResponseWithCascadeAction(responseId: string, bookmarks?: Record<string, string>) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to delete responses' 
+      };
+    }
+
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await deleteGPTResponseWithCascade(userId, responseId, bookmarks);
+    
+    if (result.success) {
+      return {
+        success: true,
+        message: 'Response deleted successfully!'
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to delete response'
+      };
+    }
+  } catch (error) {
+    console.error('Error in deleteGPTResponseWithCascadeAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete response'
     };
   }
 }

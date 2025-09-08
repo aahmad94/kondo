@@ -16,7 +16,9 @@ export {
   getCommunityFeed,
   getUserSharingStats,
   isResponseShared,
-  deleteCommunityResponse
+  deleteCommunityResponse,
+  checkGPTResponseDeletionImpact,
+  deleteGPTResponseWithCascade
 } from './communityService';
 
 // Client-side API service

@@ -36,12 +36,14 @@ import {
   BreakdownButton,
   QuoteButton,
   ImportButton,
-  ImportBadgeButton
+  ImportBadgeButton,
+  ConfirmationModal
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
 import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
+import { deleteCommunityResponseAction } from '../../actions/community';
 import { useIsMobile } from '../hooks/useIsMobile';
 import StandardResponse from './StandardResponse';
 
@@ -91,6 +93,7 @@ export default function CommunityResponse(props: ResponseProps) {
   // Community-specific state
   const [isImporting, setIsImporting] = useState(false);
   const [isDeletingCommunity, setIsDeletingCommunity] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
   // Refs and other hooks
   const router = useRouter();
@@ -129,6 +132,39 @@ export default function CommunityResponse(props: ResponseProps) {
     }
 
     return blocks;
+  };
+
+  // Community response deletion handlers
+  const handleCommunityDeleteClick = () => {
+    setShowDeleteConfirmModal(true);
+  };
+
+  const handleCommunityDeleteConfirm = async () => {
+    if (!data.id || isDeletingCommunity) return;
+
+    try {
+      setIsDeletingCommunity(true);
+      const result = await deleteCommunityResponseAction(data.id);
+      
+      if (result.success) {
+        setShowDeleteConfirmModal(false);
+        // Trigger any parent refresh logic if needed
+        // Use a different approach to refresh the community feed
+        window.location.reload(); // Simple refresh for now
+      } else {
+        console.error('Error deleting community response:', result.error);
+        // TODO: Show error modal
+      }
+    } catch (error) {
+      console.error('Error deleting community response:', error);
+      // TODO: Show error modal
+    } finally {
+      setIsDeletingCommunity(false);
+    }
+  };
+
+  const handleCommunityDeleteCancel = () => {
+    setShowDeleteConfirmModal(false);
   };
 
   const parsedBlocks = parseResponse(data.content);
@@ -406,9 +442,9 @@ export default function CommunityResponse(props: ResponseProps) {
         )}
 
         {/* Delete button - only show for creator */}
-        {isCreator && props.onDelete && (
+        {isCreator && (
           <DeleteIcon
-            onClick={handleCommunityDelete}
+            onClick={handleCommunityDeleteClick}
             disabled={isDeletingCommunity}
           />
         )}
@@ -716,6 +752,23 @@ export default function CommunityResponse(props: ResponseProps) {
             />
           )}
         </>
+      )}
+
+      {/* Community delete confirmation modal - renders for all response types */}
+      {showDeleteConfirmModal && (
+        <ConfirmationModal
+            isOpen={showDeleteConfirmModal}
+            onClose={handleCommunityDeleteCancel}
+            onConfirm={handleCommunityDeleteConfirm}
+            title="Delete Community Response"
+            message={
+              (data as any).importCount > 0 
+                ? `Are you sure you want to delete this community response? This will permanently delete the response and all ${(data as any).importCount} imported copies that other users have saved to their bookmarks.`
+                : 'Are you sure you want to delete this community response?'
+            }
+            confirmText="Delete"
+            confirmButtonColor="red"
+          />
       )}
 
       {isBreakdownModalOpen && (

@@ -19,6 +19,7 @@ import {
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
+import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
 import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
@@ -27,6 +28,7 @@ import IconButton from './ui/IconButton';
 import { StyledMarkdown, DeleteIcon } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
+import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
 import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -126,6 +128,12 @@ export default function GPTResponse({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [deletionImpact, setDeletionImpact] = useState<{
+    isSharedResponse: boolean;
+    importCount: number;
+    importerCount: number;
+  } | null>(null);
+  const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false);
   
   // Determine if share button should be disabled
   const isShareDisabled = source === 'imported' || isSharedToCommunity || isSharing;
@@ -346,21 +354,85 @@ export default function GPTResponse({
     }
   };
 
-  const handleDeleteClick = () => {
-    setIsDeleteModalOpen(true);
+  const handleDeleteClick = async () => {
+    if (!responseId) return;
+
+    try {
+      // Check deletion impact first
+      const impact = await checkGPTResponseDeletionImpactAction(responseId);
+      
+      console.log('Deletion impact check result:', impact);
+      
+      if (impact.success && 'canDelete' in impact && impact.canDelete) {
+        setDeletionImpact({
+          isSharedResponse: impact.isSharedResponse,
+          importCount: impact.importCount,
+          importerCount: impact.importerCount
+        });
+
+        console.log('Deletion impact:', {
+          isSharedResponse: impact.isSharedResponse,
+          importCount: impact.importCount,
+          importerCount: impact.importerCount
+        });
+
+        if (impact.isSharedResponse && impact.importCount > 0) {
+          // Show enhanced deletion modal for shared responses with imports
+          console.log('Showing enhanced deletion modal');
+          setShowEnhancedDeleteModal(true);
+        } else {
+          // Show regular deletion modal for non-shared responses or shared responses with no imports
+          console.log('Showing regular deletion modal');
+          setIsDeleteModalOpen(true);
+        }
+      } else {
+        console.error('Cannot delete response:', 'error' in impact ? impact.error : 'Unknown error');
+        console.log('Falling back to regular deletion modal due to impact check failure');
+        setIsDeleteModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error checking deletion impact:', error);
+      // Fallback to regular deletion modal
+      console.log('Falling back to regular deletion modal due to error');
+      setIsDeleteModalOpen(true);
+    }
   };
 
   const handleDeleteConfirm = async () => {
-    if (!responseId || isDeleting || !onDelete) return;
+    if (!responseId || isDeleting) return;
 
     try {
       setIsDeleting(true);
-      await onDelete(responseId, bookmarks || {});
-      setIsDeleteModalOpen(false);
+      
+      if (deletionImpact?.isSharedResponse) {
+        // Use enhanced deletion for shared responses
+        const result = await deleteGPTResponseWithCascadeAction(responseId, bookmarks || {});
+        
+        if (result.success) {
+          setIsDeleteModalOpen(false);
+          setShowEnhancedDeleteModal(false);
+          // Trigger any parent refresh logic if needed
+          // The parent's onDelete callback might be used for UI updates
+          if (onDelete) {
+            await onDelete(responseId, bookmarks || {});
+          }
+        } else {
+          console.error('Error deleting shared response:', result.error);
+          // TODO: Show error modal
+        }
+      } else {
+        // Use regular deletion for non-shared responses
+        if (onDelete) {
+          await onDelete(responseId, bookmarks || {});
+        }
+        setIsDeleteModalOpen(false);
+      }
     } catch (error) {
       console.error('Error deleting response:', error);
+      // TODO: Show error modal
     } finally {
       setIsDeleting(false);
+      setDeletionImpact(null);
     }
   };
 
@@ -982,6 +1054,19 @@ export default function GPTResponse({
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeleteConfirm}
+        />
+      )}
+      {showEnhancedDeleteModal && deletionImpact && (
+        <EnhancedDeleteModal
+          isOpen={showEnhancedDeleteModal}
+          onClose={() => {
+            setShowEnhancedDeleteModal(false);
+            setDeletionImpact(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+          importCount={deletionImpact.importCount}
+          importerCount={deletionImpact.importerCount}
+          isDeleting={isDeleting}
         />
       )}
       {isBreakdownModalOpen && (

@@ -1207,7 +1207,7 @@ export default function ChatBox({
               ) : !communityLoading ? (
                 <div className="p-8 text-center text-muted-foreground">
                   <p>No community responses found.</p>
-                  <p className="text-sm mt-2">Be the first to share a response with the community!</p>
+                  <p className="text-sm mt-2">Be the first to share a response with the community</p>
                 </div>
               ) : null}
             </div>
@@ -1350,7 +1350,7 @@ export default function ChatBox({
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
           <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-l text-card-foreground">Shared to Community!</h2>
+              <h2 className="text-l text-card-foreground">Shared to Community</h2>
               <button 
                 onClick={() => setShowShareSuccessModal(false)} 
                 className="text-card-foreground hover:text-muted-foreground transition-colors"

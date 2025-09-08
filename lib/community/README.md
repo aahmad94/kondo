@@ -48,7 +48,7 @@ import { shareToCommunity, importFromCommunity, getCommunityFeed } from '@/lib/c
 // Share a response
 const shareResult = await shareToCommunity(userId, responseId);
 if (shareResult.success) {
-  console.log('Shared to community!', shareResult.communityResponse);
+  console.log('Shared to community', shareResult.communityResponse);
 }
 
 // Import a response

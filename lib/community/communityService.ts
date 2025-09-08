@@ -25,13 +25,13 @@ export async function shareToCommunity(userId: string, responseId: string): Prom
       };
     }
 
-    // Get the GPTResponse with related data
+    // Get the GPTResponse with related data (fetch all bookmarks to filter)
     const gptResponse = await prisma.gPTResponse.findUnique({
       where: { id: responseId },
       include: {
         user: { select: { alias: true, id: true } },
         language: { select: { id: true, code: true } },
-        bookmarks: { select: { title: true }, take: 1 }
+        bookmarks: { select: { title: true } }
       }
     });
 
@@ -53,8 +53,12 @@ export async function shareToCommunity(userId: string, responseId: string): Prom
       return { success: false, error: 'This response has already been shared to the community' };
     }
 
-    // Get bookmark title (use first bookmark or default)
-    const bookmarkTitle = gptResponse.bookmarks[0]?.title || 'Untitled';
+    // Get bookmark title (prioritize non-reserved bookmarks)
+    const reservedBookmarkTitles = ['all responses', 'daily summary', 'community', 'dojo', 'search'];
+    const nonReservedBookmark = gptResponse.bookmarks.find(bookmark => 
+      !reservedBookmarkTitles.includes(bookmark.title)
+    );
+    const bookmarkTitle = nonReservedBookmark?.title || gptResponse.bookmarks[0]?.title || 'Untitled';
 
     // Create community response using transaction
     const communityResponse = await prisma.$transaction(async (tx) => {
@@ -495,17 +499,182 @@ export async function isResponseShared(responseId: string): Promise<{
 }
 
 /**
- * Deletes a community response (only by creator)
+ * Checks if a GPT response can be deleted and returns deletion impact info
+ */
+export async function checkGPTResponseDeletionImpact(userId: string, responseId: string): Promise<{
+  canDelete: boolean;
+  isSharedResponse: boolean;
+  importCount: number;
+  importerCount: number;
+  error?: string;
+}> {
+  try {
+    // Get the GPT response and check if it's a shared response
+    const gptResponse = await prisma.gPTResponse.findUnique({
+      where: { id: responseId },
+      select: { 
+        userId: true,
+        originalCommunityPost: {
+          select: {
+            id: true,
+            importCount: true,
+            imports: {
+              select: {
+                userId: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!gptResponse) {
+      return { canDelete: false, isSharedResponse: false, importCount: 0, importerCount: 0, error: 'Response not found' };
+    }
+
+    // Verify ownership
+    if (gptResponse.userId !== userId) {
+      return { canDelete: false, isSharedResponse: false, importCount: 0, importerCount: 0, error: 'You can only delete your own responses' };
+    }
+
+    // Check if this is a shared response (has a community post)
+    const isSharedResponse = !!gptResponse.originalCommunityPost;
+    const importCount = gptResponse.originalCommunityPost?.importCount || 0;
+    
+    // Count unique importers
+    const uniqueImporters = new Set(gptResponse.originalCommunityPost?.imports.map(imp => imp.userId) || []);
+    const importerCount = uniqueImporters.size;
+
+    return {
+      canDelete: true,
+      isSharedResponse,
+      importCount,
+      importerCount
+    };
+  } catch (error) {
+    console.error('Error checking deletion impact:', error);
+    return { 
+      canDelete: false, 
+      isSharedResponse: false, 
+      importCount: 0, 
+      importerCount: 0, 
+      error: 'Failed to check deletion impact' 
+    };
+  }
+}
+
+/**
+ * Deletes a GPT response with proper cascade handling for shared responses
+ */
+export async function deleteGPTResponseWithCascade(userId: string, responseId: string, bookmarks?: Record<string, string>): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    // First check deletion impact
+    const impact = await checkGPTResponseDeletionImpact(userId, responseId);
+    
+    if (!impact.canDelete) {
+      return { success: false, error: impact.error };
+    }
+
+    // Use transaction to ensure atomicity
+    await prisma.$transaction(async (tx) => {
+      if (impact.isSharedResponse) {
+        // This is a shared response - we need to handle cascade deletion
+        // First, get the community response ID
+        const communityResponse = await tx.communityResponse.findFirst({
+          where: { originalResponseId: responseId }
+        });
+
+        if (communityResponse) {
+          // Delete all imported responses first (this will cascade delete CommunityImports due to schema)
+          await tx.gPTResponse.deleteMany({
+            where: { communityResponseId: communityResponse.id }
+          });
+
+          // Delete the community response
+          await tx.communityResponse.delete({
+            where: { id: communityResponse.id }
+          });
+        }
+      } else {
+        // Regular deletion logic for non-shared responses
+        // Check if this is an imported response and get community import info
+        const communityImport = await tx.communityImport.findUnique({
+          where: { importedResponseId: responseId },
+          include: { communityResponse: true }
+        });
+
+        // If this was an imported response, decrement the import count on the community response
+        if (communityImport) {
+          await tx.communityResponse.update({
+            where: { id: communityImport.communityResponseId },
+            data: {
+              importCount: {
+                decrement: 1
+              }
+            }
+          });
+        }
+      }
+
+      // Disconnect all bookmarks first
+      if (bookmarks && Object.keys(bookmarks).length > 0) {
+        await tx.gPTResponse.update({
+          where: { id: responseId },
+          data: {
+            bookmarks: {
+              disconnect: Object.keys(bookmarks).map(id => ({ id }))
+            }
+          }
+        });
+
+        // Update all affected bookmarks' updatedAt field to reflect the interaction
+        await tx.bookmark.updateMany({
+          where: {
+            id: {
+              in: Object.keys(bookmarks)
+            }
+          },
+          data: { updatedAt: new Date() }
+        });
+      }
+
+      // Delete the response itself
+      await tx.gPTResponse.delete({
+        where: { id: responseId }
+      });
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting GPT response with cascade:', error);
+    return { success: false, error: 'Failed to delete response. Please try again.' };
+  }
+}
+
+/**
+ * Deletes a community response (only by creator) with proper foreign key handling
  */
 export async function deleteCommunityResponse(userId: string, communityResponseId: string): Promise<{
   success: boolean;
   error?: string;
 }> {
   try {
-    // Get the community response to verify ownership
+    // Get the community response to verify ownership and get import info
     const communityResponse = await prisma.communityResponse.findUnique({
       where: { id: communityResponseId },
-      select: { creatorUserId: true, bookmarkTitle: true }
+      select: { 
+        creatorUserId: true, 
+        bookmarkTitle: true,
+        importCount: true,
+        imports: {
+          select: {
+            importedResponseId: true
+          }
+        }
+      }
     });
 
     if (!communityResponse) {
@@ -517,9 +686,23 @@ export async function deleteCommunityResponse(userId: string, communityResponseI
       return { success: false, error: 'You can only delete your own shared responses' };
     }
 
-    // Delete the community response (this will also delete related CommunityImports due to foreign keys)
-    await prisma.communityResponse.delete({
-      where: { id: communityResponseId }
+    // Use transaction to handle foreign key constraints properly
+    await prisma.$transaction(async (tx) => {
+      // Delete all imported responses first (this will cascade delete CommunityImports)
+      if (communityResponse.imports.length > 0) {
+        await tx.gPTResponse.deleteMany({
+          where: {
+            id: {
+              in: communityResponse.imports.map(imp => imp.importedResponseId)
+            }
+          }
+        });
+      }
+
+      // Now we can safely delete the community response
+      await tx.communityResponse.delete({
+        where: { id: communityResponseId }
+      });
     });
 
     return { success: true };
@@ -573,3 +756,4 @@ export async function getUserSharingStats(userId: string): Promise<UserSharingSt
     };
   }
 }
+
