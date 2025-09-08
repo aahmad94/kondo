@@ -823,6 +823,7 @@ export default function ChatBox({
     });
   };
 
+
   // Handle import from BookmarksModal
   const handleCommunityImportFromModal = async (communityResponseId: string, bookmarkId?: string, createNew?: boolean) => {
     try {
@@ -946,13 +947,20 @@ export default function ChatBox({
       const result = await deleteCommunityResponseAction(communityResponseId);
       if (result.success) {
         console.log('Successfully deleted community response:', result.message);
-        // Refresh community feed to remove deleted response with fresh data
+        
+        // Refresh community feed to reflect the deletion
+        // Our community feed uses client-side fetching via useCommunityFeed hook,
+        // so we need this client-side refresh to update the UI
         refetchCommunityFresh();
       } else {
         console.error('Failed to delete community response:', result.error);
+        // TODO: Show error modal to user
+        throw new Error(result.error || 'Failed to delete community response');
       }
     } catch (error) {
       console.error('Error deleting community response:', error);
+      // Re-throw so CommunityResponse component can handle the error
+      throw error;
     }
   };
 

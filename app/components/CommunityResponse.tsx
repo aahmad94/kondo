@@ -152,21 +152,19 @@ export default function CommunityResponse(props: ResponseProps) {
 
     try {
       setIsDeletingCommunity(true);
-      const result = await deleteCommunityResponseAction(data.id);
       
-      if (result.success) {
+      if (isCommunityResponseProps(props) && props.onDelete) {
+        // Delegate deletion to parent component
+        await props.onDelete(data.id);
+        // Close modals after successful deletion
         setShowDeleteConfirmModal(false);
         setShowEnhancedDeleteModal(false);
-        // Trigger any parent refresh logic if needed
-        // Use a different approach to refresh the community feed
-        window.location.reload(); // Simple refresh for now
-      } else {
-        console.error('Error deleting community response:', result.error);
-        // TODO: Show error modal
       }
     } catch (error) {
       console.error('Error deleting community response:', error);
-      // TODO: Show error modal
+      // Keep modals open and show error state
+      // TODO: Show error modal with the error message
+      // For now, just log the error - could add an error state here
     } finally {
       setIsDeletingCommunity(false);
     }
