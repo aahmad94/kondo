@@ -54,23 +54,14 @@ const EnhancedDeleteModal: React.FC<EnhancedDeleteModalProps> = ({
           
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-4">
             <div className="text-sm text-red-800 dark:text-red-200">
-              <p className="font-medium mb-2">⚠️ Deletion Impact:</p>
               <ul className="list-disc list-inside space-y-1">
-                <li>
-                  <strong>{importCount}</strong> imported {importCount === 1 ? 'copy' : 'copies'} will be permanently deleted
-                </li>
+                <li>The response will be completely removed from the community feed</li>
                 <li>
                   <strong>{importerCount}</strong> {importerCount === 1 ? 'user' : 'users'} will lose access to this response from their bookmarks
                 </li>
-                <li>The response will be completely removed from the community feed</li>
-                <li>Your original response will also be deleted</li>
               </ul>
             </div>
           </div>
-
-          <p className="text-gray-700 dark:text-gray-300 text-sm">
-            <strong>This action cannot be undone.</strong> All copies of this response will be permanently removed from everyone's libraries.
-          </p>
         </div>
 
         {/* Actions */}
@@ -93,7 +84,7 @@ const EnhancedDeleteModal: React.FC<EnhancedDeleteModalProps> = ({
                 Deleting...
               </>
             ) : (
-              'Delete for Everyone'
+              'Delete'
             )}
           </button>
         </div>

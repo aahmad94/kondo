@@ -81,6 +81,7 @@ export interface CommunityResponseProps extends BaseResponseProps {
   currentUserId?: string;
   currentUserHasAlias?: boolean;
   isImporting?: boolean;
+  aliasColor?: string;
 }
 
 // Union type for all response props

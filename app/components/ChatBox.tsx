@@ -15,7 +15,7 @@ import ConfirmationModal from './ui/ConfirmationModal';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
-import { extractExpressions } from '@/lib/utils';
+import { extractExpressions, createAliasColorMap, getAliasColor } from '@/lib/utils';
 import ChatBoxMenuBar from './ChatBoxMenuBar';
 import FlashcardModal from './FlashcardModal';
 import QuoteBar from './QuoteBar';
@@ -1155,7 +1155,12 @@ export default function ChatBox({
                 </div>
               ) : communityResponses.length > 0 ? (
                 <>
-                  {communityResponses.map((communityResponse) => (
+                  {/* Generate alias color mapping for unique aliases in current page */}
+                  {(() => {
+                    const uniqueAliases = [...new Set(communityResponses.map(r => r.creatorAlias).filter(Boolean))];
+                    const aliasColorMap = createAliasColorMap(uniqueAliases);
+                    
+                    return communityResponses.map((communityResponse) => (
                     <CommunityResponse
                       key={communityResponse.id}
                       type="community"
@@ -1188,8 +1193,10 @@ export default function ChatBox({
                       onViewProfile={handleViewProfile}
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
+                      aliasColor={aliasColorMap.get(communityResponse.creatorAlias)}
                     />
-                  ))}
+                    ));
+                  })()}
                   
                   {/* Load More Button */}
                   {communityHasMore && (

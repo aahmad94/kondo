@@ -24,6 +24,7 @@ import {
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import BookmarksModal from './BookmarksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
+import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
 import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
@@ -41,7 +42,7 @@ import {
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
-import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
+import { extractExpressions, prepareTextForSpeech, getAliasCSSVars } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { deleteCommunityResponseAction } from '../../actions/community';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -94,6 +95,7 @@ export default function CommunityResponse(props: ResponseProps) {
   const [isImporting, setIsImporting] = useState(false);
   const [isDeletingCommunity, setIsDeletingCommunity] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false);
 
   // Refs and other hooks
   const router = useRouter();
@@ -136,7 +138,13 @@ export default function CommunityResponse(props: ResponseProps) {
 
   // Community response deletion handlers
   const handleCommunityDeleteClick = () => {
-    setShowDeleteConfirmModal(true);
+    if (isCommunityResponseProps(props) && props.data.importCount > 0) {
+      // Show enhanced modal for responses with imports
+      setShowEnhancedDeleteModal(true);
+    } else {
+      // Show basic confirmation modal for responses without imports
+      setShowDeleteConfirmModal(true);
+    }
   };
 
   const handleCommunityDeleteConfirm = async () => {
@@ -148,6 +156,7 @@ export default function CommunityResponse(props: ResponseProps) {
       
       if (result.success) {
         setShowDeleteConfirmModal(false);
+        setShowEnhancedDeleteModal(false);
         // Trigger any parent refresh logic if needed
         // Use a different approach to refresh the community feed
         window.location.reload(); // Simple refresh for now
@@ -165,6 +174,10 @@ export default function CommunityResponse(props: ResponseProps) {
 
   const handleCommunityDeleteCancel = () => {
     setShowDeleteConfirmModal(false);
+  };
+
+  const handleEnhancedDeleteCancel = () => {
+    setShowEnhancedDeleteModal(false);
   };
 
   const parsedBlocks = parseResponse(data.content);
@@ -532,6 +545,12 @@ export default function CommunityResponse(props: ResponseProps) {
           {communityData.bookmarkTitle}
         </span>
 
+        {/* Shared date - muted theme colors */}
+        <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
+          <CalendarIcon className="h-3 w-3" />
+          {format(communityData.sharedAt, 'MMM d')}
+        </span>
+
         {/* Import count with tooltip - always visible, red heart when > 0 */}
         <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
           <IconButton
@@ -552,12 +571,6 @@ export default function CommunityResponse(props: ResponseProps) {
             }}
           />
           <span>{communityData.importCount}</span>
-        </span>
-
-        {/* Shared date - muted theme colors */}
-        <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
-          <CalendarIcon className="h-3 w-3" />
-          {format(communityData.sharedAt, 'MMM d')}
         </span>
 
         {/* Import button - badge style (disabled for creators and already imported) */}
@@ -594,10 +607,23 @@ export default function CommunityResponse(props: ResponseProps) {
               }}
             />
           ) : (
-            // User alias badge (bright contrasting styling)
+            // User alias badge with custom color
             <span 
               onClick={isCommunityResponseProps(props) ? () => props.onViewProfile?.(props.data.creatorUserId) : undefined}
-              className="text-xs px-2 py-1 rounded-sm alias-badge cursor-pointer hover:opacity-80 transition-all duration-200"
+              className="text-xs px-2 py-1 rounded-sm cursor-pointer hover:opacity-80 transition-all duration-200"
+              style={
+                isCommunityResponseProps(props) && props.aliasColor
+                  ? {
+                      backgroundColor: props.aliasColor,
+                      borderColor: props.aliasColor,
+                      color: '#333333',
+                      border: '1px solid',
+                      opacity: 0.9
+                    }
+                  : isCommunityResponseProps(props) 
+                    ? getAliasCSSVars(props.data.creatorAlias)
+                    : undefined
+              }
             >
               @{isCommunityResponseProps(props) ? props.data.creatorAlias : ''}
             </span>
@@ -754,21 +780,29 @@ export default function CommunityResponse(props: ResponseProps) {
         </>
       )}
 
-      {/* Community delete confirmation modal - renders for all response types */}
+      {/* Community delete confirmation modal - basic (for responses without imports) */}
       {showDeleteConfirmModal && (
         <ConfirmationModal
             isOpen={showDeleteConfirmModal}
             onClose={handleCommunityDeleteCancel}
             onConfirm={handleCommunityDeleteConfirm}
             title="Delete Community Response"
-            message={
-              (data as any).importCount > 0 
-                ? `Are you sure you want to delete this community response? This will permanently delete the response and all ${(data as any).importCount} imported copies that other users have saved to their bookmarks.`
-                : 'Are you sure you want to delete this community response?'
-            }
+            message="Are you sure you want to delete this community response?"
             confirmText="Delete"
             confirmButtonColor="red"
           />
+      )}
+
+      {/* Enhanced delete modal - for responses with imports */}
+      {showEnhancedDeleteModal && isCommunityResponseProps(props) && (
+        <EnhancedDeleteModal
+          isOpen={showEnhancedDeleteModal}
+          onClose={handleEnhancedDeleteCancel}
+          onConfirm={handleCommunityDeleteConfirm}
+          importCount={props.data.importCount}
+          importerCount={props.data.importCount} // Using importCount as proxy for importerCount
+          isDeleting={isDeletingCommunity}
+        />
       )}
 
       {isBreakdownModalOpen && (
