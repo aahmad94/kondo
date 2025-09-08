@@ -216,8 +216,8 @@ export default function BookmarksModal({
               >
                 <PlusCircleIcon className="h-4 w-4 mr-2" />
                 <span>
+                  {existingCommunityBookmark ? '' : 'create and '}
                   add to "{communityResponse.bookmarkTitle}"
-                  {existingCommunityBookmark ? '' : ' (will create)'}
                 </span>
               </div>
             )}
