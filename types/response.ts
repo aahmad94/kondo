@@ -33,7 +33,6 @@ export interface CommunityResponseData extends BaseResponseData {
   bookmarkTitle: string;
   isActive: boolean;
   importCount: number;
-  viewCount: number;
   sharedAt: Date;
   hasUserImported?: boolean;
 }

@@ -402,9 +402,7 @@ export async function getCommunityFeed(
     // Build order by clause
     let orderBy: any = { sharedAt: 'desc' }; // default
 
-    if (filters.sortBy === 'popular') {
-      orderBy = { viewCount: filters.sortOrder || 'desc' };
-    } else if (filters.sortBy === 'imports') {
+    if (filters.sortBy === 'imports') {
       orderBy = { importCount: filters.sortOrder || 'desc' };
     } else if (filters.sortBy === 'recent') {
       orderBy = { sharedAt: filters.sortOrder || 'desc' };
@@ -427,18 +425,9 @@ export async function getCommunityFeed(
       })
     ]);
 
-    // Increment view count for returned responses (fire and forget)
-    const responseIds = responses.map(r => r.id);
-    if (responseIds.length > 0) {
-      prisma.communityResponse.updateMany({
-        where: { id: { in: responseIds } },
-        data: { viewCount: { increment: 1 } }
-      }).catch(error => {
-        console.error('Error updating view counts:', error);
-      });
-    }
 
     // Check which community responses the user has already imported (if userId provided)
+    const responseIds = responses.map(r => r.id);
     let userImportedResponseIds: Set<string> = new Set();
     if (userId && responseIds.length > 0) {
       const userImports = await prisma.communityImport.findMany({

@@ -127,7 +127,7 @@ export class CommunityClientService {
       creatorAlias: searchParams.get('creatorAlias') || undefined,
       // Note: languageId is automatically set by the API based on user's preference
       minImports: searchParams.get('minImports') ? parseInt(searchParams.get('minImports')!) : undefined,
-      sortBy: (searchParams.get('sortBy') as 'recent' | 'popular' | 'imports') || 'recent',
+      sortBy: (searchParams.get('sortBy') as 'recent' | 'imports') || 'recent',
       sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'
     };
 

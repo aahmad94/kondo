@@ -14,7 +14,6 @@ export interface CommunityResponse {
   audioMimeType?: string | null;
   isActive: boolean;
   importCount: number;
-  viewCount: number;
   sharedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -51,7 +50,7 @@ export interface CommunityFilters {
   creatorAlias?: string;
   languageId?: string; // Set automatically by API based on user's current language
   minImports?: number;
-  sortBy?: 'recent' | 'popular' | 'imports';
+  sortBy?: 'recent' | 'imports';
   sortOrder?: 'asc' | 'desc';
 }
 

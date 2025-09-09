@@ -1189,7 +1189,6 @@ export default function ChatBox({
                         bookmarkTitle: communityResponse.bookmarkTitle,
                         isActive: communityResponse.isActive,
                         importCount: communityResponse.importCount,
-                        viewCount: communityResponse.viewCount,
                         sharedAt: communityResponse.sharedAt,
                         hasUserImported: communityResponse.hasUserImported
                       } as CommunityResponseData}

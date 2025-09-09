@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       creatorAlias: searchParams.get('creatorAlias') || undefined,
       languageId: userLanguageId, // Always use user's current language
       minImports: searchParams.get('minImports') ? parseInt(searchParams.get('minImports')!) : undefined,
-      sortBy: (searchParams.get('sortBy') as 'recent' | 'popular' | 'imports') || 'recent',
+      sortBy: (searchParams.get('sortBy') as 'recent' | 'imports') || 'recent',
       sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'
     };
 

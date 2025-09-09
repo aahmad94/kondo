@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   MagnifyingGlassIcon, 
   XMarkIcon,
-  FireIcon,
   ClockIcon,
   HeartIcon,
   ChevronDownIcon
@@ -32,7 +31,7 @@ export default function FilterBar({
   // Filter states
   const [selectedBookmark, setSelectedBookmark] = useState<string>(''); // Selected bookmark from dropdown
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
-  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'imports'>(initialFilters.sortBy || 'recent');
+  const [sortBy, setSortBy] = useState<'recent' | 'imports'>(initialFilters.sortBy || 'recent');
   
   // UI states
   const [searchDebounceTimer, setSearchDebounceTimer] = useState<NodeJS.Timeout | null>(null);
@@ -105,7 +104,7 @@ export default function FilterBar({
   };
 
   // Immediate update handlers
-  const handleSortChange = (newSortBy: 'recent' | 'popular' | 'imports') => {
+  const handleSortChange = (newSortBy: 'recent' | 'imports') => {
     setSortBy(newSortBy);
     updateFilters({ sortBy: newSortBy, sortOrder: 'desc' });
   };
@@ -162,9 +161,9 @@ export default function FilterBar({
   useEffect(() => {
     if (!searchParams) return;
     
-    const urlSortBy = searchParams.get('sortBy') as 'recent' | 'popular' | 'imports';
+    const urlSortBy = searchParams.get('sortBy') as 'recent' | 'imports';
     
-    if (urlSortBy && ['recent', 'popular', 'imports'].includes(urlSortBy)) {
+    if (urlSortBy && ['recent', 'imports'].includes(urlSortBy)) {
       setSortBy(urlSortBy);
     }
   }, [searchParams]);
@@ -270,18 +269,6 @@ export default function FilterBar({
             >
               <ClockIcon className="h-4 w-4" />
               {!isMobile && 'Recent'}
-            </button>
-            <button
-              onClick={() => handleSortChange('popular')}
-              className={`flex items-center gap-1 px-3 py-1 rounded text-sm transition-colors ${
-                sortBy === 'popular' 
-                  ? 'bg-background text-foreground shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              disabled={isLoading}
-            >
-              <FireIcon className="h-4 w-4" />
-              {!isMobile && 'Popular'}
             </button>
             <button
               onClick={() => handleSortChange('imports')}
