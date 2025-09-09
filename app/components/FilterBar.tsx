@@ -7,9 +7,11 @@ import {
   XMarkIcon,
   FireIcon,
   ClockIcon,
-  HeartIcon
+  HeartIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { CommunityClientService } from '@/lib/community';
 import type { CommunityFilters } from '@/lib/community';
 
 interface FilterBarProps {
@@ -18,27 +20,34 @@ interface FilterBarProps {
   initialFilters?: CommunityFilters;
 }
 
-export default function FilterBar({ onFiltersChange, isLoading = false, initialFilters = {} }: FilterBarProps) {
+export default function FilterBar({ 
+  onFiltersChange, 
+  isLoading = false, 
+  initialFilters = {}
+}: FilterBarProps) {
   const { isMobile } = useIsMobile();
   const router = useRouter();
   const searchParams = useSearchParams();
   
   // Filter states
-  const [bookmarkTitle, setBookmarkTitle] = useState(''); // Always start empty, no URL autopopulation
+  const [selectedBookmark, setSelectedBookmark] = useState<string>(''); // Selected bookmark from dropdown
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'imports'>(initialFilters.sortBy || 'recent');
   
   // UI states
   const [searchDebounceTimer, setSearchDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [availableBookmarks, setAvailableBookmarks] = useState<string[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoadingBookmarks, setIsLoadingBookmarks] = useState(false);
   
   // Refs
-  const bookmarkInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const creatorInputRef = useRef<HTMLInputElement>(null);
 
-  // Debounced filter update
+  // Filter update
   const updateFilters = useCallback((newFilters: Partial<CommunityFilters>) => {
     const filters: CommunityFilters = {
-      bookmarkTitle: bookmarkTitle || undefined,
+      bookmarkTitle: selectedBookmark || undefined,
       creatorAlias: creatorAlias || undefined,
       sortBy,
       sortOrder: 'desc', // Always descending (most recent/popular/imported first)
@@ -50,7 +59,7 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
     // Update URL with filters (without triggering navigation)
     const params = new URLSearchParams(searchParams?.toString() || '');
     
-    // Update URL params
+    // Update URL params for filter persistence
     if (filters.bookmarkTitle) {
       params.set('bookmarkTitle', filters.bookmarkTitle);
     } else {
@@ -72,21 +81,13 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
     // Update URL without navigation
     const newUrl = params.toString() ? `?${params.toString()}` : '/';
     window.history.replaceState({}, '', newUrl);
-  }, [bookmarkTitle, creatorAlias, sortBy, onFiltersChange, searchParams]);
+  }, [selectedBookmark, creatorAlias, sortBy, onFiltersChange, searchParams]);
 
-  // Debounced search handlers
-  const handleBookmarkSearch = (value: string) => {
-    setBookmarkTitle(value);
-    
-    if (searchDebounceTimer) {
-      clearTimeout(searchDebounceTimer);
-    }
-    
-    const timer = setTimeout(() => {
-      updateFilters({ bookmarkTitle: value || undefined });
-    }, 300);
-    
-    setSearchDebounceTimer(timer);
+  // Bookmark dropdown handlers
+  const handleBookmarkSelect = (bookmark: string) => {
+    setSelectedBookmark(bookmark);
+    setIsDropdownOpen(false);
+    updateFilters({ bookmarkTitle: bookmark || undefined });
   };
 
   const handleCreatorSearch = (value: string) => {
@@ -111,11 +112,10 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
 
   // Clear all filters (reset to recent)
   const clearAllFilters = () => {
-    setBookmarkTitle('');
+    setSelectedBookmark('');
     setCreatorAlias('');
     setSortBy('recent');
     
-    if (bookmarkInputRef.current) bookmarkInputRef.current.value = '';
     if (creatorInputRef.current) creatorInputRef.current.value = '';
     
     updateFilters({
@@ -126,18 +126,43 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
     });
   };
 
-  // Initialize from URL params
+  // Fetch available bookmarks on mount
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        setIsLoadingBookmarks(true);
+        const bookmarks = await CommunityClientService.getCommunityBookmarks();
+        setAvailableBookmarks(bookmarks);
+      } catch (error) {
+        console.error('Failed to fetch community bookmarks:', error);
+        setAvailableBookmarks([]);
+      } finally {
+        setIsLoadingBookmarks(false);
+      }
+    };
+
+    fetchBookmarks();
+  }, []);
+
+  // Handle click outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isDropdownOpen]);
+
+  // Initialize only sort order from URL params (for permalink support)
   useEffect(() => {
     if (!searchParams) return;
     
-    const urlCreatorAlias = searchParams.get('creatorAlias');
     const urlSortBy = searchParams.get('sortBy') as 'recent' | 'popular' | 'imports';
-
-    // Only initialize creator alias and sort from URL, not bookmark title
-    if (urlCreatorAlias) {
-      setCreatorAlias(urlCreatorAlias);
-      if (creatorInputRef.current) creatorInputRef.current.value = urlCreatorAlias;
-    }
     
     if (urlSortBy && ['recent', 'popular', 'imports'].includes(urlSortBy)) {
       setSortBy(urlSortBy);
@@ -154,25 +179,66 @@ export default function FilterBar({ onFiltersChange, isLoading = false, initialF
   }, [searchDebounceTimer]);
 
   // Check if any filters are active (only search filters, not sort)
-  const hasActiveFilters = bookmarkTitle || creatorAlias;
+  const hasActiveFilters = selectedBookmark || creatorAlias;
 
   return (
     <div className="bg-background border border-border rounded-lg p-4 mx-2 my-2">
       <div className="flex flex-col gap-4">
         {/* Main search row */}
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Bookmark title search */}
+          {/* Bookmark title dropdown */}
           <div className="flex-1 min-w-[180px]">
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                ref={bookmarkInputRef}
-                type="text"
-                placeholder="bookmark title..."
-                className="w-full pl-10 pr-4 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                onChange={(e) => handleBookmarkSearch(e.target.value)}
-                disabled={isLoading}
-              />
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full pl-3 pr-10 py-2 border border-input rounded-md bg-background text-sm text-left focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent flex items-center justify-between"
+                disabled={isLoading || isLoadingBookmarks}
+              >
+                <span className={selectedBookmark ? 'text-foreground' : 'text-muted-foreground'}>
+                  {selectedBookmark || 'all bookmarks...'}
+                </span>
+                <ChevronDownIcon 
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 
+                />
+              </button>
+              
+              {isDropdownOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                  {isLoadingBookmarks ? (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">Loading...</div>
+                  ) : (
+                    <>
+                      {/* All bookmarks option */}
+                      <button
+                        type="button"
+                        onClick={() => handleBookmarkSelect('')}
+                        className="w-full px-3 py-2 text-sm text-left hover:bg-muted focus:bg-muted focus:outline-none"
+                      >
+                        <span className="text-muted-foreground">all bookmarks</span>
+                      </button>
+                      
+                      {/* Available bookmark options */}
+                      {availableBookmarks.map((bookmark) => (
+                        <button
+                          key={bookmark}
+                          type="button"
+                          onClick={() => handleBookmarkSelect(bookmark)}
+                          className={`w-full px-3 py-2 text-sm text-left hover:bg-muted focus:bg-muted focus:outline-none ${
+                            selectedBookmark === bookmark ? 'bg-muted' : ''
+                          }`}
+                        >
+                          {bookmark}
+                        </button>
+                      ))}
+                      
+                      {availableBookmarks.length === 0 && !isLoadingBookmarks && (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">No bookmarks available</div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

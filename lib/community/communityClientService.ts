@@ -43,6 +43,21 @@ export class CommunityClientService {
   }
 
   /**
+   * Gets distinct bookmark titles available in the community feed
+   */
+  static async getCommunityBookmarks(): Promise<string[]> {
+    const response = await fetch('/api/community/bookmarks');
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch community bookmarks');
+    }
+
+    const result = await response.json();
+    return result.data;
+  }
+
+  /**
    * Gets current user's alias and profile information
    */
   static async getCurrentUserInfo(includeProfile: boolean = false): Promise<{
