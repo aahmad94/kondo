@@ -71,16 +71,11 @@ export default function FilterBar({
       params.delete('creatorAlias');
     }
     
-    if (filters.sortBy && filters.sortBy !== 'recent') {
-      params.set('sortBy', filters.sortBy);
-    } else {
-      params.delete('sortBy');
-    }
 
     // Update URL without navigation
     const newUrl = params.toString() ? `?${params.toString()}` : '/';
     window.history.replaceState({}, '', newUrl);
-  }, [selectedBookmark, creatorAlias, sortBy, onFiltersChange, searchParams]);
+  }, [selectedBookmark, creatorAlias, onFiltersChange, searchParams]);
 
   // Bookmark dropdown handlers
   const handleBookmarkSelect = (bookmark: string) => {
@@ -157,16 +152,6 @@ export default function FilterBar({
     }
   }, [isDropdownOpen]);
 
-  // Initialize only sort order from URL params (for permalink support)
-  useEffect(() => {
-    if (!searchParams) return;
-    
-    const urlSortBy = searchParams.get('sortBy') as 'recent' | 'imports';
-    
-    if (urlSortBy && ['recent', 'imports'].includes(urlSortBy)) {
-      setSortBy(urlSortBy);
-    }
-  }, [searchParams]);
 
   // Clean up timer on unmount
   useEffect(() => {
@@ -203,7 +188,7 @@ export default function FilterBar({
               </button>
               
               {isDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-[256px] overflow-y-auto">
                   {isLoadingBookmarks ? (
                     <div className="px-3 py-2 text-sm text-muted-foreground">Loading...</div>
                   ) : (
@@ -262,8 +247,8 @@ export default function FilterBar({
               onClick={() => handleSortChange('recent')}
               className={`flex items-center gap-1 px-3 py-1 rounded text-sm transition-colors ${
                 sortBy === 'recent' 
-                  ? 'bg-background text-foreground shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-white dark:bg-background text-foreground shadow-sm border border-border/20' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
               disabled={isLoading}
             >
@@ -274,8 +259,8 @@ export default function FilterBar({
               onClick={() => handleSortChange('imports')}
               className={`flex items-center gap-1 px-3 py-1 rounded text-sm transition-colors ${
                 sortBy === 'imports' 
-                  ? 'bg-background text-foreground shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-white dark:bg-background text-foreground shadow-sm border border-border/20' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
               disabled={isLoading}
             >
