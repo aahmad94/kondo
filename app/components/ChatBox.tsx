@@ -1014,6 +1014,11 @@ export default function ChatBox({
     setIsFlashcardModalOpen(true);
   };
 
+  const handleCreateNewContent = () => {
+    onBookmarkSelect(null, null);
+    router.push('/');
+  };
+
   if (status === "loading") {
     return <div>Loading...</div>
   }
@@ -1023,13 +1028,14 @@ export default function ChatBox({
     <div className="bg-background h-full flex flex-col w-full">
       {/* ChatBox Menu Bar - Show for all cases */}
       <ChatBoxMenuBar
-        onNewReport={() => handleGenerateSummary(true)}
+        onNewReport={handleGenerateSummary.bind(null, true)}
         onFlashcardMode={handleFlashcardMode}
         flashcardCount={getFlashcardResponses().length}
         selectedLanguage={selectedLanguage}
         summaryTimestamp={summaryTimestamp}
         selectedBookmark={selectedBookmark}
         isFlashcardModalOpen={isFlashcardModalOpen}
+        onCreateNewContent={handleCreateNewContent}
       />
       
       {/* Community Filter Bar - positioned after menu bar */}

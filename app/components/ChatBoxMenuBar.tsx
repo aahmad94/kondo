@@ -16,9 +16,11 @@ interface ChatBoxMenuBarProps {
   summaryTimestamp: Date | null;
   selectedBookmark: { id: string | null, title: string | null };
   isFlashcardModalOpen?: boolean;
+  onCreateNewContent: () => void;
 }
 
 export default function ChatBoxMenuBar({ 
+  onCreateNewContent,
   onNewReport, 
   onFlashcardMode, 
   flashcardCount,
@@ -118,16 +120,14 @@ export default function ChatBoxMenuBar({
             }}
           >
             <div className="flex items-center px-4 mx-4 gap-2 sm:gap-3 flex-shrink-0">
-              {/* New Report Button - First */}
-              {showNewReport && (
-                <button
-                  onClick={handleNewReportClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <PlusIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>new report</span>
-                </button>
-              )}
+              {/* Create New Content Button - First */}
+              <button
+                onClick={onCreateNewContent}
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+              >
+                <PlusIcon className="h-4 w-4 flex-shrink-0" />
+                <span>create new content</span>
+              </button>
 
               {/* Flashcard Mode Button - Second */}
               {showFlashcards && (

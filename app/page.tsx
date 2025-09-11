@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from 'next/navigation';
 import MenuBar from './components/MenuBar';
@@ -19,6 +19,17 @@ export default function Home() {
   const [isClearingBookmark, setIsClearingBookmark] = useState(false);
   const hasSyncedRef = useRef(false);
 
+  // Define handleBookmarkSelect early with useCallback, before any hooks or early returns (around line 22, after state declarations)
+  const handleBookmarkSelect = useCallback((id: string | null, title: string | null) => {
+    console.log('****handleBookmarkSelect****', { id, title });
+    setSelectedBookmark({ id, title });
+    trackBookmarkSelect(id, title);
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    if (id) params.set('bookmarkId', id); else params.delete('bookmarkId');
+    if (title) params.set('bookmarkTitle', title); else params.delete('bookmarkTitle');
+    router.push(`/?${params.toString()}`);
+  }, [router, searchParams, setSelectedBookmark]);
+
   // Initialize Amplitude
   useEffect(() => {
     if (session?.user?.email) {
@@ -27,24 +38,6 @@ export default function Home() {
       initAmplitude();
     }
   }, [session]);
-
-  useEffect(() => {
-    if (searchParams && !hasSyncedRef.current) {
-      const bookmarkId = searchParams.get('bookmarkId');
-      const bookmarkTitle = searchParams.get('bookmarkTitle');
-      
-      if (bookmarkId && bookmarkTitle) {
-        // Regular bookmark with ID and title
-        setSelectedBookmark({ id: bookmarkId, title: bookmarkTitle });
-      } else if (bookmarkTitle && reservedBookmarkTitles.includes(bookmarkTitle)) {
-        // Reserved bookmark (community, daily summary, etc.) with only title
-        setSelectedBookmark({ id: null, title: bookmarkTitle });
-      }
-      hasSyncedRef.current = true;
-    }
-    // Do NOT sync from URL again after initial load
-  }, [searchParams, reservedBookmarkTitles]);
-  
 
   // Handle authentication
   useEffect(() => {
@@ -101,6 +94,28 @@ export default function Home() {
     }
   }, [session]);
 
+  // Then place the useEffect after other top-level hooks but before early returns (around original position ~32)
+  useEffect(() => {
+    if (searchParams && !hasSyncedRef.current) {
+      const bookmarkId = searchParams.get('bookmarkId');
+      const bookmarkTitle = searchParams.get('bookmarkTitle');
+      
+      if (bookmarkId && bookmarkTitle) {
+        // Regular bookmark with ID and title
+        setSelectedBookmark({ id: bookmarkId, title: bookmarkTitle });
+      } else if (bookmarkTitle && reservedBookmarkTitles.includes(bookmarkTitle)) {
+        // Reserved bookmark (community, daily summary, etc.) with only title
+        setSelectedBookmark({ id: null, title: bookmarkTitle });
+      } else {
+        // No params - default to community
+        handleBookmarkSelect(null, 'community');
+      }
+      hasSyncedRef.current = true;
+    }
+    // Do NOT sync from URL again after initial load
+  }, [searchParams, reservedBookmarkTitles, handleBookmarkSelect, setSelectedBookmark]);
+
+
   if (status === "loading") {
     return (
       <div className="bg-background h-screen w-full flex items-center justify-center">
@@ -112,17 +127,6 @@ export default function Home() {
   if (!session) {
     return null
   }
-
-  const handleBookmarkSelect = (id: string | null, title: string | null) => {
-    console.log('****handleBookmarkSelect****', { id, title });
-    setSelectedBookmark({ id, title });
-    trackBookmarkSelect(id, title);
-    const params = new URLSearchParams(searchParams?.toString() ?? '');
-    if (id) params.set('bookmarkId', id); else params.delete('bookmarkId');
-    if (title) params.set('bookmarkTitle', title); else params.delete('bookmarkTitle');
-    router.push(`/?${params.toString()}`);
-  };
-
 
   const handleClearBookmark = () => {
     setIsClearingBookmark(true);
