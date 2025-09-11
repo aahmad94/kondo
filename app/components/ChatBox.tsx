@@ -25,6 +25,7 @@ import {
   shareResponseToCommunityAction, 
   importCommunityResponseAction,
   importCommunityResponseToBookmarkAction,
+  importEntireCommunityBookmarkAction,
   checkResponseSharedAction,
   deleteCommunityResponseAction
 } from '@/actions/community';
@@ -166,11 +167,13 @@ export default function ChatBox({
   const [showImportErrorModal, setShowImportErrorModal] = useState(false);
   const [importedBookmarkTitle, setImportedBookmarkTitle] = useState('');
   const [importErrorMessage, setImportErrorMessage] = useState('');
+  const [importedCount, setImportedCount] = useState<number | null>(null);
   const [communityImportModal, setCommunityImportModal] = useState<{
     isOpen: boolean;
     communityResponse: any;
   }>({ isOpen: false, communityResponse: null });
   const [sharedResponseTitle, setSharedResponseTitle] = useState('');
+  const [selectedCommunityBookmarkTitle, setSelectedCommunityBookmarkTitle] = useState<string | null>(null);
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -178,6 +181,7 @@ export default function ChatBox({
       setFlashcardResponses(getFlashcardResponses());
     }
   }, [bookmarkResponses, isFlashcardModalOpen]);
+
 
   // Refetch fresh community data when entering community mode
   useEffect(() => {
@@ -830,20 +834,35 @@ export default function ChatBox({
     try {
       let result;
       
-      if (bookmarkId && !createNew) {
-        // Import to specific existing bookmark
-        result = await importCommunityResponseToBookmarkAction(communityResponseId, bookmarkId);
+      // Check if this is a batch import (entire bookmark)
+      if (communityResponseId === 'batch-import' && selectedCommunityBookmarkTitle) {
+        // Handle batch import of entire bookmark
+        if (bookmarkId && !createNew) {
+          // Import to specific existing bookmark
+          result = await importEntireCommunityBookmarkAction(selectedCommunityBookmarkTitle, bookmarkId);
+        } else {
+          // Create new bookmark or use auto-create approach
+          result = await importEntireCommunityBookmarkAction(selectedCommunityBookmarkTitle);
+        }
       } else {
-        // Create new bookmark or use auto-create approach
-        result = await importCommunityResponseAction(communityResponseId);
+        // Handle single response import
+        if (bookmarkId && !createNew) {
+          // Import to specific existing bookmark
+          result = await importCommunityResponseToBookmarkAction(communityResponseId, bookmarkId);
+        } else {
+          // Create new bookmark or use auto-create approach
+          result = await importCommunityResponseAction(communityResponseId);
+        }
       }
       
       if (result.success) {
-        // Immediately update local state to disable the import button
-        updateCommunityResponse(communityResponseId, { hasUserImported: true });
+        // For single response imports, update the community response state
+        if (communityResponseId !== 'batch-import') {
+          updateCommunityResponse(communityResponseId, { hasUserImported: true });
+        }
         
         refetchCommunityFresh();
-        console.log('Successfully imported response');
+        console.log('Successfully imported response(s)');
         
         // If a new bookmark was created, notify the parent to refresh bookmarks bar
         if (result.wasBookmarkCreated && result.bookmark && onBookmarkCreated) {
@@ -855,6 +874,18 @@ export default function ChatBox({
         setShowImportSuccessModal(true);
         if (result.bookmark) {
           setImportedBookmarkTitle(result.bookmark.title);
+        }
+        
+        // Set imported count for batch imports
+        if (communityResponseId === 'batch-import' && 'importedCount' in result && typeof result.importedCount === 'number') {
+          setImportedCount(result.importedCount);
+        } else {
+          setImportedCount(null);
+        }
+        
+        // For batch imports, also navigate to the bookmark
+        if (communityResponseId === 'batch-import' && result.bookmark) {
+          onBookmarkSelect(result.bookmark.id, result.bookmark.title);
         }
       } else {
         console.error('Failed to import response:', result.error);
@@ -1019,6 +1050,23 @@ export default function ChatBox({
     router.push('/');
   };
 
+  const handleImportEntireBookmark = () => {
+    if (communityFilters?.bookmarkTitle) {
+      setSelectedCommunityBookmarkTitle(communityFilters.bookmarkTitle);
+      // Create a mock community response for the BookmarksModal
+      const mockCommunityResponse = {
+        id: 'batch-import', // Special ID to indicate batch import
+        bookmarkTitle: communityFilters.bookmarkTitle,
+        content: `Batch import from "${communityFilters.bookmarkTitle}" bookmark`
+      };
+      setCommunityImportModal({
+        isOpen: true,
+        communityResponse: mockCommunityResponse
+      });
+    }
+  };
+
+
   if (status === "loading") {
     return <div>Loading...</div>
   }
@@ -1036,6 +1084,8 @@ export default function ChatBox({
         selectedBookmark={selectedBookmark}
         isFlashcardModalOpen={isFlashcardModalOpen}
         onCreateNewContent={handleCreateNewContent}
+        communityFilters={communityFilters}
+        onImportEntireBookmark={handleImportEntireBookmark}
       />
       
       {/* Community Filter Bar - positioned after menu bar */}
@@ -1450,7 +1500,11 @@ export default function ChatBox({
             </div>
             
             <p className="text-card-foreground">
-              The response has been successfully imported to '{importedBookmarkTitle}'. You can continue browsing the community feed or visit your bookmark to see the imported content.
+              {importedCount !== null ? (
+                `Successfully imported ${importedCount} response${importedCount !== 1 ? 's' : ''} to '${importedBookmarkTitle}'. You can continue browsing the community feed or visit your bookmark to see the imported content.`
+              ) : (
+                `The response has been successfully imported to '${importedBookmarkTitle}'. You can continue browsing the community feed or visit your bookmark to see the imported content.`
+              )}
             </p>
           </div>
         </div>

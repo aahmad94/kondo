@@ -6,6 +6,7 @@ import {
   shareToCommunity,
   importFromCommunity,
   importFromCommunityToBookmark,
+  importEntireCommunityBookmark,
   createAlias,
   updateAlias,
   validateAlias,
@@ -434,6 +435,58 @@ export async function deleteGPTResponseWithCascadeAction(responseId: string, boo
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to delete response'
+    };
+  }
+}
+
+/**
+ * Server action to import an entire community bookmark
+ */
+export async function importEntireCommunityBookmarkAction(
+  communityBookmarkTitle: string, 
+  targetBookmarkId?: string
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return { 
+        success: false, 
+        error: 'Unauthorized: Please sign in to import bookmarks' 
+      };
+    }
+
+    // Get userId from session - check both possible locations
+    const userId = (session as any).userId || (session.user as any).id;
+    if (!userId) {
+      return { 
+        success: false, 
+        error: 'Unable to identify user' 
+      };
+    }
+
+    const result = await importEntireCommunityBookmark(userId, communityBookmarkTitle, targetBookmarkId);
+    
+    if (result.success) {
+      return {
+        success: true,
+        response: result.response,
+        bookmark: result.bookmark,
+        wasBookmarkCreated: result.wasBookmarkCreated,
+        importedCount: result.importedCount,
+        message: `Successfully imported ${result.importedCount} responses from "${communityBookmarkTitle}" bookmark!`
+      };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to import bookmark'
+      };
+    }
+  } catch (error) {
+    console.error('Error in importEntireCommunityBookmarkAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to import entire bookmark'
     };
   }
 }

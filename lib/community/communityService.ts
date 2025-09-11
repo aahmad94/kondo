@@ -705,6 +705,171 @@ export async function deleteCommunityResponse(userId: string, communityResponseI
 }
 
 /**
+ * Imports an entire community bookmark (all responses with the same bookmark title)
+ */
+export async function importEntireCommunityBookmark(
+  userId: string, 
+  communityBookmarkTitle: string, 
+  targetBookmarkId?: string
+): Promise<ImportFromCommunityResponse & { importedCount?: number }> {
+  try {
+    // Get user's language ID to ensure consistency
+    const userLanguageId = await getUserLanguageId(userId);
+
+    // Get all community responses with this bookmark title in user's language
+    const communityResponses = await prisma.communityResponse.findMany({
+      where: {
+        bookmarkTitle: communityBookmarkTitle,
+        languageId: userLanguageId,
+        isActive: true
+      },
+      include: {
+        creator: { select: { alias: true } },
+        language: { select: { id: true, code: true } }
+      }
+    });
+
+    if (communityResponses.length === 0) {
+      return { success: false, error: 'No responses found for this bookmark' };
+    }
+
+    // Check if user already imported any of these responses
+    const responseIds = communityResponses.map(r => r.id);
+    const existingImports = await prisma.communityImport.findMany({
+      where: {
+        userId,
+        communityResponseId: { in: responseIds }
+      }
+    });
+
+    // Filter out already imported responses
+    const responsesToImport = communityResponses.filter(response => 
+      response.creatorUserId !== userId && // Can't import own responses
+      !existingImports.some(imp => imp.communityResponseId === response.id)
+    );
+
+    if (responsesToImport.length === 0) {
+      return { success: false, error: 'All responses from this bookmark have already been imported or are your own' };
+    }
+
+    // Use transaction to ensure atomicity
+    const result = await prisma.$transaction(async (tx) => {
+      let bookmark;
+      let wasBookmarkCreated = false;
+
+      if (targetBookmarkId) {
+        // Use existing bookmark
+        bookmark = await tx.bookmark.findFirst({
+          where: {
+            id: targetBookmarkId,
+            userId
+          }
+        });
+
+        if (!bookmark) {
+          throw new Error('Target bookmark not found or does not belong to you');
+        }
+      } else {
+        // Check if user already has a bookmark with this title
+        const existingBookmark = await tx.bookmark.findFirst({
+          where: {
+            userId,
+            title: communityBookmarkTitle,
+            languageId: userLanguageId
+          }
+        });
+
+        if (existingBookmark) {
+          bookmark = existingBookmark;
+        } else {
+          // Create new bookmark
+          bookmark = await tx.bookmark.create({
+            data: {
+              title: communityBookmarkTitle,
+              userId,
+              languageId: userLanguageId
+            }
+          });
+          wasBookmarkCreated = true;
+        }
+      }
+
+      const importedResponses = [];
+      const communityImports = [];
+
+      // Import all responses
+      for (const communityResponse of responsesToImport) {
+        // Create the imported GPTResponse
+        const importedResponse = await tx.gPTResponse.create({
+          data: {
+            content: communityResponse.content,
+            userId,
+            languageId: userLanguageId,
+            source: 'imported',
+            communityResponseId: communityResponse.id,
+            breakdown: communityResponse.breakdown,
+            mobileBreakdown: communityResponse.mobileBreakdown,
+            furigana: communityResponse.furigana,
+            audio: communityResponse.audio,
+            audioMimeType: communityResponse.audioMimeType,
+            bookmarks: {
+              connect: { id: bookmark.id }
+            }
+          }
+        });
+
+        importedResponses.push(importedResponse);
+
+        // Create import tracking record
+        const communityImport = await tx.communityImport.create({
+          data: {
+            userId,
+            communityResponseId: communityResponse.id,
+            importedResponseId: importedResponse.id,
+            importedBookmarkId: bookmark.id,
+            wasBookmarkCreated: wasBookmarkCreated && importedResponses.length === 1 // Only first one creates bookmark
+          }
+        });
+
+        communityImports.push(communityImport);
+
+        // Increment import count on community response
+        await tx.communityResponse.update({
+          where: { id: communityResponse.id },
+          data: {
+            importCount: {
+              increment: 1
+            }
+          }
+        });
+      }
+
+      return {
+        responses: importedResponses,
+        bookmark,
+        wasBookmarkCreated,
+        communityImports,
+        importedCount: importedResponses.length
+      };
+    });
+
+    return {
+      success: true,
+      response: result.responses[0], // Return first response for compatibility
+      bookmark: result.bookmark,
+      wasBookmarkCreated: result.wasBookmarkCreated,
+      importedCount: result.importedCount
+    };
+  } catch (error) {
+    console.error('Error importing entire community bookmark:', error);
+    return {
+      success: false,
+      error: 'Failed to import bookmark. Please try again.'
+    };
+  }
+}
+
+/**
  * Gets user's sharing statistics
  */
 export async function getUserSharingStats(userId: string): Promise<UserSharingStats> {

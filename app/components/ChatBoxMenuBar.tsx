@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon } from '@heroicons/react/24/solid';
+import { PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
@@ -17,6 +17,8 @@ interface ChatBoxMenuBarProps {
   selectedBookmark: { id: string | null, title: string | null };
   isFlashcardModalOpen?: boolean;
   onCreateNewContent: () => void;
+  communityFilters?: { bookmarkTitle?: string };
+  onImportEntireBookmark?: () => void;
 }
 
 export default function ChatBoxMenuBar({ 
@@ -27,7 +29,9 @@ export default function ChatBoxMenuBar({
   selectedLanguage,
   summaryTimestamp,
   selectedBookmark,
-  isFlashcardModalOpen = false
+  isFlashcardModalOpen = false,
+  communityFilters,
+  onImportEntireBookmark
 }: ChatBoxMenuBarProps) {
   const { isMobile } = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -94,6 +98,9 @@ export default function ChatBoxMenuBar({
   const isRoot = selectedBookmark.id === null && selectedBookmark.title === null;
   const isOtherBookmark = !isRoot && !isDojo && !isCommunity; // Regular bookmarks and other reserved bookmarks
   
+  // Check if we have a specific bookmark selected in community mode
+  const isCommunityWithSelectedBookmark = isCommunity && communityFilters?.bookmarkTitle;
+  
   const showFlashcards = isDojo || isOtherBookmark; // Exclude community from flashcards
   const showDojoTips = isDojo;
   const showCommunityInstructions = isCommunity;
@@ -101,6 +108,7 @@ export default function ChatBoxMenuBar({
   const showEmailSubscription = isDojo; // Only show email button in Dojo
   const showAdditionalCommands = isRoot;
   const showStats = !isCommunity; // Hide stats in community mode
+  const showImportEntireBookmark = isCommunityWithSelectedBookmark && onImportEntireBookmark;
 
   return (
     <>
@@ -189,6 +197,17 @@ export default function ChatBoxMenuBar({
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
                   <span>instructions</span>
+                </button>
+              )}
+
+              {/* Import Entire Bookmark Button - Community with selected bookmark only */}
+              {showImportEntireBookmark && (
+                <button
+                  onClick={onImportEntireBookmark}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>import entire bookmark</span>
                 </button>
               )}
 
