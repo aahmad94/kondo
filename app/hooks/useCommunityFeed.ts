@@ -20,6 +20,7 @@ interface UseCommunityFeedReturn {
   loadMore: () => Promise<void>;
   updateFilters: (newFilters: Partial<CommunityFilters>) => void;
   updateResponse: (responseId: string, updates: Partial<CommunityResponseForFeed>) => void;
+  shuffleResponses: () => void;
   filters: CommunityFilters;
   pagination: CommunityPagination;
 }
@@ -103,6 +104,17 @@ export function useCommunityFeed(
     ));
   }, []);
 
+  const shuffleResponses = useCallback(() => {
+    setResponses(prev => {
+      const shuffled = [...prev];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    });
+  }, []);
+
   return {
     responses,
     loading,
@@ -114,6 +126,7 @@ export function useCommunityFeed(
     loadMore,
     updateFilters,
     updateResponse,
+    shuffleResponses,
     filters,
     pagination
   };

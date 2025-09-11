@@ -134,6 +134,7 @@ export default function ChatBox({
     loadMore: loadMoreCommunity,
     updateFilters: updateCommunityFilters,
     updateResponse: updateCommunityResponse,
+    shuffleResponses: shuffleCommunityResponses,
     filters: communityFilters
   } = useCommunityFeed();
 
@@ -942,6 +943,11 @@ export default function ChatBox({
     updateCommunityFilters(filters);
   };
 
+  const handleCommunityShuffle = () => {
+    // Shuffle the community responses array randomly using the hook's function
+    shuffleCommunityResponses();
+  };
+
   const handleCommunityDelete = async (communityResponseId: string) => {
     try {
       const result = await deleteCommunityResponseAction(communityResponseId);
@@ -1030,6 +1036,7 @@ export default function ChatBox({
       {isCommunityMode && (
         <FilterBar
           onFiltersChange={handleCommunityFiltersChange}
+          onShuffle={handleCommunityShuffle}
           isLoading={communityLoading}
           initialFilters={{}} // Start with empty filters
         />

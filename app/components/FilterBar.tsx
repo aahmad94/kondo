@@ -7,7 +7,8 @@ import {
   XMarkIcon,
   ClockIcon,
   HeartIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  ArrowsRightLeftIcon
 } from '@heroicons/react/24/outline';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { CommunityClientService } from '@/lib/community';
@@ -15,12 +16,14 @@ import type { CommunityFilters } from '@/lib/community';
 
 interface FilterBarProps {
   onFiltersChange: (filters: CommunityFilters) => void;
+  onShuffle?: () => void;
   isLoading?: boolean;
   initialFilters?: CommunityFilters;
 }
 
 export default function FilterBar({ 
   onFiltersChange, 
+  onShuffle,
   isLoading = false, 
   initialFilters = {}
 }: FilterBarProps) {
@@ -31,7 +34,7 @@ export default function FilterBar({
   // Filter states
   const [selectedBookmark, setSelectedBookmark] = useState<string>(''); // Selected bookmark from dropdown
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
-  const [sortBy, setSortBy] = useState<'recent' | 'imports'>(initialFilters.sortBy || 'recent');
+  const [selectedFilter, setSelectedFilter] = useState<'recent' | 'imports' | 'shuffle'>(initialFilters.sortBy || 'recent');
   
   // UI states
   const [searchDebounceTimer, setSearchDebounceTimer] = useState<NodeJS.Timeout | null>(null);
@@ -48,7 +51,7 @@ export default function FilterBar({
     const filters: CommunityFilters = {
       bookmarkTitle: selectedBookmark || undefined,
       creatorAlias: creatorAlias || undefined,
-      sortBy,
+      sortBy: selectedFilter === 'shuffle' ? 'recent' : selectedFilter, // Use recent as base for shuffle
       sortOrder: 'desc', // Always descending (most recent/popular/imported first)
       ...newFilters
     };
@@ -75,7 +78,7 @@ export default function FilterBar({
     // Update URL without navigation
     const newUrl = params.toString() ? `?${params.toString()}` : '/';
     window.history.replaceState({}, '', newUrl);
-  }, [selectedBookmark, creatorAlias, onFiltersChange, searchParams]);
+  }, [selectedBookmark, creatorAlias, selectedFilter, onFiltersChange, searchParams]);
 
   // Bookmark dropdown handlers
   const handleBookmarkSelect = (bookmark: string) => {
@@ -100,15 +103,22 @@ export default function FilterBar({
 
   // Immediate update handlers
   const handleSortChange = (newSortBy: 'recent' | 'imports') => {
-    setSortBy(newSortBy);
+    setSelectedFilter(newSortBy);
     updateFilters({ sortBy: newSortBy, sortOrder: 'desc' });
+  };
+
+  const handleShuffle = () => {
+    setSelectedFilter('shuffle');
+    if (onShuffle) {
+      onShuffle();
+    }
   };
 
   // Clear all filters (reset to recent)
   const clearAllFilters = () => {
     setSelectedBookmark('');
     setCreatorAlias('');
-    setSortBy('recent');
+    setSelectedFilter('recent');
     
     if (creatorInputRef.current) creatorInputRef.current.value = '';
     
@@ -246,7 +256,7 @@ export default function FilterBar({
             <button
               onClick={() => handleSortChange('recent')}
               className={`flex items-center gap-1 px-3 py-1 rounded text-sm transition-colors ${
-                sortBy === 'recent' 
+                selectedFilter === 'recent' 
                   ? 'bg-white dark:bg-background text-foreground shadow-sm border border-border/20' 
                   : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
@@ -258,7 +268,7 @@ export default function FilterBar({
             <button
               onClick={() => handleSortChange('imports')}
               className={`flex items-center gap-1 px-3 py-1 rounded text-sm transition-colors ${
-                sortBy === 'imports' 
+                selectedFilter === 'imports' 
                   ? 'bg-white dark:bg-background text-foreground shadow-sm border border-border/20' 
                   : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
               }`}
@@ -267,6 +277,20 @@ export default function FilterBar({
               <HeartIcon className="h-4 w-4" />
               {!isMobile && 'Imports'}
             </button>
+            {onShuffle && (
+              <button
+                onClick={handleShuffle}
+                className={`flex items-center gap-1 px-3 py-1 rounded text-sm transition-colors ${
+                  selectedFilter === 'shuffle' 
+                    ? 'bg-white dark:bg-background text-foreground shadow-sm border border-border/20' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                }`}
+                disabled={isLoading}
+              >
+                <ArrowsRightLeftIcon className="h-4 w-4" />
+                {!isMobile && 'Shuffle'}
+              </button>
+            )}
           </div>
 
           {/* Clear search filters */}
