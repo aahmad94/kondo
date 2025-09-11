@@ -12,7 +12,7 @@ export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: null });
+  const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: 'community' });
   const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary', 'community', 'dojo', 'search']);
   const [newBookmark, setNewBookmark] = useState<{ id: string, title: string } | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
