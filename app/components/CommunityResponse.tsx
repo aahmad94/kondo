@@ -86,8 +86,8 @@ export default function CommunityResponse(props: ResponseProps) {
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [localFuriganaEnabled, setLocalFuriganaEnabled] = useState(isGPTResponseProps(props) ? props.data.isFuriganaEnabled : false);
-  const [localPhoneticEnabled, setLocalPhoneticEnabled] = useState(isGPTResponseProps(props) ? props.data.isPhoneticEnabled : false);
+  const [localFuriganaEnabled, setLocalFuriganaEnabled] = useState(isGPTResponseProps(props) ? props.data.isFuriganaEnabled : selectedLanguage === 'ja');
+  const [localPhoneticEnabled, setLocalPhoneticEnabled] = useState(isGPTResponseProps(props) ? props.data.isPhoneticEnabled : true);
   const [localKanaEnabled, setLocalKanaEnabled] = useState(isGPTResponseProps(props) ? props.data.isKanaEnabled : false);
   const [showFuriganaDropdown, setShowFuriganaDropdown] = useState(false);
 
@@ -178,13 +178,40 @@ export default function CommunityResponse(props: ResponseProps) {
     setShowEnhancedDeleteModal(false);
   };
 
-  const parsedBlocks = parseResponse(data.content);
+  const cleanResponse = data.content
+    .replace(/^\s*<>\s*/gm, '• ')
+    .replace(/^\s*-\s*/gm, '• ')
+    .replace(/ {2,}$/gm, '');
+
+  const blocks = data.content
+    .split(/\r?\n\s*\r?\n/)
+    .map(block => block.trim())
+    .filter(Boolean);
+
+  const parsedBlocks = blocks.map((block, blockIdx) => {
+    const lines = block.split(/\r?\n/);
+    const numberedLines = lines
+      .map(line => {
+        const match = line.match(/^\s*\d+\/\s*(.*)$/);
+        return match ? line.trim() : null;
+      })
+      .filter((item): item is string => !!item);
+
+    if (numberedLines.length >= 2) {
+      const firstNumberedIndex = lines.findIndex(line => line.match(/^\s*\d+\/\s*(.*)$/));
+      const nonNumberedPrefix = lines.slice(0, firstNumberedIndex).filter(line => line.trim());
+      
+      if (nonNumberedPrefix.length > 0) {
+        return [...nonNumberedPrefix, ...numberedLines];
+      }
+      return numberedLines;
+    }
+    
+    return [block];
+  });
 
   // Standard response detection (shared logic)
-  const isStandardResponse = (items: string[]) => {
-    const numberedItems = items.filter(item => item.match(/^\s*\d+\/\s*/));
-    return numberedItems.length >= 2 && numberedItems.length <= 4 && numberedItems.length === items.length;
-  };
+  const isStandardResponse = (items: string[]) => [2, 3, 4].includes(items.filter(item => item.match(/^\s*\d+\/\s*/)).length);
 
   // Breakdown handling (shared logic)
   const handleBreakdownClick = async () => {
@@ -585,6 +612,9 @@ export default function CommunityResponse(props: ResponseProps) {
   };
 
   // Main render - Match GPTResponse structure exactly
+  const expressions = extractExpressions(data.content);
+  const hasExpression = expressions.length > 0;
+
   return (
     <div className={`px-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
       {/* Header with rank/alias and action buttons - matching GPTResponse layout */}
@@ -628,20 +658,24 @@ export default function CommunityResponse(props: ResponseProps) {
           )}
 
           {/* Breakdown and Speaker on the left (matching GPTResponse) */}
-          <BreakdownButton 
-            onClick={handleBreakdownClick}
-            disabled={isBreakdownLoading}
-            buttonRef={breakdownButtonRef}
-          />
+          {hasExpression && (
+            <>
+              <BreakdownButton 
+                onClick={handleBreakdownClick}
+                disabled={isBreakdownLoading}
+                buttonRef={breakdownButtonRef}
+              />
 
-          <SpeakerButton 
-            responseId={data.id || ''}
-            textToSpeak={prepareTextForSpeech(data.content)}
-            selectedLanguage={selectedLanguage}
-            buttonRef={speakerButtonRef}
-            cachedAudio={data.audio && data.audioMimeType ? { audio: data.audio, mimeType: data.audioMimeType } : null}
-            onLoadingChange={onLoadingChange}
-          />
+              <SpeakerButton 
+                responseId={data.id || ''}
+                textToSpeak={prepareTextForSpeech(data.content)}
+                selectedLanguage={selectedLanguage}
+                buttonRef={speakerButtonRef}
+                cachedAudio={data.audio && data.audioMimeType ? { audio: data.audio, mimeType: data.audioMimeType } : null}
+                onLoadingChange={onLoadingChange}
+              />
+            </>
+          )}
         </div>
 
         {/* Right side - Action buttons */}
@@ -684,66 +718,68 @@ export default function CommunityResponse(props: ResponseProps) {
       </div>
 
       {/* Content */}
-      <div className={`whitespace-pre-wrap overflow-x-auto ${selectedBookmarkTitle === 'flashcard' ? 'w-full flex justify-center items-center' : 'w-[90%]'}`}>
-        {parsedBlocks.some(items => items && items.length > 0) ? (
-          parsedBlocks.map((items, blockIdx) =>
-            items && items.length > 0 ? (
-              <React.Fragment key={blockIdx}>
-                {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
-                  isStandardResponse(items) ? (
-                    <StandardResponse 
-                      items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
-                      selectedLanguage={selectedLanguage}
-                      responseId={data.id || null}
-                      cachedFurigana={currentFurigana}
-                      onFuriganaGenerated={(furigana) => setCurrentFurigana(furigana)}
-                      isFuriganaEnabled={localFuriganaEnabled}
-                      isPhoneticEnabled={localPhoneticEnabled}
-                      isKanaEnabled={localKanaEnabled}
-                      hideContent={hideContent}
-                      containerWidth={containerWidth}
-                      isFlashcard={selectedBookmarkTitle === 'flashcard'}
-                    />
-                  ) : (
-                    <div className="pr-3 text-primary">
-                      {items.map((item, idx) => {
-                        const numberMatch = item.match(/^\s*(\d+)\/\s*/);
-                        if (numberMatch) {
-                          const originalNumber = numberMatch[1];
-                          const cleanedItem = item.replace(/^\s*\d+\/\s*/, '').trim();
-                          return (
-                            <div key={idx} className="mb-2">
-                              <span className="font-semibold text-accent-foreground">{originalNumber}. </span>
-                              <span>{cleanedItem}</span>
-                            </div>
-                          );
-                        }
-                        return <div key={idx} className="mb-2">{item}</div>;
-                      })}
-                    </div>
-                  )
+      {parsedBlocks.some(items => items && items.length > 0) ? (
+        parsedBlocks.map((items, blockIdx) =>
+          items && items.length > 0 ? (
+            <React.Fragment key={blockIdx}>
+              {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
+                isStandardResponse(items) ? (
+                  <StandardResponse 
+                    items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
+                    selectedLanguage={selectedLanguage}
+                    responseId={data.id ?? null}
+                    cachedFurigana={currentFurigana}
+                    onFuriganaGenerated={setCurrentFurigana}
+                    isFuriganaEnabled={localFuriganaEnabled}
+                    isPhoneticEnabled={localPhoneticEnabled}
+                    isKanaEnabled={localKanaEnabled}
+                    hideContent={hideContent}
+                    containerWidth={containerWidth}
+                    isFlashcard={selectedBookmarkTitle === 'flashcard'}
+                  />
                 ) : (
                   <div className="pr-3 text-primary">
-                    <div className="overflow-x-auto w-full">
-                      <StyledMarkdown>
-                        {items.join('\n')}
-                      </StyledMarkdown>
-                    </div>
+                    {items.map((item, idx) => {
+                      const numberMatch = item.match(/^\s*(\d+)\/\s*(.*)$/);
+                      if (numberMatch) {
+                        return (
+                          <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
+                            <span className="text-muted-foreground">{`${numberMatch[1]}.`}</span>{' '}
+                            {numberMatch[2]}
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div key={idx} style={{ marginBottom: '0.5em' }}>
+                            {item}
+                          </div>
+                        );
+                      }
+                    })}
                   </div>
-                )}
-              </React.Fragment>
-            ) : null
-          )
-        ) : (
-          <div className="pr-3 text-primary">
-            <div className="overflow-x-auto w-full">
-              <StyledMarkdown>
-                {data.content}
-              </StyledMarkdown>
-            </div>
+                )
+              ) : (
+                <div className="pr-3 text-primary">
+                  <div className="overflow-x-auto w-full">
+                    <StyledMarkdown>
+                      {items.join('\n')}
+                    </StyledMarkdown>
+                  </div>
+                </div>
+              )}
+              {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
+            </React.Fragment>
+          ) : null
+        )
+      ) : (
+        <div className="pr-3 text-primary">
+          <div className="overflow-x-auto w-full">
+            <StyledMarkdown>
+              {cleanResponse}
+            </StyledMarkdown>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Metadata badges */}
       {renderMetadata()}
