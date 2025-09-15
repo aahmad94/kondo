@@ -128,7 +128,18 @@ export default function ChatBoxMenuBar({
             }}
           >
             <div className="flex items-center px-4 mx-4 gap-2 sm:gap-3 flex-shrink-0">
-              {/* Create New Content Button - First */}
+              {/* Import Entire Bookmark Button - 1st (Community with selected bookmark only) */}
+              {showImportEntireBookmark && (
+                <button
+                  onClick={onImportEntireBookmark}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>import entire bookmark</span>
+                </button>
+              )}
+
+              {/* Create New Content Button - 2nd */}
               {isCommunity && (
                 <button
                   onClick={onCreateNewContent}
@@ -139,7 +150,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Flashcard Mode Button - Second */}
+              {/* Flashcard Mode Button - Third */}
               {showFlashcards && (
                 <button
                   onClick={handleFlashcardClick}
@@ -156,7 +167,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Email Subscription Button - Third (dojo only) */}
+              {/* Email Subscription Button - Fourth (dojo only) */}
               {showEmailSubscription && (
                 <button
                   onClick={handleEmailModalOpen}
@@ -167,7 +178,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Additional Commands Button - Fourth (root only) */}
+              {/* Additional Commands Button - Fifth (root only) */}
               {showAdditionalCommands && (
                 <button
                   onClick={(e) => handleContentModal('commands', e)}
@@ -178,7 +189,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Dojo Tips Button - Second to Last */}
+              {/* Dojo Tips Button - Sixth */}
               {showDojoTips && (
                 <button
                   onClick={() => handleContentModal('tips')}
@@ -189,7 +200,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Community Instructions Button */}
+              {/* Community Instructions Button - Seventh */}
               {showCommunityInstructions && (
                 <button
                   onClick={() => handleContentModal('community')}
@@ -197,17 +208,6 @@ export default function ChatBoxMenuBar({
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
                   <span>instructions</span>
-                </button>
-              )}
-
-              {/* Import Entire Bookmark Button - Community with selected bookmark only */}
-              {showImportEntireBookmark && (
-                <button
-                  onClick={onImportEntireBookmark}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>import entire bookmark</span>
                 </button>
               )}
 
