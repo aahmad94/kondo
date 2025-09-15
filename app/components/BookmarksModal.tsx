@@ -214,7 +214,7 @@ export default function BookmarksModal({
                 className={`cursor-pointer text-primary hover:bg-accent p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={() => !isAddingToBookmark && handleCommunityImport(existingCommunityBookmark?.id, !existingCommunityBookmark)}
               >
-                <PlusCircleIcon className="h-4 w-4 mr-2" />
+                <PlusCircleIcon className="h-4 w-4 mr-2 flex-shrink-0" />
                 <span>
                   {existingCommunityBookmark ? '' : 'create and '}
                   add to "{communityResponse.bookmarkTitle}"
@@ -227,7 +227,7 @@ export default function BookmarksModal({
               className={`cursor-pointer text-primary hover:bg-accent p-2 rounded-sm flex items-center ${isAddingToBookmark ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => !isAddingToBookmark && setIsCreateModalOpen(true)}
             >
-              <PlusCircleIcon className="h-4 w-4 mr-2" />
+              <PlusCircleIcon className="h-4 w-4 mr-2 flex-shrink-0" />
               <span>create new bookmark</span>
             </div>
             
