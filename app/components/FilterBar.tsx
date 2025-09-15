@@ -35,6 +35,18 @@ export default function FilterBar({
   const [selectedBookmark, setSelectedBookmark] = useState<string>(''); // Selected bookmark from dropdown
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
   const [selectedFilter, setSelectedFilter] = useState<'recent' | 'imports' | 'shuffle'>(initialFilters.sortBy || 'recent');
+
+  // Sync internal state with external filter changes
+  useEffect(() => {
+    setCreatorAlias(initialFilters.creatorAlias || '');
+    setSelectedBookmark(initialFilters.bookmarkTitle || '');
+    setSelectedFilter(initialFilters.sortBy || 'recent');
+    
+    // Update the input field value if it exists
+    if (creatorInputRef.current) {
+      creatorInputRef.current.value = initialFilters.creatorAlias || '';
+    }
+  }, [initialFilters]);
   
   // UI states
   const [searchDebounceTimer, setSearchDebounceTimer] = useState<NodeJS.Timeout | null>(null);
@@ -294,7 +306,7 @@ export default function FilterBar({
           </div>
 
           {/* Clear search filters */}
-          {/* {hasActiveFilters && (
+          {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
               className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -303,7 +315,7 @@ export default function FilterBar({
               <XMarkIcon className="h-4 w-4" />
               Clear
             </button>
-          )} */}
+          )}
         </div>
       </div>
     </div>

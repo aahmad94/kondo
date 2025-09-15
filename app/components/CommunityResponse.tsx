@@ -637,7 +637,7 @@ export default function CommunityResponse(props: ResponseProps) {
           ) : (
             // User alias badge with custom color
             <span 
-              onClick={isCommunityResponseProps(props) ? () => props.onViewProfile?.(props.data.creatorUserId) : undefined}
+              onClick={isCommunityResponseProps(props) ? () => props.onAliasClick?.(props.data.creatorAlias) : undefined}
               className="text-xs px-2 py-1 rounded-sm cursor-pointer hover:opacity-80 transition-all duration-200"
               style={
                 isCommunityResponseProps(props) && props.aliasColor

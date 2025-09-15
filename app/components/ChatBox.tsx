@@ -1001,6 +1001,11 @@ export default function ChatBox({
     }
   };
 
+  const handleAliasClick = (alias: string) => {
+    // Filter the community feed by the clicked alias
+    updateCommunityFilters({ creatorAlias: alias });
+  };
+
 
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
@@ -1094,7 +1099,7 @@ export default function ChatBox({
           onFiltersChange={handleCommunityFiltersChange}
           onShuffle={handleCommunityShuffle}
           isLoading={communityLoading}
-          initialFilters={{}} // Start with empty filters
+          initialFilters={communityFilters} // Pass current filters to sync state
         />
       )}
       
@@ -1261,6 +1266,7 @@ export default function ChatBox({
                       onImportWithModal={handleCommunityImportWithModal}
                       onDelete={handleCommunityDelete}
                       onViewProfile={handleViewProfile}
+                      onAliasClick={handleAliasClick}
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
                       aliasColor={aliasColorMap.get(communityResponse.creatorAlias)}

@@ -77,6 +77,7 @@ export interface CommunityResponseProps extends BaseResponseProps {
   onImportWithModal?: (communityResponse: CommunityResponseData) => void;
   onDelete?: (communityResponseId: string) => Promise<void>;
   onViewProfile?: (userId: string) => void;
+  onAliasClick?: (alias: string) => void;
   currentUserId?: string;
   currentUserHasAlias?: boolean;
   isImporting?: boolean;
