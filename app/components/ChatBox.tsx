@@ -1006,6 +1006,11 @@ export default function ChatBox({
     updateCommunityFilters({ creatorAlias: alias });
   };
 
+  const handleBookmarkClick = (bookmarkTitle: string) => {
+    // Filter the community feed by the clicked bookmark title
+    updateCommunityFilters({ bookmarkTitle: bookmarkTitle });
+  };
+
 
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
@@ -1267,6 +1272,7 @@ export default function ChatBox({
                       onDelete={handleCommunityDelete}
                       onViewProfile={handleViewProfile}
                       onAliasClick={handleAliasClick}
+                      onBookmarkClick={handleBookmarkClick}
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
                       aliasColor={aliasColorMap.get(communityResponse.creatorAlias)}

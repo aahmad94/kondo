@@ -78,6 +78,7 @@ export interface CommunityResponseProps extends BaseResponseProps {
   onDelete?: (communityResponseId: string) => Promise<void>;
   onViewProfile?: (userId: string) => void;
   onAliasClick?: (alias: string) => void;
+  onBookmarkClick?: (bookmarkTitle: string) => void;
   currentUserId?: string;
   currentUserHasAlias?: boolean;
   isImporting?: boolean;
