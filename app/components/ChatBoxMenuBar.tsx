@@ -83,14 +83,6 @@ export default function ChatBoxMenuBar({
     setShowEmailModal(false);
   };
 
-  // Handle flashcard mode with click tracking
-  const handleFlashcardClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    // Remove glow effect after first click
-    const button = event.currentTarget;
-    button.classList.remove('button-glow');
-    button.classList.add('bg-card');
-    onFlashcardMode();
-  };
 
   // Determine which buttons to show based on selected bookmark
   const isDojo = selectedBookmark.title === 'daily summary';
@@ -132,9 +124,9 @@ export default function ChatBoxMenuBar({
               {showImportEntireBookmark && (
                 <button
                   onClick={onImportEntireBookmark}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
-                  <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0" />
+                  <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0 text-purple-400" />
                   <span>import entire bookmark</span>
                 </button>
               )}
@@ -153,11 +145,11 @@ export default function ChatBoxMenuBar({
               {/* Flashcard Mode Button - Third */}
               {showFlashcards && (
                 <button
-                  onClick={handleFlashcardClick}
+                  onClick={onFlashcardMode}
                   disabled={flashcardCount === 0}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm button-glow hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-phrase-text hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
                 >
-                  <RectangleStackIcon className="h-4 w-4 flex-shrink-0" />
+                  <RectangleStackIcon className="h-4 w-4 flex-shrink-0 text-phrase-text" />
                   <span>
                     flashcard mode
                     {flashcardCount > 0 && (
