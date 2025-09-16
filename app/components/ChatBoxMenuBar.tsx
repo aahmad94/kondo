@@ -167,7 +167,18 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Email Subscription Button - Fourth (dojo only) */}
+              {/* Generate New Report Button - Fourth (dojo only) */}
+                            {showNewReport && (
+                <button
+                  onClick={handleNewReportClick}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <PlusIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>generate new report</span>
+                </button>
+              )}
+
+              {/* Email Subscription Button - Fifth (dojo only) */}
               {showEmailSubscription && (
                 <button
                   onClick={handleEmailModalOpen}
@@ -178,7 +189,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Additional Commands Button - Fifth (root only) */}
+              {/* Additional Commands Button - Sixth (root only) */}
               {showAdditionalCommands && (
                 <button
                   onClick={(e) => handleContentModal('commands', e)}
@@ -189,7 +200,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Dojo Tips Button - Sixth */}
+              {/* Dojo Tips Button - Seventh */}
               {showDojoTips && (
                 <button
                   onClick={() => handleContentModal('tips')}
@@ -200,7 +211,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Community Instructions Button - Seventh */}
+              {/* Community Instructions Button - Eighth */}
               {showCommunityInstructions && (
                 <button
                   onClick={() => handleContentModal('community')}
