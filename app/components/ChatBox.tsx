@@ -63,6 +63,11 @@ interface Response {
   mobileBreakdown?: string | null;
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
+  communityResponse?: {
+    id: string;
+    isActive: boolean;
+    creatorAlias: string;
+  } | null;
   isSharedToCommunity?: boolean;
   onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
 }
@@ -83,6 +88,11 @@ interface BookmarkResponse {
   mobileBreakdown?: string | null;
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
+  communityResponse?: {
+    id: string;
+    isActive: boolean;
+    creatorAlias: string;
+  } | null;
   isSharedToCommunity?: boolean;
 }
 
@@ -328,6 +338,7 @@ export default function ChatBox({
         mobileBreakdown: response.mobileBreakdown,
         source: response.source,
         communityResponseId: response.communityResponseId,
+        communityResponse: response.communityResponse,
         isSharedToCommunity: response.isSharedToCommunity,
       }));
 
@@ -336,6 +347,8 @@ export default function ChatBox({
 
       // Convert to dictionary
       const dict = Object.fromEntries((sortedResponses as Response[]).map((r: Response) => [r.id, r]));
+      
+      
       setBookmarkResponses(dict);
       setIsLoading(false);
     } catch (error) {
@@ -370,8 +383,11 @@ export default function ChatBox({
         mobileBreakdown: response.mobileBreakdown,
         source: response.source,
         communityResponseId: response.communityResponseId,
+        communityResponse: response.communityResponse,
         isSharedToCommunity: response.isSharedToCommunity,
       }]));
+      
+      
       setBookmarkResponses(dict);
       setIsLoading(false);
     } catch (error) {
@@ -401,7 +417,7 @@ export default function ChatBox({
           prompt: processedPrompt,
           languageCode: selectedLanguage || 'ja',
           model: model || 'gpt-4o' // Default to gpt-4o if no model is specified
-        }),
+      }),
       });
 
       if (!res.ok) {
@@ -1138,41 +1154,50 @@ export default function ChatBox({
             ) : Object.values(bookmarkResponses).length > 0 ? (
               <div className="w-full md:flex md:justify-center">
                 <div className="w-full md:max-w-2xl">
-                  {Object.values(bookmarkResponses).map((response: Response, index: number) => (
-                    <GPTResponse
-                      key={index}
-                      response={response.content}
-                      selectedBookmarkId={response.id}
-                      selectedBookmarkTitle={selectedBookmark.title}
-                      reservedBookmarkTitles={reservedBookmarkTitles}
-                      responseId={response.id}
-                      rank={response.rank}
-                      createdAt={response.createdAt}
-                      isPaused={response.isPaused}
-                      bookmarks={response.bookmarks}
-                      furigana={response.furigana}
-                      isFuriganaEnabled={response.isFuriganaEnabled}
-                      isPhoneticEnabled={response.isPhoneticEnabled}
-                      isKanaEnabled={response.isKanaEnabled}
-                      breakdown={response.breakdown}
-                      mobileBreakdown={response.mobileBreakdown}
-                      onQuote={handleResponseQuote}
-                      onRankUpdate={handleRankUpdate}
-                      onDelete={handleResponseDelete}
-                      onPauseToggle={handlePauseToggle}
-                      onFuriganaToggle={handleFuriganaToggle}
-                      onPhoneticToggle={handlePhoneticToggle}
-                      onKanaToggle={handleKanaToggle}
-                      onBookmarkSelect={onBookmarkSelect}
-                      onShare={handleShareToCommunity}
-                      source={response.source}
-                      communityResponseId={response.communityResponseId}
-                      isSharedToCommunity={response.isSharedToCommunity}
-                      selectedLanguage={selectedLanguage}
-                      onLoadingChange={setIsLoading}
-                      onBreakdownClick={() => trackBreakdownClick(response.id!)}
-                    />
-                  ))}
+                  {/* Generate alias color mapping for imported responses */}
+                  {(() => {
+                    const importedResponses = Object.values(bookmarkResponses).filter(r => r.source === 'imported' && r.communityResponse?.creatorAlias);
+                    const uniqueAliases = [...new Set(importedResponses.map(r => r.communityResponse!.creatorAlias).filter(Boolean))];
+                    const aliasColorMap = createAliasColorMap(uniqueAliases);
+                    
+                    return Object.values(bookmarkResponses).map((response: Response, index: number) => (
+                      <GPTResponse
+                        key={index}
+                        response={response.content}
+                        selectedBookmarkId={response.id}
+                        selectedBookmarkTitle={selectedBookmark.title}
+                        reservedBookmarkTitles={reservedBookmarkTitles}
+                        responseId={response.id}
+                        rank={response.rank}
+                        createdAt={response.createdAt}
+                        isPaused={response.isPaused}
+                        bookmarks={response.bookmarks}
+                        furigana={response.furigana}
+                        isFuriganaEnabled={response.isFuriganaEnabled}
+                        isPhoneticEnabled={response.isPhoneticEnabled}
+                        isKanaEnabled={response.isKanaEnabled}
+                        breakdown={response.breakdown}
+                        mobileBreakdown={response.mobileBreakdown}
+                        onQuote={handleResponseQuote}
+                        onRankUpdate={handleRankUpdate}
+                        onDelete={handleResponseDelete}
+                        onPauseToggle={handlePauseToggle}
+                        onFuriganaToggle={handleFuriganaToggle}
+                        onPhoneticToggle={handlePhoneticToggle}
+                        onKanaToggle={handleKanaToggle}
+                        onBookmarkSelect={onBookmarkSelect}
+                        onShare={handleShareToCommunity}
+                        source={response.source}
+                        communityResponseId={response.communityResponseId}
+                        communityResponse={response.communityResponse}
+                        aliasColor={response.communityResponse?.creatorAlias ? aliasColorMap.get(response.communityResponse.creatorAlias) : undefined}
+                        isSharedToCommunity={response.isSharedToCommunity}
+                        selectedLanguage={selectedLanguage}
+                        onLoadingChange={setIsLoading}
+                        onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                      />
+                    ));
+                  })()}
                 </div>
               </div>
             ) : null}
@@ -1306,74 +1331,92 @@ export default function ChatBox({
         {selectedBookmark.id && selectedBookmark.id !== 'search' && !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
-              {Object.values(bookmarkResponses).map((response: Response, index: number) => (
-                <GPTResponse
-                  key={response.id || index}
-                  response={response.content}
-                  selectedBookmarkId={selectedBookmark.id}
-                  selectedBookmarkTitle={selectedBookmark.title ?? ''}
-                  reservedBookmarkTitles={reservedBookmarkTitles}
-                  responseId={response.id}
-                  rank={response.rank}
-                  createdAt={response.createdAt}
-                  isPaused={response.isPaused}
-                  bookmarks={response.bookmarks}
-                  furigana={response.furigana}
-                  isFuriganaEnabled={response.isFuriganaEnabled}
-                  isPhoneticEnabled={response.isPhoneticEnabled}
-                  isKanaEnabled={response.isKanaEnabled}
-                  breakdown={response.breakdown}
-                  mobileBreakdown={response.mobileBreakdown}
-                  onQuote={handleResponseQuote}
-                  onRankUpdate={handleRankUpdate}
-                  onDelete={handleResponseDelete}
-                  onPauseToggle={handlePauseToggle}
-                  onFuriganaToggle={handleFuriganaToggle}
-                  onPhoneticToggle={handlePhoneticToggle}
-                  onKanaToggle={handleKanaToggle}
-                  onBookmarkSelect={onBookmarkSelect}
-                  onShare={handleShareToCommunity}
-                  source={response.source}
-                  communityResponseId={response.communityResponseId}
-                  isSharedToCommunity={response.isSharedToCommunity}
-                  selectedLanguage={selectedLanguage}
-                  onLoadingChange={setIsLoading}
-                  onBreakdownClick={() => trackBreakdownClick(response.id!)}
-                />
-              ))}
+              {/* Generate alias color mapping for imported responses */}
+              {(() => {
+                const importedResponses = Object.values(bookmarkResponses).filter(r => r.source === 'imported' && r.communityResponse?.creatorAlias);
+                const uniqueAliases = [...new Set(importedResponses.map(r => r.communityResponse!.creatorAlias).filter(Boolean))];
+                const aliasColorMap = createAliasColorMap(uniqueAliases);
+                
+                return Object.values(bookmarkResponses).map((response: Response, index: number) => (
+                  <GPTResponse
+                    key={response.id || index}
+                    response={response.content}
+                    selectedBookmarkId={selectedBookmark.id}
+                    selectedBookmarkTitle={selectedBookmark.title ?? ''}
+                    reservedBookmarkTitles={reservedBookmarkTitles}
+                    responseId={response.id}
+                    rank={response.rank}
+                    createdAt={response.createdAt}
+                    isPaused={response.isPaused}
+                    bookmarks={response.bookmarks}
+                    furigana={response.furigana}
+                    isFuriganaEnabled={response.isFuriganaEnabled}
+                    isPhoneticEnabled={response.isPhoneticEnabled}
+                    isKanaEnabled={response.isKanaEnabled}
+                    breakdown={response.breakdown}
+                    mobileBreakdown={response.mobileBreakdown}
+                    onQuote={handleResponseQuote}
+                    onRankUpdate={handleRankUpdate}
+                    onDelete={handleResponseDelete}
+                    onPauseToggle={handlePauseToggle}
+                    onFuriganaToggle={handleFuriganaToggle}
+                    onPhoneticToggle={handlePhoneticToggle}
+                    onKanaToggle={handleKanaToggle}
+                    onBookmarkSelect={onBookmarkSelect}
+                    onShare={handleShareToCommunity}
+                    source={response.source}
+                    communityResponseId={response.communityResponseId}
+                    communityResponse={response.communityResponse}
+                    aliasColor={response.communityResponse?.creatorAlias ? aliasColorMap.get(response.communityResponse.creatorAlias) : undefined}
+                    isSharedToCommunity={response.isSharedToCommunity}
+                    selectedLanguage={selectedLanguage}
+                    onLoadingChange={setIsLoading}
+                    onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                  />
+                ));
+              })()}
             </div>
           </div>
         ) :
         selectedBookmark.id !== 'search' && !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
-              {Object.values(responses).map((response, index) => (
-                <GPTResponse
-                  key={response.id || index}
-                  response={response.content}
-                  selectedBookmarkId={selectedBookmark.id}
-                  selectedBookmarkTitle={selectedBookmark.title ?? ''}
-                  reservedBookmarkTitles={reservedBookmarkTitles}
-                  responseId={response.id}
-                  isPaused={response.isPaused}
-                  isFuriganaEnabled={response.isFuriganaEnabled}
-                  isPhoneticEnabled={response.isPhoneticEnabled}
-                  isKanaEnabled={response.isKanaEnabled}
-                  onDelete={handleResponseDelete}
-                  onQuote={handleResponseQuote}
-                  onRankUpdate={handleRankUpdate}
-                  onFuriganaToggle={handleFuriganaToggle}
-                  onPhoneticToggle={handlePhoneticToggle}
-                  onKanaToggle={handleKanaToggle}
-                  onBookmarkSelect={onBookmarkSelect}
-                  source={response.source}
-                  communityResponseId={response.communityResponseId}
-                  isSharedToCommunity={response.isSharedToCommunity}
-                  selectedLanguage={selectedLanguage}
-                  onLoadingChange={setIsLoading}
-                  onBookmarkCreated={onBookmarkCreated}
-                />
-              ))}
+              {/* Generate alias color mapping for imported responses */}
+              {(() => {
+                const importedResponses = Object.values(responses).filter(r => r.source === 'imported' && r.communityResponse?.creatorAlias);
+                const uniqueAliases = [...new Set(importedResponses.map(r => r.communityResponse!.creatorAlias).filter(Boolean))];
+                const aliasColorMap = createAliasColorMap(uniqueAliases);
+                
+                return Object.values(responses).map((response, index) => (
+                  <GPTResponse
+                    key={response.id || index}
+                    response={response.content}
+                    selectedBookmarkId={selectedBookmark.id}
+                    selectedBookmarkTitle={selectedBookmark.title ?? ''}
+                    reservedBookmarkTitles={reservedBookmarkTitles}
+                    responseId={response.id}
+                    isPaused={response.isPaused}
+                    isFuriganaEnabled={response.isFuriganaEnabled}
+                    isPhoneticEnabled={response.isPhoneticEnabled}
+                    isKanaEnabled={response.isKanaEnabled}
+                    onDelete={handleResponseDelete}
+                    onQuote={handleResponseQuote}
+                    onRankUpdate={handleRankUpdate}
+                    onFuriganaToggle={handleFuriganaToggle}
+                    onPhoneticToggle={handlePhoneticToggle}
+                    onKanaToggle={handleKanaToggle}
+                    onBookmarkSelect={onBookmarkSelect}
+                    source={response.source}
+                    communityResponseId={response.communityResponseId}
+                    communityResponse={response.communityResponse}
+                    aliasColor={response.communityResponse?.creatorAlias ? aliasColorMap.get(response.communityResponse.creatorAlias) : undefined}
+                    isSharedToCommunity={response.isSharedToCommunity}
+                    selectedLanguage={selectedLanguage}
+                    onLoadingChange={setIsLoading}
+                    onBookmarkCreated={onBookmarkCreated}
+                  />
+                ));
+              })()}
             </div>
           </div>
         ) : null}

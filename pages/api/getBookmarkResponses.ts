@@ -57,7 +57,8 @@ export default async function handler(
         communityResponse: {
           select: {
             id: true,
-            isActive: true
+            isActive: true,
+            creatorAlias: true
           }
         },
         originalCommunityPost: {

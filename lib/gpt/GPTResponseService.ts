@@ -76,7 +76,8 @@ export async function getAllUserResponsesByLanguage(userId: string) {
         communityResponse: {
           select: {
             id: true,
-            isActive: true
+            isActive: true,
+            creatorAlias: true
           }
         },
         originalCommunityPost: {

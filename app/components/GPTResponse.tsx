@@ -25,7 +25,7 @@ import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import { StyledMarkdown, DeleteIcon } from './ui';
+import { StyledMarkdown, DeleteIcon, AliasBadge } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
@@ -67,6 +67,12 @@ interface GPTResponseProps {
   onShare?: (responseId: string) => Promise<void>;
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
+  communityResponse?: {
+    id: string;
+    isActive: boolean;
+    creatorAlias: string;
+  } | null;
+  aliasColor?: string;
   isSharedToCommunity?: boolean;
   bookmarks?: Record<string, string>;
   selectedLanguage?: string;
@@ -107,6 +113,8 @@ export default function GPTResponse({
   onShare,
   source,
   communityResponseId,
+  communityResponse,
+  aliasColor,
   isSharedToCommunity,
   bookmarks,
   selectedLanguage = 'ja',
@@ -970,6 +978,14 @@ export default function GPTResponse({
               </span>
             );
           })()}
+
+          {/* Owner alias badge - show for imported responses */}
+          {source === 'imported' && communityResponse?.creatorAlias && (
+            <AliasBadge 
+              alias={communityResponse.creatorAlias} 
+              customColor={aliasColor}
+            />
+          )}
           
           {/* Pause button - show for all bookmarks */}
           {selectedBookmarkId && responseId && onPauseToggle && (

@@ -38,7 +38,8 @@ import {
   QuoteButton,
   ImportButton,
   ImportBadgeButton,
-  ConfirmationModal
+  ConfirmationModal,
+  AliasBadge
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
@@ -639,25 +640,11 @@ export default function CommunityResponse(props: ResponseProps) {
             />
           ) : (
             // User alias badge with custom color
-            <span 
+            <AliasBadge 
+              alias={isCommunityResponseProps(props) ? props.data.creatorAlias : ''}
               onClick={isCommunityResponseProps(props) ? () => props.onAliasClick?.(props.data.creatorAlias) : undefined}
-              className="text-xs px-2 py-1 rounded-sm cursor-pointer hover:opacity-80 transition-all duration-200"
-              style={
-                isCommunityResponseProps(props) && props.aliasColor
-                  ? {
-                      backgroundColor: props.aliasColor,
-                      borderColor: props.aliasColor,
-                      color: '#333333',
-                      border: '1px solid',
-                      opacity: 0.9
-                    }
-                  : isCommunityResponseProps(props) 
-                    ? getAliasCSSVars(props.data.creatorAlias)
-                    : undefined
-              }
-            >
-              @{isCommunityResponseProps(props) ? props.data.creatorAlias : ''}
-            </span>
+              customColor={isCommunityResponseProps(props) ? props.aliasColor : undefined}
+            />
           )}
 
           {/* Breakdown and Speaker on the left (matching GPTResponse) */}

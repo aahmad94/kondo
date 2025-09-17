@@ -3,6 +3,7 @@ export { default as IconButton } from './IconButton';
 export { default as SpeakerButton } from './SpeakerButton';
 export { default as RankContainer } from './RankContainer';
 export { default as UserAliasContainer } from './UserAliasContainer';
+export { default as AliasBadge } from './AliasBadge';
 export { default as ConfirmationModal } from './ConfirmationModal';
 export { default as FormModal } from './FormModal';
 export { default as ContentModal } from './ContentModal';
