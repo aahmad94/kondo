@@ -361,7 +361,7 @@ export default function Bookmarks({
                     onClick={handleChatClick}
                   >
                     <ChatBubbleLeftIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                    <span className="text-blue-400">chat</span>
+                    <span className="text-blue-400">create</span>
                   </div>
 
                   <div 
