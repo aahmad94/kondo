@@ -36,7 +36,6 @@ import {
   SpeakerButton,
   BreakdownButton,
   QuoteButton,
-  ImportButton,
   ImportBadgeButton,
   ConfirmationModal,
   AliasBadge
