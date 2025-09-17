@@ -132,7 +132,7 @@ export default function ChatBoxMenuBar({
               )}
 
               {/* Create New Content Button - 2nd */}
-              {isCommunity && (
+              {isCommunity && isMobile && (
                 <button
                   onClick={onCreateNewContent}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
