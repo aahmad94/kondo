@@ -568,7 +568,7 @@ export default function CommunityResponse(props: ResponseProps) {
         {/* Bookmark title badge - muted theme colors */}
         <span 
           onClick={isCommunityResponseProps(props) ? () => props.onBookmarkClick?.(communityData.bookmarkTitle) : undefined}
-          className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground cursor-pointer hover:opacity-80 transition-all duration-200"
+          className="text-xs px-2 py-1 rounded-sm bg-muted text-black dark:text-white cursor-pointer hover:opacity-80 transition-all duration-200"
         >
           {communityData.bookmarkTitle}
         </span>
