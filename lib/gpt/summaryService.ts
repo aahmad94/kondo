@@ -6,7 +6,7 @@ interface Response {
   content: string;
   createdAt: Date;
   rank: number | null;
-  bookmarks: Record<string, string>;
+  decks: Record<string, string>;
 }
 
 /**
@@ -98,13 +98,16 @@ export async function getUserSummary(userId: string, languageCode?: string) {
       
       if (latestSummary && latestSummary.responses.length > 0) {
         // Transform responses to match expected format
-        const transformedResponses = latestSummary.responses.map(response => ({
-          ...response,
-          bookmarks: response.bookmarks.reduce((acc, bookmark) => {
-            acc[bookmark.id] = bookmark.title;
-            return acc;
-          }, {} as Record<string, string>)
-        }));
+        const transformedResponses = latestSummary.responses.map(response => {
+          const { bookmarks, ...rest } = response;
+          return {
+            ...rest,
+            decks: bookmarks.reduce((acc, bookmark) => {
+              acc[bookmark.id] = bookmark.title;
+              return acc;
+            }, {} as Record<string, string>)
+          };
+        });
         
         allResponses.push(...transformedResponses);
         
@@ -227,13 +230,16 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           createdAt = latestSummary?.createdAt || null;
           if (latestSummary && latestSummary.responses.length > 0) {
             // console.log(`[generateUserSummary] Found existing summary for user ${userId}, language ${languageId}`);
-            const transformedResponses = latestSummary.responses.map(response => ({
-              ...response,
-              bookmarks: response.bookmarks.reduce((acc, bookmark) => {
-                acc[bookmark.id] = bookmark.title;
-                return acc;
-              }, {} as Record<string, string>)
-            }));
+            const transformedResponses = latestSummary.responses.map(response => {
+              const { bookmarks, ...rest } = response;
+              return {
+                ...rest,
+                decks: bookmarks.reduce((acc, bookmark) => {
+                  acc[bookmark.id] = bookmark.title;
+                  return acc;
+                }, {} as Record<string, string>)
+              };
+            });
             allResponses.push(...transformedResponses);
             continue;
           }
@@ -267,13 +273,16 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           };
           const responses = await prisma.gPTResponse.findMany(query);
           // console.log(`[generateUserSummary] Found ${responses.length} responses for user ${userId}, language ${languageId}, rank ${rank}`);
-          const transformedResponses = responses.map(response => ({
-            ...response,
-            bookmarks: response.bookmarks.reduce((acc, bookmark) => {
-              acc[bookmark.id] = bookmark.title;
-              return acc;
-            }, {} as Record<string, string>)
-          }));
+          const transformedResponses = responses.map(response => {
+            const { bookmarks, ...rest } = response;
+            return {
+              ...rest,
+              decks: bookmarks.reduce((acc, bookmark) => {
+                acc[bookmark.id] = bookmark.title;
+                return acc;
+              }, {} as Record<string, string>)
+            };
+          });
           for (let i = transformedResponses.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [transformedResponses[i], transformedResponses[j]] = [transformedResponses[j], transformedResponses[i]];
