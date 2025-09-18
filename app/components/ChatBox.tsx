@@ -1201,6 +1201,10 @@ export default function ChatBox({
                     Retry
                   </button>
                 </div>
+              ) : communityLoading ? (
+                <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
+                  <div className="animate-spin h-8 w-8 border-4 border-foreground border-t-transparent rounded-full"></div>
+                </div>
               ) : communityResponses.length > 0 ? (
                 <>
                   {/* Generate alias color mapping for unique aliases in current page */}
