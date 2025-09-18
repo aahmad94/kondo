@@ -3,41 +3,41 @@ import { useSession } from 'next-auth/react';
 import FormModal from './ui/FormModal';
 import { BookmarkClientService } from '@/lib/bookmarks';
 
-interface EditBookmarkModalProps {
+interface EditDeckModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onBookmarkUpdated: (updatedBookmark: { id: string; title: string }) => void;
-  bookmark: { id: string; title: string };
-  reservedBookmarkTitles: string[];
+  onDeckUpdated: (updatedDeck: { id: string; title: string }) => void;
+  deck: { id: string; title: string };
+  reservedDeckTitles: string[];
 }
 
-export default function EditBookmarkModal({ 
+export default function EditDeckModal({ 
   isOpen, 
   onClose, 
-  onBookmarkUpdated, 
-  bookmark, 
-  reservedBookmarkTitles 
-}: EditBookmarkModalProps) {
-  const [bookmarkTitle, setBookmarkTitle] = useState(bookmark.title);
+  onDeckUpdated, 
+  deck, 
+  reservedDeckTitles 
+}: EditDeckModalProps) {
+  const [deckTitle, setDeckTitle] = useState(deck.title);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
 
-  const handleEditBookmark = async (e: React.FormEvent) => {
+  const handleEditDeck = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.userId || !bookmarkTitle.trim()) return;
+    if (!session?.userId || !deckTitle.trim()) return;
 
     setError(null);
     setIsLoading(true);
 
     // Don't validate if the title hasn't changed
-    if (bookmarkTitle.trim() === bookmark.title) {
+    if (deckTitle.trim() === deck.title) {
       onClose();
       setIsLoading(false);
       return;
     }
 
-    const validationError = BookmarkClientService.validateBookmarkTitle(bookmarkTitle.trim(), reservedBookmarkTitles);
+    const validationError = BookmarkClientService.validateBookmarkTitle(deckTitle.trim(), reservedDeckTitles);
     if (validationError) {
       setError(validationError);
       setIsLoading(false);
@@ -45,24 +45,24 @@ export default function EditBookmarkModal({
     }
 
     try {
-      const updatedBookmark = await BookmarkClientService.editBookmark({
-        id: bookmark.id,
-        title: bookmarkTitle.trim(),
+      const updatedDeck = await BookmarkClientService.editBookmark({
+        id: deck.id,
+        title: deckTitle.trim(),
         userId: session.userId,
       });
 
-      onBookmarkUpdated(updatedBookmark);
+      onDeckUpdated(updatedDeck);
       onClose();
     } catch (error) {
-      console.error('Error updating bookmark:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update bookmark. Please try again.');
+      console.error('Error updating deck:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update deck. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleClose = () => {
-    setBookmarkTitle(bookmark.title); // Reset to original title
+    setDeckTitle(deck.title); // Reset to original title
     setError(null);
     onClose();
   };
@@ -73,12 +73,12 @@ export default function EditBookmarkModal({
       onClose={handleClose}
       title="Edit Bookmark"
     >
-      <form onSubmit={handleEditBookmark}>
+      <form onSubmit={handleEditDeck}>
         <input
           type="text"
-          value={bookmarkTitle}
-          onChange={(e) => setBookmarkTitle(e.target.value)}
-          placeholder="Enter bookmark name"
+          value={deckTitle}
+          onChange={(e) => setDeckTitle(e.target.value)}
+          placeholder="Enter deck name"
           className="w-full p-2 mb-4 bg-input text-foreground border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary placeholder-muted-foreground"
         />
         {error && (

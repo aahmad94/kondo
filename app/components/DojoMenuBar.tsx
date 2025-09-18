@@ -38,7 +38,7 @@ export default function ChatBoxMenuBar({
     setContentModalType(null);
   };
 
-  // Determine which buttons to show based on selected bookmark
+  // Determine which buttons to show based on selected deck
   const isDojo = selectedBookmark.title === 'daily summary';
   const isRoot = selectedBookmark.id === null && selectedBookmark.title === null;
   

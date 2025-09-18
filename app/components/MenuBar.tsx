@@ -13,10 +13,10 @@ import { useUserAlias } from '../hooks/useUserAlias';
 
 interface MenuBarProps {
   onLanguageChange: (languageCode: string) => void;
-  onClearBookmark: () => void;
+  onClearDeck: () => void;
 }
 
-const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: MenuBarProps) => {
+const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: MenuBarProps) => {
   const { data: session, status } = useSession()
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -50,7 +50,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
     e.preventDefault();
     // Clear the query parameters by pushing to the base path
     router.push('/');
-    onClearBookmark();
+    onClearDeck();
   };
 
   const handleLogout = async () => {
@@ -98,7 +98,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearBookmark }: 
         <div className="flex items-center gap-4 mr-4">
           <LanguageSelector 
             onLanguageChange={onLanguageChange} 
-            onClearBookmark={onClearBookmark}
+            onClearDeck={onClearDeck}
           />
           {session?.user?.image && (
             <div className="relative" ref={dropdownRef}>

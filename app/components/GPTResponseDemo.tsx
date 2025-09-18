@@ -14,7 +14,7 @@ import { extractJapaneseFromDemo } from '@/lib';
 
 interface DemoResponse {
   id: string;
-  bookmark: string;
+  deck: string;
   content: {
     japanese: string;
     hiragana: string;
@@ -54,7 +54,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
 
   const plusButtonRef = useRef<HTMLButtonElement>(null);
-  const bookmarkButtonRef = useRef<HTMLButtonElement>(null);
+  const deckButtonRef = useRef<HTMLButtonElement>(null);
 
   // Furigana toggle state
   const [isFuriganaEnabled, setIsFuriganaEnabled] = useState(false);
@@ -283,7 +283,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
             {/* Plus button */}
             {!isMobile ? (
               <Tooltip
-                content="Add to a bookmark to organize study material"
+                content="Add to a deck to organize study material"
                 isVisible={isPlusHovered}
                 buttonRef={plusButtonRef}
               >
@@ -377,22 +377,22 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
           {/* Bookmark badge */}
           {!isMobile ? (
             <Tooltip
-              content="View bookmark that this content is from"
+              content="View deck that this content is from"
               isVisible={isBookmarkHovered}
-              buttonRef={bookmarkButtonRef}
+              buttonRef={deckButtonRef}
             >
               <button 
-                ref={bookmarkButtonRef}
+                ref={deckButtonRef}
                 className="text-xs px-2 py-1 bg-[hsl(var(--badge-bg))] rounded-sm cursor-pointer hover:bg-[hsl(var(--badge-bg))]/80 transition-colors duration-200 active:bg-[hsl(var(--badge-bg))]/90 max-w-[120px] truncate text-[hsl(var(--badge-text))]"
                 onMouseEnter={() => setIsBookmarkHovered(true)}
                 onMouseLeave={() => setIsBookmarkHovered(false)}
               >
-                {response.bookmark}
+                {response.deck}
               </button>
             </Tooltip>
           ) : (
             <button className="text-xs px-2 py-1 bg-[hsl(var(--badge-bg))] rounded-sm cursor-pointer hover:bg-[hsl(var(--badge-bg))]/80 transition-colors duration-200 active:bg-[hsl(var(--badge-bg))]/90 max-w-[120px] truncate text-[hsl(var(--badge-text))]">
-              {response.bookmark}
+              {response.deck}
             </button>
           )}
           

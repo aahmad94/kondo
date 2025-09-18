@@ -268,10 +268,10 @@ export function CommunityInstructions() {
           <strong style={{ color: COLORS.secondary }}>1.</strong> <strong>Browse</strong> responses shared by the community
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>2.</strong> <strong>Filter</strong> by bookmark titles, creators, or popularity
+          <strong style={{ color: COLORS.secondary }}>2.</strong> <strong>Filter</strong> by deck titles, creators, or popularity
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>3.</strong> <strong>Import</strong> interesting responses to your bookmarks
+          <strong style={{ color: COLORS.secondary }}>3.</strong> <strong>Import</strong> interesting responses to your decks
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
           <strong style={{ color: COLORS.secondary }}>4.</strong> <strong>Share</strong> your own responses to help others learn
@@ -283,7 +283,7 @@ export function CommunityInstructions() {
         <p style={{ marginBottom: '0.5rem' }}>
           Click the blue share button{' '}
           <ShareIcon className="h-5 w-5 inline text-blue-500" style={{ verticalAlign: 'middle' }} />{' '}
-          on the bottom of any of your bookmarked responses.
+          on the bottom of any of your decked responses.
         </p>
       </div>
     </div>

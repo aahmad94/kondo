@@ -5,30 +5,30 @@ import { useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from 'next/navigation';
 import MenuBar from './components/MenuBar';
 import ChatBox from './components/ChatBox';
-import Bookmarks from './components/Bookmarks';
-import { initAmplitude, trackLanguageChange, trackClearBookmark, trackBookmarkSelect } from '@/lib/analytics';
+import Decks from './components/Decks';
+import { initAmplitude, trackLanguageChange, trackClearDeck, trackDeckSelect } from '@/lib/analytics';
 
 export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedBookmark, setSelectedBookmark] = useState<{ id: string | null, title: string | null }>({ id: null, title: 'community' });
-  const [reservedBookmarkTitles, setReservedBookmarkTitles] = useState<string[]>(['all responses', 'daily summary', 'community', 'dojo', 'search']);
-  const [newBookmark, setNewBookmark] = useState<{ id: string, title: string } | null>(null);
+  const [selectedDeck, setSelectedDeck] = useState<{ id: string | null, title: string | null }>({ id: null, title: 'community' });
+  const [reservedDeckTitles, setReservedDeckTitles] = useState<string[]>(['all responses', 'daily summary', 'community', 'dojo', 'search']);
+  const [newDeck, setNewDeck] = useState<{ id: string, title: string } | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
-  const [isClearingBookmark, setIsClearingBookmark] = useState(false);
+  const [isClearingDeck, setIsClearingDeck] = useState(false);
   const hasSyncedRef = useRef(false);
 
-  // Define handleBookmarkSelect early with useCallback, before any hooks or early returns (around line 22, after state declarations)
-  const handleBookmarkSelect = useCallback((id: string | null, title: string | null) => {
-    console.log('****handleBookmarkSelect****', { id, title });
-    setSelectedBookmark({ id, title });
-    trackBookmarkSelect(id, title);
+  // Define handleDeckSelect early with useCallback, before any hooks or early returns (around line 22, after state declarations)
+  const handleDeckSelect = useCallback((id: string | null, title: string | null) => {
+    console.log('****handleDeckSelect****', { id, title });
+    setSelectedDeck({ id, title });
+    trackDeckSelect(id, title);
     const params = new URLSearchParams(searchParams?.toString() ?? '');
-    if (id) params.set('bookmarkId', id); else params.delete('bookmarkId');
-    if (title) params.set('bookmarkTitle', title); else params.delete('bookmarkTitle');
+    if (id) params.set('deckId', id); else params.delete('deckId');
+    if (title) params.set('deckTitle', title); else params.delete('deckTitle');
     router.push(`/?${params.toString()}`);
-  }, [router, searchParams, setSelectedBookmark]);
+  }, [router, searchParams, setSelectedDeck]);
 
   // Initialize Amplitude
   useEffect(() => {
@@ -97,23 +97,23 @@ export default function Home() {
   // Then place the useEffect after other top-level hooks but before early returns (around original position ~32)
   useEffect(() => {
     if (searchParams && !hasSyncedRef.current) {
-      const bookmarkId = searchParams.get('bookmarkId');
-      const bookmarkTitle = searchParams.get('bookmarkTitle');
+      const deckId = searchParams.get('deckId');
+      const deckTitle = searchParams.get('deckTitle');
       
-      if (bookmarkId && bookmarkTitle) {
-        // Regular bookmark with ID and title
-        setSelectedBookmark({ id: bookmarkId, title: bookmarkTitle });
-      } else if (bookmarkTitle && reservedBookmarkTitles.includes(bookmarkTitle)) {
-        // Reserved bookmark (community, daily summary, etc.) with only title
-        setSelectedBookmark({ id: null, title: bookmarkTitle });
+      if (deckId && deckTitle) {
+        // Regular deck with ID and title
+        setSelectedDeck({ id: deckId, title: deckTitle });
+      } else if (deckTitle && reservedDeckTitles.includes(deckTitle)) {
+        // Reserved deck (community, daily summary, etc.) with only title
+        setSelectedDeck({ id: null, title: deckTitle });
       } else {
         // No params - default to community
-        handleBookmarkSelect(null, 'community');
+        handleDeckSelect(null, 'community');
       }
       hasSyncedRef.current = true;
     }
     // Do NOT sync from URL again after initial load
-  }, [searchParams, reservedBookmarkTitles, handleBookmarkSelect, setSelectedBookmark]);
+  }, [searchParams, reservedDeckTitles, handleDeckSelect, setSelectedDeck]);
 
 
   if (status === "loading") {
@@ -128,47 +128,47 @@ export default function Home() {
     return null
   }
 
-  const handleClearBookmark = () => {
-    setIsClearingBookmark(true);
-    setSelectedBookmark({ id: null, title: null });
-    trackClearBookmark();
-    setTimeout(() => setIsClearingBookmark(false), 250);
+  const handleClearDeck = () => {
+    setIsClearingDeck(true);
+    setSelectedDeck({ id: null, title: null });
+    trackClearDeck();
+    setTimeout(() => setIsClearingDeck(false), 250);
   }
 
-  const handleBookmarkCreated = (newBookmark: { id: string, title: string }) => {
-    console.log('****handleBookmarkCreated****', { newBookmark });
-    setNewBookmark(newBookmark);
+  const handleDeckCreated = (newDeck: { id: string, title: string }) => {
+    console.log('****handleDeckCreated****', { newDeck });
+    setNewDeck(newDeck);
   }
 
   const handleLanguageChange = (languageCode: string) => {
     trackLanguageChange(selectedLanguage || 'ja', languageCode);
     setSelectedLanguage(languageCode);
-    handleBookmarkSelect(null, null);
+    handleDeckSelect(null, null);
   };
   
   return (
     <div className="flex flex-col h-dvh bg-background">
       <MenuBar
-        onClearBookmark={handleClearBookmark}
+        onClearDeck={handleClearDeck}
         onLanguageChange={handleLanguageChange}
       />
       <div className="flex flex-1 overflow-hidden bg-background">
-        <Bookmarks 
-          changeSelectedBookmark={handleBookmarkSelect}
-          onClearBookmark={handleClearBookmark}
-          selectedBookmark={selectedBookmark}
-          reservedBookmarkTitles={reservedBookmarkTitles}
+        <Decks 
+          changeSelectedDeck={handleDeckSelect}
+          onClearDeck={handleClearDeck}
+          selectedDeck={selectedDeck}
+          reservedDeckTitles={reservedDeckTitles}
           selectedLanguage={selectedLanguage || 'ja'}
-          newBookmark={newBookmark}
+          newDeck={newDeck}
         />
         <div className="flex-1 overflow-hidden bg-background">
           <ChatBox 
-            selectedBookmark={selectedBookmark}
-            reservedBookmarkTitles={reservedBookmarkTitles}
+            selectedDeck={selectedDeck}
+            reservedDeckTitles={reservedDeckTitles}
             selectedLanguage={selectedLanguage || 'ja'}
             onLanguageChange={handleLanguageChange}
-            onBookmarkSelect={handleBookmarkSelect}
-            onBookmarkCreated={handleBookmarkCreated}
+            onDeckSelect={handleDeckSelect}
+            onDeckCreated={handleDeckCreated}
           />
         </div>
       </div>

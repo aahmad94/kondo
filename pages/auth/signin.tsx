@@ -86,7 +86,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                     <h1 className="text-4xl font-medium text-foreground">Kondo</h1>
                   </div>
                   <p className="text-muted-foreground text-md mb-6">
-                    Leverage AI to generate and organize study material to learn new languages
+                    Leverage AI to generate, organize, and share study material to learn new languages
                   </p>
                   <p className="text-muted-foreground text-sm">
                     Sign in to start your language learning journey with Kondo's AI-powered tools.

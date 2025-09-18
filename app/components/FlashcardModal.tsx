@@ -13,7 +13,7 @@ interface Response {
   content: string;
   rank: number;
   isPaused?: boolean;
-  bookmarks?: Record<string, string>;
+  decks?: Record<string, string>;
   createdAt: Date;
   updatedAt: Date;
   furigana?: string | null;
@@ -222,7 +222,7 @@ export default function FlashcardModal({
                     rank={currentResponse.rank}
                     createdAt={currentResponse.createdAt}
                     isPaused={currentResponse.isPaused}
-                    bookmarks={currentResponse.bookmarks}
+                    decks={currentResponse.decks}
                     furigana={currentResponse.furigana}
                     isFuriganaEnabled={currentResponse.isFuriganaEnabled}
                     isPhoneticEnabled={currentResponse.isPhoneticEnabled}

@@ -1,21 +1,21 @@
 import React from 'react';
 import ConfirmationModal from './ui/ConfirmationModal';
 
-interface DeleteBookmarkModalProps {
+interface DeleteDeckModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  bookmarkTitle: string;
+  deckTitle: string;
 }
 
-const DeleteBookmarkModal: React.FC<DeleteBookmarkModalProps> = ({ isOpen, onClose, onConfirm, bookmarkTitle }) => {
+const DeleteDeckModal: React.FC<DeleteDeckModalProps> = ({ isOpen, onClose, onConfirm, deckTitle }) => {
   return (
     <ConfirmationModal
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
       title="Delete Bookmark"
-      message={`Are you sure you want to delete the bookmark "${bookmarkTitle}" and all its contents?`}
+      message={`Are you sure you want to delete the deck "${deckTitle}" and all its contents?`}
       confirmText="Delete"
       cancelText="Cancel"
       confirmButtonColor="red"
@@ -23,4 +23,4 @@ const DeleteBookmarkModal: React.FC<DeleteBookmarkModalProps> = ({ isOpen, onClo
   );
 };
 
-export default DeleteBookmarkModal;
+export default DeleteDeckModal;

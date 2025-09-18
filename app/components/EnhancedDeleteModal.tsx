@@ -57,7 +57,7 @@ const EnhancedDeleteModal: React.FC<EnhancedDeleteModalProps> = ({
               <ul className="list-disc list-inside space-y-1">
                 <li>The response will be completely removed from the community feed</li>
                 <li>
-                  <strong>{importerCount}</strong> {importerCount === 1 ? 'user' : 'users'} will lose access to this response from their bookmarks
+                  <strong>{importerCount}</strong> {importerCount === 1 ? 'user' : 'users'} will lose access to this response from their decks
                 </li>
               </ul>
             </div>

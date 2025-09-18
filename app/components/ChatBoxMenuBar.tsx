@@ -14,10 +14,10 @@ interface ChatBoxMenuBarProps {
   flashcardCount: number;
   selectedLanguage: string;
   summaryTimestamp: Date | null;
-  selectedBookmark: { id: string | null, title: string | null };
+  selectedDeck: { id: string | null, title: string | null };
   isFlashcardModalOpen?: boolean;
   onCreateNewContent: () => void;
-  communityFilters?: { bookmarkTitle?: string };
+  communityFilters?: { deckTitle?: string };
   onImportEntireBookmark?: () => void;
 }
 
@@ -28,7 +28,7 @@ export default function ChatBoxMenuBar({
   flashcardCount,
   selectedLanguage,
   summaryTimestamp,
-  selectedBookmark,
+  selectedDeck,
   isFlashcardModalOpen = false,
   communityFilters,
   onImportEntireBookmark
@@ -84,14 +84,14 @@ export default function ChatBoxMenuBar({
   };
 
 
-  // Determine which buttons to show based on selected bookmark
-  const isDojo = selectedBookmark.title === 'daily summary';
-  const isCommunity = selectedBookmark.title === 'community';
-  const isRoot = selectedBookmark.id === null && selectedBookmark.title === null;
-  const isOtherBookmark = !isRoot && !isDojo && !isCommunity; // Regular bookmarks and other reserved bookmarks
+  // Determine which buttons to show based on selected deck
+  const isDojo = selectedDeck.title === 'daily summary';
+  const isCommunity = selectedDeck.title === 'community';
+  const isRoot = selectedDeck.id === null && selectedDeck.title === null;
+  const isOtherBookmark = !isRoot && !isDojo && !isCommunity; // Regular decks and other reserved decks
   
-  // Check if we have a specific bookmark selected in community mode
-  const isCommunityWithSelectedBookmark = isCommunity && communityFilters?.bookmarkTitle;
+  // Check if we have a specific deck selected in community mode
+  const isCommunityWithSelectedBookmark = isCommunity && communityFilters?.deckTitle;
   
   const showFlashcards = isDojo || isOtherBookmark; // Exclude community from flashcards
   const showDojoTips = isDojo;
@@ -120,14 +120,14 @@ export default function ChatBoxMenuBar({
             }}
           >
             <div className="flex items-center px-4 mx-4 gap-2 sm:gap-3 flex-shrink-0">
-              {/* Import Entire Bookmark Button - 1st (Community with selected bookmark only) */}
+              {/* Import Entire Bookmark Button - 1st (Community with selected deck only) */}
               {showImportEntireBookmark && (
                 <button
                   onClick={onImportEntireBookmark}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0 text-purple-400" />
-                  <span>import entire bookmark</span>
+                  <span>import entire deck</span>
                 </button>
               )}
 

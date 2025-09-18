@@ -3,63 +3,63 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react";
 import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, WrenchIcon, AcademicCapIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
-import CreateBookmarkModal from './CreateBookmarkModal';
-import DeleteBookmarkModal from './DeleteBookmarkModal';
-import EditBookmarkModal from './EditBookmarkModal';
+import CreateDeckModal from './CreateDeckModal';
+import DeleteDeckModal from './DeleteDeckModal';
+import EditDeckModal from './EditDeckModal';
 import { useRouter } from 'next/navigation';
-import { trackBookmarkSelect, trackClearBookmark, trackCreateBookmark } from '@/lib/analytics';
+import { trackDeckSelect, trackClearDeck, trackCreateDeck } from '@/lib/analytics';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { FilterableBookmarkList } from './FilterableBookmarkList';
+import { FilterableDeckList } from './FilterableDeckList';
 
-interface Bookmark {
+interface Deck {
   id: string;
   title: string;
   updatedAt?: string;
 }
 
-interface BookmarksProps {
-  changeSelectedBookmark: (bookmarkId: string|null, bookmarkTitle: string|null) => void;
-  selectedBookmark: { id: string | null, title: string | null };
-  reservedBookmarkTitles: string[];
+interface DecksProps {
+  changeSelectedDeck: (deckId: string|null, deckTitle: string|null) => void;
+  selectedDeck: { id: string | null, title: string | null };
+  reservedDeckTitles: string[];
   selectedLanguage: string;
-  onClearBookmark: () => void;
-  newBookmark: { id: string, title: string } | null;
+  onClearDeck: () => void;
+  newDeck: { id: string, title: string } | null;
 }
 
-export default function Bookmarks({ 
-  changeSelectedBookmark, 
-  selectedBookmark, 
-  reservedBookmarkTitles,
-  selectedLanguage,
-  onClearBookmark,
-  newBookmark
-}: BookmarksProps) {
+export default function Decks({ 
+  changeSelectedDeck, 
+  selectedDeck, 
+  reservedDeckTitles,
+  selectedLanguage, 
+  onClearDeck, 
+  newDeck 
+}: DecksProps) {
   const [isOpen, setIsOpen] = useState(true);
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [decks, setDecks] = useState<Deck[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [bookmarkToDelete, setBookmarkToDelete] = useState<Bookmark | null>(null);
+  const [deckToDelete, setDeckToDelete] = useState<Deck | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [bookmarkToEdit, setBookmarkToEdit] = useState<Bookmark | null>(null);
-  const [showBookmarkDropdown, setShowBookmarkDropdown] = useState<string | null>(null);
+  const [deckToEdit, setDeckToEdit] = useState<Deck | null>(null);
+  const [showDeckDropdown, setShowDeckDropdown] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
   const { isMobile } = useIsMobile();
   const touchStartY = useRef<number | null>(null);
   const touchStartTime = useRef<number | null>(null);
-  const bookmarkDropdownRef = useRef<HTMLDivElement>(null);
+  const deckDropdownRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside dropdown to close it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Check if the clicked element is within any dropdown menu
       const target = event.target as HTMLElement;
-      const isWithinDropdown = target.closest('.bookmark-dropdown-menu');
-      const isChevronButton = target.closest('.bookmark-chevron-button');
+      const isWithinDropdown = target.closest('.deck-dropdown-menu');
+      const isChevronButton = target.closest('.deck-chevron-button');
       
       if (!isWithinDropdown && !isChevronButton) {
-        setShowBookmarkDropdown(null);
+        setShowDeckDropdown(null);
       }
     };
 
@@ -69,33 +69,33 @@ export default function Bookmarks({
     };
   }, []);
 
-  const fetchBookmarks = async (userId: string) => {
+  const fetchDecks = async (userId: string) => {
     try {
       setIsLoading(true);
       const response = await fetch(`/api/getBookmarks?userId=${userId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch bookmarks');
+        throw new Error('Failed to fetch decks');
       }
       const data = await response.json();
-      setBookmarks(data);
+      setDecks(data);
 
-      // If no bookmarks exist, create default ones
+      // If no decks exist, create default ones
       if (data.length === 0) {
-        // remove this once we have a way to create default bookmarks
-        // await createDefaultBookmarks(userId);
+        // remove this once we have a way to create default decks
+        // await createDefaultDecks(userId);
       }
     } catch (error) {
-      console.error('Error fetching bookmarks:', error);
+      console.error('Error fetching decks:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const createDefaultBookmarks = async (userId: string) => {
-    const defaultBookmarks = ['counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];
+  const createDefaultDecks = async (userId: string) => {
+    const defaultDecks = ['counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];
     
     try {
-      for (const title of defaultBookmarks) {
+      for (const title of defaultDecks) {
         const response = await fetch('/api/createBookmark', {
           method: 'POST',
           headers: {
@@ -108,28 +108,28 @@ export default function Bookmarks({
         });
 
         if (!response.ok) {
-          throw new Error(`Failed to create default bookmark: ${title}`);
+          throw new Error(`Failed to create default deck: ${title}`);
         }
 
-        const newBookmark = await response.json();
-        // Track bookmark creation
-        await trackCreateBookmark(newBookmark.id, newBookmark.title);
+        const newDeck = await response.json();
+        // Track deck creation
+        await trackCreateDeck(newDeck.id, newDeck.title);
       }
 
-      // After creating all default bookmarks, refetch the complete list
-      await fetchBookmarks(userId);
+      // After creating all default decks, refetch the complete list
+      await fetchDecks(userId);
     } catch (error) {
-      console.error('Error creating default bookmarks:', error);
+      console.error('Error creating default decks:', error);
     }
   };
 
-  // Refetch bookmarks when language changes
+  // Refetch decks when language changes
   useEffect(() => {
-    setBookmarks([]);
+    setDecks([]);
     if (session?.userId) {
-      fetchBookmarks(session.userId);
+      fetchDecks(session.userId);
     }
-  }, [selectedLanguage, newBookmark]);
+  }, [selectedLanguage, newDeck]);
 
   useEffect(() => {
     // Check if window width is less than 768px (mobile)
@@ -153,59 +153,59 @@ export default function Bookmarks({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleBookmarkInteraction = async (bookmarkId: string, bookmarkTitle: string) => {
-    // Track bookmark selection
-    await trackBookmarkSelect(bookmarkId, bookmarkTitle);
+  const handleDeckInteraction = async (deckId: string, deckTitle: string) => {
+    // Track deck selection
+    await trackDeckSelect(deckId, deckTitle);
     // Update URL with new query parameters using the App Router pattern
-    router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
-    changeSelectedBookmark(bookmarkId, bookmarkTitle);
+    router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
+    changeSelectedDeck(deckId, deckTitle);
     
-    // close bookmarks if on mobile
+    // close decks if on mobile
     if (window.innerWidth < 768) {
       setIsOpen(false);
     }
   };
 
-  const handleCreateNewBookmark = () => {
+  const handleCreateNewDeck = () => {
     setIsCreateModalOpen(true);
   };
 
-  const handleBookmarkCreated = async (newBookmark: Bookmark) => {
-    setBookmarks([...bookmarks, newBookmark]);
+  const handleDeckCreated = async (newDeck: Deck) => {
+    setDecks([...decks, newDeck]);
     setIsCreateModalOpen(false);
-    // Track bookmark creation
-    await trackCreateBookmark(newBookmark.id, newBookmark.title);
+    // Track deck creation
+    await trackCreateDeck(newDeck.id, newDeck.title);
   };
 
-  const handleDeleteClick = (bookmark: Bookmark, e: React.MouseEvent) => {
+  const handleDeleteClick = (deck: Deck, e: React.MouseEvent) => {
     e.stopPropagation();
-    setBookmarkToDelete(bookmark);
+    setDeckToDelete(deck);
     setIsDeleteModalOpen(true);
-    setShowBookmarkDropdown(null);
+    setShowDeckDropdown(null);
   };
 
-  const handleEditClick = (bookmark: Bookmark, e: React.MouseEvent) => {
+  const handleEditClick = (deck: Deck, e: React.MouseEvent) => {
     e.stopPropagation();
-    setBookmarkToEdit(bookmark);
+    setDeckToEdit(deck);
     setIsEditModalOpen(true);
-    setShowBookmarkDropdown(null);
+    setShowDeckDropdown(null);
   };
 
-  const handleBookmarkUpdated = (updatedBookmark: Bookmark) => {
-    setBookmarks(bookmarks.map(b => 
-      b.id === updatedBookmark.id ? updatedBookmark : b
+  const handleDeckUpdated = (updatedDeck: Deck) => {
+    setDecks(decks.map(b => 
+      b.id === updatedDeck.id ? updatedDeck : b
     ));
     setIsEditModalOpen(false);
-    setBookmarkToEdit(null);
+    setDeckToEdit(null);
     
-    // If the updated bookmark is currently selected, update the selected bookmark title
-    if (selectedBookmark.id === updatedBookmark.id) {
-      changeSelectedBookmark(updatedBookmark.id, updatedBookmark.title);
+    // If the updated deck is currently selected, update the selected deck title
+    if (selectedDeck.id === updatedDeck.id) {
+      changeSelectedDeck(updatedDeck.id, updatedDeck.title);
     }
   };
 
   const handleDeleteConfirm = async () => {
-    if (bookmarkToDelete && session?.userId) {
+    if (deckToDelete && session?.userId) {
       try {
         const response = await fetch('/api/deleteBookmark', {
           method: 'DELETE',
@@ -214,24 +214,24 @@ export default function Bookmarks({
           },
           body: JSON.stringify({
             userId: session.userId,
-            bookmarkId: bookmarkToDelete.id,
+            deckId: deckToDelete.id,
           }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to delete bookmark');
+          throw new Error('Failed to delete deck');
         }
 
-        setBookmarks(bookmarks.filter(b => b.id !== bookmarkToDelete.id));
-        if (selectedBookmark.id === bookmarkToDelete.id) {
-          changeSelectedBookmark(null, null);
-          // Track bookmark clearing
-          await trackClearBookmark();
+        setDecks(decks.filter(b => b.id !== deckToDelete.id));
+        if (selectedDeck.id === deckToDelete.id) {
+          changeSelectedDeck(null, null);
+          // Track deck clearing
+          await trackClearDeck();
         }
         setIsDeleteModalOpen(false);
-        setBookmarkToDelete(null);
+        setDeckToDelete(null);
       } catch (error) {
-        console.error('Error deleting bookmark:', error);
+        console.error('Error deleting deck:', error);
       }
     }
   };
@@ -239,20 +239,20 @@ export default function Bookmarks({
   const handleChatClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     router.push('/');
-    changeSelectedBookmark(null, null); // This sets the chat as "selected" state
-    onClearBookmark();
-    // Track bookmark clearing when clicking chat
-    await trackClearBookmark();
+    changeSelectedDeck(null, null); // This sets the chat as "selected" state
+    onClearDeck();
+    // Track deck clearing when clicking chat
+    await trackClearDeck();
   };
 
   const handleCommunityClick = async () => {
-    // Update URL to community bookmark
-    router.push('/?bookmarkTitle=community');
-    changeSelectedBookmark(null, 'community');
+    // Update URL to community deck
+    router.push('/?deckTitle=community');
+    changeSelectedDeck(null, 'community');
     // Track community selection
-    await trackBookmarkSelect('community', 'community');
+    await trackDeckSelect('community', 'community');
     
-    // Close bookmarks if on mobile
+    // Close decks if on mobile
     if (window.innerWidth < 768) {
       setIsOpen(false);
     }
@@ -262,23 +262,23 @@ export default function Bookmarks({
     setIsOpen(!isOpen);
   };
 
-  const handleChevronClick = (bookmark: Bookmark, e: React.MouseEvent) => {
+  const handleChevronClick = (deck: Deck, e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowBookmarkDropdown(showBookmarkDropdown === bookmark.id ? null : bookmark.id);
+    setShowDeckDropdown(showDeckDropdown === deck.id ? null : deck.id);
   };
 
-  const handleChevronTouch = (bookmark: Bookmark, e: React.TouchEvent) => {
+  const handleChevronTouch = (deck: Deck, e: React.TouchEvent) => {
     e.stopPropagation();
-    setShowBookmarkDropdown(showBookmarkDropdown === bookmark.id ? null : bookmark.id);
+    setShowDeckDropdown(showDeckDropdown === deck.id ? null : deck.id);
   };
 
-  const handleTouchStart = (e: React.TouchEvent, bookmarkId: string, bookmarkTitle: string) => {
+  const handleTouchStart = (e: React.TouchEvent, deckId: string, deckTitle: string) => {
     // Check if the touch target is the chevron or within the chevron area
     const target = e.target as HTMLElement;
-    const chevronElement = target.closest('.bookmark-chevron-button');
+    const chevronElement = target.closest('.deck-chevron-button');
     
     if (chevronElement) {
-      // If touching the chevron, don't start the bookmark selection touch tracking
+      // If touching the chevron, don't start the deck selection touch tracking
       return;
     }
 
@@ -286,13 +286,13 @@ export default function Bookmarks({
     touchStartTime.current = Date.now();
   };
 
-  const handleTouchEnd = (e: React.TouchEvent, bookmarkId: string, bookmarkTitle: string) => {
+  const handleTouchEnd = (e: React.TouchEvent, deckId: string, deckTitle: string) => {
     // Check if the touch target is the chevron or within the chevron area
     const target = e.target as HTMLElement;
-    const chevronElement = target.closest('.bookmark-chevron-button');
+    const chevronElement = target.closest('.deck-chevron-button');
     
     if (chevronElement) {
-      // If touching the chevron, don't handle bookmark selection
+      // If touching the chevron, don't handle deck selection
       return;
     }
 
@@ -305,7 +305,7 @@ export default function Bookmarks({
 
     // If it's a quick tap (less than 200ms) and minimal movement (less than 10px)
     if (deltaTime < 200 && deltaY < 10) {
-      handleBookmarkInteraction(bookmarkId, bookmarkTitle);
+      handleDeckInteraction(deckId, deckTitle);
     }
 
     // Reset touch tracking
@@ -334,7 +334,7 @@ export default function Bookmarks({
                 <div className="flex flex-col space-y-1">
                   <div
                     className={`chat-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.id === null && selectedBookmark.title === null ? 'bg-accent rounded-sm' : ''}`}
+                      ${selectedDeck.id === null && selectedDeck.title === null ? 'bg-accent rounded-sm' : ''}`}
                     onClick={handleChatClick}
                   >
                     <WrenchIcon className="h-4 w-4 inline mr-2 text-white"/>
@@ -343,7 +343,7 @@ export default function Bookmarks({
 
                   <div
                     className={`community-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.title === "community" ? 'bg-accent rounded-sm' : ''}`}
+                      ${selectedDeck.title === "community" ? 'bg-accent rounded-sm' : ''}`}
                     onClick={handleCommunityClick}
                   >
                     <QueueListIcon className="h-4 w-4 inline mr-2 text-purple-400"/>
@@ -352,11 +352,11 @@ export default function Bookmarks({
 
                   <div 
                     className={`daily-summary-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.title === "daily summary" ? 'bg-accent rounded-sm' : ''}`}
+                      ${selectedDeck.title === "daily summary" ? 'bg-accent rounded-sm' : ''}`}
                     onClick={() => {
-                      const dailySummaryBookmark = bookmarks.find(b => b.title === 'daily summary');
-                      if (dailySummaryBookmark) {
-                        handleBookmarkInteraction(dailySummaryBookmark.id, dailySummaryBookmark.title);
+                      const dailySummaryDeck = decks.find(b => b.title === 'daily summary');
+                      if (dailySummaryDeck) {
+                        handleDeckInteraction(dailySummaryDeck.id, dailySummaryDeck.title);
                       }
                     }}
                   >
@@ -366,20 +366,20 @@ export default function Bookmarks({
 
                   <div 
                     className={`all-responses-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.id === "all" ? 'bg-accent rounded-sm' : ''}`}
-                    onClick={() => handleBookmarkInteraction("all", "all responses")}
-                    onTouchStart={() => handleBookmarkInteraction("all", "all responses")}
+                      ${selectedDeck.id === "all" ? 'bg-accent rounded-sm' : ''}`}
+                    onClick={() => handleDeckInteraction("all", "all responses")}
+                    onTouchStart={() => handleDeckInteraction("all", "all responses")}
                   >
                     <QueueListIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
                     <span className="text-blue-400">all responses</span>
                   </div>
 
                   <div
-                    className="create-bookmark-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block"
-                    onClick={handleCreateNewBookmark}
+                    className="create-deck-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block"
+                    onClick={handleCreateNewDeck}
                   >
                     <PlusCircleIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                    <span className="text-blue-400">new bookmark</span>
+                    <span className="text-blue-400">new deck</span>
                   </div>
                 </div>
 
@@ -392,14 +392,14 @@ export default function Bookmarks({
               </div>
 
               <div className="flex flex-col p-2">
-                <FilterableBookmarkList
-                  bookmarks={bookmarks}
-                  reservedBookmarkTitles={reservedBookmarkTitles}
+                <FilterableDeckList
+                  decks={decks}
+                  reservedDeckTitles={reservedDeckTitles}
                   variant="sidebar"
-                  onBookmarkSelect={handleBookmarkInteraction}
-                  selectedBookmarkId={selectedBookmark.id || undefined}
+                  onDeckSelect={handleDeckInteraction}
+                  selectedDeckId={selectedDeck.id || undefined}
                   isLoading={isLoading}
-                  showBookmarkDropdown={showBookmarkDropdown}
+                  showDeckDropdown={showDeckDropdown}
                   onChevronClick={handleChevronClick}
                   onChevronTouch={handleChevronTouch}
                   onEditClick={handleEditClick}
@@ -415,28 +415,28 @@ export default function Bookmarks({
       
       {/* Modals */}
       {isCreateModalOpen && (
-        <CreateBookmarkModal
+        <CreateDeckModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
-          onBookmarkCreated={handleBookmarkCreated}
-          reservedBookmarkTitles={reservedBookmarkTitles}
+          onDeckCreated={handleDeckCreated}
+          reservedDeckTitles={reservedDeckTitles}
         />
       )}
-      {isDeleteModalOpen && bookmarkToDelete && (
-        <DeleteBookmarkModal
+      {isDeleteModalOpen && deckToDelete && (
+        <DeleteDeckModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeleteConfirm}
-          bookmarkTitle={bookmarkToDelete.title}
+          deckTitle={deckToDelete.title}
         />
       )}
-      {isEditModalOpen && bookmarkToEdit && (
-        <EditBookmarkModal
+      {isEditModalOpen && deckToEdit && (
+        <EditDeckModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          onBookmarkUpdated={handleBookmarkUpdated}
-          bookmark={bookmarkToEdit}
-          reservedBookmarkTitles={reservedBookmarkTitles}
+          onDeckUpdated={handleDeckUpdated}
+          deck={deckToEdit}
+          reservedDeckTitles={reservedDeckTitles}
         />
       )}
     </>

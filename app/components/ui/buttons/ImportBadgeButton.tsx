@@ -37,7 +37,7 @@ export default function ImportBadgeButton({
 
   return (
     <Tooltip
-      content="Import to your own bookmark"
+      content="Import to your own deck"
       isVisible={isHovered}
       buttonRef={buttonRef || React.createRef()}
     >

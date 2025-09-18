@@ -10,7 +10,7 @@ import GPTResponse from './GPTResponse';
 import CommunityResponse from './CommunityResponse';
 import FilterBar from './FilterBar';
 import CreateAliasModal from './CreateAliasModal';
-import BookmarksModal from './BookmarksModal';
+import DecksModal from './DecksModal';
 import ConfirmationModal from './ui/ConfirmationModal';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
@@ -39,12 +39,12 @@ import type {
 } from '../../types/response';
 
 interface ChatBoxProps {
-  selectedBookmark: { id: string | null, title: string | null };
-  reservedBookmarkTitles: string[];
+  selectedDeck: { id: string | null, title: string | null };
+  reservedDeckTitles: string[];
   selectedLanguage: string;
   onLanguageChange: (languageCode: string) => void;
-  onBookmarkSelect: (id: string | null, title: string | null) => void;
-  onBookmarkCreated: (newBookmark: { id: string, title: string }) => void;
+  onDeckSelect: (id: string | null, title: string | null) => void;
+  onDeckCreated: (newDeck: { id: string, title: string }) => void;
 }
 
 interface Response {
@@ -69,7 +69,7 @@ interface Response {
     creatorAlias: string;
   } | null;
   isSharedToCommunity?: boolean;
-  onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
+  onDeckCreated?: (newBookmark: { id: string, title: string }) => void;
 }
 
 interface BookmarkResponse {
@@ -111,19 +111,19 @@ const sortResponses = (responses: Response[]): Response[] => {
 };
 
 export default function ChatBox({ 
-  selectedBookmark, 
-  reservedBookmarkTitles,
+  selectedDeck, 
+  reservedDeckTitles,
   selectedLanguage,
   onLanguageChange,
-  onBookmarkSelect,
-  onBookmarkCreated
+  onDeckSelect,
+  onDeckCreated
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
   const { isMobile, mobileOffset } = useIsMobile();
   
   // Mode detection
-  const isCommunityMode = selectedBookmark.title === 'community';
+  const isCommunityMode = selectedDeck.title === 'community';
   
   // Personal mode state
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, Response>>({});
@@ -161,7 +161,7 @@ export default function ChatBox({
   // Add ref to track ongoing rank updates to prevent duplicates
   const ongoingRankUpdatesRef = useRef<Set<string>>(new Set());
   // Add ref to track previous bookmark to detect community mode entry
-  const previousBookmarkRef = useRef(selectedBookmark.title);
+  const previousBookmarkRef = useRef(selectedDeck.title);
   // Flashcard mode state
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [flashcardResponses, setFlashcardResponses] = useState<Response[]>([]);
@@ -195,7 +195,7 @@ export default function ChatBox({
 
   // Refetch fresh community data when entering community mode
   useEffect(() => {
-    const currentBookmark = selectedBookmark.title;
+    const currentBookmark = selectedDeck.title;
     const previousBookmark = previousBookmarkRef.current;
     
     // If we just entered community mode, fetch fresh data
@@ -206,7 +206,7 @@ export default function ChatBox({
     
     // Update ref for next comparison
     previousBookmarkRef.current = currentBookmark;
-  }, [selectedBookmark.title, refetchCommunityFresh]);
+  }, [selectedDeck.title, refetchCommunityFresh]);
 
   // Update instructions when language changes
   useEffect(() => {
@@ -238,13 +238,13 @@ export default function ChatBox({
     if (!session?.userId) return;
 
     // If we have a selected bookmark, fetch its responses
-    if (selectedBookmark.id) {
+    if (selectedDeck.id) {
       // Clear any pending quote when selecting a bookmark
       setResponseQuote(null);
       
-      if (selectedBookmark.id === "all") {
+      if (selectedDeck.id === "all") {
         fetchAllResponses(session.userId);
-      } else if (selectedBookmark.title === 'daily summary') {
+      } else if (selectedDeck.title === 'daily summary') {
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
           setBookmarkResponses(dailySummaryCache);
@@ -252,31 +252,31 @@ export default function ChatBox({
           handleGenerateSummary(false);
         }
       } else {
-        fetchBookmarkResponses(session.userId, selectedBookmark.id);
+        fetchBookmarkResponses(session.userId, selectedDeck.id);
       }
     }
     // Only clear responses if we explicitly don't have a selected bookmark
-    else if (selectedBookmark.id === null) {
+    else if (selectedDeck.id === null) {
       setBookmarkResponses({});
     }
-  }, [selectedBookmark, selectedLanguage]);
+  }, [selectedDeck, selectedLanguage]);
 
   // Scroll to bottom when new responses are added or quote is clicked in main chat
   useEffect(() => {
-    if (!selectedBookmark.id && (Object.values(responses).length > 0 || responseQuote)) {
+    if (!selectedDeck.id && (Object.values(responses).length > 0 || responseQuote)) {
       scrollToBottom();
     }
-  }, [responses, responseQuote, selectedBookmark.id]);
+  }, [responses, responseQuote, selectedDeck.id]);
 
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      if (chatContainerRef.current && selectedBookmark.title && !reservedBookmarkTitles.includes(selectedBookmark.title)) {
+      if (chatContainerRef.current && selectedDeck.title && !reservedDeckTitles.includes(selectedDeck.title)) {
         chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
         });
-      } else if (chatContainerRef.current && !selectedBookmark.title) {
+      } else if (chatContainerRef.current && !selectedDeck.title) {
         chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth'
@@ -297,9 +297,9 @@ export default function ChatBox({
   }
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
-  const fetchBookmarkResponses = async (userId: string, bookmarkId: string) => {
+  const fetchBookmarkResponses = async (userId: string, deckId: string) => {
     // Skip fetching for reserved bookmarks
-    if (reservedBookmarkTitles.includes(bookmarkId)) {
+    if (reservedDeckTitles.includes(selectedDeck.title)) {
       setBookmarkResponses({});
       return;
     }
@@ -307,7 +307,7 @@ export default function ChatBox({
     try {
       setBookmarkResponses({});
       setIsLoading(true);
-      const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${bookmarkId}`);
+      const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${deckId}`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -841,7 +841,7 @@ export default function ChatBox({
   };
 
 
-  // Handle import from BookmarksModal
+  // Handle import from DecksModal
   const handleCommunityImportFromModal = async (communityResponseId: string, bookmarkId?: string, createNew?: boolean) => {
     try {
       let result;
@@ -877,8 +877,8 @@ export default function ChatBox({
         console.log('Successfully imported response(s)');
         
         // If a new bookmark was created, notify the parent to refresh bookmarks bar
-        if (result.wasBookmarkCreated && result.bookmark && onBookmarkCreated) {
-          onBookmarkCreated(result.bookmark);
+        if (result.wasBookmarkCreated && result.bookmark && onDeckCreated) {
+          onDeckCreated(result.bookmark);
         }
         
         // Show success confirmation instead of navigating away
@@ -897,7 +897,7 @@ export default function ChatBox({
         
         // For batch imports, also navigate to the bookmark
         if (communityResponseId === 'batch-import' && result.bookmark) {
-          onBookmarkSelect(result.bookmark.id, result.bookmark.title);
+          onDeckSelect(result.bookmark.id, result.bookmark.title);
         }
       } else {
         console.error('Failed to import response:', result.error);
@@ -1028,7 +1028,7 @@ export default function ChatBox({
     if (!session?.userId || !query.trim()) {
       setSearchResultsCache(null);
       // If we're in "all responses" view and search is cleared, reload all responses
-      if (selectedBookmark.id === "all" && session?.userId) {
+      if (selectedDeck.id === "all" && session?.userId) {
         fetchAllResponses(session.userId);
       }
       return;
@@ -1048,7 +1048,7 @@ export default function ChatBox({
       setSearchResultsCache(dict);
       
       // If we're in "all responses" view, update the bookmarkResponses directly
-      if (selectedBookmark.id === "all") {
+      if (selectedDeck.id === "all") {
         setBookmarkResponses(dict);
       } else {
         setBookmarkResponses(dict);
@@ -1078,14 +1078,14 @@ export default function ChatBox({
   };
 
   const handleCreateNewContent = () => {
-    onBookmarkSelect(null, null);
+    onDeckSelect(null, null);
     router.push('/');
   };
 
   const handleImportEntireBookmark = () => {
     if (communityFilters?.bookmarkTitle) {
       setSelectedCommunityBookmarkTitle(communityFilters.bookmarkTitle);
-      // Create a mock community response for the BookmarksModal
+      // Create a mock community response for the DecksModal
       const mockCommunityResponse = {
         id: 'batch-import', // Special ID to indicate batch import
         bookmarkTitle: communityFilters.bookmarkTitle,
@@ -1113,7 +1113,7 @@ export default function ChatBox({
         flashcardCount={getFlashcardResponses().length}
         selectedLanguage={selectedLanguage}
         summaryTimestamp={summaryTimestamp}
-        selectedBookmark={selectedBookmark}
+        selectedDeck={selectedDeck}
         isFlashcardModalOpen={isFlashcardModalOpen}
         onCreateNewContent={handleCreateNewContent}
         communityFilters={communityFilters}
@@ -1146,17 +1146,17 @@ export default function ChatBox({
         )}
         
         
-        {!selectedBookmark.id && !isCommunityMode && (
+        {!selectedDeck.id && !isCommunityMode && (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
               <GPTResponse
                 type="instruction"
                 response={instructions.main}
-                selectedBookmarkId={selectedBookmark.id}
-                selectedBookmarkTitle={selectedBookmark.title ?? ''}
-                reservedBookmarkTitles={reservedBookmarkTitles}
+                selectedDeckId={selectedDeck.id}
+                selectedDeckTitle={selectedDeck.title ?? ''}
+                reservedDeckTitles={reservedDeckTitles}
                 responseId={null}
-                onBookmarkSelect={onBookmarkSelect}
+                onDeckSelect={onDeckSelect}
                 selectedLanguage={selectedLanguage}
                 onLoadingChange={setIsLoading}
               />
@@ -1164,20 +1164,20 @@ export default function ChatBox({
           </div>
         )}
         
-        {selectedBookmark.title === 'daily summary' && (
+        {selectedDeck.title === 'daily summary' && (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
               <GPTResponse
                 type="instruction"
                 response={compileDojoInstructions(summaryTimestamp)}
-                selectedBookmarkId={selectedBookmark.id}
-                selectedBookmarkTitle="daily summary"
-                reservedBookmarkTitles={reservedBookmarkTitles}
+                selectedDeckId={selectedDeck.id}
+                selectedDeckTitle="daily summary"
+                reservedDeckTitles={reservedDeckTitles}
                 onRankUpdate={handleRankUpdate}
                 onDelete={handleResponseDelete}
                 onPauseToggle={handlePauseToggle}
                 onFuriganaToggle={handleFuriganaToggle}
-                onBookmarkSelect={onBookmarkSelect}
+                onDeckSelect={onDeckSelect}
                 selectedLanguage={selectedLanguage}
                 onLoadingChange={setIsLoading}
               />
@@ -1186,7 +1186,7 @@ export default function ChatBox({
         )}
 
         {/* Community Mode */}
-        {selectedBookmark.title === 'community' && (
+        {selectedDeck.title === 'community' && (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
 
@@ -1232,14 +1232,14 @@ export default function ChatBox({
                         sharedAt: communityResponse.sharedAt,
                         hasUserImported: communityResponse.hasUserImported
                       } as CommunityResponseData}
-                      selectedBookmarkTitle="community"
+                      selectedDeckTitle="community"
                       selectedLanguage={selectedLanguage}
                       currentUserId={(session as any)?.userId || (session?.user as any)?.id}
                       onImportWithModal={handleCommunityImportWithModal}
                       onDelete={handleCommunityDelete}
                       onViewProfile={handleViewProfile}
                       onAliasClick={handleAliasClick}
-                      onBookmarkClick={handleBookmarkClick}
+                      onDeckClick={handleBookmarkClick}
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
                       aliasColor={aliasColorMap.get(communityResponse.creatorAlias)}
@@ -1270,11 +1270,11 @@ export default function ChatBox({
           </div>
         )}
         
-        {selectedBookmark.id && !isCommunityMode ? (
+        {selectedDeck.id && !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
               {/* Search bar for all responses */}
-              {selectedBookmark.id === "all" && (
+              {selectedDeck.id === "all" && (
                 <div className="mb-4">
                   <SearchBar
                     onSearch={handleSearch}
@@ -1286,7 +1286,7 @@ export default function ChatBox({
               )}
               
               {/* Loading indicator for search */}
-              {selectedBookmark.id === "all" && isSearching && (
+              {selectedDeck.id === "all" && isSearching && (
                 <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
                   <div className="animate-spin h-8 w-8 border-4 border-foreground border-t-transparent rounded-full"></div>
                 </div>
@@ -1302,14 +1302,14 @@ export default function ChatBox({
                   <GPTResponse
                     key={response.id || index}
                     response={response.content}
-                    selectedBookmarkId={selectedBookmark.id}
-                    selectedBookmarkTitle={selectedBookmark.title ?? ''}
-                    reservedBookmarkTitles={reservedBookmarkTitles}
+                    selectedDeckId={selectedDeck.id}
+                    selectedDeckTitle={selectedDeck.title ?? ''}
+                    reservedDeckTitles={reservedDeckTitles}
                     responseId={response.id}
                     rank={response.rank}
                     createdAt={response.createdAt}
                     isPaused={response.isPaused}
-                    bookmarks={response.bookmarks}
+                    decks={response.decks}
                     furigana={response.furigana}
                     isFuriganaEnabled={response.isFuriganaEnabled}
                     isPhoneticEnabled={response.isPhoneticEnabled}
@@ -1323,7 +1323,7 @@ export default function ChatBox({
                     onFuriganaToggle={handleFuriganaToggle}
                     onPhoneticToggle={handlePhoneticToggle}
                     onKanaToggle={handleKanaToggle}
-                    onBookmarkSelect={onBookmarkSelect}
+                    onDeckSelect={onDeckSelect}
                     onShare={handleShareToCommunity}
                     source={response.source}
                     communityResponseId={response.communityResponseId}
@@ -1352,9 +1352,9 @@ export default function ChatBox({
                   <GPTResponse
                     key={response.id || index}
                     response={response.content}
-                    selectedBookmarkId={selectedBookmark.id}
-                    selectedBookmarkTitle={selectedBookmark.title ?? ''}
-                    reservedBookmarkTitles={reservedBookmarkTitles}
+                    selectedDeckId={selectedDeck.id}
+                    selectedDeckTitle={selectedDeck.title ?? ''}
+                    reservedDeckTitles={reservedDeckTitles}
                     responseId={response.id}
                     isPaused={response.isPaused}
                     isFuriganaEnabled={response.isFuriganaEnabled}
@@ -1366,7 +1366,7 @@ export default function ChatBox({
                     onFuriganaToggle={handleFuriganaToggle}
                     onPhoneticToggle={handlePhoneticToggle}
                     onKanaToggle={handleKanaToggle}
-                    onBookmarkSelect={onBookmarkSelect}
+                    onDeckSelect={onDeckSelect}
                     source={response.source}
                     communityResponseId={response.communityResponseId}
                     communityResponse={response.communityResponse}
@@ -1374,7 +1374,7 @@ export default function ChatBox({
                     isSharedToCommunity={response.isSharedToCommunity}
                     selectedLanguage={selectedLanguage}
                     onLoadingChange={setIsLoading}
-                    onBookmarkCreated={onBookmarkCreated}
+                    onDeckCreated={onDeckCreated}
                   />
                 ));
               })()}
@@ -1384,7 +1384,7 @@ export default function ChatBox({
         </div>
         
         {/* Bottom section: QuoteBar + Input (UserInput only, FilterBar moved to top) */}
-        {!selectedBookmark.id && !isCommunityMode && (
+        {!selectedDeck.id && !isCommunityMode && (
           <div className="flex-shrink-0">
             {/* Show QuoteBar if we have responseQuote (only in chat mode) */}
             {responseQuote && (
@@ -1547,15 +1547,15 @@ export default function ChatBox({
         </div>
       )}
 
-      {/* Community Import BookmarksModal */}
-      <BookmarksModal
+      {/* Community Import DecksModal */}
+      <DecksModal
         isOpen={communityImportModal.isOpen}
         onClose={() => setCommunityImportModal({ isOpen: false, communityResponse: null })}
         response={communityImportModal.communityResponse?.content || ''}
-        reservedBookmarkTitles={reservedBookmarkTitles}
+        reservedDeckTitles={reservedDeckTitles}
         communityResponse={communityImportModal.communityResponse ? {
           id: communityImportModal.communityResponse.id,
-          bookmarkTitle: communityImportModal.communityResponse.bookmarkTitle,
+          deckTitle: communityImportModal.communityResponse.deckTitle,
           content: communityImportModal.communityResponse.content,
           breakdown: communityImportModal.communityResponse.breakdown,
           mobileBreakdown: communityImportModal.communityResponse.mobileBreakdown,
@@ -1564,7 +1564,7 @@ export default function ChatBox({
           audioMimeType: communityImportModal.communityResponse.audioMimeType
         } : undefined}
         onCommunityImport={handleCommunityImportFromModal}
-        onBookmarkCreated={onBookmarkCreated}
+        onDeckCreated={onDeckCreated}
       />
     </div>
   );

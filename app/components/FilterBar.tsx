@@ -32,14 +32,14 @@ export default function FilterBar({
   const searchParams = useSearchParams();
   
   // Filter states
-  const [selectedBookmark, setSelectedBookmark] = useState<string>(''); // Selected bookmark from dropdown
+  const [selectedBookmark, setSelectedBookmark] = useState<string>(''); // Selected deck from dropdown
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
   const [selectedFilter, setSelectedFilter] = useState<'recent' | 'imports' | 'shuffle'>(initialFilters.sortBy || 'recent');
 
   // Sync internal state with external filter changes
   useEffect(() => {
     setCreatorAlias(initialFilters.creatorAlias || '');
-    setSelectedBookmark(initialFilters.bookmarkTitle || '');
+    setSelectedBookmark(initialFilters.deckTitle || '');
     setSelectedFilter(initialFilters.sortBy || 'recent');
     
     // Update the input field value if it exists
@@ -61,7 +61,7 @@ export default function FilterBar({
   // Filter update
   const updateFilters = useCallback((newFilters: Partial<CommunityFilters>) => {
     const filters: CommunityFilters = {
-      bookmarkTitle: selectedBookmark || undefined,
+      deckTitle: selectedBookmark || undefined,
       creatorAlias: creatorAlias || undefined,
       sortBy: selectedFilter === 'shuffle' ? 'recent' : selectedFilter, // Use recent as base for shuffle
       sortOrder: 'desc', // Always descending (most recent/popular/imported first)
@@ -74,10 +74,10 @@ export default function FilterBar({
     const params = new URLSearchParams(searchParams?.toString() || '');
     
     // Update URL params for filter persistence
-    if (filters.bookmarkTitle) {
-      params.set('bookmarkTitle', filters.bookmarkTitle);
+    if (filters.deckTitle) {
+      params.set('deckTitle', filters.deckTitle);
     } else {
-      params.delete('bookmarkTitle');
+      params.delete('deckTitle');
     }
     
     if (filters.creatorAlias) {
@@ -93,10 +93,10 @@ export default function FilterBar({
   }, [selectedBookmark, creatorAlias, selectedFilter, onFiltersChange, searchParams]);
 
   // Bookmark dropdown handlers
-  const handleBookmarkSelect = (bookmark: string) => {
-    setSelectedBookmark(bookmark);
+  const handleBookmarkSelect = (deck: string) => {
+    setSelectedBookmark(deck);
     setIsDropdownOpen(false);
-    updateFilters({ bookmarkTitle: bookmark || undefined });
+    updateFilters({ deckTitle: deck || undefined });
   };
 
   const handleCreatorSearch = (value: string) => {
@@ -135,22 +135,22 @@ export default function FilterBar({
     if (creatorInputRef.current) creatorInputRef.current.value = '';
     
     updateFilters({
-      bookmarkTitle: undefined,
+      deckTitle: undefined,
       creatorAlias: undefined,
       sortBy: 'recent',
       sortOrder: 'desc'
     });
   };
 
-  // Fetch available bookmarks on mount
+  // Fetch available decks on mount
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
         setIsLoadingBookmarks(true);
-        const bookmarks = await CommunityClientService.getCommunityBookmarks();
-        setAvailableBookmarks(bookmarks);
+        const decks = await CommunityClientService.getCommunityBookmarks();
+        setAvailableBookmarks(decks);
       } catch (error) {
-        console.error('Failed to fetch community bookmarks:', error);
+        console.error('Failed to fetch community decks:', error);
         setAvailableBookmarks([]);
       } finally {
         setIsLoadingBookmarks(false);
@@ -202,7 +202,7 @@ export default function FilterBar({
                 disabled={isLoading || isLoadingBookmarks}
               >
                 <span className={selectedBookmark ? 'text-foreground' : 'text-muted-foreground'}>
-                  {selectedBookmark || 'all bookmarks...'}
+                  {selectedBookmark || 'all decks...'}
                 </span>
                 <ChevronDownIcon 
                   className={`h-4 w-4 text-muted-foreground transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 
@@ -215,31 +215,31 @@ export default function FilterBar({
                     <div className="px-3 py-2 text-sm text-muted-foreground">Loading...</div>
                   ) : (
                     <>
-                      {/* All bookmarks option */}
+                      {/* All decks option */}
                       <button
                         type="button"
                         onClick={() => handleBookmarkSelect('')}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-muted focus:bg-muted focus:outline-none"
                       >
-                        <span className="text-muted-foreground">all bookmarks</span>
+                        <span className="text-muted-foreground">all decks</span>
                       </button>
                       
-                      {/* Available bookmark options */}
-                      {availableBookmarks.map((bookmark) => (
+                      {/* Available deck options */}
+                      {availableBookmarks.map((deck) => (
                         <button
-                          key={bookmark}
+                          key={deck}
                           type="button"
-                          onClick={() => handleBookmarkSelect(bookmark)}
+                          onClick={() => handleBookmarkSelect(deck)}
                           className={`w-full px-3 py-2 text-sm text-left hover:bg-muted focus:bg-muted focus:outline-none ${
-                            selectedBookmark === bookmark ? 'bg-muted' : ''
+                            selectedBookmark === deck ? 'bg-muted' : ''
                           }`}
                         >
-                          {bookmark}
+                          {deck}
                         </button>
                       ))}
                       
                       {availableBookmarks.length === 0 && !isLoadingBookmarks && (
-                        <div className="px-3 py-2 text-sm text-muted-foreground">No bookmarks available</div>
+                        <div className="px-3 py-2 text-sm text-muted-foreground">No decks available</div>
                       )}
                     </>
                   )}

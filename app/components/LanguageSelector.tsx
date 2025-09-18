@@ -86,13 +86,13 @@ export default function LanguageSelector({ onClearBookmark, onLanguageChange }: 
           id: language.id,
           name: language.name
         }));
-        // Clear the bookmark selection
+        // Clear the deck selection
         onClearBookmark();
         // Update the language in the parent component
         onLanguageChange(language.code);
         // Navigate to the base path without query parameters
         router.push('/');
-        // Trigger a refetch of bookmarks to get the ones for the new language
+        // Trigger a refetch of decks to get the ones for the new language
         await fetch(`/api/getBookmarks?userId=${session.userId}`);
       }
     } catch (error) {

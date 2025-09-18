@@ -103,7 +103,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
             )}
 
             {/* TODO: decide if we want to add pause button back in */}
-            {/* Pause button - only show when selected bookmark is Daily Summary
+            {/* Pause button - only show when selected deck is Daily Summary
             {responseId && !responseId.startsWith('temp_') && onPauseToggle && selectedBookmarkTitle === 'daily summary' && (
               <IconButton
                 icon={<PauseCircleIcon className="h-6 w-6" />}

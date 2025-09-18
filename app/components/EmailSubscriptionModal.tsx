@@ -97,7 +97,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
         if (!result.data) {
           setMessage({ 
             type: 'info', 
-            text: `Create some ${languageName || selectedLanguage} bookmarks in your Dojo first to receive daily content!` 
+            text: `Create some ${languageName || selectedLanguage} decks in your Dojo first to receive daily content!` 
           });
         }
       }
@@ -416,7 +416,7 @@ export default function EmailSubscriptionModal({ isOpen, onClose, selectedLangua
         {!hasContent && (
           <div className="mt-4 p-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-sm">
             <p className="text-sm">
-              ⚠️ You don't have any {languageName || selectedLanguage} content in your Dojo yet. Create some bookmarks first to receive meaningful daily emails!
+              ⚠️ You don't have any {languageName || selectedLanguage} content in your Dojo yet. Create some decks first to receive meaningful daily emails!
             </p>
           </div>
         )}

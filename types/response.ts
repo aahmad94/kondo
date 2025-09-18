@@ -22,7 +22,7 @@ export interface GPTResponseData extends BaseResponseData {
   isKanaEnabled: boolean;
   source: 'local' | 'imported';
   communityResponseId?: string | null;
-  bookmarks?: Record<string, string>;
+  decks?: Record<string, string>;
 }
 
 // Community Response specific data
@@ -30,7 +30,7 @@ export interface CommunityResponseData extends BaseResponseData {
   originalResponseId: string;
   creatorAlias: string;
   creatorUserId: string;
-  bookmarkTitle: string;
+  deckTitle: string;
   isActive: boolean;
   importCount: number;
   sharedAt: Date;
@@ -39,7 +39,7 @@ export interface CommunityResponseData extends BaseResponseData {
 
 // Shared props for both response types
 interface BaseResponseProps {
-  selectedBookmarkTitle: string | null;
+  selectedDeckTitle: string | null;
   selectedLanguage?: string;
   hideContent?: boolean;
   showAnswer?: boolean;
@@ -54,17 +54,17 @@ interface BaseResponseProps {
 export interface GPTResponseProps extends BaseResponseProps {
   type: 'gpt';
   data: GPTResponseData;
-  selectedBookmarkId: string | null;
-  reservedBookmarkTitles: string[];
-  onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
-  onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
+  selectedDeckId: string | null;
+  reservedDeckTitles: string[];
+  onDelete?: (responseId: string, decks: Record<string, string>) => Promise<void>;
+  onDeckCreated?: (newDeck: { id: string, title: string }) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onFuriganaToggle?: (responseId: string, isFuriganaEnabled: boolean) => Promise<void>;
   onPhoneticToggle?: (responseId: string, isPhoneticEnabled: boolean) => Promise<void>;
   onKanaToggle?: (responseId: string, isKanaEnabled: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
-  onBookmarkSelect?: (id: string | null, title: string | null) => void;
+  onDeckSelect?: (id: string | null, title: string | null) => void;
   onBreakdownToggle?: React.MutableRefObject<(() => void) | null>;
   onShare?: (responseId: string) => void;
 }
@@ -78,7 +78,7 @@ export interface CommunityResponseProps extends BaseResponseProps {
   onDelete?: (communityResponseId: string) => Promise<void>;
   onViewProfile?: (userId: string) => void;
   onAliasClick?: (alias: string) => void;
-  onBookmarkClick?: (bookmarkTitle: string) => void;
+  onDeckClick?: (deckTitle: string) => void;
   currentUserId?: string;
   currentUserHasAlias?: boolean;
   isImporting?: boolean;

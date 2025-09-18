@@ -32,13 +32,13 @@ export const initAmplitude = (userEmail?: string) => {
 export const AmplitudeEvents = {
   BREAKDOWN_CLICK: 'breakdown_click',
   SPEAKER_CLICK: 'speaker_click',
-  ADD_TO_BOOKMARK: 'add_to_bookmark',
-  CREATE_BOOKMARK: 'create_bookmark',
+  ADD_TO_DECK: 'add_to_deck',
+  CREATE_DECK: 'create_deck',
   CHANGE_RANK: 'change_rank',
   PAUSE_TOGGLE: 'pause_toggle',
   LANGUAGE_CHANGE: 'language_change',
-  CLEAR_BOOKMARK: 'clear_bookmark',
-  BOOKMARK_SELECT: 'bookmark_select'
+  CLEAR_DECK: 'clear_deck',
+  DECK_SELECT: 'deck_select'
 } as const;
 
 // Helper function to get user properties
@@ -89,18 +89,18 @@ export const trackSpeakerClick = async (responseId: string) => {
   await trackEvent(AmplitudeEvents.SPEAKER_CLICK, { responseId });
 };
 
-export const trackAddToBookmark = async (responseId: string, bookmarkId: string, bookmarkTitle: string) => {
-  await trackEvent(AmplitudeEvents.ADD_TO_BOOKMARK, { 
+export const trackAddToDeck = async (responseId: string, deckId: string, deckTitle: string) => {
+  await trackEvent(AmplitudeEvents.ADD_TO_DECK, { 
     responseId, 
-    bookmarkId, 
-    bookmarkTitle
+    deckId, 
+    deckTitle
   });
 };
 
-export const trackCreateBookmark = async (bookmarkId: string, bookmarkTitle: string) => {
-  await trackEvent(AmplitudeEvents.CREATE_BOOKMARK, { 
-    bookmarkId, 
-    bookmarkTitle
+export const trackCreateDeck = async (deckId: string, deckTitle: string) => {
+  await trackEvent(AmplitudeEvents.CREATE_DECK, { 
+    deckId, 
+    deckTitle
   });
 };
 
@@ -123,14 +123,14 @@ export const trackLanguageChange = async (oldLanguage: string, newLanguage: stri
   });
 };
 
-export const trackClearBookmark = async () => {
-  await trackEvent(AmplitudeEvents.CLEAR_BOOKMARK, {});
+export const trackClearDeck = async () => {
+  await trackEvent(AmplitudeEvents.CLEAR_DECK, {});
 };
 
-export const trackBookmarkSelect = async (bookmarkId: string | null, bookmarkTitle: string | null) => {
-  await trackEvent(AmplitudeEvents.BOOKMARK_SELECT, { 
-    bookmarkId, 
-    bookmarkTitle
+export const trackDeckSelect = async (deckId: string | null, deckTitle: string | null) => {
+  await trackEvent(AmplitudeEvents.DECK_SELECT, { 
+    deckId, 
+    deckTitle
   });
 };
 

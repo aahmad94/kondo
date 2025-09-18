@@ -20,7 +20,7 @@ import {
   ShareIcon
 } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
-import BookmarksModal from './BookmarksModal';
+import DecksModal from './DecksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
@@ -39,7 +39,7 @@ import {
   AliasBadge
 } from './ui';
 import Tooltip from './Tooltip';
-import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
+import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { extractExpressions, prepareTextForSpeech, getAliasCSSVars } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { deleteCommunityResponseAction } from '../../actions/community';
@@ -57,7 +57,7 @@ import {
 } from '../../types/response';
 
 export default function CommunityResponse(props: ResponseProps) {
-  const { type, data, selectedBookmarkTitle, selectedLanguage = 'ja', hideContent = false, showAnswer, onToggleAnswer, onQuote, onBreakdownClick, onLoadingChange, containerWidth } = props;
+  const { type, data, selectedDeckTitle, selectedLanguage = 'ja', hideContent = false, showAnswer, onToggleAnswer, onQuote, onBreakdownClick, onLoadingChange, containerWidth } = props;
 
   // Colors
   const red = '#d93900';
@@ -81,7 +81,7 @@ export default function CommunityResponse(props: ResponseProps) {
 
   // GPT-specific state
   const [newRank, setNewRank] = useState(isGPTResponseProps(props) ? props.data.rank : 1);
-  const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
+  const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [localFuriganaEnabled, setLocalFuriganaEnabled] = useState(isGPTResponseProps(props) ? props.data.isFuriganaEnabled : selectedLanguage === 'ja');
@@ -102,13 +102,13 @@ export default function CommunityResponse(props: ResponseProps) {
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
   const quoteButtonRef = useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = useRef<HTMLButtonElement>(null);
-  const bookmarkButtonRef = useRef<HTMLButtonElement>(null);
+  const deckButtonRef = useRef<HTMLButtonElement>(null);
   const refreshButtonRef = useRef<HTMLButtonElement>(null);
   const furiganaDropdownRef = useRef<HTMLDivElement>(null);
 
   // Hover states
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
-  const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
+  const [isDeckHovered, setIsBookmarkHovered] = useState(false);
 
   // Parse response content (shared logic)
   const parseResponse = (response: string) => {
@@ -277,7 +277,7 @@ export default function CommunityResponse(props: ResponseProps) {
 
     try {
       setIsDeleting(true);
-      await props.onDelete(data.id, props.data.bookmarks || {});
+      await props.onDelete(data.id, props.data.decks || {});
       setIsDeleteModalOpen(false);
     } catch (error) {
       console.error('Error deleting response:', error);
@@ -293,23 +293,23 @@ export default function CommunityResponse(props: ResponseProps) {
     }
   };
 
-  const handleBookmarkClick = () => {
+  const handleDeckClick = () => {
     if (!isGPTResponseProps(props)) return;
     
-    const bookmarks = props.data.bookmarks;
-    if (bookmarks && Object.keys(bookmarks).length > 0) {
-      const nonReservedBookmarkEntry = Object.entries(bookmarks).find(([id, title]) => 
-        !props.reservedBookmarkTitles.includes(title)
+    const decks = props.data.decks;
+    if (decks && Object.keys(decks).length > 0) {
+      const nonReservedDeckEntry = Object.entries(decks).find(([id, title]) => 
+        !props.reservedDeckTitles.includes(title)
       );
       
-      if (nonReservedBookmarkEntry) {
-        const [bookmarkId, bookmarkTitle] = nonReservedBookmarkEntry;
-        router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
-        props.onBookmarkSelect?.(bookmarkId, bookmarkTitle);
+      if (nonReservedDeckEntry) {
+        const [deckId, deckTitle] = nonReservedDeckEntry;
+        router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
+        props.onDeckSelect?.(deckId, deckTitle);
       } else {
-        const [bookmarkId, bookmarkTitle] = Object.entries(bookmarks)[0];
-        router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
-        props.onBookmarkSelect?.(bookmarkId, bookmarkTitle);
+        const [deckId, deckTitle] = Object.entries(decks)[0];
+        router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
+        props.onDeckSelect?.(deckId, deckTitle);
       }
     }
   };
@@ -364,7 +364,7 @@ export default function CommunityResponse(props: ResponseProps) {
   const renderGPTActionButtons = () => {
     if (!isGPTResponseProps(props)) return null;
 
-    const { selectedBookmarkId, onDelete, onQuote } = props;
+    const { selectedDeckId, onDelete, onQuote } = props;
 
     return (
       <>
@@ -389,8 +389,8 @@ export default function CommunityResponse(props: ResponseProps) {
               <button 
                 ref={quoteButtonRef}
                 onClick={() => {
-                  if (selectedBookmarkId && props.onBookmarkSelect) {
-                    props.onBookmarkSelect(null, null);
+                  if (selectedDeckId && props.onDeckSelect) {
+                    props.onDeckSelect(null, null);
                     router.push('/');
                   }
                   onQuote(data.content, 'input');
@@ -406,8 +406,8 @@ export default function CommunityResponse(props: ResponseProps) {
             <button 
               ref={quoteButtonRef}
               onClick={() => {
-                if (selectedBookmarkId && props.onBookmarkSelect) {
-                  props.onBookmarkSelect(null, null);
+                if (selectedDeckId && props.onDeckSelect) {
+                  props.onDeckSelect(null, null);
                   router.push('/');
                 }
                 onQuote(data.content, 'input');
@@ -420,7 +420,7 @@ export default function CommunityResponse(props: ResponseProps) {
         )}
 
         {/* Delete button */}
-        {selectedBookmarkId && data.id && onDelete && (
+        {selectedDeckId && data.id && onDelete && (
           <button 
             onClick={handleDeleteClick}
             disabled={isDeleting}
@@ -430,17 +430,17 @@ export default function CommunityResponse(props: ResponseProps) {
           </button>
         )}
 
-        {/* Add to bookmark button */}
-        {!selectedBookmarkId && (
+        {/* Add to deck button */}
+        {!selectedDeckId && (
           !isMobile ? (
             <Tooltip
-              content="Add to bookmark"
-              isVisible={isBookmarkHovered}
-              buttonRef={bookmarkButtonRef}
+              content="Add to deck"
+              isVisible={isDeckHovered}
+              buttonRef={deckButtonRef}
             >
               <button 
-                ref={bookmarkButtonRef}
-                onClick={() => setIsBookmarkModalOpen(true)} 
+                ref={deckButtonRef}
+                onClick={() => setIsDeckModalOpen(true)} 
                 onMouseEnter={() => setIsBookmarkHovered(true)}
                 onMouseLeave={() => setIsBookmarkHovered(false)}
                 className="text-foreground hover:text-blue-400 transition-colors duration-200"
@@ -450,8 +450,8 @@ export default function CommunityResponse(props: ResponseProps) {
             </Tooltip>
           ) : (
             <button 
-              ref={bookmarkButtonRef}
-              onClick={() => setIsBookmarkModalOpen(true)} 
+              ref={deckButtonRef}
+              onClick={() => setIsDeckModalOpen(true)} 
               className="text-foreground hover:text-primary transition-colors duration-200"
             >
               <PlusIcon className="h-6 w-6" />
@@ -501,29 +501,29 @@ export default function CommunityResponse(props: ResponseProps) {
   const renderGPTMetadata = () => {
     if (!isGPTResponseProps(props)) return null;
 
-    const { data: gptData, selectedBookmarkId, onPauseToggle, reservedBookmarkTitles } = props;
-    const bookmarks = gptData.bookmarks;
+    const { data: gptData, selectedDeckId, onPauseToggle, reservedDeckTitles } = props;
+    const decks = gptData.decks;
 
     return (
       <>
         {/* Bookmark badge with pause toggle */}
-        {bookmarks && Object.keys(bookmarks).length > 0 && selectedBookmarkTitle !== 'flashcard' && (
+        {decks && Object.keys(decks).length > 0 && selectedDeckTitle !== 'flashcard' && (
           <div className="mt-2 pt-1 flex items-center gap-2">
             {(() => {
-              const nonReservedTitle = Object.values(bookmarks).find(title => 
-                !reservedBookmarkTitles.includes(title)
+              const nonReservedTitle = Object.values(decks).find(title => 
+                !reservedDeckTitles.includes(title)
               );
-              const displayTitle = nonReservedTitle || Object.values(bookmarks)[0];
+              const displayTitle = nonReservedTitle || Object.values(decks)[0];
               const finalDisplayTitle = displayTitle === 'daily summary' ? 'Dojo' : displayTitle;
-              const isCurrentBookmark = finalDisplayTitle === selectedBookmarkTitle || 
-                                      (displayTitle === 'daily summary' && selectedBookmarkTitle === 'daily summary') ||
-                                      (finalDisplayTitle === 'Dojo' && selectedBookmarkTitle === 'daily summary');
+              const isCurrentDeck = finalDisplayTitle === selectedDeckTitle || 
+                                      (displayTitle === 'daily summary' && selectedDeckTitle === 'daily summary') ||
+                                      (finalDisplayTitle === 'Dojo' && selectedDeckTitle === 'daily summary');
               
               return (
                 <span 
-                  onClick={isCurrentBookmark ? undefined : handleBookmarkClick}
+                  onClick={isCurrentDeck ? undefined : handleDeckClick}
                   className={`text-xs px-2 py-1 rounded-sm transition-all duration-200 max-w-[120px] truncate ${
-                    isCurrentBookmark 
+                    isCurrentDeck 
                       ? 'bg-muted text-muted-foreground cursor-default'
                       : 'bg-[hsl(var(--badge-bg))] text-[hsl(var(--badge-text))] cursor-pointer hover:opacity-80'
                   }`}
@@ -534,7 +534,7 @@ export default function CommunityResponse(props: ResponseProps) {
             })()}
             
             {/* Pause button */}
-            {selectedBookmarkId && data.id && onPauseToggle && (
+            {selectedDeckId && data.id && onPauseToggle && (
               <IconButton
                 icon={<PauseCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
                 alternateIcon={<PlayCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
@@ -565,10 +565,10 @@ export default function CommunityResponse(props: ResponseProps) {
       <div className="mt-2 pt-1 flex items-center gap-2 flex-wrap">
         {/* Bookmark title badge - muted theme colors */}
         <span 
-          onClick={isCommunityResponseProps(props) ? () => props.onBookmarkClick?.(communityData.bookmarkTitle) : undefined}
+          onClick={isCommunityResponseProps(props) ? () => props.onDeckClick?.(communityData.deckTitle) : undefined}
           className="text-xs px-2 py-1 rounded-sm bg-muted text-black dark:text-white cursor-pointer hover:opacity-80 transition-all duration-200"
         >
-          {communityData.bookmarkTitle}
+          {communityData.deckTitle}
         </span>
 
         {/* Import button - badge style (disabled for creators and already imported) */}
@@ -611,7 +611,7 @@ export default function CommunityResponse(props: ResponseProps) {
   const hasExpression = expressions.length > 0;
 
   return (
-    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
+    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedDeckTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
       {/* Header with rank/alias and action buttons - matching GPTResponse layout */}
       <div className="flex items-start justify-between mb-4">
         {/* Left side - Rank container for GPT, User alias badge for Community */}
@@ -716,7 +716,7 @@ export default function CommunityResponse(props: ResponseProps) {
                     isKanaEnabled={localKanaEnabled}
                     hideContent={hideContent}
                     containerWidth={containerWidth}
-                    isFlashcard={selectedBookmarkTitle === 'flashcard'}
+                    isFlashcard={selectedDeckTitle === 'flashcard'}
                   />
                 ) : (
                   <div className="pr-3 text-primary">
@@ -768,12 +768,12 @@ export default function CommunityResponse(props: ResponseProps) {
       {/* Modals */}
       {isGPTResponseProps(props) && (
         <>
-          {isBookmarkModalOpen && (
-            <BookmarksModal
-              isOpen={isBookmarkModalOpen}
-              onClose={() => setIsBookmarkModalOpen(false)}
+          {isDeckModalOpen && (
+            <DecksModal
+              isOpen={isDeckModalOpen}
+              onClose={() => setIsDeckModalOpen(false)}
               response={data.content}
-              reservedBookmarkTitles={props.reservedBookmarkTitles}
+              reservedDeckTitles={props.reservedDeckTitles}
               cachedAudio={null}
               desktopBreakdownContent={desktopBreakdownContent}
               mobileBreakdownContent={mobileBreakdownContent}
@@ -781,8 +781,8 @@ export default function CommunityResponse(props: ResponseProps) {
               isFuriganaEnabled={localFuriganaEnabled}
               isPhoneticEnabled={localPhoneticEnabled}
               isKanaEnabled={localKanaEnabled}
-              onBookmarkCreated={props.onBookmarkCreated}
-              onBookmarkSelect={props.onBookmarkSelect}
+              onDeckCreated={props.onDeckCreated}
+              onDeckSelect={props.onDeckSelect}
             />
           )}
           {isDeleteModalOpen && (
@@ -832,7 +832,7 @@ export default function CommunityResponse(props: ResponseProps) {
           rank={isGPTResponseProps(props) ? props.data.rank : 1}
           isPaused={isGPTResponseProps(props) ? props.data.isPaused : false}
           responseId={data.id || null}
-          selectedBookmarkTitle={selectedBookmarkTitle}
+          selectedDeckTitle={selectedDeckTitle}
           onRankUpdate={isGPTResponseProps(props) ? props.onRankUpdate : undefined}
           onPauseToggle={isGPTResponseProps(props) ? props.onPauseToggle : undefined}
           selectedLanguage={selectedLanguage}

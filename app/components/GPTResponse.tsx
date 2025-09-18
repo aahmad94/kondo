@@ -17,7 +17,7 @@ import {
   ArrowUpTrayIcon
 } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
-import BookmarksModal from './BookmarksModal';
+import DecksModal from './DecksModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
@@ -27,7 +27,7 @@ import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
 import { StyledMarkdown, DeleteIcon, AliasBadge } from './ui';
 import Tooltip from './Tooltip';
-import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToBookmark } from '@/lib/analytics';
+import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
 import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
@@ -37,9 +37,9 @@ import StandardResponse from './StandardResponse';
 
 interface GPTResponseProps {
   response: string;
-  selectedBookmarkId: string | null;
-  selectedBookmarkTitle: string | null;
-  reservedBookmarkTitles: string[];
+  selectedDeckId: string | null;
+  selectedDeckTitle: string | null;
+  reservedDeckTitles: string[];
   responseId?: string | null;
   rank?: number;
   createdAt?: Date;
@@ -54,16 +54,16 @@ interface GPTResponseProps {
   hideContent?: boolean;
   showAnswer?: boolean;
   onToggleAnswer?: () => void;
-  onDelete?: (responseId: string, bookmarks: Record<string, string>) => Promise<void>;
+  onDelete?: (responseId: string, decks: Record<string, string>) => Promise<void>;
   onQuote?: (response: string, type: 'submit' | 'breakdown' | 'input') => void;
-  onBookmarkCreated?: (newBookmark: { id: string, title: string }) => void;
+  onDeckCreated?: (newDeck: { id: string, title: string }) => void;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   onFuriganaToggle?: (responseId: string, isFuriganaEnabled: boolean) => Promise<void>;
   onPhoneticToggle?: (responseId: string, isPhoneticEnabled: boolean) => Promise<void>;
   onKanaToggle?: (responseId: string, isKanaEnabled: boolean) => Promise<void>;
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
-  onBookmarkSelect?: (id: string | null, title: string | null) => void;
+  onDeckSelect?: (id: string | null, title: string | null) => void;
   onShare?: (responseId: string) => Promise<void>;
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
@@ -74,7 +74,7 @@ interface GPTResponseProps {
   } | null;
   aliasColor?: string;
   isSharedToCommunity?: boolean;
-  bookmarks?: Record<string, string>;
+  decks?: Record<string, string>;
   selectedLanguage?: string;
   onLoadingChange?: (isLoading: boolean) => void;
   onBreakdownClick?: () => void;
@@ -84,9 +84,9 @@ interface GPTResponseProps {
 
 export default function GPTResponse({ 
   response, 
-  selectedBookmarkId, 
-  selectedBookmarkTitle,
-  reservedBookmarkTitles,
+  selectedDeckId, 
+  selectedDeckTitle,
+  reservedDeckTitles,
   responseId, 
   rank = 1, 
   createdAt,
@@ -109,19 +109,19 @@ export default function GPTResponse({
   onPhoneticToggle,
   onKanaToggle,
   onGenerateSummary,
-  onBookmarkSelect,
+  onDeckSelect,
   onShare,
   source,
   communityResponseId,
   communityResponse,
   aliasColor,
   isSharedToCommunity,
-  bookmarks,
+  decks,
   selectedLanguage = 'ja',
   onLoadingChange,
   onBreakdownClick,
   onBreakdownToggle,
-  onBookmarkCreated,
+  onDeckCreated,
   containerWidth
 }: GPTResponseProps) {
   const red = '#d93900'
@@ -132,7 +132,7 @@ export default function GPTResponse({
   const lightBlue = '#63b3ed'
   const white = '#fff'
   const [newRank, setNewRank] = useState(rank);
-  const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
+  const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -150,10 +150,10 @@ export default function GPTResponse({
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
-  const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
+  const [isDeckHovered, setIsDeckHovered] = useState(false);
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
-  const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
+  const deckButtonRef = React.useRef<HTMLButtonElement>(null);
   const refreshButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [desktopBreakdownContent, setDesktopBreakdownContent] = useState(breakdown || '');
@@ -412,7 +412,7 @@ export default function GPTResponse({
       
       if (deletionImpact?.isSharedResponse) {
         // Use enhanced deletion for shared responses
-        const result = await deleteGPTResponseWithCascadeAction(responseId, bookmarks || {});
+        const result = await deleteGPTResponseWithCascadeAction(responseId, decks || {});
         
         if (result.success) {
           setIsDeleteModalOpen(false);
@@ -420,7 +420,7 @@ export default function GPTResponse({
           // Trigger any parent refresh logic if needed
           // The parent's onDelete callback might be used for UI updates
           if (onDelete) {
-            await onDelete(responseId, bookmarks || {});
+            await onDelete(responseId, decks || {});
           }
         } else {
           console.error('Error deleting shared response:', result.error);
@@ -429,7 +429,7 @@ export default function GPTResponse({
       } else {
         // Use regular deletion for non-shared responses
         if (onDelete) {
-          await onDelete(responseId, bookmarks || {});
+          await onDelete(responseId, decks || {});
         }
         setIsDeleteModalOpen(false);
       }
@@ -442,24 +442,24 @@ export default function GPTResponse({
     }
   };
 
-  const handleBookmarkClick = () => {
-    if (bookmarks && Object.keys(bookmarks).length > 0) {
-      // Find the first non-reserved bookmark by checking each ID and title pair
-      const nonReservedBookmarkEntry = Object.entries(bookmarks).find(([id, title]) => 
-        !reservedBookmarkTitles.includes(title)
+  const handleDeckClick = () => {
+    if (decks && Object.keys(decks).length > 0) {
+      // Find the first non-reserved deck by checking each ID and title pair
+      const nonReservedDeckEntry = Object.entries(decks).find(([id, title]) => 
+        !reservedDeckTitles.includes(title)
       );
       
-      if (nonReservedBookmarkEntry) {
-        const [bookmarkId, bookmarkTitle] = nonReservedBookmarkEntry;
+      if (nonReservedDeckEntry) {
+        const [deckId, deckTitle] = nonReservedDeckEntry;
         // Update URL
-        router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
+        router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
         // Call the parent's callback to update state
-        onBookmarkSelect?.(bookmarkId, bookmarkTitle);
+        onDeckSelect?.(deckId, deckTitle);
       } else {
-        // If no non-reserved bookmark is found, use the first bookmark
-        const [bookmarkId, bookmarkTitle] = Object.entries(bookmarks)[0];
-        router.push(`/?bookmarkId=${bookmarkId}&bookmarkTitle=${encodeURIComponent(bookmarkTitle)}`);
-        onBookmarkSelect?.(bookmarkId, bookmarkTitle);
+        // If no non-reserved deck is found, use the first deck
+        const [deckId, deckTitle] = Object.entries(decks)[0];
+        router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
+        onDeckSelect?.(deckId, deckTitle);
       }
     }
   };
@@ -597,23 +597,23 @@ export default function GPTResponse({
     }
   };
 
-  const handleAddToBookmark = async (bookmarkId: string, bookmarkTitle: string) => {
+  const handleAddToDeck = async (deckId: string, deckTitle: string) => {
     if (responseId) {
-      await trackAddToBookmark(responseId, bookmarkId, bookmarkTitle);
+      await trackAddToDeck(responseId, deckId, deckTitle);
     }
   };
 
 
 
   return (
-    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedBookmarkTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
+    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedDeckTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
       <div className="header flex justify-between mb-2">
         {/* Left side */}
         <div className="flex pt-2 pb-1 items-center gap-3">
           {/* Header text for instruction type */}
           {type === 'instruction' && (
             <h2 className="text-primary font-bold">
-              {selectedBookmarkTitle === 'daily summary' ? 'dojo' : 'Instructions'}
+              {selectedDeckTitle === 'daily summary' ? 'dojo' : 'Instructions'}
             </h2>
           )}
 
@@ -621,7 +621,7 @@ export default function GPTResponse({
           {type !== 'instruction' && (
             <>
               {/* Rank container */}
-              {selectedBookmarkId && responseId && (
+              {selectedDeckId && responseId && (
                 <RankContainer 
                   rank={rank} 
                   onRankClick={onRankClick}
@@ -637,7 +637,7 @@ export default function GPTResponse({
               )}
 
               {/* Eye toggle button - only show in flashcard mode - moved to first position */}
-              {selectedBookmarkTitle === 'flashcard' && onToggleAnswer && (
+              {selectedDeckTitle === 'flashcard' && onToggleAnswer && (
                 <IconButton 
                   icon={<EyeIcon className="h-6 w-6" />}
                   alternateIcon={<EyeSlashIcon className="h-6 w-6" />}
@@ -668,12 +668,12 @@ export default function GPTResponse({
               )}
 
               {/* Breakdown button - hide in flashcard mode when content is hidden */}
-              {hasExpression && (selectedBookmarkTitle !== 'flashcard' || showAnswer) && (
+              {hasExpression && (selectedDeckTitle !== 'flashcard' || showAnswer) && (
                 <IconButton 
                   icon={<TableCellsIcon className="h-6 w-6" />}
                   onClick={handleBreakdownClick}
                   tooltipContent={
-                    selectedBookmarkTitle === 'flashcard'
+                    selectedDeckTitle === 'flashcard'
                       ? (
                           <div>
                             <div className="text-white">Breakdown phrase</div>
@@ -691,7 +691,7 @@ export default function GPTResponse({
               )}
 
               {/* Text-to-speech button - hide in flashcard mode when content is hidden */}
-              {hasExpression && responseId && (selectedBookmarkTitle !== 'flashcard' || showAnswer) && (
+              {hasExpression && responseId && (selectedDeckTitle !== 'flashcard' || showAnswer) && (
                 <SpeakerButton
                   responseId={responseId}
                   textToSpeak={prepareTextForSpeech(response)}
@@ -700,7 +700,7 @@ export default function GPTResponse({
                   buttonRef={speakerButtonRef}
                   onLoadingChange={onLoadingChange}
                   tooltipContent={
-                    selectedBookmarkTitle === 'flashcard' 
+                    selectedDeckTitle === 'flashcard' 
                       ? (
                           <div>
                             <div className="text-white">Listen to pronunciation</div>
@@ -727,7 +727,7 @@ export default function GPTResponse({
         {/* Right side */}
         <div className="flex items-center gap-3">
           {/* Language options dropdown - show for non-English languages except Spanish, but hide in flashcard mode */}
-          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && hasExpression && selectedBookmarkTitle !== 'flashcard' && (
+          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && hasExpression && selectedDeckTitle !== 'flashcard' && (
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
@@ -810,9 +810,9 @@ export default function GPTResponse({
                 <button 
                   ref={quoteButtonRef}
                   onClick={() => {
-                    // If we're in a bookmark, clear it and navigate to main chatbox
-                    if (selectedBookmarkId && onBookmarkSelect) {
-                      onBookmarkSelect(null, null);
+                    // If we're in a deck, clear it and navigate to main chatbox
+                    if (selectedDeckId && onDeckSelect) {
+                      onDeckSelect(null, null);
                       router.push('/');
                     }
                     onQuote(response, 'input');
@@ -828,9 +828,9 @@ export default function GPTResponse({
               <button 
                 ref={quoteButtonRef}
                 onClick={() => {
-                  // If we're in a bookmark, clear it and navigate to main chatbox
-                  if (selectedBookmarkId && onBookmarkSelect) {
-                    onBookmarkSelect(null, null);
+                  // If we're in a deck, clear it and navigate to main chatbox
+                  if (selectedDeckId && onDeckSelect) {
+                    onDeckSelect(null, null);
                     router.push('/');
                   }
                   onQuote(response, 'input');
@@ -843,27 +843,27 @@ export default function GPTResponse({
           )}
 
           {/* Delete button */}
-          {type !== 'instruction' && selectedBookmarkId && responseId && onDelete && (
+          {type !== 'instruction' && selectedDeckId && responseId && onDelete && (
             <DeleteIcon
               onClick={handleDeleteClick}
               disabled={isDeleting}
             />
           )}
 
-          {/* Add to bookmark button - only show when not in a bookmark (i.e. in dojo, all responses, search) */}
-          {type !== 'instruction' && type !== 'other' && !selectedBookmarkId && (
+          {/* Add to deck button - only show when not in a deck (i.e. in dojo, all responses, search) */}
+          {type !== 'instruction' && type !== 'other' && !selectedDeckId && (
             !isMobile ? (
               <Tooltip
-                content="Add to bookmark"
-                isVisible={isBookmarkHovered}
-                buttonRef={bookmarkButtonRef}
+                content="Add to deck"
+                isVisible={isDeckHovered}
+                buttonRef={deckButtonRef}
               >
                 {/* Plus button with smooth blue hover effect */}
                 <button 
-                  ref={bookmarkButtonRef}
-                  onClick={() => setIsBookmarkModalOpen(true)} 
-                  onMouseEnter={() => setIsBookmarkHovered(true)}
-                  onMouseLeave={() => setIsBookmarkHovered(false)}
+                  ref={deckButtonRef}
+                  onClick={() => setIsDeckModalOpen(true)} 
+                  onMouseEnter={() => setIsDeckHovered(true)}
+                  onMouseLeave={() => setIsDeckHovered(false)}
                   className="text-foreground hover:text-blue-400 transition-colors duration-200"
                 >
                   <PlusIcon className="h-6 w-6" />
@@ -871,8 +871,8 @@ export default function GPTResponse({
               </Tooltip>
             ) : (
               <button 
-                ref={bookmarkButtonRef}
-                onClick={() => setIsBookmarkModalOpen(true)} 
+                ref={deckButtonRef}
+                onClick={() => setIsDeckModalOpen(true)} 
                 className="text-foreground hover:text-primary transition-colors duration-200"
               >
                 <PlusIcon className="h-6 w-6" />
@@ -883,7 +883,7 @@ export default function GPTResponse({
       </div>
 
       {/* ------------ GPTResponse content ------------ */}
-      <div className={`whitespace-pre-wrap overflow-x-auto ${selectedBookmarkTitle === 'flashcard' ? 'w-full flex justify-center items-center' : 'w-[90%]'}`}>
+      <div className={`whitespace-pre-wrap overflow-x-auto ${selectedDeckTitle === 'flashcard' ? 'w-full flex justify-center items-center' : 'w-[90%]'}`}>
         {parsedBlocks.some(items => items && items.length > 0) ? (
           // For all responses, handle numbered lists specially, use Markdown for others
           parsedBlocks.map((items, blockIdx) =>
@@ -904,7 +904,7 @@ export default function GPTResponse({
                       isKanaEnabled={localKanaEnabled}
                       hideContent={hideContent}
                       containerWidth={containerWidth}
-                      isFlashcard={selectedBookmarkTitle === 'flashcard'}
+                      isFlashcard={selectedDeckTitle === 'flashcard'}
                     />
                   ) : (
                     // Otherwise use the existing custom logic for other numbered items
@@ -958,24 +958,24 @@ export default function GPTResponse({
         )}
       </div>
 
-      {/* Bookmark badge in bottom left corner with pause toggle */}
-      {bookmarks && Object.keys(bookmarks).length > 0 && selectedBookmarkTitle !== 'flashcard' && (
+      {/* Deck badge in bottom left corner with pause toggle */}
+      {decks && Object.keys(decks).length > 0 && selectedDeckTitle !== 'flashcard' && (
         <div className="mt-2 pt-1 flex items-center gap-2">
           {(() => {
-            const nonReservedTitle = Object.values(bookmarks).find(title => 
-              !reservedBookmarkTitles.includes(title)
+            const nonReservedTitle = Object.values(decks).find(title => 
+              !reservedDeckTitles.includes(title)
             );
-            const displayTitle = nonReservedTitle || Object.values(bookmarks)[0];
+            const displayTitle = nonReservedTitle || Object.values(decks)[0];
             const finalDisplayTitle = displayTitle === 'daily summary' ? 'Dojo' : displayTitle;
-            const isCurrentBookmark = finalDisplayTitle === selectedBookmarkTitle || 
-                                    (displayTitle === 'daily summary' && selectedBookmarkTitle === 'daily summary') ||
-                                    (finalDisplayTitle === 'Dojo' && selectedBookmarkTitle === 'daily summary');
+            const isCurrentDeck = finalDisplayTitle === selectedDeckTitle || 
+                                    (displayTitle === 'daily summary' && selectedDeckTitle === 'daily summary') ||
+                                    (finalDisplayTitle === 'Dojo' && selectedDeckTitle === 'daily summary');
             
             return (
               <span 
-                onClick={isCurrentBookmark ? undefined : handleBookmarkClick}
+                onClick={isCurrentDeck ? undefined : handleDeckClick}
                 className={`text-xs px-2 py-1 rounded-sm transition-all duration-200 max-w-[120px] truncate ${
-                  isCurrentBookmark 
+                  isCurrentDeck 
                     ? 'bg-muted text-muted-foreground cursor-default'
                     : 'bg-muted text-black dark:text-white cursor-pointer hover:opacity-80'
                 }`}
@@ -987,7 +987,7 @@ export default function GPTResponse({
 
           {/* Share to community button - badge style */}
           {(() => {
-            const shouldShow = selectedBookmarkId && responseId && onShare && type !== 'instruction';
+            const shouldShow = selectedDeckId && responseId && onShare && type !== 'instruction';
             return shouldShow;
           })() && (
             <span 
@@ -1003,10 +1003,10 @@ export default function GPTResponse({
             </span>
           )}
           
-          {/* Pause/Play button - conditional visibility based on bookmark and paused state */}
-          {selectedBookmarkId && responseId && onPauseToggle && (
-            // Show pause button only in Dojo/Daily Summary, or play button if paused (regardless of bookmark)
-            (selectedBookmarkTitle === 'daily summary' || isPaused) && (
+          {/* Pause/Play button - conditional visibility based on deck and paused state */}
+          {selectedDeckId && responseId && onPauseToggle && (
+            // Show pause button only in Dojo/Daily Summary, or play button if paused (regardless of deck)
+            (selectedDeckTitle === 'daily summary' || isPaused) && (
               <IconButton
                 icon={<PauseCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
                 alternateIcon={<PlayCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
@@ -1026,12 +1026,12 @@ export default function GPTResponse({
       )}
 
       {/* Modals */}
-      {isBookmarkModalOpen && (
-        <BookmarksModal
-          isOpen={isBookmarkModalOpen}
-          onClose={() => setIsBookmarkModalOpen(false)}
+      {isDeckModalOpen && (
+        <DecksModal
+          isOpen={isDeckModalOpen}
+          onClose={() => setIsDeckModalOpen(false)}
           response={response}
-          reservedBookmarkTitles={reservedBookmarkTitles}
+          reservedDeckTitles={reservedDeckTitles}
           cachedAudio={null}
           desktopBreakdownContent={desktopBreakdownContent}
           mobileBreakdownContent={mobileBreakdownContent}
@@ -1039,8 +1039,8 @@ export default function GPTResponse({
           isFuriganaEnabled={localFuriganaEnabled}
           isPhoneticEnabled={localPhoneticEnabled}
           isKanaEnabled={localKanaEnabled}
-          onBookmarkCreated={onBookmarkCreated}
-          onBookmarkSelect={onBookmarkSelect}
+          onDeckCreated={onDeckCreated}
+          onDeckSelect={onDeckSelect}
         />
       )}
       {isDeleteModalOpen && (
@@ -1075,7 +1075,7 @@ export default function GPTResponse({
           rank={rank}
           isPaused={isPaused}
           responseId={responseId ?? null}
-          selectedBookmarkTitle={selectedBookmarkTitle}
+          selectedDeckTitle={selectedDeckTitle}
           onRankUpdate={onRankUpdate}
           onPauseToggle={onPauseToggle}
           selectedLanguage={selectedLanguage}
