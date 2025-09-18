@@ -46,7 +46,7 @@ export interface CommunityImport {
 
 // Filter and pagination types
 export interface CommunityFilters {
-  bookmarkTitle?: string;
+  deckTitle?: string;
   creatorAlias?: string;
   languageId?: string; // Set automatically by API based on user's current language
   minImports?: number;

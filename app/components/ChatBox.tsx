@@ -52,7 +52,7 @@ interface Response {
   content: string;
   rank: number;
   isPaused?: boolean;
-  bookmarks?: Record<string, string>;
+  decks?: Record<string, string>;
   createdAt: Date;
   updatedAt: Date;
   furigana?: string | null;
@@ -77,7 +77,7 @@ interface BookmarkResponse {
   content: string;
   rank: number;
   isPaused?: boolean;
-  bookmarks?: Record<string, string>;
+  decks?: Record<string, string>;
   createdAt: Date;
   updatedAt: Date;
   furigana?: string | null;
@@ -183,7 +183,7 @@ export default function ChatBox({
     communityResponse: any;
   }>({ isOpen: false, communityResponse: null });
   const [sharedResponseTitle, setSharedResponseTitle] = useState('');
-  const [selectedCommunityBookmarkTitle, setSelectedCommunityBookmarkTitle] = useState<string | null>(null);
+  const [selectedCommunityDeckTitle, setSelectedCommunityDeckTitle] = useState<string | null>(null);
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -298,7 +298,7 @@ export default function ChatBox({
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, deckId: string) => {
-    // Skip fetching for reserved bookmarks
+    // Skip fetching for reserved decks
     if (reservedDeckTitles.includes(selectedDeck.title)) {
       setBookmarkResponses({});
       return;
@@ -320,7 +320,7 @@ export default function ChatBox({
         content: response.content,
         rank: response.rank,
         isPaused: response.isPaused,
-        bookmarks: response.bookmarks,
+        decks: response.decks,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
         furigana: response.furigana,
@@ -365,7 +365,7 @@ export default function ChatBox({
         content: response.content,
         rank: response.rank,
         isPaused: response.isPaused,
-        bookmarks: response.bookmarks,
+        decks: response.decks,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
         furigana: response.furigana,
@@ -462,7 +462,7 @@ export default function ChatBox({
   };
 
   // Deletes response from database and updates state locally
-  const handleResponseDelete = async (responseId: string, bookmarks?: Record<string, string>) => {
+  const handleResponseDelete = async (responseId: string, decks?: Record<string, string>) => {
     if (!session?.userId) return;
     
     try {
@@ -475,7 +475,7 @@ export default function ChatBox({
           },
           body: JSON.stringify({
             gptResponseId: responseId,
-            bookmarks: bookmarks || {}
+            decks: decks || {}
           })
         }
       );
@@ -765,7 +765,7 @@ export default function ChatBox({
           rank: response.rank,
           createdAt: new Date(response.createdAt),
           isPaused: response.isPaused,
-          bookmarks: response.bookmarks,
+          decks: response.decks,
           isFuriganaEnabled: response.isFuriganaEnabled,
           isPhoneticEnabled: response.isPhoneticEnabled,
           isKanaEnabled: response.isKanaEnabled,
@@ -876,7 +876,7 @@ export default function ChatBox({
         refetchCommunityFresh();
         console.log('Successfully imported response(s)');
         
-        // If a new bookmark was created, notify the parent to refresh bookmarks bar
+        // If a new bookmark was created, notify the parent to refresh decks bar
         if (result.wasBookmarkCreated && result.bookmark && onDeckCreated) {
           onDeckCreated(result.bookmark);
         }
@@ -924,9 +924,9 @@ export default function ChatBox({
         // Get the bookmark title for the message
         const response = Object.values(responses).find(r => r.id === responseId) || 
                          Object.values(bookmarkResponses).find(r => r.id === responseId);
-        const bookmarkTitle = response?.bookmarks ? Object.values(response.bookmarks)[0] : 'Unknown';
+        const deckTitle = response?.decks ? Object.values(response.decks)[0] : 'Unknown';
         
-        setSharedResponseTitle(bookmarkTitle || 'your response');
+        setSharedResponseTitle(deckTitle || 'your response');
         setShowAlreadySharedModal(true);
         return;
       }
@@ -942,9 +942,9 @@ export default function ChatBox({
         // Get the bookmark title for the success message
         const response = Object.values(responses).find(r => r.id === responseId) || 
                          Object.values(bookmarkResponses).find(r => r.id === responseId);
-        const bookmarkTitle = response?.bookmarks ? Object.values(response.bookmarks)[0] : 'Unknown';
+        const deckTitle = response?.decks ? Object.values(response.decks)[0] : 'Unknown';
         
-        setSharedResponseTitle(bookmarkTitle || 'your response');
+        setSharedResponseTitle(deckTitle || 'your response');
         setShowShareSuccessModal(true);
         
         // Refresh community feed with fresh data
@@ -959,9 +959,9 @@ export default function ChatBox({
           // Handle the case where server-side detects duplicate (backup)
           const response = Object.values(responses).find(r => r.id === responseId) || 
                            Object.values(bookmarkResponses).find(r => r.id === responseId);
-          const bookmarkTitle = response?.bookmarks ? Object.values(response.bookmarks)[0] : 'Unknown';
+          const deckTitle = response?.decks ? Object.values(response.decks)[0] : 'Unknown';
           
-          setSharedResponseTitle(bookmarkTitle || 'your response');
+          setSharedResponseTitle(deckTitle || 'your response');
           setShowAlreadySharedModal(true);
         }
       }
@@ -1018,9 +1018,9 @@ export default function ChatBox({
     updateCommunityFilters({ creatorAlias: alias });
   };
 
-  const handleBookmarkClick = (bookmarkTitle: string) => {
-    // Filter the community feed by the clicked bookmark title
-    updateCommunityFilters({ bookmarkTitle: bookmarkTitle });
+  const handleDeckClick = (deckTitle: string) => {
+    // Filter the community feed by the clicked deck title
+    updateCommunityFilters({ deckTitle: deckTitle });
   };
 
 
@@ -1083,13 +1083,13 @@ export default function ChatBox({
   };
 
   const handleImportEntireBookmark = () => {
-    if (communityFilters?.bookmarkTitle) {
-      setSelectedCommunityBookmarkTitle(communityFilters.bookmarkTitle);
+    if (communityFilters?.deckTitle) {
+      setSelectedCommunityDeckTitle(communityFilters.deckTitle);
       // Create a mock community response for the DecksModal
       const mockCommunityResponse = {
         id: 'batch-import', // Special ID to indicate batch import
-        bookmarkTitle: communityFilters.bookmarkTitle,
-        content: `Batch import from "${communityFilters.bookmarkTitle}" bookmark`
+        deckTitle: communityFilters.deckTitle,
+        content: `Batch import from "${communityFilters.deckTitle}" deck`
       };
       setCommunityImportModal({
         isOpen: true,
@@ -1230,7 +1230,7 @@ export default function ChatBox({
                         originalResponseId: communityResponse.originalResponseId,
                         creatorAlias: communityResponse.creatorAlias,
                         creatorUserId: communityResponse.creatorUserId,
-                        bookmarkTitle: communityResponse.bookmarkTitle,
+                        deckTitle: communityResponse.bookmarkTitle,
                         isActive: communityResponse.isActive,
                         importCount: communityResponse.importCount,
                         sharedAt: communityResponse.sharedAt,
@@ -1243,7 +1243,7 @@ export default function ChatBox({
                       onDelete={handleCommunityDelete}
                       onViewProfile={handleViewProfile}
                       onAliasClick={handleAliasClick}
-                      onDeckClick={handleBookmarkClick}
+                      onDeckClick={handleDeckClick}
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
                       aliasColor={aliasColorMap.get(communityResponse.creatorAlias)}
@@ -1499,7 +1499,7 @@ export default function ChatBox({
             </div>
             
             <p className="text-card-foreground">
-              You cannot import your own shared responses. This response is already available in your personal bookmarks.
+              You cannot import your own shared responses. This response is already available in your personal decks.
             </p>
           </div>
         </div>

@@ -375,9 +375,9 @@ export async function getCommunityFeed(
       isActive: true
     };
 
-    if (filters.bookmarkTitle) {
+    if (filters.deckTitle) {
       whereClause.bookmarkTitle = {
-        contains: filters.bookmarkTitle,
+        contains: filters.deckTitle,
         mode: 'insensitive'
       };
     }

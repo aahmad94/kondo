@@ -20,7 +20,7 @@ export class CommunityClientService {
     const queryParams = new URLSearchParams();
     
     // Add filters to query params
-    if (filters.bookmarkTitle) queryParams.set('bookmarkTitle', filters.bookmarkTitle);
+    if (filters.deckTitle) queryParams.set('deckTitle', filters.deckTitle);
     if (filters.creatorAlias) queryParams.set('creatorAlias', filters.creatorAlias);
     // Note: languageId is automatically set by the API based on user's preference
     if (filters.minImports) queryParams.set('minImports', filters.minImports.toString());
@@ -100,7 +100,7 @@ export class CommunityClientService {
   static buildFilterQueryString(filters: CommunityFilters, pagination?: CommunityPagination): string {
     const queryParams = new URLSearchParams();
     
-    if (filters.bookmarkTitle) queryParams.set('bookmarkTitle', filters.bookmarkTitle);
+    if (filters.deckTitle) queryParams.set('deckTitle', filters.deckTitle);
     if (filters.creatorAlias) queryParams.set('creatorAlias', filters.creatorAlias);
     // Note: languageId is automatically set by the API based on user's preference
     if (filters.minImports) queryParams.set('minImports', filters.minImports.toString());
@@ -123,7 +123,7 @@ export class CommunityClientService {
     pagination: CommunityPagination 
   } {
     const filters: CommunityFilters = {
-      bookmarkTitle: searchParams.get('bookmarkTitle') || undefined,
+      deckTitle: searchParams.get('deckTitle') || undefined,
       creatorAlias: searchParams.get('creatorAlias') || undefined,
       // Note: languageId is automatically set by the API based on user's preference
       minImports: searchParams.get('minImports') ? parseInt(searchParams.get('minImports')!) : undefined,

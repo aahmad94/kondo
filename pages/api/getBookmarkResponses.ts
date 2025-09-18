@@ -99,7 +99,7 @@ export default async function handler(
       
       return {
         ...response,
-        bookmarks: bookmarkDict,
+        decks: bookmarkDict,
         isSharedToCommunity
       };
     });

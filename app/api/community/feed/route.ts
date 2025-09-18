@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     
     // Parse filters from query parameters - REMOVE languageId from manual filters
     const filters: CommunityFilters = {
-      bookmarkTitle: searchParams.get('bookmarkTitle') || undefined,
+      deckTitle: searchParams.get('deckTitle') || undefined,
       creatorAlias: searchParams.get('creatorAlias') || undefined,
       languageId: userLanguageId, // Always use user's current language
       minImports: searchParams.get('minImports') ? parseInt(searchParams.get('minImports')!) : undefined,

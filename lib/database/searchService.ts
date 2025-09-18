@@ -124,7 +124,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
         isKanaEnabled: result.iskanaenabled || false,
         breakdown: result.breakdown || null,
         mobileBreakdown: result.mobilebreakdown || null,
-        bookmarks: result.bookmarks || {},
+        decks: result.bookmarks || {},
         ...metadata
       };
     });

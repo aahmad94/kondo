@@ -101,7 +101,7 @@ export async function getAllUserResponsesByLanguage(userId: string) {
       
       return {
         ...response,
-        bookmarks: response.bookmarks.reduce((acc, bookmark) => {
+        decks: response.bookmarks.reduce((acc, bookmark) => {
           acc[bookmark.id] = bookmark.title;
           return acc;
         }, {} as Record<string, string>),
