@@ -299,7 +299,7 @@ export default function CommunityResponse(props: ResponseProps) {
     const decks = props.data.decks;
     if (decks && Object.keys(decks).length > 0) {
       const nonReservedDeckEntry = Object.entries(decks).find(([id, title]) => 
-        !props.reservedDeckTitles.includes(title)
+        !props.reservedDeckTitles?.includes(title)
       );
       
       if (nonReservedDeckEntry) {
@@ -511,7 +511,7 @@ export default function CommunityResponse(props: ResponseProps) {
           <div className="mt-2 pt-1 flex items-center gap-2">
             {(() => {
               const nonReservedTitle = Object.values(decks).find(title => 
-                !reservedDeckTitles.includes(title)
+                !reservedDeckTitles?.includes(title)
               );
               const displayTitle = nonReservedTitle || Object.values(decks)[0];
               const finalDisplayTitle = displayTitle === 'daily summary' ? 'Dojo' : displayTitle;

@@ -446,7 +446,7 @@ export default function GPTResponse({
     if (decks && Object.keys(decks).length > 0) {
       // Find the first non-reserved deck by checking each ID and title pair
       const nonReservedDeckEntry = Object.entries(decks).find(([id, title]) => 
-        !reservedDeckTitles.includes(title)
+        !reservedDeckTitles?.includes(title)
       );
       
       if (nonReservedDeckEntry) {
@@ -963,7 +963,7 @@ export default function GPTResponse({
         <div className="mt-2 pt-1 flex items-center gap-2">
           {(() => {
             const nonReservedTitle = Object.values(decks).find(title => 
-              !reservedDeckTitles.includes(title)
+              !reservedDeckTitles?.includes(title)
             );
             const displayTitle = nonReservedTitle || Object.values(decks)[0];
             const finalDisplayTitle = displayTitle === 'daily summary' ? 'Dojo' : displayTitle;
