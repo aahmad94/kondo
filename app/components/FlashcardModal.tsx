@@ -215,9 +215,9 @@ export default function FlashcardModal({
                 <GPTResponse
                     key={`flashcard-${currentResponse.id}-${currentIndex}`}
                     response={currentResponse.content}
-                    selectedBookmarkId="flashcard-mode"
-                    selectedBookmarkTitle="flashcard"
-                    reservedBookmarkTitles={[]}
+                    selectedDeckId="flashcard-mode"
+                    selectedDeckTitle="flashcard"
+                    reservedDeckTitles={[]}
                     responseId={currentResponse.id}
                     rank={currentResponse.rank}
                     createdAt={currentResponse.createdAt}

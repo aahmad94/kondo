@@ -19,7 +19,7 @@ interface BreakdownModalProps {
   rank?: number;
   isPaused?: boolean;
   responseId?: string | null;
-  selectedBookmarkTitle?: string | null;
+  selectedDeckTitle?: string | null;
   onRankUpdate?: (responseId: string, newRank: number) => Promise<void>;
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   selectedLanguage?: string;
@@ -39,7 +39,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   rank = 1,
   isPaused = false,
   responseId,
-  selectedBookmarkTitle,
+  selectedDeckTitle,
   onRankUpdate,
   onPauseToggle,
   selectedLanguage = 'ja',
@@ -104,7 +104,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 
             {/* TODO: decide if we want to add pause button back in */}
             {/* Pause button - only show when selected deck is Daily Summary
-            {responseId && !responseId.startsWith('temp_') && onPauseToggle && selectedBookmarkTitle === 'daily summary' && (
+            {responseId && !responseId.startsWith('temp_') && onPauseToggle && selectedDeckTitle === 'daily summary' && (
               <IconButton
                 icon={<PauseCircleIcon className="h-6 w-6" />}
                 alternateIcon={<PlayCircleIcon className="h-6 w-6" />}

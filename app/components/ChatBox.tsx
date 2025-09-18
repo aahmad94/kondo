@@ -299,7 +299,7 @@ export default function ChatBox({
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
   const fetchBookmarkResponses = async (userId: string, deckId: string) => {
     // Skip fetching for reserved decks
-    if (reservedDeckTitles.includes(selectedDeck.title)) {
+    if (selectedDeck.title && reservedDeckTitles.includes(selectedDeck.title)) {
       setBookmarkResponses({});
       return;
     }
@@ -847,14 +847,14 @@ export default function ChatBox({
       let result;
       
       // Check if this is a batch import (entire bookmark)
-      if (communityResponseId === 'batch-import' && selectedCommunityBookmarkTitle) {
+      if (communityResponseId === 'batch-import' && selectedCommunityDeckTitle) {
         // Handle batch import of entire bookmark
         if (bookmarkId && !createNew) {
           // Import to specific existing bookmark
-          result = await importEntireCommunityBookmarkAction(selectedCommunityBookmarkTitle, bookmarkId);
+          result = await importEntireCommunityBookmarkAction(selectedCommunityDeckTitle, bookmarkId);
         } else {
           // Create new bookmark or use auto-create approach
-          result = await importEntireCommunityBookmarkAction(selectedCommunityBookmarkTitle);
+          result = await importEntireCommunityBookmarkAction(selectedCommunityDeckTitle);
         }
       } else {
         // Handle single response import

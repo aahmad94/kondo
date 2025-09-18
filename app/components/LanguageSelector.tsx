@@ -14,11 +14,11 @@ interface Language {
 }
 
 interface LanguageSelectorProps {
-  onClearBookmark: () => void;
+  onClearDeck: () => void;
   onLanguageChange: (languageCode: string) => void;
 }
 
-export default function LanguageSelector({ onClearBookmark, onLanguageChange }: LanguageSelectorProps) {
+export default function LanguageSelector({ onClearDeck, onLanguageChange }: LanguageSelectorProps) {
   const { data: session } = useSession();
   const [languages, setLanguages] = useState<Language[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
@@ -87,7 +87,7 @@ export default function LanguageSelector({ onClearBookmark, onLanguageChange }: 
           name: language.name
         }));
         // Clear the deck selection
-        onClearBookmark();
+        onClearDeck();
         // Update the language in the parent component
         onLanguageChange(language.code);
         // Navigate to the base path without query parameters
