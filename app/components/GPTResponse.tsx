@@ -14,7 +14,7 @@ import {
   TableCellsIcon,
   EyeIcon,
   EyeSlashIcon,
-  ShareIcon
+  ArrowUpTrayIcon
 } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import BookmarksModal from './BookmarksModal';
@@ -151,12 +151,10 @@ export default function GPTResponse({
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
   const [isBookmarkHovered, setIsBookmarkHovered] = useState(false);
-  const [isShareHovered, setIsShareHovered] = useState(false);
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
   const bookmarkButtonRef = React.useRef<HTMLButtonElement>(null);
   const refreshButtonRef = React.useRef<HTMLButtonElement>(null);
-  const shareButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [desktopBreakdownContent, setDesktopBreakdownContent] = useState(breakdown || '');
   const [mobileBreakdownContent, setMobileBreakdownContent] = useState(mobileBreakdown || '');
@@ -630,6 +628,14 @@ export default function GPTResponse({
                 />
               )}
 
+              {/* Owner alias badge - show for imported responses */}
+              {source === 'imported' && communityResponse?.creatorAlias && (
+                <AliasBadge 
+                  alias={communityResponse.creatorAlias} 
+                  customColor={aliasColor}
+                />
+              )}
+
               {/* Eye toggle button - only show in flashcard mode - moved to first position */}
               {selectedBookmarkTitle === 'flashcard' && onToggleAnswer && (
                 <IconButton 
@@ -979,12 +985,22 @@ export default function GPTResponse({
             );
           })()}
 
-          {/* Owner alias badge - show for imported responses */}
-          {source === 'imported' && communityResponse?.creatorAlias && (
-            <AliasBadge 
-              alias={communityResponse.creatorAlias} 
-              customColor={aliasColor}
-            />
+          {/* Share to community button - badge style */}
+          {(() => {
+            const shouldShow = selectedBookmarkId && responseId && onShare && type !== 'instruction';
+            return shouldShow;
+          })() && (
+            <span 
+              onClick={isShareDisabled ? undefined : handleShareToCommunity}
+              className={`text-xs px-2 py-1 rounded-sm transition-all duration-200 flex items-center gap-1 ${
+                isShareDisabled 
+                  ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+                  : 'bg-muted text-black dark:text-white cursor-pointer hover:opacity-80'
+              }`}
+            >
+              <ArrowUpTrayIcon className="h-3 w-3" />
+              <span>Upload</span>
+            </span>
           )}
           
           {/* Pause/Play button - conditional visibility based on bookmark and paused state */}
@@ -1004,47 +1020,6 @@ export default function GPTResponse({
                 colorScheme="green-yellow"
                 className="relative group"
               />
-            )
-          )}
-
-          {/* Share to community button - show for all bookmarks */}
-          {(() => {
-            const shouldShow = selectedBookmarkId && responseId && onShare && type !== 'instruction';
-            console.log('Share button render conditions:', { 
-              selectedBookmarkId, 
-              responseId, 
-              hasOnShare: !!onShare, 
-              type, 
-              shouldShow 
-            });
-            return shouldShow;
-          })() && (
-            !isMobile ? (
-              <Tooltip
-                content="Share this response to the community feed"
-                isVisible={isShareHovered}
-                buttonRef={shareButtonRef}
-              >
-                <button 
-                  ref={shareButtonRef}
-                  onClick={handleShareToCommunity}
-                  onMouseEnter={() => setIsShareHovered(true)}
-                  onMouseLeave={() => setIsShareHovered(false)}
-                  disabled={isShareDisabled}
-                  className="text-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:hover:text-blue-500 transition-colors duration-200"
-                >
-                  <ShareIcon className="h-5 w-5" />
-                </button>
-              </Tooltip>
-            ) : (
-              <button 
-                ref={shareButtonRef}
-                onClick={handleShareToCommunity}
-                disabled={isShareDisabled}
-                className="text-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:hover:text-blue-500 transition-colors duration-200"
-              >
-                <ShareIcon className="h-5 w-5" />
-              </button>
             )
           )}
         </div>
