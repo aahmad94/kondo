@@ -971,7 +971,7 @@ export default function GPTResponse({
                 className={`text-xs px-2 py-1 rounded-sm transition-all duration-200 max-w-[120px] truncate ${
                   isCurrentBookmark 
                     ? 'bg-muted text-muted-foreground cursor-default'
-                    : 'bg-[hsl(var(--badge-bg))] text-black dark:text-white cursor-pointer hover:opacity-80'
+                    : 'bg-muted text-black dark:text-white cursor-pointer hover:opacity-80'
                 }`}
               >
                 {finalDisplayTitle}
