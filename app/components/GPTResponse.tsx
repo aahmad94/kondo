@@ -987,21 +987,24 @@ export default function GPTResponse({
             />
           )}
           
-          {/* Pause button - show for all bookmarks */}
+          {/* Pause/Play button - conditional visibility based on bookmark and paused state */}
           {selectedBookmarkId && responseId && onPauseToggle && (
-            <IconButton
-              icon={<PauseCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
-              alternateIcon={<PlayCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
-              isAlternateState={isPaused}
-              onClick={() => handlePauseToggle(responseId, !isPaused)}
-              tooltipContent={{
-                default: "Pause cycling this response in dojo",
-                alternate: "Resume cycling this response in dojo"
-              }}
-              buttonRef={pauseButtonRef}
-              colorScheme="green-yellow"
-              className="relative group"
-            />
+            // Show pause button only in Dojo/Daily Summary, or play button if paused (regardless of bookmark)
+            (selectedBookmarkTitle === 'daily summary' || isPaused) && (
+              <IconButton
+                icon={<PauseCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
+                alternateIcon={<PlayCircleIcon className={isMobile ? "h-5 w-5" : "h-6 w-6"} />}
+                isAlternateState={isPaused}
+                onClick={() => handlePauseToggle(responseId, !isPaused)}
+                tooltipContent={{
+                  default: "Pause cycling this response in dojo",
+                  alternate: "Resume cycling this response in dojo"
+                }}
+                buttonRef={pauseButtonRef}
+                colorScheme="green-yellow"
+                className="relative group"
+              />
+            )
           )}
 
           {/* Share to community button - show for all bookmarks */}
