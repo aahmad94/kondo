@@ -2,24 +2,24 @@
  * Utility functions for generating consistent colors for user aliases
  */
 
-// Bright pastel color palette for aliases
+// Bright pastel color palette for aliases - optimized for better distinction
 const ALIAS_COLORS = [
-  '#FFB3BA', // Light pink
-  '#FFD4A3', // Light peach
-  '#FFFFBA', // Light yellow
-  '#BAFFC9', // Light green
-  '#BAE1FF', // Light blue
-  '#C9BAFF', // Light purple
-  '#FFBAFF', // Light magenta
-  '#B3E5D1', // Light mint
-  '#FFD1B3', // Light coral
-  '#E1B3FF', // Light lavender
-  '#B3FFFF', // Light cyan
-  '#FFC9BA', // Light salmon
-  '#D4B3FF', // Light periwinkle
-  '#B3FFD4', // Light seafoam
-  '#FFCCD1', // Light rose
-  '#D1FFB3', // Light lime
+  '#FFB3C6', // Soft pink
+  '#FFD700', // Light gold
+  '#98FB98', // Pale green
+  '#87CEEB', // Sky blue
+  '#DDA0DD', // Plum
+  '#F0E68C', // Khaki
+  '#FFB347', // Peach
+  '#B19CD9', // Light purple
+  '#FFE4E1', // Misty rose
+  '#AFEEEE', // Pale turquoise
+  '#F5DEB3', // Wheat
+  '#D8BFD8', // Thistle
+  '#FFA07A', // Light salmon
+  '#E0FFFF', // Light cyan
+  '#FFEFD5', // Papaya whip
+  '#C1FFC1', // Pale green
 ] as const;
 
 /**
