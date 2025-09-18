@@ -34,16 +34,16 @@ export async function GET(request: NextRequest) {
         isActive: true
       },
       select: {
-        deckTitle: true
+        bookmarkTitle: true
       },
-      distinct: ['deckTitle'],
+      distinct: ['bookmarkTitle'],
       orderBy: {
-        deckTitle: 'asc'
+        bookmarkTitle: 'asc'
       }
     });
 
     // Extract just the bookmark titles
-    const deckTitles = bookmarks.map(bookmark => bookmark.deckTitle);
+    const deckTitles = bookmarks.map(bookmark => bookmark.bookmarkTitle);
 
     return NextResponse.json({
       success: true,
