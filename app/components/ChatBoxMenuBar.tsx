@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { ChatBubbleLeftIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
+import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
@@ -137,8 +137,8 @@ export default function ChatBoxMenuBar({
                   onClick={onCreateNewContent}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
-                  <ChatBubbleLeftIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>create new material</span>
+                  <WrenchIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>create new content</span>
                 </button>
               )}
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, MagnifyingGlassIcon, ChatBubbleLeftIcon, AcademicCapIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, WrenchIcon, AcademicCapIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import CreateBookmarkModal from './CreateBookmarkModal';
 import DeleteBookmarkModal from './DeleteBookmarkModal';
 import EditBookmarkModal from './EditBookmarkModal';
@@ -333,6 +333,15 @@ export default function Bookmarks({
               <div className="flex justify-between items-start px-2 py-2">
                 <div className="flex flex-col space-y-1">
                   <div
+                    className={`chat-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedBookmark.id === null && selectedBookmark.title === null ? 'bg-accent rounded-sm' : ''}`}
+                    onClick={handleChatClick}
+                  >
+                    <WrenchIcon className="h-4 w-4 inline mr-2 text-white"/>
+                    <span className="text-white">create</span>
+                  </div>
+
+                  <div
                     className={`community-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
                       ${selectedBookmark.title === "community" ? 'bg-accent rounded-sm' : ''}`}
                     onClick={handleCommunityClick}
@@ -353,25 +362,6 @@ export default function Bookmarks({
                   >
                     <AcademicCapIcon className="h-4 w-4 inline mr-2 text-phrase-text"/>
                     <span className="text-phrase-text">dojo</span>
-                  </div>
-
-                  <div
-                    className={`chat-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.id === null && selectedBookmark.title === null ? 'bg-accent rounded-sm' : ''}`}
-                    onClick={handleChatClick}
-                  >
-                    <ChatBubbleLeftIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                    <span className="text-blue-400">create</span>
-                  </div>
-
-                  <div 
-                    className={`search-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
-                      ${selectedBookmark.title === "search" ? 'bg-accent rounded-sm' : ''}`}
-                    onClick={() => handleBookmarkInteraction("search", "search")}
-                    onTouchStart={() => handleBookmarkInteraction("search", "search")}
-                  >
-                    <MagnifyingGlassIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
-                    <span className="text-blue-400">search</span>
                   </div>
 
                   <div 

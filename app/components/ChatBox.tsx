@@ -251,13 +251,6 @@ export default function ChatBox({
         } else {
           handleGenerateSummary(false);
         }
-      } else if (selectedBookmark.title === 'search') {
-        // Use cached search results if available, otherwise fetch
-        if (searchResultsCache) {
-          setBookmarkResponses(searchResultsCache);
-        } else {
-          setBookmarkResponses({});
-        }
       } else {
         fetchBookmarkResponses(session.userId, selectedBookmark.id);
       }
@@ -1034,6 +1027,10 @@ export default function ChatBox({
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
       setSearchResultsCache(null);
+      // If we're in "all responses" view and search is cleared, reload all responses
+      if (selectedBookmark.id === "all" && session?.userId) {
+        fetchAllResponses(session.userId);
+      }
       return;
     }
 
@@ -1049,7 +1046,13 @@ export default function ChatBox({
       const data = await res.json();
       const dict = Object.fromEntries(data.map((r: Response) => [r.id, r]));
       setSearchResultsCache(dict);
-      setBookmarkResponses(dict);
+      
+      // If we're in "all responses" view, update the bookmarkResponses directly
+      if (selectedBookmark.id === "all") {
+        setBookmarkResponses(dict);
+      } else {
+        setBookmarkResponses(dict);
+      }
     } catch (error) {
       console.error('Error searching responses:', error);
       setSearchResultsCache(null);
@@ -1142,70 +1145,6 @@ export default function ChatBox({
           </div>
         )}
         
-        {selectedBookmark.title === 'search' && (
-          <div>
-            <SearchBar
-              onSearch={handleSearch}
-              selectedLanguage={selectedLanguage}
-              value={searchQuery}
-              onChange={setSearchQuery}
-            />
-            {isSearching ? (
-              <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
-                <div className="animate-spin h-8 w-8 border-4 border-foreground border-t-transparent rounded-full"></div>
-              </div>
-            ) : Object.values(bookmarkResponses).length > 0 ? (
-              <div className="w-full md:flex md:justify-center">
-                <div className="w-full md:max-w-2xl">
-                  {/* Generate alias color mapping for imported responses */}
-                  {(() => {
-                    const importedResponses = Object.values(bookmarkResponses).filter(r => r.source === 'imported' && r.communityResponse?.creatorAlias);
-                    const uniqueAliases = [...new Set(importedResponses.map(r => r.communityResponse!.creatorAlias).filter(Boolean))];
-                    const aliasColorMap = createAliasColorMap(uniqueAliases);
-                    
-                    return Object.values(bookmarkResponses).map((response: Response, index: number) => (
-                      <GPTResponse
-                        key={index}
-                        response={response.content}
-                        selectedBookmarkId={response.id}
-                        selectedBookmarkTitle={selectedBookmark.title}
-                        reservedBookmarkTitles={reservedBookmarkTitles}
-                        responseId={response.id}
-                        rank={response.rank}
-                        createdAt={response.createdAt}
-                        isPaused={response.isPaused}
-                        bookmarks={response.bookmarks}
-                        furigana={response.furigana}
-                        isFuriganaEnabled={response.isFuriganaEnabled}
-                        isPhoneticEnabled={response.isPhoneticEnabled}
-                        isKanaEnabled={response.isKanaEnabled}
-                        breakdown={response.breakdown}
-                        mobileBreakdown={response.mobileBreakdown}
-                        onQuote={handleResponseQuote}
-                        onRankUpdate={handleRankUpdate}
-                        onDelete={handleResponseDelete}
-                        onPauseToggle={handlePauseToggle}
-                        onFuriganaToggle={handleFuriganaToggle}
-                        onPhoneticToggle={handlePhoneticToggle}
-                        onKanaToggle={handleKanaToggle}
-                        onBookmarkSelect={onBookmarkSelect}
-                        onShare={handleShareToCommunity}
-                        source={response.source}
-                        communityResponseId={response.communityResponseId}
-                        communityResponse={response.communityResponse}
-                        aliasColor={response.communityResponse?.creatorAlias ? aliasColorMap.get(response.communityResponse.creatorAlias) : undefined}
-                        isSharedToCommunity={response.isSharedToCommunity}
-                        selectedLanguage={selectedLanguage}
-                        onLoadingChange={setIsLoading}
-                        onBreakdownClick={() => trackBreakdownClick(response.id!)}
-                      />
-                    ));
-                  })()}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        )}
         
         {!selectedBookmark.id && !isCommunityMode && (
           <div className="w-full md:flex md:justify-center">
@@ -1331,9 +1270,28 @@ export default function ChatBox({
           </div>
         )}
         
-        {selectedBookmark.id && selectedBookmark.id !== 'search' && !isCommunityMode ? (
+        {selectedBookmark.id && !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
+              {/* Search bar for all responses */}
+              {selectedBookmark.id === "all" && (
+                <div className="mb-4">
+                  <SearchBar
+                    onSearch={handleSearch}
+                    selectedLanguage={selectedLanguage}
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                  />
+                </div>
+              )}
+              
+              {/* Loading indicator for search */}
+              {selectedBookmark.id === "all" && isSearching && (
+                <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
+                  <div className="animate-spin h-8 w-8 border-4 border-foreground border-t-transparent rounded-full"></div>
+                </div>
+              )}
+              
               {/* Generate alias color mapping for imported responses */}
               {(() => {
                 const importedResponses = Object.values(bookmarkResponses).filter(r => r.source === 'imported' && r.communityResponse?.creatorAlias);
@@ -1381,7 +1339,7 @@ export default function ChatBox({
             </div>
           </div>
         ) :
-        selectedBookmark.id !== 'search' && !isCommunityMode ? (
+        !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
               {/* Generate alias color mapping for imported responses */}
