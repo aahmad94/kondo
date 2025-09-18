@@ -778,6 +778,9 @@ export default function ChatBox({
           isKanaEnabled: response.isKanaEnabled,
           breakdown: response.breakdown,
           mobileBreakdown: response.mobileBreakdown,
+          source: response.source,
+          communityResponseId: response.communityResponseId,
+          communityResponse: response.communityResponse,
         }));
 
         // Sort responses using the new function

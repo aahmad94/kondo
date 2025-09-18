@@ -75,6 +75,15 @@ export async function getUserSummary(userId: string, languageCode?: string) {
               isKanaEnabled: true,
               breakdown: true,
               mobileBreakdown: true,
+              source: true,
+              communityResponseId: true,
+              communityResponse: {
+                select: {
+                  id: true,
+                  isActive: true,
+                  creatorAlias: true
+                }
+              },
               bookmarks: { 
                 select: { 
                   id: true, 
@@ -194,6 +203,15 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
                   isKanaEnabled: true,
                   breakdown: true,
                   mobileBreakdown: true,
+                  source: true,
+                  communityResponseId: true,
+                  communityResponse: {
+                    select: {
+                      id: true,
+                      isActive: true,
+                      creatorAlias: true
+                    }
+                  },
                   bookmarks: { 
                     select: { 
                       id: true, 
@@ -245,7 +263,7 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           // console.log(`[generateUserSummary] Fetching responses for user ${userId}, language ${languageId}, rank ${rank}`);
           const query = {
             where: { ...bookmarkFilter, rank: rank },
-            select: { id: true, content: true, createdAt: true, rank: true, isPaused: true, furigana: true, isFuriganaEnabled: true, isPhoneticEnabled: true, isKanaEnabled: true, breakdown: true, mobileBreakdown: true, bookmarks: { select: { id: true, title: true } } }
+            select: { id: true, content: true, createdAt: true, rank: true, isPaused: true, furigana: true, isFuriganaEnabled: true, isPhoneticEnabled: true, isKanaEnabled: true, breakdown: true, mobileBreakdown: true, source: true, communityResponseId: true, communityResponse: { select: { id: true, isActive: true, creatorAlias: true } }, bookmarks: { select: { id: true, title: true } } }
           };
           const responses = await prisma.gPTResponse.findMany(query);
           // console.log(`[generateUserSummary] Found ${responses.length} responses for user ${userId}, language ${languageId}, rank ${rank}`);
