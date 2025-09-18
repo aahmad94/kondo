@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { format } from 'date-fns';
 import { 
   PlusIcon, 
   XCircleIcon, 
@@ -17,7 +16,6 @@ import {
   EyeSlashIcon,
   ArrowDownTrayIcon,
   UserIcon,
-  CalendarIcon,
   HeartIcon,
   ShareIcon
 } from '@heroicons/react/24/solid';
@@ -573,11 +571,15 @@ export default function CommunityResponse(props: ResponseProps) {
           {communityData.bookmarkTitle}
         </span>
 
-        {/* Shared date - muted theme colors */}
-        <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
-          <CalendarIcon className="h-3 w-3" />
-          {format(communityData.sharedAt, 'MMM d')}
-        </span>
+        {/* Import button - badge style (disabled for creators and already imported) */}
+        {(props.onImport || props.onImportWithModal) && (
+          <ImportBadgeButton
+            onClick={handleImport}
+            disabled={isDeletingCommunity || isCreator || communityData.hasUserImported}
+            isImporting={isImporting}
+            buttonRef={quoteButtonRef}
+          />
+        )}
 
         {/* Import count with tooltip - always visible, red heart when > 0 */}
         <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
@@ -600,16 +602,6 @@ export default function CommunityResponse(props: ResponseProps) {
           />
           <span>{communityData.importCount}</span>
         </span>
-
-        {/* Import button - badge style (disabled for creators and already imported) */}
-        {(props.onImport || props.onImportWithModal) && (
-          <ImportBadgeButton
-            onClick={handleImport}
-            disabled={isDeletingCommunity || isCreator || communityData.hasUserImported}
-            isImporting={isImporting}
-            buttonRef={quoteButtonRef}
-          />
-        )}
       </div>
     );
   };
