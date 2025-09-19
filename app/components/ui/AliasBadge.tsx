@@ -8,13 +8,15 @@ interface AliasBadgeProps {
   onClick?: () => void;
   className?: string;
   customColor?: string;
+  truncateAfter?: number;
 }
 
 export default function AliasBadge({ 
   alias, 
   onClick, 
   className = '',
-  customColor 
+  customColor,
+  truncateAfter
 }: AliasBadgeProps) {
   const badgeStyle = customColor 
     ? {
@@ -26,6 +28,10 @@ export default function AliasBadge({
       }
     : getAliasCSSVars(alias);
 
+  const displayAlias = truncateAfter && alias.length > truncateAfter 
+    ? `${alias.substring(0, truncateAfter)}...`
+    : alias;
+
   return (
     <span 
       onClick={onClick}
@@ -34,7 +40,7 @@ export default function AliasBadge({
       } ${className}`}
       style={badgeStyle}
     >
-      @{alias}
+      @{displayAlias}
     </span>
   );
 }

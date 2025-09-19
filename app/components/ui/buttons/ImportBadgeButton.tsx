@@ -30,7 +30,7 @@ export default function ImportBadgeButton({
         className="text-xs px-2 py-1 rounded-sm bg-muted text-purple-400 hover:bg-accent hover:text-purple-300 disabled:opacity-50 disabled:hover:bg-muted disabled:hover:text-muted-foreground transition-colors duration-200 flex items-center gap-1"
       >
         <ArrowDownTrayIcon className="h-3 w-3" />
-        {isImporting ? 'Importing...' : 'Import'}
+        {isImporting ? 'importing...' : 'import'}
       </button>
     );
   }
@@ -50,7 +50,7 @@ export default function ImportBadgeButton({
         className="text-xs px-2 py-1 rounded-sm bg-muted text-purple-400 hover:bg-accent hover:text-purple-300 disabled:opacity-50 disabled:hover:bg-muted disabled:hover:text-muted-foreground transition-colors duration-200 flex items-center gap-1"
       >
         <ArrowDownTrayIcon className="h-3 w-3" />
-        {isImporting ? 'Importing...' : 'Import'}
+        {isImporting ? 'importing...' : 'import'}
       </button>
     </Tooltip>
   );

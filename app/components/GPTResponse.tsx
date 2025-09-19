@@ -633,6 +633,7 @@ export default function GPTResponse({
                 <AliasBadge 
                   alias={communityResponse.creatorAlias} 
                   customColor={aliasColor}
+                  truncateAfter={isMobile ? 5 : undefined}
                 />
               )}
 
@@ -999,7 +1000,7 @@ export default function GPTResponse({
               }`}
             >
               <ArrowUpTrayIcon className="h-3 w-3" />
-              <span>Upload</span>
+              <span>share</span>
             </span>
           )}
           
