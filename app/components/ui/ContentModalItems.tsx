@@ -281,9 +281,7 @@ export function CommunityInstructions() {
       <div style={{ marginBottom: '1rem' }}>
         <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>How to share your content:</h4>
         <p style={{ marginBottom: '0.5rem' }}>
-          Click the blue share button{' '}
-          <ShareIcon className="h-5 w-5 inline text-blue-500" style={{ verticalAlign: 'middle' }} />{' '}
-          on the bottom of any of your decked responses.
+          Click the share button on the bottom of any of your the items in your decks.
         </p>
       </div>
     </div>
@@ -321,6 +319,13 @@ export function CreateInstructions() {
         <div style={{ marginBottom: '0.5rem' }}>
           <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Flashcard mode</strong> in decks for active review and practice
         </div>
+      </div>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Share with the community:</h4>
+        <p style={{ marginBottom: '0.5rem' }}>
+          Click the share button on any response in your deck to share it with the community and help others learn.
+        </p>
       </div>
     </div>
   );
