@@ -288,4 +288,40 @@ export function CommunityInstructions() {
       </div>
     </div>
   );
+}
+
+// --- Create Instructions ---
+export function CreateInstructions() {
+  return (
+    <div className="max-w-none text-primary" style={{ color: COLORS.secondary, lineHeight: 1.6 }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Create study material:</h4>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>1.</strong> <strong>Generate</strong> language content, translations, or explanations using LLMs
+        </div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>2.</strong> <strong>Breakdown</strong> is automatically provided for phrases and expressions
+        </div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>3.</strong> <strong>Audio</strong> pronunciation guide is generated for proper learning
+        </div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>4.</strong> <strong>Add to deck</strong> to organize your learning materials
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Review and practice your content:</h4>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Adjust rank</strong> (1-3) based on how well you know the material
+        </div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Frequency</strong> of material shown adjusts based on your ranking
+        </div>
+        <div style={{ marginBottom: '0.5rem' }}>
+          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Flashcard mode</strong> in decks for active review and practice
+        </div>
+      </div>
+    </div>
+  );
 } 
