@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, WrenchIcon, AcademicCapIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, WrenchIcon, AcademicCapIcon, ChevronDownIcon, BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import CreateDeckModal from './CreateDeckModal';
 import DeleteDeckModal from './DeleteDeckModal';
 import EditDeckModal from './EditDeckModal';
@@ -346,7 +346,7 @@ export default function Decks({
                       ${selectedDeck.title === "community" ? 'bg-accent rounded-sm' : ''}`}
                     onClick={handleCommunityClick}
                   >
-                    <QueueListIcon className="h-4 w-4 inline mr-2 text-purple-400"/>
+                    <BuildingLibraryIcon className="h-4 w-4 inline mr-2 text-purple-400"/>
                     <span className="text-purple-400">community</span>
                   </div>
 

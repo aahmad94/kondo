@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
+import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon, AcademicCapIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
@@ -19,6 +19,7 @@ interface ChatBoxMenuBarProps {
   onCreateNewContent: () => void;
   communityFilters?: { deckTitle?: string };
   onImportEntireBookmark?: () => void;
+  onDeckSelect?: (id: string | null, title: string | null) => void;
 }
 
 export default function ChatBoxMenuBar({ 
@@ -31,7 +32,8 @@ export default function ChatBoxMenuBar({
   selectedDeck,
   isFlashcardModalOpen = false,
   communityFilters,
-  onImportEntireBookmark
+  onImportEntireBookmark,
+  onDeckSelect
 }: ChatBoxMenuBarProps) {
   const { isMobile } = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -83,6 +85,14 @@ export default function ChatBoxMenuBar({
     setShowEmailModal(false);
   };
 
+  // Handle Dojo button click
+  const handleDojoClick = () => {
+    if (onDeckSelect) {
+      // Find the daily summary deck and select it
+      onDeckSelect(null, 'daily summary');
+    }
+  };
+
 
   // Determine which buttons to show based on selected deck
   const isDojo = selectedDeck.title === 'daily summary';
@@ -131,18 +141,29 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Create New Content Button - 2nd */}
+              {/* Create Button - 2nd */}
               {isCommunity && isMobile && (
                 <button
                   onClick={onCreateNewContent}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <WrenchIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>create new content</span>
+                  <span>create</span>
                 </button>
               )}
 
-              {/* Flashcard Mode Button - Third */}
+              {/* Dojo Button - 3rd */}
+              {isCommunity && isMobile && onDeckSelect && (
+                <button
+                  onClick={handleDojoClick}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-phrase-text hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <AcademicCapIcon className="h-4 w-4 flex-shrink-0 text-phrase-text" />
+                  <span className="text-phrase-text">dojo</span>
+                </button>
+              )}
+
+              {/* Flashcard Mode Button - Fourth */}
               {showFlashcards && (
                 <button
                   onClick={onFlashcardMode}

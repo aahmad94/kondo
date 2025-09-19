@@ -1118,6 +1118,7 @@ export default function ChatBox({
         onCreateNewContent={handleCreateNewContent}
         communityFilters={communityFilters}
         onImportEntireBookmark={handleImportEntireBookmark}
+        onDeckSelect={onDeckSelect}
       />
       
       {/* Community Filter Bar - positioned after menu bar */}

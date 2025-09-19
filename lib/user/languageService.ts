@@ -7,15 +7,11 @@ interface LanguageInstructions {
 }
 
 const DOJO_INSTRUCTIONS = `
-  This tool aggregates responses across all your bookmarks after 12:00 AM EST everyday, prioritizing those that are lower ranked.`
+  This tool aggregates responses across all your bookmarks daily, prioritizing those that are lower ranked.`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate to Japanese — view additional commands in the toolbar above.
-
-  All responses include a breakdown of the phrase and audio for pronunciation.
-
-  Bookmarked responses may be viewed in flashcard mode for studying and reviewing material.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -24,11 +20,6 @@ const JAPANESE_INSTRUCTIONS = {
 const KOREAN_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate to Korean — view additional commands in the toolbar above.
-
-  All responses include a breakdown of the phrase and audio for pronunciation.
-
-  Bookmarked responses may be viewed in flashcard mode for studying and reviewing material.
-
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -37,11 +28,6 @@ const KOREAN_INSTRUCTIONS = {
 const SPANISH_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate to Spanish — view additional commands in the toolbar above.
-
-  All responses include a breakdown of the phrase and audio for pronunciation.
-
-  Bookmarked responses may be viewed in flashcard mode for studying and reviewing material.
-
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -50,11 +36,6 @@ const SPANISH_INSTRUCTIONS = {
 const ARABIC_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate to Arabic — view additional commands in the toolbar above.
-
-  All responses include a breakdown of the phrase and audio for pronunciation.
-
-  Bookmarked responses may be viewed in flashcard mode for studying and reviewing material.
-
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -63,10 +44,6 @@ const ARABIC_INSTRUCTIONS = {
 const CHINESE_INSTRUCTIONS = {
   main: `
   Enter a phrase or sentence to translate to Chinese — view additional commands in the toolbar above.
-
-  All responses include a breakdown of the phrase and audio for pronunciation.
-
-  Bookmarked responses may be viewed in flashcard mode for studying and reviewing material.
 
 `,
   dailySummary: DOJO_INSTRUCTIONS,
