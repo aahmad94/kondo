@@ -101,6 +101,7 @@ export default function CommunityResponse(props: ResponseProps) {
   const pauseButtonRef = useRef<HTMLButtonElement>(null);
   const speakerButtonRef = useRef<HTMLButtonElement>(null);
   const quoteButtonRef = useRef<HTMLButtonElement>(null);
+  const importButtonRef = useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = useRef<HTMLButtonElement>(null);
   const deckButtonRef = useRef<HTMLButtonElement>(null);
   const refreshButtonRef = useRef<HTMLButtonElement>(null);
@@ -577,7 +578,7 @@ export default function CommunityResponse(props: ResponseProps) {
             onClick={handleImport}
             disabled={isDeletingCommunity || isCreator || communityData.hasUserImported}
             isImporting={isImporting}
-            buttonRef={quoteButtonRef}
+            buttonRef={importButtonRef}
           />
         )}
 

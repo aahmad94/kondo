@@ -337,8 +337,8 @@ export default function Decks({
                       ${selectedDeck.id === null && selectedDeck.title === null ? 'bg-accent rounded-sm' : ''}`}
                     onClick={handleChatClick}
                   >
-                    <WrenchIcon className="h-4 w-4 inline mr-2 text-white"/>
-                    <span className="text-white">create</span>
+                    <WrenchIcon className="h-4 w-4 inline mr-2 text-black dark:text-white"/>
+                    <span className="text-black dark:text-white">create</span>
                   </div>
 
                   <div

@@ -1253,11 +1253,11 @@ export default function ChatBox({
                   
                   {/* Load More Button */}
                   {communityHasMore && (
-                    <div className="flex justify-center mt-4">
+                    <div className="flex justify-center my-4">
                       <button
                         onClick={loadMoreCommunity}
                         disabled={communityLoading}
-                        className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/80 disabled:opacity-50 transition-colors"
+                        className="px-4 py-2 bg-muted text-muted-foreground rounded-sm hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:hover:bg-muted disabled:hover:text-muted-foreground transition-colors duration-200 text-sm"
                       >
                         {communityLoading ? 'Loading...' : 'Load More'}
                       </button>

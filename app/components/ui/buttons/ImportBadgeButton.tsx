@@ -9,7 +9,7 @@ interface ImportBadgeButtonProps {
   onClick: () => void;
   disabled?: boolean;
   isImporting?: boolean;
-  buttonRef?: React.RefObject<HTMLButtonElement>;
+  buttonRef: React.RefObject<HTMLButtonElement>;
 }
 
 export default function ImportBadgeButton({ 
@@ -39,7 +39,7 @@ export default function ImportBadgeButton({
     <Tooltip
       content="Import to your own deck"
       isVisible={isHovered}
-      buttonRef={buttonRef || React.createRef()}
+      buttonRef={buttonRef}
     >
       <button
         ref={buttonRef}

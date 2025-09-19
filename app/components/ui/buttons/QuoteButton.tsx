@@ -8,7 +8,7 @@ import { useIsMobile } from '../../../hooks/useIsMobile';
 interface QuoteButtonProps {
   onClick: () => void;
   disabled?: boolean;
-  buttonRef?: React.RefObject<HTMLButtonElement>;
+  buttonRef: React.RefObject<HTMLButtonElement>;
 }
 
 export default function QuoteButton({ 
@@ -34,9 +34,9 @@ export default function QuoteButton({
 
   return (
     <Tooltip
-      content="Quote this response"
+      content="Ask a question about this response"
       isVisible={isHovered}
-      buttonRef={buttonRef || React.createRef()}
+      buttonRef={buttonRef}
     >
       <button 
         ref={buttonRef}
