@@ -157,10 +157,10 @@ export default function ChatBoxMenuBar({
               {isCommunity && isMobile && onDeckSelect && (
                 <button
                   onClick={handleDojoClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-phrase-text hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
-                  <AcademicCapIcon className="h-4 w-4 flex-shrink-0 text-phrase-text" />
-                  <span className="text-phrase-text">dojo</span>
+                  <AcademicCapIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>dojo</span>
                 </button>
               )}
 
