@@ -628,15 +628,6 @@ export default function GPTResponse({
                 />
               )}
 
-              {/* Owner alias badge - show for imported responses */}
-              {source === 'imported' && communityResponse?.creatorAlias && (
-                <AliasBadge 
-                  alias={communityResponse.creatorAlias} 
-                  customColor={aliasColor}
-                  truncateAfter={isMobile ? 5 : undefined}
-                />
-              )}
-
               {/* Eye toggle button - only show in flashcard mode - moved to first position */}
               {selectedDeckTitle === 'flashcard' && onToggleAnswer && (
                 <IconButton 
@@ -933,7 +924,7 @@ export default function GPTResponse({
                     </div>
                   )
                 ) : (
-                                                         // For all other content (tables, regular text, etc.), use Markdown
+           // For all other content (tables, regular text, etc.), use Markdown
            <div className="pr-3 text-primary">
              <div className="overflow-x-auto w-full">
                <StyledMarkdown>
@@ -959,9 +950,21 @@ export default function GPTResponse({
         )}
       </div>
 
-      {/* Deck badge in bottom left corner with pause toggle */}
+
+      {/* Bottom badges/buttonsin bottom left corner */}
       {decks && Object.keys(decks).length > 0 && selectedDeckTitle !== 'flashcard' && (
         <div className="mt-2 pt-1 flex items-center gap-2">
+          
+          {/* Owner alias badge - show for imported responses */}
+          {source === 'imported' && communityResponse?.creatorAlias && (
+            <AliasBadge 
+              alias={communityResponse.creatorAlias} 
+              customColor={aliasColor}
+              height="24px"
+            />
+          )}
+
+          {/* Deck badge */}
           {(() => {
             const nonReservedTitle = Object.values(decks).find(title => 
               !reservedDeckTitles?.includes(title)

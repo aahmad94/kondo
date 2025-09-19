@@ -9,6 +9,7 @@ interface AliasBadgeProps {
   className?: string;
   customColor?: string;
   truncateAfter?: number;
+  height?: string;
 }
 
 export default function AliasBadge({ 
@@ -16,17 +17,21 @@ export default function AliasBadge({
   onClick, 
   className = '',
   customColor,
-  truncateAfter
+  truncateAfter,
+  height
 }: AliasBadgeProps) {
-  const badgeStyle = customColor 
-    ? {
-        backgroundColor: customColor,
-        borderColor: customColor,
-        color: '#333333',
-        border: '1px solid',
-        opacity: 0.9
-      }
-    : getAliasCSSVars(alias);
+  const badgeStyle = {
+    ...(customColor 
+      ? {
+          backgroundColor: customColor,
+          borderColor: customColor,
+          color: '#333333',
+          border: '1px solid',
+          opacity: 0.9
+        }
+      : getAliasCSSVars(alias)),
+    ...(height && { height })
+  };
 
   const displayAlias = truncateAfter && alias.length > truncateAfter 
     ? `${alias.substring(0, truncateAfter)}...`
