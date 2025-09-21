@@ -149,7 +149,7 @@ export default function ChatBoxMenuBar({
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <WrenchIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>create</span>
+                  <span>create w/ AI</span>
                 </button>
               )}
 
@@ -210,7 +210,7 @@ export default function ChatBoxMenuBar({
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <CommandLineIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>commands</span>
+                  <span>AI commands</span>
                 </button>
               )}
 
@@ -283,7 +283,7 @@ export default function ChatBoxMenuBar({
       <ContentModal
         isOpen={contentModalType === 'commands'}
         onClose={closeContentModal}
-        title="Additional Commands"
+        title="AI Commands"
         contentComponent={
           <AdditionalCommands 
             selectedLanguage={selectedLanguage}

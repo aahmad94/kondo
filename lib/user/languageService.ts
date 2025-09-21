@@ -11,7 +11,7 @@ const DOJO_INSTRUCTIONS = `
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Japanese — view additional commands in the toolbar above.
+  Enter a phrase or sentence to translate to Japanese — view additional AI commands in the toolbar above.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -19,7 +19,7 @@ const JAPANESE_INSTRUCTIONS = {
 
 const KOREAN_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Korean — view additional commands in the toolbar above.
+  Enter a phrase or sentence to translate to Korean — view additional AI commands in the toolbar above.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -27,7 +27,7 @@ const KOREAN_INSTRUCTIONS = {
 
 const SPANISH_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Spanish — view additional commands in the toolbar above.
+  Enter a phrase or sentence to translate to Spanish — view additional AI commands in the toolbar above.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -35,7 +35,7 @@ const SPANISH_INSTRUCTIONS = {
 
 const ARABIC_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Arabic — view additional commands in the toolbar above.
+  Enter a phrase or sentence to translate to Arabic — view additional AI commands in the toolbar above.
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -43,7 +43,7 @@ const ARABIC_INSTRUCTIONS = {
 
 const CHINESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Chinese — view additional commands in the toolbar above.
+  Enter a phrase or sentence to translate to Chinese — view additional AI commands in the toolbar above.
 
 `,
   dailySummary: DOJO_INSTRUCTIONS,
