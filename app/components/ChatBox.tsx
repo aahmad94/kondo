@@ -169,10 +169,18 @@ export default function ChatBox({
   // Alias modal state
   const [isCreateAliasModalOpen, setIsCreateAliasModalOpen] = useState(false);
   
+  // Pending share state - stores info about the GPTResponse user tried to share before having an alias
+  const [pendingShare, setPendingShare] = useState<{
+    responseId: string;
+    deckTitle: string;
+  } | null>(null);
+  
   // Success modal state
   const [showShareSuccessModal, setShowShareSuccessModal] = useState(false);
   const [showAlreadySharedModal, setShowAlreadySharedModal] = useState(false);
   const [showSelfImportModal, setShowSelfImportModal] = useState(false);
+  const [showShareAfterAliasSuccessModal, setShowShareAfterAliasSuccessModal] = useState(false);
+  const [showShareAfterAliasFailureModal, setShowShareAfterAliasFailureModal] = useState(false);
   const [showImportSuccessModal, setShowImportSuccessModal] = useState(false);
   const [showImportErrorModal, setShowImportErrorModal] = useState(false);
   const [importedBookmarkTitle, setImportedBookmarkTitle] = useState('');
@@ -952,8 +960,17 @@ export default function ChatBox({
       } else {
         console.error('Failed to share to community:', result.error);
         
-        // If the error is about missing alias, show alias creation modal
+        // If the error is about missing alias, store pending share info and show alias creation modal
         if (result.error?.includes('alias')) {
+          // Get the response and deck title for pending share
+          const response = Object.values(responses).find(r => r.id === responseId) || 
+                           Object.values(bookmarkResponses).find(r => r.id === responseId);
+          const deckTitle = response?.decks ? Object.values(response.decks)[0] : 'Unknown';
+          
+          setPendingShare({
+            responseId,
+            deckTitle: deckTitle || 'your response'
+          });
           setIsCreateAliasModalOpen(true);
         } else if (result.error?.includes('already been shared')) {
           // Handle the case where server-side detects duplicate (backup)
@@ -970,10 +987,42 @@ export default function ChatBox({
     }
   };
 
-  const handleAliasCreated = (newAlias: string) => {
+  const handleAliasCreated = async (newAlias: string) => {
     setIsCreateAliasModalOpen(false);
     console.log('Alias created successfully:', newAlias);
-    // Optionally show success message or auto-retry the share
+    
+    // If there's a pending share, attempt to share the response now
+    if (pendingShare) {
+      try {
+        console.log('Attempting to share pending response:', pendingShare);
+        const result = await shareResponseToCommunityAction(pendingShare.responseId);
+        
+        if (result.success) {
+          console.log('Successfully shared pending response to community');
+          
+          // Update local state to disable the share button
+          updateResponseInCaches(pendingShare.responseId, { isSharedToCommunity: true });
+          
+          // Show success modal with deck title
+          setSharedResponseTitle(pendingShare.deckTitle);
+          setShowShareAfterAliasSuccessModal(true);
+          
+          // Refresh community feed
+          refetchCommunityFresh();
+        } else {
+          console.error('Failed to share pending response:', result.error);
+          setSharedResponseTitle(pendingShare.deckTitle);
+          setShowShareAfterAliasFailureModal(true);
+        }
+      } catch (error) {
+        console.error('Error sharing pending response:', error);
+        setSharedResponseTitle(pendingShare.deckTitle);
+        setShowShareAfterAliasFailureModal(true);
+      } finally {
+        // Clear pending share regardless of outcome
+        setPendingShare(null);
+      }
+    }
   };
 
   const handleViewProfile = (userId: string) => {
@@ -1439,7 +1488,11 @@ export default function ChatBox({
       {/* Alias Creation Modal */}
       <CreateAliasModal
         isOpen={isCreateAliasModalOpen}
-        onClose={() => setIsCreateAliasModalOpen(false)}
+        onClose={() => {
+          setIsCreateAliasModalOpen(false);
+          // Clear pending share if user cancels alias creation
+          setPendingShare(null);
+        }}
         onAliasCreated={handleAliasCreated}
       />
 
@@ -1459,6 +1512,48 @@ export default function ChatBox({
             
             <p className="text-card-foreground">
               The response has successfully been shared to the community feed. Other people can now discover and import it.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Share Success After Alias Creation Modal */}
+      {showShareAfterAliasSuccessModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-l text-card-foreground">Alias Created & Response Shared!</h2>
+              <button 
+                onClick={() => setShowShareAfterAliasSuccessModal(false)} 
+                className="text-card-foreground hover:text-muted-foreground transition-colors"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-card-foreground">
+              Great! Your alias has been created and your response from <span className="font-medium">{sharedResponseTitle}</span> has been successfully shared to the community feed. Other people can now discover and import it.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Share Failure After Alias Creation Modal */}
+      {showShareAfterAliasFailureModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
+          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-l text-card-foreground">Alias Created Successfully</h2>
+              <button 
+                onClick={() => setShowShareAfterAliasFailureModal(false)} 
+                className="text-card-foreground hover:text-muted-foreground transition-colors"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <p className="text-card-foreground">
+              Your alias has been created successfully! However, we encountered an issue sharing your response from <span className="font-medium">{sharedResponseTitle}</span> to the community. Please try clicking the share button again.
             </p>
           </div>
         </div>
