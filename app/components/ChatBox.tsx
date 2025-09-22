@@ -21,6 +21,7 @@ import FlashcardModal from './FlashcardModal';
 import QuoteBar from './QuoteBar';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useCommunityFeed } from '../hooks/useCommunityFeed';
+import { useUserAlias } from '../hooks/useUserAlias';
 import { 
   shareResponseToCommunityAction, 
   importCommunityResponseAction,
@@ -148,6 +149,9 @@ export default function ChatBox({
     shuffleResponses: shuffleCommunityResponses,
     filters: communityFilters
   } = useCommunityFeed();
+
+  // User alias hook for refreshing MenuBar state
+  const { refreshData: refreshUserAliasData } = useUserAlias();
 
   const [quoteBarHeight, setQuoteBarHeight] = useState<number>(0);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '', dojoDetailed: '' });
@@ -991,6 +995,9 @@ export default function ChatBox({
     setIsCreateAliasModalOpen(false);
     console.log('Alias created successfully:', newAlias);
     
+    // Refresh MenuBar alias state so it shows 'Edit Alias' instead of 'Create Alias'
+    await refreshUserAliasData();
+    
     // If there's a pending share, attempt to share the response now
     if (pendingShare) {
       try {
@@ -1522,7 +1529,7 @@ export default function ChatBox({
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
           <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-l text-card-foreground">Alias Created & Response Shared!</h2>
+              <h2 className="text-l text-card-foreground">Success: Alias Created & Response Shared</h2>
               <button 
                 onClick={() => setShowShareAfterAliasSuccessModal(false)} 
                 className="text-card-foreground hover:text-muted-foreground transition-colors"
@@ -1532,7 +1539,7 @@ export default function ChatBox({
             </div>
             
             <p className="text-card-foreground">
-              Great! Your alias has been created and your response from <span className="font-medium">{sharedResponseTitle}</span> has been successfully shared to the community feed. Other people can now discover and import it.
+              Your alias has been created and your response from <span className="font-medium">{sharedResponseTitle}</span> has been successfully shared to the community feed. Other people can now discover and import it.
             </p>
           </div>
         </div>
@@ -1553,7 +1560,7 @@ export default function ChatBox({
             </div>
             
             <p className="text-card-foreground">
-              Your alias has been created successfully! However, we encountered an issue sharing your response from <span className="font-medium">{sharedResponseTitle}</span> to the community. Please try clicking the share button again.
+              Your alias has been created successfully, however, we encountered an issue sharing your response from <span className="font-medium">{sharedResponseTitle}</span> to the community. Please try clicking the share button again.
             </p>
           </div>
         </div>
