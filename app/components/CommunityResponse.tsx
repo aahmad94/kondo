@@ -743,13 +743,11 @@ export default function CommunityResponse(props: ResponseProps) {
                 )
               ) : (
                 <div className="pr-3 text-primary">
-                  <div className="overflow-x-auto w-full">
-                    <ExpandableContent maxHeight={262.5}>
-                      <StyledMarkdown>
-                        {items.join('\n')}
-                      </StyledMarkdown>
-                    </ExpandableContent>
-                  </div>
+                  <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+                    <StyledMarkdown>
+                      {items.join('\n')}
+                    </StyledMarkdown>
+                  </ExpandableContent>
                 </div>
               )}
               {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
@@ -758,13 +756,11 @@ export default function CommunityResponse(props: ResponseProps) {
         )
       ) : (
         <div className="pr-3 text-primary">
-          <div className="overflow-x-auto w-full">
-            <ExpandableContent maxHeight={262.5}>
-              <StyledMarkdown>
-                {cleanResponse}
-              </StyledMarkdown>
-            </ExpandableContent>
-          </div>
+          <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+            <StyledMarkdown>
+              {cleanResponse}
+            </StyledMarkdown>
+          </ExpandableContent>
         </div>
       )}
 

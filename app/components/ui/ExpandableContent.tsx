@@ -44,10 +44,10 @@ export default function ExpandableContent({
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className="relative">
       <div
         ref={contentRef}
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`overflow-y-hidden transition-all duration-300 ease-in-out ${className} ${
           isExpanded ? expandedClassName : ''
         }`}
         style={{

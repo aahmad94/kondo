@@ -926,13 +926,11 @@ export default function GPTResponse({
                 ) : (
            // For all other content (tables, regular text, etc.), use Markdown
            <div className="pr-3 text-primary">
-             <div className="overflow-x-auto w-full">
-               <ExpandableContent maxHeight={262.5}>
-                 <StyledMarkdown>
-                   {items.join('\n')}
-                 </StyledMarkdown>
-               </ExpandableContent>
-             </div>
+             <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+               <StyledMarkdown>
+                 {items.join('\n')}
+               </StyledMarkdown>
+             </ExpandableContent>
            </div>
                 )}
                 {/* Add a line break between blocks */}
@@ -943,13 +941,11 @@ export default function GPTResponse({
         ) : (
           // Fallback to Markdown for non-list blocks
           <div className="pr-3 text-primary">
-            <div className="overflow-x-auto w-full">
-              <ExpandableContent maxHeight={262.5}>
-                <StyledMarkdown>
-                  {cleanResponse}
-                </StyledMarkdown>
-              </ExpandableContent>
-            </div>
+            <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+              <StyledMarkdown>
+                {cleanResponse}
+              </StyledMarkdown>
+            </ExpandableContent>
           </div>
         )}
       </div>
