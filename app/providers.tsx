@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { SessionProvider } from "next-auth/react";
 import { AudioProvider } from './contexts/AudioContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { UserAliasProvider } from './contexts/UserAliasContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   
@@ -15,9 +16,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
           </div>
         }>
-          <AudioProvider>
-            {children}
-          </AudioProvider>
+          <UserAliasProvider>
+            <AudioProvider>
+              {children}
+            </AudioProvider>
+          </UserAliasProvider>
         </Suspense>
       </ThemeProvider>
     </SessionProvider>

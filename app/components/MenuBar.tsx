@@ -9,7 +9,7 @@ import LanguageSelector from './LanguageSelector';
 import { useTheme } from '../contexts/ThemeContext';
 import CreateAliasModal from './CreateAliasModal';
 import EditAliasModal from './EditAliasModal';
-import { useUserAlias } from '../hooks/useUserAlias';
+import { useUserAlias } from '../contexts/UserAliasContext';
 
 interface MenuBarProps {
   onLanguageChange: (languageCode: string) => void;

@@ -21,7 +21,7 @@ import FlashcardModal from './FlashcardModal';
 import QuoteBar from './QuoteBar';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useCommunityFeed } from '../hooks/useCommunityFeed';
-import { useUserAlias } from '../hooks/useUserAlias';
+import { useUserAlias } from '../contexts/UserAliasContext';
 import { 
   shareResponseToCommunityAction, 
   importCommunityResponseAction,
