@@ -36,7 +36,8 @@ import {
   QuoteButton,
   ImportBadgeButton,
   ConfirmationModal,
-  AliasBadge
+  AliasBadge,
+  ExpandableContent
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
@@ -743,9 +744,11 @@ export default function CommunityResponse(props: ResponseProps) {
               ) : (
                 <div className="pr-3 text-primary">
                   <div className="overflow-x-auto w-full">
-                    <StyledMarkdown>
-                      {items.join('\n')}
-                    </StyledMarkdown>
+                    <ExpandableContent maxHeight={262.5}>
+                      <StyledMarkdown>
+                        {items.join('\n')}
+                      </StyledMarkdown>
+                    </ExpandableContent>
                   </div>
                 </div>
               )}
@@ -756,9 +759,11 @@ export default function CommunityResponse(props: ResponseProps) {
       ) : (
         <div className="pr-3 text-primary">
           <div className="overflow-x-auto w-full">
-            <StyledMarkdown>
-              {cleanResponse}
-            </StyledMarkdown>
+            <ExpandableContent maxHeight={262.5}>
+              <StyledMarkdown>
+                {cleanResponse}
+              </StyledMarkdown>
+            </ExpandableContent>
           </div>
         </div>
       )}

@@ -1,5 +1,6 @@
 export { default as StyledMarkdown } from './StyledMarkdown';
 export { default as IconButton } from './IconButton';
+export { default as ExpandableContent } from './ExpandableContent';
 export { default as SpeakerButton } from './SpeakerButton';
 export { default as RankContainer } from './RankContainer';
 export { default as UserAliasContainer } from './UserAliasContainer';
