@@ -1154,6 +1154,31 @@ export default function ChatBox({
     }
   };
 
+  // Handle dojo navigation from ChatBoxMenuBar - fetch deck ID first
+  const handleDojoNavigation = async () => {
+    if (!session?.userId) return;
+    
+    try {
+      // Fetch decks to find the daily summary deck ID
+      const response = await fetch(`/api/getBookmarks?userId=${session.userId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch decks');
+      }
+      const decks = await response.json();
+      
+      // Find the daily summary deck
+      const dailySummaryDeck = decks.find((deck: any) => deck.title === 'daily summary');
+      if (dailySummaryDeck) {
+        // Use the proper deck ID and title
+        onDeckSelect(dailySummaryDeck.id, dailySummaryDeck.title);
+      } else {
+        console.error('Daily summary deck not found');
+      }
+    } catch (error) {
+      console.error('Error fetching decks for dojo navigation:', error);
+    }
+  };
+
 
   if (status === "loading") {
     return <div>Loading...</div>
@@ -1175,6 +1200,7 @@ export default function ChatBox({
         communityFilters={communityFilters}
         onImportEntireBookmark={handleImportEntireBookmark}
         onDeckSelect={onDeckSelect}
+        onDojoNavigation={handleDojoNavigation}
       />
       
       {/* Community Filter Bar - positioned after menu bar */}

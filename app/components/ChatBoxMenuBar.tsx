@@ -20,6 +20,7 @@ interface ChatBoxMenuBarProps {
   communityFilters?: { deckTitle?: string };
   onImportEntireBookmark?: () => void;
   onDeckSelect?: (id: string | null, title: string | null) => void;
+  onDojoNavigation?: () => void;
 }
 
 export default function ChatBoxMenuBar({ 
@@ -33,7 +34,8 @@ export default function ChatBoxMenuBar({
   isFlashcardModalOpen = false,
   communityFilters,
   onImportEntireBookmark,
-  onDeckSelect
+  onDeckSelect,
+  onDojoNavigation
 }: ChatBoxMenuBarProps) {
   const { isMobile } = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -87,8 +89,11 @@ export default function ChatBoxMenuBar({
 
   // Handle Dojo button click
   const handleDojoClick = () => {
-    if (onDeckSelect) {
-      // Find the daily summary deck and select it
+    if (onDojoNavigation) {
+      // Use the specific dojo navigation handler that fetches the proper deck ID
+      onDojoNavigation();
+    } else if (onDeckSelect) {
+      // Fallback to the old method if onDojoNavigation is not provided
       onDeckSelect(null, 'daily summary');
     }
   };
