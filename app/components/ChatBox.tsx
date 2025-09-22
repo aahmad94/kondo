@@ -1529,7 +1529,7 @@ export default function ChatBox({
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
           <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-l text-card-foreground">Success: Alias Created & Response Shared</h2>
+              <h2 className="text-l text-card-foreground">Alias Created & Response Shared</h2>
               <button 
                 onClick={() => setShowShareAfterAliasSuccessModal(false)} 
                 className="text-card-foreground hover:text-muted-foreground transition-colors"
@@ -1539,7 +1539,7 @@ export default function ChatBox({
             </div>
             
             <p className="text-card-foreground">
-              Your alias has been created and your response from <span className="font-medium">{sharedResponseTitle}</span> has been successfully shared to the community feed. Other people can now discover and import it.
+              Your alias has been successfully created and your response from <span className="font-medium">{sharedResponseTitle}</span> has been shared to the community feed. Other people can now discover and import it.
             </p>
           </div>
         </div>
