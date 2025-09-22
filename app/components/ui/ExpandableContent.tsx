@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
 
 /**
- * ExpandableContent component that truncates content with a fade overlay
+ * ExpandableContent component that truncates content
  * and provides a "Read more" / "Show less" toggle button.
  * 
  * Useful for markdown content that can become very long (e.g., tables from verb AI command).

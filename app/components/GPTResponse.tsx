@@ -25,7 +25,7 @@ import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import { StyledMarkdown, DeleteIcon, AliasBadge } from './ui';
+import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
@@ -927,9 +927,11 @@ export default function GPTResponse({
            // For all other content (tables, regular text, etc.), use Markdown
            <div className="pr-3 text-primary">
              <div className="overflow-x-auto w-full">
-               <StyledMarkdown>
-                 {items.join('\n')}
-               </StyledMarkdown>
+               <ExpandableContent maxHeight={262.5}>
+                 <StyledMarkdown>
+                   {items.join('\n')}
+                 </StyledMarkdown>
+               </ExpandableContent>
              </div>
            </div>
                 )}
@@ -942,9 +944,11 @@ export default function GPTResponse({
           // Fallback to Markdown for non-list blocks
           <div className="pr-3 text-primary">
             <div className="overflow-x-auto w-full">
-              <StyledMarkdown>
-                {cleanResponse}
-              </StyledMarkdown>
+              <ExpandableContent maxHeight={262.5}>
+                <StyledMarkdown>
+                  {cleanResponse}
+                </StyledMarkdown>
+              </ExpandableContent>
             </div>
           </div>
         )}
