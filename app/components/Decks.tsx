@@ -214,7 +214,7 @@ export default function Decks({
           },
           body: JSON.stringify({
             userId: session.userId,
-            deckId: deckToDelete.id,
+            bookmarkId: deckToDelete.id,
           }),
         });
 

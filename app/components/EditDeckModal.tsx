@@ -71,7 +71,7 @@ export default function EditDeckModal({
     <FormModal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Edit Bookmark"
+      title="Edit Deck"
     >
       <form onSubmit={handleEditDeck}>
         <input
