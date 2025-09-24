@@ -1,0 +1,2 @@
+-- This migration was already applied via previous db pushes
+-- Marking as empty migration to resolve migration state
