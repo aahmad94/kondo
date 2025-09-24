@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/database/prisma';
+import { prisma } from '@/lib';
 import { UserAlias, User } from '@prisma/client';
 
 export interface CreateAliasResult {
@@ -226,7 +226,7 @@ export async function getCurrentUserAlias(userId: string): Promise<UserAlias | n
 /**
  * Get user with their current alias
  */
-export async function getUserWithCurrentAlias(userId: string): Promise<(User & { currentAlias?: UserAlias }) | null> {
+export async function getUserWithCurrentAlias(userId: string): Promise<(User & { currentAlias: UserAlias | null }) | null> {
   try {
     return await prisma.user.findUnique({
       where: { id: userId },
