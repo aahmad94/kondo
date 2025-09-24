@@ -1,5 +1,33 @@
-import { Bookmark } from '@prisma/client';
 import prisma from '../database/prisma';
+
+/**
+ * Helper function to check sharing status for a batch of responses
+ * Returns a Set of response IDs that have been shared to community
+ */
+async function getSharedResponseIds(responseIds: string[]): Promise<Set<string>> {
+  if (responseIds.length === 0) return new Set();
+  
+  const communityResponses = await prisma.communityResponse.findMany({
+    where: {
+      originalResponseId: { in: responseIds },
+      isActive: true
+    },
+    select: {
+      originalResponseId: true
+    }
+  });
+  
+  return new Set(communityResponses.map(cr => cr.originalResponseId));
+}
+
+/**
+ * Helper function to determine if a response should be marked as shared to community
+ */
+function calculateIsSharedToCommunity(response: { source: string; id: string }, sharedResponseIds: Set<string>): boolean {
+  // For local responses: check if response ID is in our shared set
+  // For imported responses: they can't be shared (handled by source check in frontend)
+  return response.source === 'local' && sharedResponseIds.has(response.id);
+}
 
 interface Response {
   id: string;
@@ -97,15 +125,22 @@ export async function getUserSummary(userId: string, languageCode?: string) {
       });
       
       if (latestSummary && latestSummary.responses.length > 0) {
+        // Get sharing status for all responses in this batch
+        const responseIds = latestSummary.responses.map(r => r.id);
+        const sharedResponseIds = await getSharedResponseIds(responseIds);
+        
         // Transform responses to match expected format
         const transformedResponses = latestSummary.responses.map(response => {
           const { bookmarks, ...rest } = response;
+          const isSharedToCommunity = calculateIsSharedToCommunity(response, sharedResponseIds);
+          
           return {
             ...rest,
             decks: bookmarks.reduce((acc, bookmark) => {
               acc[bookmark.id] = bookmark.title;
               return acc;
-            }, {} as Record<string, string>)
+            }, {} as Record<string, string>),
+            isSharedToCommunity
           };
         });
         
@@ -230,14 +265,22 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           createdAt = latestSummary?.createdAt || null;
           if (latestSummary && latestSummary.responses.length > 0) {
             // console.log(`[generateUserSummary] Found existing summary for user ${userId}, language ${languageId}`);
+            
+            // Get sharing status for all responses in this batch
+            const responseIds = latestSummary.responses.map(r => r.id);
+            const sharedResponseIds = await getSharedResponseIds(responseIds);
+            
             const transformedResponses = latestSummary.responses.map(response => {
               const { bookmarks, ...rest } = response;
+              const isSharedToCommunity = calculateIsSharedToCommunity(response, sharedResponseIds);
+              
               return {
                 ...rest,
                 decks: bookmarks.reduce((acc, bookmark) => {
                   acc[bookmark.id] = bookmark.title;
                   return acc;
-                }, {} as Record<string, string>)
+                }, {} as Record<string, string>),
+                isSharedToCommunity
               };
             });
             allResponses.push(...transformedResponses);
@@ -273,14 +316,22 @@ export async function generateUserSummary(userId: string, forceRefresh: boolean 
           };
           const responses = await prisma.gPTResponse.findMany(query);
           // console.log(`[generateUserSummary] Found ${responses.length} responses for user ${userId}, language ${languageId}, rank ${rank}`);
+          
+          // Get sharing status for all responses in this batch
+          const responseIds = responses.map(r => r.id);
+          const sharedResponseIds = await getSharedResponseIds(responseIds);
+          
           const transformedResponses = responses.map(response => {
             const { bookmarks, ...rest } = response;
+            const isSharedToCommunity = calculateIsSharedToCommunity(response, sharedResponseIds);
+            
             return {
               ...rest,
               decks: bookmarks.reduce((acc, bookmark) => {
                 acc[bookmark.id] = bookmark.title;
                 return acc;
-              }, {} as Record<string, string>)
+              }, {} as Record<string, string>),
+              isSharedToCommunity
             };
           });
           for (let i = transformedResponses.length - 1; i > 0; i--) {

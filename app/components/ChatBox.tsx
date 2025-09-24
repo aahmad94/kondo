@@ -786,6 +786,7 @@ export default function ChatBox({
           source: response.source,
           communityResponseId: response.communityResponseId,
           communityResponse: response.communityResponse,
+          isSharedToCommunity: response.isSharedToCommunity,
         }));
 
         // Sort responses using the new function
