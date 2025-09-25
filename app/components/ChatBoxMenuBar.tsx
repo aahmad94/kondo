@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon, AcademicCapIcon } from '@heroicons/react/24/solid';
+import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon, AcademicCapIcon, BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
@@ -100,6 +100,13 @@ export default function ChatBoxMenuBar({
     }
   };
 
+  // Handle Community button click
+  const handleCommunityClick = () => {
+    if (onDeckSelect) {
+      onDeckSelect(null, 'community');
+    }
+  };
+
 
   // Determine which buttons to show based on selected deck
   const isDojo = selectedDeck.title === 'daily summary';
@@ -149,42 +156,53 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Create Button - 2nd */}
-              {isCommunity && isDecksCollapsed && (
-                <button
-                  onClick={onCreateNewContent}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <WrenchIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>create w/ AI</span>
-                </button>
-              )}
-
-              {/* Dojo Button - 3rd */}
-              {isCommunity && isDecksCollapsed && onDeckSelect && (
-                <button
-                  onClick={handleDojoClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <AcademicCapIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>dojo</span>
-                </button>
-              )}
-
-              {/* Flashcard Mode Button - Fourth */}
+              {/* Study Button - 1st - Show when flashcards available */}
               {showFlashcards && (
                 <button
                   onClick={onFlashcardMode}
                   disabled={flashcardCount === 0}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-phrase-text hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-white hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
                 >
-                  <RectangleStackIcon className="h-4 w-4 flex-shrink-0 text-phrase-text" />
+                  <RectangleStackIcon className="h-4 w-4 flex-shrink-0 text-white" />
                   <span>
-                    flashcard mode
+                    study
                     {flashcardCount > 0 && (
                       <span className="ml-1">({flashcardCount})</span>
                     )}
                   </span>
+                </button>
+              )}
+
+              {/* Create Button - 2nd - Show when sidebar collapsed and NOT in create mode (root) */}
+              {isDecksCollapsed && !isRoot && (
+                <button
+                  onClick={onCreateNewContent}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-blue-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <WrenchIcon className="h-4 w-4 flex-shrink-0 text-blue-400" />
+                  <span>create w/ AI</span>
+                </button>
+              )}
+
+              {/* Community Button - 3rd - Show when sidebar collapsed and NOT already in community */}
+              {isDecksCollapsed && !isCommunity && onDeckSelect && (
+                <button
+                  onClick={handleCommunityClick}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <BuildingLibraryIcon className="h-4 w-4 flex-shrink-0 text-purple-400" />
+                  <span>community</span>
+                </button>
+              )}
+
+              {/* Dojo Button - 4th - Show when sidebar collapsed and NOT already in dojo */}
+              {isDecksCollapsed && !isDojo && onDeckSelect && (
+                <button
+                  onClick={handleDojoClick}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-phrase-text hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <AcademicCapIcon className="h-4 w-4 flex-shrink-0 text-phrase-text" />
+                  <span>dojo</span>
                 </button>
               )}
 

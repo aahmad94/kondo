@@ -148,7 +148,7 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
 export function DojoTipsList() {
   const tips = [
     {
-      title: 'Use flashcard mode',
+      title: 'Study with flashcard mode',
       description: 'test yourself after reviewing the daily material in dojo'
     },
     {
@@ -317,7 +317,7 @@ export function CreateInstructions() {
           <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Frequency</strong> of material shown adjusts based on your ranking
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Flashcard mode</strong> in decks for active review and practice
+          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Study with flashcard mode</strong> in decks for active review and practice
         </div>
       </div>
 
