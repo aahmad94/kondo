@@ -21,6 +21,7 @@ interface ChatBoxMenuBarProps {
   onImportEntireBookmark?: () => void;
   onDeckSelect?: (id: string | null, title: string | null) => void;
   onDojoNavigation?: () => void;
+  isDecksCollapsed: boolean;
 }
 
 export default function ChatBoxMenuBar({ 
@@ -35,7 +36,8 @@ export default function ChatBoxMenuBar({
   communityFilters,
   onImportEntireBookmark,
   onDeckSelect,
-  onDojoNavigation
+  onDojoNavigation,
+  isDecksCollapsed
 }: ChatBoxMenuBarProps) {
   const { isMobile } = useIsMobile();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -148,7 +150,7 @@ export default function ChatBoxMenuBar({
               )}
 
               {/* Create Button - 2nd */}
-              {isCommunity && isMobile && (
+              {isCommunity && isDecksCollapsed && (
                 <button
                   onClick={onCreateNewContent}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
@@ -159,7 +161,7 @@ export default function ChatBoxMenuBar({
               )}
 
               {/* Dojo Button - 3rd */}
-              {isCommunity && isMobile && onDeckSelect && (
+              {isCommunity && isDecksCollapsed && onDeckSelect && (
                 <button
                   onClick={handleDojoClick}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"

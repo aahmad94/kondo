@@ -46,6 +46,7 @@ interface ChatBoxProps {
   onLanguageChange: (languageCode: string) => void;
   onDeckSelect: (id: string | null, title: string | null) => void;
   onDeckCreated: (newDeck: { id: string, title: string }) => void;
+  isDecksCollapsed: boolean;
 }
 
 interface Response {
@@ -117,7 +118,8 @@ export default function ChatBox({
   selectedLanguage,
   onLanguageChange,
   onDeckSelect,
-  onDeckCreated
+  onDeckCreated,
+  isDecksCollapsed
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
@@ -1202,6 +1204,7 @@ export default function ChatBox({
         onImportEntireBookmark={handleImportEntireBookmark}
         onDeckSelect={onDeckSelect}
         onDojoNavigation={handleDojoNavigation}
+        isDecksCollapsed={isDecksCollapsed}
       />
       
       {/* Community Filter Bar - positioned after menu bar */}

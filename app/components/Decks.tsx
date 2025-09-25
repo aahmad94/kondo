@@ -24,6 +24,8 @@ interface DecksProps {
   selectedLanguage: string;
   onClearDeck: () => void;
   newDeck: { id: string, title: string } | null;
+  isCollapsed: boolean;
+  onCollapseChange: (collapsed: boolean) => void;
 }
 
 export default function Decks({ 
@@ -32,9 +34,12 @@ export default function Decks({
   reservedDeckTitles,
   selectedLanguage, 
   onClearDeck, 
-  newDeck 
+  newDeck,
+  isCollapsed,
+  onCollapseChange 
 }: DecksProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  // Use props for collapse state instead of local state
+  const isOpen = !isCollapsed;
   const [decks, setDecks] = useState<Deck[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -138,7 +143,7 @@ export default function Decks({
         // Only set isOpen to false on initial load or when resizing to mobile
         // Don't override if we're already in mobile view
         if (isOpen) {
-          setIsOpen(false);
+          onCollapseChange(true);
         }
       }
     };
@@ -162,7 +167,7 @@ export default function Decks({
     
     // close decks if on mobile
     if (window.innerWidth < 768) {
-      setIsOpen(false);
+      onCollapseChange(true);
     }
   };
 
@@ -254,12 +259,12 @@ export default function Decks({
     
     // Close decks if on mobile
     if (window.innerWidth < 768) {
-      setIsOpen(false);
+      onCollapseChange(true);
     }
   };
 
   const handleToggleOpen = () => {
-    setIsOpen(!isOpen);
+    onCollapseChange(!isCollapsed);
   };
 
   const handleChevronClick = (deck: Deck, e: React.MouseEvent) => {

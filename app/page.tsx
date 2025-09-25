@@ -17,6 +17,7 @@ export default function Home() {
   const [newDeck, setNewDeck] = useState<{ id: string, title: string } | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [isClearingDeck, setIsClearingDeck] = useState(false);
+  const [isDecksCollapsed, setIsDecksCollapsed] = useState<boolean>(false);
   const hasSyncedRef = useRef(false);
 
   // Define handleDeckSelect early with useCallback, before any hooks or early returns (around line 22, after state declarations)
@@ -160,6 +161,8 @@ export default function Home() {
           reservedDeckTitles={reservedDeckTitles}
           selectedLanguage={selectedLanguage || 'ja'}
           newDeck={newDeck}
+          isCollapsed={isDecksCollapsed}
+          onCollapseChange={setIsDecksCollapsed}
         />
         <div className="flex-1 overflow-hidden bg-background">
           <ChatBox 
@@ -169,6 +172,7 @@ export default function Home() {
             onLanguageChange={handleLanguageChange}
             onDeckSelect={handleDeckSelect}
             onDeckCreated={handleDeckCreated}
+            isDecksCollapsed={isDecksCollapsed}
           />
         </div>
       </div>
