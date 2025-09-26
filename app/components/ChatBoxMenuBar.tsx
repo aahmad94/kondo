@@ -89,22 +89,49 @@ export default function ChatBoxMenuBar({
     setShowEmailModal(false);
   };
 
-  // Handle Dojo button click
-  const handleDojoClick = () => {
-    if (onDojoNavigation) {
-      // Use the specific dojo navigation handler that fetches the proper deck ID
-      onDojoNavigation();
-    } else if (onDeckSelect) {
-      // Fallback to the old method if onDojoNavigation is not provided
-      onDeckSelect(null, 'daily summary');
+  // Helper function to blur button after click (fixes mobile tap highlight issue)
+  const handleButtonClick = (callback: () => void, event?: React.MouseEvent<HTMLButtonElement>) => {
+    callback();
+    // Blur the button to remove focus highlight on mobile
+    if (event?.currentTarget) {
+      event.currentTarget.blur();
     }
   };
 
+  // Handle Dojo button click
+  const handleDojoClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    handleButtonClick(() => {
+      if (onDojoNavigation) {
+        // Use the specific dojo navigation handler that fetches the proper deck ID
+        onDojoNavigation();
+      } else if (onDeckSelect) {
+        // Fallback to the old method if onDojoNavigation is not provided
+        onDeckSelect(null, 'daily summary');
+      }
+    }, event);
+  };
+
   // Handle Community button click
-  const handleCommunityClick = () => {
-    if (onDeckSelect) {
-      onDeckSelect(null, 'community');
-    }
+  const handleCommunityClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    handleButtonClick(() => {
+      if (onDeckSelect) {
+        onDeckSelect(null, 'community');
+      }
+    }, event);
+  };
+
+  // Handle Create button click
+  const handleCreateClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    handleButtonClick(() => {
+      onCreateNewContent();
+    }, event);
+  };
+
+  // Handle Study button click
+  const handleStudyClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    handleButtonClick(() => {
+      onFlashcardMode();
+    }, event);
   };
 
 
@@ -159,7 +186,7 @@ export default function ChatBoxMenuBar({
               {/* Study Button - 1st - Show when flashcards available */}
               {showFlashcards && (
                 <button
-                  onClick={onFlashcardMode}
+                  onClick={handleStudyClick}
                   disabled={flashcardCount === 0}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
                 >
@@ -176,7 +203,7 @@ export default function ChatBoxMenuBar({
               {/* Create Button - 2nd - Show when sidebar collapsed and NOT in create mode (root) */}
               {isDecksCollapsed && !isRoot && (
                 <button
-                  onClick={onCreateNewContent}
+                  onClick={handleCreateClick}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-blue-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <WrenchIcon className="h-4 w-4 flex-shrink-0 text-blue-400" />
