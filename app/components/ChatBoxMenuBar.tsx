@@ -161,9 +161,9 @@ export default function ChatBoxMenuBar({
                 <button
                   onClick={onFlashcardMode}
                   disabled={flashcardCount === 0}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-black dark:text-white hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
                 >
-                  <RectangleStackIcon className="h-4 w-4 flex-shrink-0 text-black dark:text-white" />
+                  <RectangleStackIcon className="h-4 w-4 flex-shrink-0" />
                   <span>
                     study
                     {flashcardCount > 0 && (
