@@ -148,7 +148,7 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
 export function DojoTipsList() {
   const tips = [
     {
-      title: 'Study with flashcard mode',
+      title: 'Study with flashcards',
       description: 'test yourself after reviewing the daily material in dojo'
     },
     {
@@ -263,25 +263,25 @@ export function CommunityInstructions() {
   return (
     <div className="max-w-none text-primary" style={{ color: COLORS.secondary, lineHeight: 1.6 }}>
       <div style={{ marginBottom: '1.5rem' }}>
-        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Import content shared by the community:</h4>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Learn from content created by the community:</h4>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>1.</strong> <strong>Browse</strong> responses shared by the community
+          <strong>Browse</strong> responses shared by the community
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>2.</strong> <strong>Filter</strong> by deck titles, creators, or popularity
+          <strong>Filter</strong> by deck titles, creators, or popularity
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>3.</strong> <strong>Import</strong> interesting responses to your decks
+          <strong>Import</strong> interesting responses to your decks
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>4.</strong> <strong>Share</strong> your own responses to help others learn
+          <strong>Share</strong> your own responses to help others learn
         </div>
       </div>
 
       <div style={{ marginBottom: '1rem' }}>
         <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>How to share your content:</h4>
         <p style={{ marginBottom: '0.5rem' }}>
-          Click the share button on the bottom of any of your the items in your decks.
+          Click the share button on the bottom of any the material in your decks
         </p>
       </div>
     </div>
@@ -293,38 +293,35 @@ export function CreateInstructions() {
   return (
     <div className="max-w-none text-primary" style={{ color: COLORS.secondary, lineHeight: 1.6 }}>
       <div style={{ marginBottom: '1.5rem' }}>
-        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Create study material:</h4>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Chat w/ AI to create study material:</h4>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>1.</strong> <strong>Generate</strong> language content, translations, or explanations using LLMs
+          <strong>Generate material</strong> – enter a phrase or an AI command
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>2.</strong> <strong>Breakdown</strong> is automatically provided for phrases and expressions
+          <strong>Breakdown + audio guides</strong> are automatically generated
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>3.</strong> <strong>Audio</strong> pronunciation guide is generated for proper learning
-        </div>
-        <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>4.</strong> <strong>Add to deck</strong> to organize your learning materials
+          <strong>Add to deck</strong> to rank and organize your learning materials
         </div>
       </div>
 
       <div style={{ marginBottom: '1.5rem' }}>
-        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Review and practice your content:</h4>
+        <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Review and study:</h4>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Adjust rank</strong> (1-3) based on how well you know the material
+          <strong>Adjust rank</strong> (1-3) based on how well you know the material
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Frequency</strong> of material shown adjusts based on your ranking
+          <strong>Frequency</strong> of material shown adjusts based on your ranking
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong style={{ color: COLORS.secondary }}>•</strong> <strong>Study with flashcard mode</strong> in decks for active review and practice
+          <strong>Study with flashcards</strong> in decks for active review and practice
         </div>
       </div>
 
       <div style={{ marginBottom: '1rem' }}>
         <h4 style={{ color: COLORS.primary, marginBottom: '0.8rem', fontSize: '1rem' }}>Share with the community:</h4>
         <p style={{ marginBottom: '0.5rem' }}>
-          Click the share button on any response in your deck to share it with the community and help others learn.
+          Click the share button on any response in your deck to share it with the community and help others learn
         </p>
       </div>
     </div>
