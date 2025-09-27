@@ -229,29 +229,7 @@ export default function CommunityResponse(props: ResponseProps) {
         return;
       }
 
-      const response = await fetch('/api/breakdown', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: data.content,
-          language: selectedLanguage,
-          responseId: data.id,
-          isMobile
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to generate breakdown');
-
-      const result = await response.json();
-      const breakdown = isMobile ? result.mobileBreakdown : result.desktopBreakdown;
-      
-      setCurrentBreakdownContent(breakdown);
-      if (isMobile) {
-        setMobileBreakdownContent(breakdown);
-      } else {
-        setDesktopBreakdownContent(breakdown);
-      }
-      
+      await generateBreakdown(isMobile);
       setIsBreakdownModalOpen(true);
       trackBreakdownClick(data.id || '');
     } catch (error) {
@@ -263,8 +241,66 @@ export default function CommunityResponse(props: ResponseProps) {
     }
   };
 
-  const handleBreakdownFormatToggle = () => {
-    setIsBreakdownTextView(!isBreakdownTextView);
+  const handleBreakdownFormatToggle = async (toTextView?: boolean) => {
+    const targetTextView = toTextView !== undefined ? toTextView : !isBreakdownTextView;
+    setIsBreakdownTextView(targetTextView);
+    
+    // Check if we have the content for the requested view
+    const neededContent = targetTextView ? mobileBreakdownContent : desktopBreakdownContent;
+    
+    if (neededContent) {
+      // We have the content, switch immediately
+      setCurrentBreakdownContent(neededContent);
+    } else {
+      // We need to generate the content - don't show external spinner for format toggle
+      await generateBreakdown(targetTextView, false);
+    }
+  };
+
+  const generateBreakdown = async (isMobileView: boolean, showExternalLoading: boolean = true) => {
+    if (!data.id) return;
+
+    try {
+      setIsBreakdownLoading(true);
+      if (showExternalLoading) {
+        onLoadingChange?.(true);
+      }
+
+      const response = await fetch('/api/breakdown', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: data.content,
+          language: selectedLanguage,
+          responseId: data.id,
+          isMobile: isMobileView
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to generate breakdown');
+
+      const result = await response.json();
+      
+      // Cache both breakdowns if available from the API response
+      if (result.desktopBreakdown) {
+        setDesktopBreakdownContent(result.desktopBreakdown);
+      }
+      if (result.mobileBreakdown) {
+        setMobileBreakdownContent(result.mobileBreakdown);
+      }
+      
+      // Set the current breakdown content for display
+      const breakdown = isMobileView ? result.mobileBreakdown : result.desktopBreakdown;
+      setCurrentBreakdownContent(breakdown);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to generate breakdown');
+      setIsErrorModalOpen(true);
+    } finally {
+      setIsBreakdownLoading(false);
+      if (showExternalLoading) {
+        onLoadingChange?.(false);
+      }
+    }
   };
 
   // GPT-specific handlers
