@@ -22,6 +22,9 @@ export {
   deleteGPTResponseWithCascade
 } from './communityService';
 
+// Community breakdown caching
+export { getCommunityBreakdown } from './communityBreakdownService';
+
 // Client-side API service
 export { CommunityClientService } from './communityClientService';
 
