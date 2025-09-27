@@ -89,52 +89,22 @@ export default function ChatBoxMenuBar({
     setShowEmailModal(false);
   };
 
-  // Helper function to blur button after click (fixes mobile tap highlight issue)
-  const handleButtonClick = (callback: () => void, event?: React.MouseEvent<HTMLButtonElement>) => {
-    callback();
-    // Blur the button to remove focus highlight on mobile
-    if (event?.currentTarget) {
-      // Use requestAnimationFrame to ensure DOM updates happen first
-      requestAnimationFrame(() => {
-        event.currentTarget.blur();
-      });
+  // Handle Dojo button click
+  const handleDojoClick = () => {
+    if (onDojoNavigation) {
+      // Use the specific dojo navigation handler that fetches the proper deck ID
+      onDojoNavigation();
+    } else if (onDeckSelect) {
+      // Fallback to the old method if onDojoNavigation is not provided
+      onDeckSelect(null, 'daily summary');
     }
   };
 
-  // Handle Dojo button click
-  const handleDojoClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
-    handleButtonClick(() => {
-      if (onDojoNavigation) {
-        // Use the specific dojo navigation handler that fetches the proper deck ID
-        onDojoNavigation();
-      } else if (onDeckSelect) {
-        // Fallback to the old method if onDojoNavigation is not provided
-        onDeckSelect(null, 'daily summary');
-      }
-    }, event);
-  };
-
   // Handle Community button click
-  const handleCommunityClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
-    handleButtonClick(() => {
-      if (onDeckSelect) {
-        onDeckSelect(null, 'community');
-      }
-    }, event);
-  };
-
-  // Handle Create button click
-  const handleCreateClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
-    handleButtonClick(() => {
-      onCreateNewContent();
-    }, event);
-  };
-
-  // Handle Study button click
-  const handleStudyClick = (event?: React.MouseEvent<HTMLButtonElement>) => {
-    handleButtonClick(() => {
-      onFlashcardMode();
-    }, event);
+  const handleCommunityClick = () => {
+    if (onDeckSelect) {
+      onDeckSelect(null, 'community');
+    }
   };
 
 
@@ -179,7 +149,7 @@ export default function ChatBoxMenuBar({
               {showImportEntireBookmark && (
                 <button
                   onClick={onImportEntireBookmark}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0 text-purple-400" />
                   <span>import entire deck</span>
@@ -189,9 +159,9 @@ export default function ChatBoxMenuBar({
               {/* Study Button - 1st - Show when flashcards available */}
               {showFlashcards && (
                 <button
-                  onClick={handleStudyClick}
+                  onClick={onFlashcardMode}
                   disabled={flashcardCount === 0}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 font-mono whitespace-nowrap"
                 >
                   <RectangleStackIcon className="h-4 w-4 flex-shrink-0" />
                   <span>
@@ -206,8 +176,8 @@ export default function ChatBoxMenuBar({
               {/* Create Button - 2nd - Show when sidebar collapsed and NOT in create mode (root) */}
               {isDecksCollapsed && !isRoot && (
                 <button
-                  onClick={handleCreateClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-blue-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  onClick={onCreateNewContent}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-blue-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <WrenchIcon className="h-4 w-4 flex-shrink-0 text-blue-400" />
                   <span>create w/ AI</span>
@@ -218,7 +188,7 @@ export default function ChatBoxMenuBar({
               {isDecksCollapsed && !isCommunity && onDeckSelect && (
                 <button
                   onClick={handleCommunityClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <BuildingLibraryIcon className="h-4 w-4 flex-shrink-0 text-purple-400" />
                   <span>community</span>
@@ -229,7 +199,7 @@ export default function ChatBoxMenuBar({
               {isDecksCollapsed && !isDojo && onDeckSelect && (
                 <button
                   onClick={handleDojoClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-phrase-text hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-phrase-text hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <AcademicCapIcon className="h-4 w-4 flex-shrink-0 text-phrase-text" />
                   <span>dojo</span>
@@ -240,7 +210,7 @@ export default function ChatBoxMenuBar({
                             {showNewReport && (
                 <button
                   onClick={handleNewReportClick}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <PlusIcon className="h-4 w-4 flex-shrink-0" />
                   <span>generate new report</span>
@@ -251,7 +221,7 @@ export default function ChatBoxMenuBar({
               {showEmailSubscription && (
                 <button
                   onClick={handleEmailModalOpen}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <EnvelopeIcon className="h-4 w-4 flex-shrink-0" />
                   <span>email updates</span>
@@ -262,7 +232,7 @@ export default function ChatBoxMenuBar({
               {showAdditionalCommands && (
                 <button
                   onClick={(e) => handleContentModal('commands', e)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <CommandLineIcon className="h-4 w-4 flex-shrink-0" />
                   <span>AI commands</span>
@@ -273,7 +243,7 @@ export default function ChatBoxMenuBar({
               {showCreateInstructions && (
                 <button
                   onClick={() => handleContentModal('create')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
                   <span>instructions</span>
@@ -284,7 +254,7 @@ export default function ChatBoxMenuBar({
               {showDojoTips && (
                 <button
                   onClick={() => handleContentModal('tips')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
                   <span>dojo tips</span>
@@ -295,7 +265,7 @@ export default function ChatBoxMenuBar({
               {showCommunityInstructions && (
                 <button
                   onClick={() => handleContentModal('community')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
                   <span>instructions</span>
@@ -306,7 +276,7 @@ export default function ChatBoxMenuBar({
               {showStats && (
                 <button
                   onClick={() => handleContentModal('stats')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap focus:outline-none focus:bg-card active:bg-card"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
                   <ChartBarIcon className="h-4 w-4 flex-shrink-0" />
                   <span>stats</span>
