@@ -19,7 +19,7 @@ export async function getUserTheme(userEmail: string): Promise<Theme> {
       throw new Error('User not found');
     }
 
-    return (user.theme as Theme) || 'light';
+    return (user.theme as Theme) || 'dark';
   } finally {
     await prisma.$disconnect();
   }

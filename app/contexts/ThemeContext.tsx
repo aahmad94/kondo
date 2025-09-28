@@ -19,9 +19,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Immediately check localStorage for theme to prevent flash
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme') as Theme;
-      return savedTheme || 'light';
+      return savedTheme || 'dark';
     }
-    return 'light';
+    return 'dark';
   });
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();

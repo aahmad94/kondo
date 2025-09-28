@@ -18,13 +18,13 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   const yellow = '#b59f3b'
   
   // Theme detection state
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   
   // Check localStorage for theme on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
-      const detectedTheme = savedTheme || 'light'; // Default to light
+      const detectedTheme = savedTheme || 'dark'; // Default to dark
       setTheme(detectedTheme);
       // Apply theme class to document element
       document.documentElement.className = detectedTheme;
