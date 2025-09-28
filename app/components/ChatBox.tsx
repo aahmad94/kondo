@@ -1331,6 +1331,7 @@ export default function ChatBox({
                       onViewProfile={handleViewProfile}
                       onAliasClick={handleAliasClick}
                       onDeckClick={handleDeckClick}
+                      onDeckSelect={onDeckSelect}
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
                       aliasColor={aliasColorMap.get(communityResponse.creatorAlias)}

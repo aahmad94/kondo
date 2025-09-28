@@ -58,7 +58,7 @@ import {
 } from '../../types/response';
 
 export default function CommunityResponse(props: ResponseProps) {
-  const { type, data, selectedDeckTitle, selectedLanguage = 'ja', hideContent = false, showAnswer, onToggleAnswer, onQuote, onBreakdownClick, onLoadingChange, containerWidth } = props;
+  const { type, data, selectedDeckTitle, selectedLanguage = 'ja', hideContent = false, showAnswer, onToggleAnswer, onQuote, onBreakdownClick, onLoadingChange, containerWidth, onDeckSelect } = props;
 
   // Colors
   const red = '#d93900';
@@ -510,7 +510,14 @@ export default function CommunityResponse(props: ResponseProps) {
         {/* Quote button */}
         {onQuote && (
           <QuoteButton
-            onClick={() => onQuote(data.content, 'input')}
+            onClick={() => {
+              // Navigate to main chatbox to enter create mode (same logic as GPTResponse)
+              if (isCommunityResponseProps(props) && onDeckSelect) {
+                onDeckSelect(null, null);
+              }
+              router.push('/');
+              onQuote(data.content, 'input');
+            }}
             buttonRef={quoteButtonRef}
           />
         )}

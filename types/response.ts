@@ -79,6 +79,7 @@ export interface CommunityResponseProps extends BaseResponseProps {
   onViewProfile?: (userId: string) => void;
   onAliasClick?: (alias: string) => void;
   onDeckClick?: (deckTitle: string) => void;
+  onDeckSelect?: (id: string | null, title: string | null) => void;
   currentUserId?: string;
   currentUserHasAlias?: boolean;
   isImporting?: boolean;
