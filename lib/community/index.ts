@@ -25,6 +25,9 @@ export {
 // Community breakdown caching
 export { getCommunityBreakdown } from './communityBreakdownService';
 
+// Community audio caching
+export { getCommunityAudio } from './communityAudioService';
+
 // Client-side API service
 export { CommunityClientService } from './communityClientService';
 
