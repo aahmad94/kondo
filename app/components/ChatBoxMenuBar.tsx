@@ -149,9 +149,9 @@ export default function ChatBoxMenuBar({
               {showImportEntireBookmark && (
                 <button
                   onClick={onImportEntireBookmark}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-purple-600 dark:text-purple-400 hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
                 >
-                  <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0 text-purple-400" />
+                  <ArrowDownTrayIcon className="h-4 w-4 flex-shrink-0 text-purple-600 dark:text-purple-400" />
                   <span>import entire deck</span>
                 </button>
               )}
