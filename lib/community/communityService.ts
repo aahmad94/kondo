@@ -210,6 +210,12 @@ export async function importFromCommunity(userId: string, communityResponseId: s
         }
       });
 
+      // Update the bookmark's updatedAt field to reflect the interaction
+      await tx.bookmark.update({
+        where: { id: bookmark.id },
+        data: { updatedAt: new Date() }
+      });
+
       return {
         response: importedResponse,
         bookmark,
@@ -333,6 +339,12 @@ export async function importFromCommunityToBookmark(
             increment: 1
           }
         }
+      });
+
+      // Update the bookmark's updatedAt field to reflect the interaction
+      await tx.bookmark.update({
+        where: { id: targetBookmarkId },
+        data: { updatedAt: new Date() }
       });
 
       return {
@@ -843,6 +855,12 @@ export async function importEntireCommunityBookmark(
           }
         });
       }
+
+      // Update the bookmark's updatedAt field to reflect the interaction
+      await tx.bookmark.update({
+        where: { id: bookmark.id },
+        data: { updatedAt: new Date() }
+      });
 
       return {
         responses: importedResponses,
