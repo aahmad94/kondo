@@ -23,7 +23,8 @@ export async function POST(request: Request) {
 
     let result;
     
-    if (responseId) {
+    // Check if responseId is provided and valid (not null, undefined, empty string, or temp)
+    if (responseId && responseId !== 'null' && responseId !== 'undefined' && !responseId.includes('temp')) {
       // Determine if this is a community response or GPT response
       const [communityResponse, gptResponse] = await Promise.all([
         prisma.communityResponse.findUnique({
@@ -40,17 +41,17 @@ export async function POST(request: Request) {
         // Handle community response with caching
         result = await getCommunityBreakdown(responseId, isMobile);
       } else if (gptResponse) {
-        // Handle regular GPT response
+        // Handle regular GPT response with caching
         result = await getBreakdown(text, language, responseId, isMobile);
       } else {
-        return NextResponse.json(
-          { error: 'Response not found' },
-          { status: 404 }
-        );
+        // Response ID provided but not found in database - likely unsaved response
+        // Generate without caching
+        result = await getBreakdown(text, language, undefined, isMobile);
       }
     } else {
-      // Handle case where responseId is not provided (e.g., unsaved GPT responses)
-      result = await getBreakdown(text, language, responseId, isMobile);
+      // Handle case where responseId is not provided or is temp (e.g., unsaved GPT responses)
+      // Pass undefined to prevent caching attempts
+      result = await getBreakdown(text, language, undefined, isMobile);
     }
 
     return NextResponse.json({ 

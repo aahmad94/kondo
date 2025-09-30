@@ -887,10 +887,14 @@ export default function ChatBox({
       if (result.success) {
         // For single response imports, update the community response state
         if (communityResponseId !== 'batch-import') {
-          updateCommunityResponse(communityResponseId, { hasUserImported: true });
+          updateCommunityResponse(communityResponseId, { 
+            hasUserImported: true,
+            importCount: (communityResponses.find(r => r.id === communityResponseId)?.importCount || 0) + 1
+          });
         }
         
-        refetchCommunityFresh();
+        // Don't refetch to preserve shuffle order and scroll position
+        // The updateCommunityResponse above already updates the UI state
         console.log('Successfully imported response(s)');
         
         // If a new bookmark was created, notify the parent to refresh decks bar
