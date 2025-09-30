@@ -16,11 +16,15 @@ Requirements:
 
 Format: Markdown table with columns: Kanji, Kana, Romaji, Function, Root
 
-Function Column: MUST include both translation AND grammatical function in Line 2's language. Format as "[translation] ([grammatical role])". 
-- If Line 2 is English: "cat (noun)", "eat (present continuous form)", "topic marker (particle)"
-- If Line 2 is Vietnamese: "con mèo (danh từ)", "ăn (thì hiện tại tiếp diễn)", "trợ từ chủ đề (trợ từ)"
-- If Line 2 is Korean: "고양이 (명사)", "먹다 (현재 진행형)", "주제 조사 (조사)"
-CRITICAL: ALL text in the Function column MUST be in the SAME language as Line 2. For particles, provide both their meaning/purpose and grammatical classification in Line 2's language. Always include the actual meaning/translation of the word along with its structural role, ALL in Line 2's language.
+Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
+
+CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully
+- Identify its language (English? Vietnamese? Korean? Chinese? Spanish? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
+- Example: If Line 2 is "cat" → Function should be "cat (noun)". If Line 2 is "con mèo" → Function should be "con mèo (danh từ)"
+
+For particles, provide both their meaning/purpose and grammatical classification in Line 2's language.
 
 Root Column: Verbs only - original Japanese + romaji in parentheses.
 

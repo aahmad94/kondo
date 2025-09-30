@@ -19,10 +19,10 @@ Format: For each word/element, provide a concise explanation:
 - For verbs: include root form and conjugation details
 - For particles: state specific grammatical role
 
-CRITICAL LANGUAGE RULE: ALL explanations (meanings and grammatical terms) MUST be in Line 2's language.
-- If Line 2 is English: "topic marker (particle)", "new (adjective)", "is (copula)"
-- If Line 2 is Vietnamese: "trợ từ chủ đề (trợ từ)", "mới (tính từ)", "là (động từ nối)"
-- If Line 2 is Korean: "주제 조사 (조사)", "새로운 (형용사)", "이다 (서술격 조사)"
+CRITICAL: Write ALL explanations in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Korean? Chinese? Spanish? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms
+- Example: If Line 2 is "topic marker" → use "topic marker (particle)". If Line 2 is "trợ từ chủ đề" → use "trợ từ chủ đề (trợ từ)"
 
 Rules:
 - Skip all punctuation marks

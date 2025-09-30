@@ -15,11 +15,14 @@ Requirements:
 
 Format: Markdown table with columns: Spanish, Function, Root
 
-Function Column: MUST include both translation AND grammatical function in Line 2's language. Format as "[translation] ([grammatical role])".
-- If Line 2 is English: "house (noun)", "speak (first person singular present indicative)", "of/from (preposition)"
-- If Line 2 is Japanese: "家 (名詞)", "話す (一人称単数現在直説法)", "の/から (前置詞)"
-- If Line 2 is Vietnamese: "nhà (danh từ)", "nói (ngôi thứ nhất số ít hiện tại trực tiếp)", "của/từ (giới từ)"
-CRITICAL: ALL text in the Function column MUST be in the SAME language as Line 2. For prepositions/conjunctions, provide both their meaning and grammatical classification in Line 2's language. For verbs, include complete tense/mood/voice/person/number details in Line 2's language. For nouns/adjectives, note gender/number/agreement when relevant, ALL in Line 2's language.
+Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
+
+CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
+- Example: If Line 2 is "house" → Function should be "house (noun)". If Line 2 is "nhà" → Function should be "nhà (danh từ)"
+
+For prepositions/conjunctions, provide both their meaning and grammatical classification. For verbs, include complete tense/mood/voice/person/number details. For nouns/adjectives, note gender/number/agreement when relevant.
 
 Root Column: Verbs only - infinitive form.
 

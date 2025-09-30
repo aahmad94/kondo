@@ -15,11 +15,14 @@ Requirements:
 
 Format: Markdown table with columns: Arabic, Transliteration, Function, Root
 
-Function Column: MUST include both translation AND grammatical function in Line 2's language. Format as "[translation] ([grammatical role])".
-- If Line 2 is English: "house (noun)", "write (third person masculine singular past)", "in/at (preposition)"
-- If Line 2 is Spanish: "casa (sustantivo)", "escribir (tercera persona masculino singular pasado)", "en (preposición)"
-- If Line 2 is Vietnamese: "nhà (danh từ)", "viết (ngôi thứ ba giống đực số ít quá khứ)", "trong/tại (giới từ)"
-CRITICAL: ALL text in the Function column MUST be in the SAME language as Line 2. For particles/prepositions, provide both their meaning and grammatical classification in Line 2's language. For verbs, include complete tense/form/voice/person/gender/number details in Line 2's language. For nouns, note definiteness/case/number when relevant, ALL in Line 2's language.
+Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
+
+CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Spanish? Korean? Chinese? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
+- Example: If Line 2 is "house" → Function should be "house (noun)". If Line 2 is "casa" → Function should be "casa (sustantivo)"
+
+For particles/prepositions, provide both their meaning and grammatical classification. For verbs, include complete tense/form/voice/person/gender/number details. For nouns, note definiteness/case/number when relevant.
 
 Root Column: Verbs only - original Arabic root + transliteration in parentheses.
 

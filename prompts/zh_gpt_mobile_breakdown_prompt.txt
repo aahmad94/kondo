@@ -19,10 +19,10 @@ Format: For each word/element, provide a concise explanation:
 - For particles/function words: state specific grammatical role
 - For measure words: specify usage context
 
-CRITICAL LANGUAGE RULE: ALL explanations (meanings and grammatical terms) MUST be in Line 2's language.
-- If Line 2 is English: "eat (verb)", "completion marker (particle)", "this (demonstrative)"
-- If Line 2 is Japanese: "食べる (動詞)", "完了マーカー (助詞)", "これ (指示詞)"
-- If Line 2 is Vietnamese: "ăn (động từ)", "dấu hoàn thành (trợ từ)", "này (chỉ định từ)"
+CRITICAL: Write ALL explanations in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms
+- Example: If Line 2 is "eat" → use "eat (verb)". If Line 2 is "ăn" → use "ăn (động từ)"
 
 Rules:
 - Skip all punctuation marks

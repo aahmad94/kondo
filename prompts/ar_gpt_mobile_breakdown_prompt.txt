@@ -19,10 +19,10 @@ Format: For each word/element, provide a concise explanation:
 - For nouns: note definiteness/case/number when relevant
 - For particles/prepositions: state specific grammatical function
 
-CRITICAL LANGUAGE RULE: ALL explanations (meanings and grammatical terms) MUST be in Line 2's language.
-- If Line 2 is English: "house (noun)", "write (third person past)", "in/at (preposition)"
-- If Line 2 is Spanish: "casa (sustantivo)", "escribir (tercera persona pasado)", "en (preposición)"
-- If Line 2 is Vietnamese: "nhà (danh từ)", "viết (ngôi thứ ba quá khứ)", "trong/tại (giới từ)"
+CRITICAL: Write ALL explanations in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Spanish? Korean? Chinese? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms
+- Example: If Line 2 is "house" → use "house (noun)". If Line 2 is "casa" → use "casa (sustantivo)"
 
 Rules:
 - Skip all punctuation marks

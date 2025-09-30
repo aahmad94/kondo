@@ -15,11 +15,14 @@ Requirements:
 
 Format: Markdown table with columns: Chars, Pinyin, Function, Root
 
-Function Column: MUST include both translation AND grammatical function in Line 2's language. Format as "[translation] ([grammatical role])".
-- If Line 2 is English: "eat (verb)", "completion marker (aspect particle)", "can understand (potential complement)"
-- If Line 2 is Japanese: "食べる (動詞)", "完了マーカー (アスペクト助詞)", "理解できる (可能補語)"
-- If Line 2 is Vietnamese: "ăn (động từ)", "dấu hoàn thành (trợ từ thể)", "có thể hiểu (bổ ngữ khả năng)"
-CRITICAL: ALL text in the Function column MUST be in the SAME language as Line 2. For particles/function words, provide both their meaning/purpose and grammatical classification in Line 2's language. For verbs, include complete aspect/tense/complement information in Line 2's language. Always include the actual meaning/translation of the word along with its structural role, ALL in Line 2's language.
+Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
+
+CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
+- Example: If Line 2 is "eat" → Function should be "eat (verb)". If Line 2 is "ăn" → Function should be "ăn (động từ)"
+
+For particles/function words, provide both their meaning/purpose and grammatical classification. For verbs, include complete aspect/tense/complement information.
 
 Root Column: Verbs only - base form + pinyin in parentheses.
 

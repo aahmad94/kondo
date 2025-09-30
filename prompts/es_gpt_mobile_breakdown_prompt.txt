@@ -19,10 +19,10 @@ Format: For each word/element, provide a concise explanation:
 - For nouns/adjectives: note gender/number/agreement when relevant
 - For prepositions/conjunctions: state specific grammatical function
 
-CRITICAL LANGUAGE RULE: ALL explanations (meanings and grammatical terms) MUST be in Line 2's language.
-- If Line 2 is English: "house (noun)", "speak (first person present)", "of/from (preposition)"
-- If Line 2 is Japanese: "家 (名詞)", "話す (一人称現在)", "の/から (前置詞)"
-- If Line 2 is Vietnamese: "nhà (danh từ)", "nói (ngôi thứ nhất hiện tại)", "của/từ (giới từ)"
+CRITICAL: Write ALL explanations in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms
+- Example: If Line 2 is "house" → use "house (noun)". If Line 2 is "nhà" → use "nhà (danh từ)"
 
 Rules:
 - Skip all punctuation marks

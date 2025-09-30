@@ -16,11 +16,14 @@ Requirements:
 
 Format: Markdown table with columns: Hangul, Romanization, Function, Root
 
-Function Column: MUST include both translation AND grammatical function in Line 2's language. Format as "[translation] ([grammatical role])".
-- If Line 2 is English: "house (noun)", "eat (present informal polite form)", "subject marker (particle)"
-- If Line 2 is Japanese: "家 (名詞)", "食べる (現在非格式丁寧形)", "主語助詞 (助詞)"
-- If Line 2 is Vietnamese: "nhà (danh từ)", "ăn (dạng lịch sự không trang trọng hiện tại)", "trợ từ chủ ngữ (trợ từ)"
-CRITICAL: ALL text in the Function column MUST be in the SAME language as Line 2. For particles, provide both their meaning/purpose and grammatical classification in Line 2's language. For verbs, include complete tense/honorific/mood/form details in Line 2's language. Always include the actual meaning/translation of the word along with its structural role, ALL in Line 2's language.
+Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
+
+CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
+- Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
+- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
+- Example: If Line 2 is "house" → Function should be "house (noun)". If Line 2 is "nhà" → Function should be "nhà (danh từ)"
+
+For particles, provide both their meaning/purpose and grammatical classification. For verbs, include complete tense/honorific/mood/form details.
 
 Root Column: Verbs only - original Korean stem + romanization in parentheses.
 
