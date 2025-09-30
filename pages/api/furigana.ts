@@ -16,48 +16,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Japanese text is required' });
     }
 
-    if (!responseId) {
-      return res.status(400).json({ error: 'Response ID is required' });
-    }
+    if (responseId) {
+      // Determine if this is a community response or GPT response
+      const [communityResponse, gptResponse] = await Promise.all([
+        prisma.communityResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        }),
+        prisma.gPTResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        })
+      ]);
 
-    // Determine if this is a community response or GPT response
-    const [communityResponse, gptResponse] = await Promise.all([
-      prisma.communityResponse.findUnique({
-        where: { id: responseId },
-        select: { id: true }
-      }),
-      prisma.gPTResponse.findUnique({
-        where: { id: responseId },
-        select: { id: true }
-      })
-    ]);
+      if (communityResponse) {
+        // Handle community response with caching
+        const result = await getCommunityFurigana(responseId, japaneseText);
+        return res.status(200).json(result);
+      } else if (gptResponse) {
+        // Handle regular GPT response (existing logic)
+        // If responseId is provided and it's not a temp response, check for cached furigana first
+        if (!responseId.includes('temp')) {
+          try {
+            const cachedResponse = await prisma.gPTResponse.findUnique({
+              where: { id: responseId },
+              select: { furigana: true }
+            });
 
-    if (communityResponse) {
-      // Handle community response with caching
-      const result = await getCommunityFurigana(responseId, japaneseText);
-      return res.status(200).json(result);
-    } else if (gptResponse) {
-      // Handle regular GPT response (existing logic)
-      // If responseId is provided and it's not a temp response, check for cached furigana first
-      if (!responseId.includes('temp')) {
-        try {
-          const cachedResponse = await prisma.gPTResponse.findUnique({
-            where: { id: responseId },
-            select: { furigana: true }
-          });
-
-          if (cachedResponse?.furigana) {
-            console.log(`Returning cached furigana for response ${responseId}`);
-            return res.status(200).json({ furigana: cachedResponse.furigana });
+            if (cachedResponse?.furigana) {
+              console.log(`Returning cached furigana for response ${responseId}`);
+              return res.status(200).json({ furigana: cachedResponse.furigana });
+            }
+          } catch (dbError) {
+            console.error('Error checking cached furigana:', dbError);
+            // Continue with generation if database check fails
           }
-        } catch (dbError) {
-          console.error('Error checking cached furigana:', dbError);
-          // Continue with generation if database check fails
         }
+      } else {
+        return res.status(404).json({ error: 'Response not found' });
       }
-    } else {
-      return res.status(404).json({ error: 'Response not found' });
     }
+
+    // Handle case where responseId is not provided or GPT response generation
 
     // Generate furigana for GPT response (existing logic)
     // Load furigana prompt from file

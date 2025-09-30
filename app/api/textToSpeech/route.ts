@@ -7,37 +7,43 @@ export async function POST(request: Request) {
   try {
     const { text, language, responseId } = await request.json();
 
-    if (!text || !language || !responseId) {
+    if (!text || !language) {
       return NextResponse.json(
-        { error: 'Text, language, and responseId are required' },
+        { error: 'Text and language are required' },
         { status: 400 }
       );
     }
 
-    // Determine if this is a community response or GPT response
-    const [communityResponse, gptResponse] = await Promise.all([
-      prisma.communityResponse.findUnique({
-        where: { id: responseId },
-        select: { id: true }
-      }),
-      prisma.gPTResponse.findUnique({
-        where: { id: responseId },
-        select: { id: true }
-      })
-    ]);
-
     let result;
-    if (communityResponse) {
-      // Handle community response with caching
-      result = await getCommunityAudio(responseId, text, language);
-    } else if (gptResponse) {
-      // Handle regular GPT response
-      result = await convertTextToSpeech(text, language, responseId);
+    
+    if (responseId) {
+      // Determine if this is a community response or GPT response
+      const [communityResponse, gptResponse] = await Promise.all([
+        prisma.communityResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        }),
+        prisma.gPTResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        })
+      ]);
+
+      if (communityResponse) {
+        // Handle community response with caching
+        result = await getCommunityAudio(responseId, text, language);
+      } else if (gptResponse) {
+        // Handle regular GPT response
+        result = await convertTextToSpeech(text, language, responseId);
+      } else {
+        return NextResponse.json(
+          { error: 'Response not found' },
+          { status: 404 }
+        );
+      }
     } else {
-      return NextResponse.json(
-        { error: 'Response not found' },
-        { status: 404 }
-      );
+      // Handle case where responseId is not provided (e.g., unsaved GPT responses)
+      result = await convertTextToSpeech(text, language, responseId);
     }
     
     return NextResponse.json({ 

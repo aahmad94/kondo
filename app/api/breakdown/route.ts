@@ -21,37 +21,36 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!responseId) {
-      return NextResponse.json(
-        { error: 'Response ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // Determine if this is a community response or GPT response
-    const [communityResponse, gptResponse] = await Promise.all([
-      prisma.communityResponse.findUnique({
-        where: { id: responseId },
-        select: { id: true }
-      }),
-      prisma.gPTResponse.findUnique({
-        where: { id: responseId },
-        select: { id: true }
-      })
-    ]);
-
     let result;
-    if (communityResponse) {
-      // Handle community response with caching
-      result = await getCommunityBreakdown(responseId, isMobile);
-    } else if (gptResponse) {
-      // Handle regular GPT response
-      result = await getBreakdown(text, language, responseId, isMobile);
+    
+    if (responseId) {
+      // Determine if this is a community response or GPT response
+      const [communityResponse, gptResponse] = await Promise.all([
+        prisma.communityResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        }),
+        prisma.gPTResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        })
+      ]);
+
+      if (communityResponse) {
+        // Handle community response with caching
+        result = await getCommunityBreakdown(responseId, isMobile);
+      } else if (gptResponse) {
+        // Handle regular GPT response
+        result = await getBreakdown(text, language, responseId, isMobile);
+      } else {
+        return NextResponse.json(
+          { error: 'Response not found' },
+          { status: 404 }
+        );
+      }
     } else {
-      return NextResponse.json(
-        { error: 'Response not found' },
-        { status: 404 }
-      );
+      // Handle case where responseId is not provided (e.g., unsaved GPT responses)
+      result = await getBreakdown(text, language, responseId, isMobile);
     }
 
     return NextResponse.json({ 
