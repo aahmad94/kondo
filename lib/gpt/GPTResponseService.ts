@@ -431,7 +431,7 @@ export async function getBreakdown(text: string, language: string, responseId?: 
       body: JSON.stringify({ 
         prompt: combinedContent,
         systemPrompt: breakdownSystemPrompt,
-        model: 'gpt-4o-mini'
+        model: 'gpt-4o'
       }),
     });
 
