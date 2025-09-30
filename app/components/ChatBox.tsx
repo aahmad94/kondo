@@ -47,6 +47,7 @@ interface ChatBoxProps {
   onDeckSelect: (id: string | null, title: string | null) => void;
   onDeckCreated: (newDeck: { id: string, title: string }) => void;
   isDecksCollapsed: boolean;
+  onDecksRefresh?: () => void;
 }
 
 interface Response {
@@ -119,7 +120,8 @@ export default function ChatBox({
   onLanguageChange,
   onDeckSelect,
   onDeckCreated,
-  isDecksCollapsed
+  isDecksCollapsed,
+  onDecksRefresh
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
@@ -896,6 +898,11 @@ export default function ChatBox({
           onDeckCreated(result.bookmark);
         }
         
+        // Refresh the decks sidebar to show updated timestamps
+        if (onDecksRefresh) {
+          onDecksRefresh();
+        }
+        
         // Show success confirmation instead of navigating away
         // This allows users to continue importing multiple responses
         setShowImportSuccessModal(true);
@@ -1335,6 +1342,7 @@ export default function ChatBox({
                       onQuote={handleResponseQuote}
                       onLoadingChange={setIsLoading}
                       aliasColor={aliasColorMap.get(communityResponse.creatorAlias)}
+                      onDecksRefresh={onDecksRefresh}
                     />
                     ));
                   })()}
@@ -1425,6 +1433,7 @@ export default function ChatBox({
                     selectedLanguage={selectedLanguage}
                     onLoadingChange={setIsLoading}
                     onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                    onDecksRefresh={onDecksRefresh}
                   />
                 ));
               })()}
@@ -1467,6 +1476,7 @@ export default function ChatBox({
                     selectedLanguage={selectedLanguage}
                     onLoadingChange={setIsLoading}
                     onDeckCreated={onDeckCreated}
+                    onDecksRefresh={onDecksRefresh}
                   />
                 ));
               })()}
@@ -1703,6 +1713,7 @@ export default function ChatBox({
         } : undefined}
         onCommunityImport={handleCommunityImportFromModal}
         onDeckCreated={onDeckCreated}
+        onDecksRefresh={onDecksRefresh}
       />
     </div>
   );

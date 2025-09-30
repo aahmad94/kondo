@@ -18,6 +18,7 @@ export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [isClearingDeck, setIsClearingDeck] = useState(false);
   const [isDecksCollapsed, setIsDecksCollapsed] = useState<boolean>(false);
+  const [decksRefreshTrigger, setDecksRefreshTrigger] = useState<number>(0);
   const hasSyncedRef = useRef(false);
 
   // Define handleDeckSelect early with useCallback, before any hooks or early returns (around line 22, after state declarations)
@@ -95,6 +96,11 @@ export default function Home() {
     }
   }, [session]);
 
+  // Define triggerDecksRefresh before early returns
+  const triggerDecksRefresh = useCallback(() => {
+    setDecksRefreshTrigger(prev => prev + 1);
+  }, []);
+
   // Then place the useEffect after other top-level hooks but before early returns (around original position ~32)
   useEffect(() => {
     if (searchParams && !hasSyncedRef.current) {
@@ -163,6 +169,7 @@ export default function Home() {
           newDeck={newDeck}
           isCollapsed={isDecksCollapsed}
           onCollapseChange={setIsDecksCollapsed}
+          refreshTrigger={decksRefreshTrigger}
         />
         <div className="flex-1 overflow-hidden bg-background">
           <ChatBox 
@@ -173,6 +180,7 @@ export default function Home() {
             onDeckSelect={handleDeckSelect}
             onDeckCreated={handleDeckCreated}
             isDecksCollapsed={isDecksCollapsed}
+            onDecksRefresh={triggerDecksRefresh}
           />
         </div>
       </div>

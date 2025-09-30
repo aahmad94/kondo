@@ -39,6 +39,7 @@ interface DecksModalProps {
   // Community import props
   communityResponse?: CommunityResponseForImport;
   onCommunityImport?: (communityResponseId: string, deckId?: string, createNew?: boolean) => Promise<void>;
+  onDecksRefresh?: () => void;
 }
 
 export default function DecksModal({ 
@@ -56,7 +57,8 @@ export default function DecksModal({
   onDeckCreated,
   onDeckSelect,
   communityResponse,
-  onCommunityImport
+  onCommunityImport,
+  onDecksRefresh
 }: DecksModalProps) {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -132,6 +134,11 @@ export default function DecksModal({
         router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deck.title)}`);
         // Notify parent component of deck selection
         onDeckSelect?.(deckId, deck.title);
+      }
+
+      // Refresh the decks sidebar to show updated timestamps
+      if (onDecksRefresh) {
+        onDecksRefresh();
       }
 
       // Close the modal after successful addition

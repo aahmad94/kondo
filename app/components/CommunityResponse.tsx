@@ -828,6 +828,7 @@ export default function CommunityResponse(props: ResponseProps) {
               isKanaEnabled={localKanaEnabled}
               onDeckCreated={props.onDeckCreated}
               onDeckSelect={props.onDeckSelect}
+              onDecksRefresh={props.onDecksRefresh}
             />
           )}
           {isDeleteModalOpen && (

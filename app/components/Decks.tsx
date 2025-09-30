@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, WrenchIcon, AcademicCapIcon, ChevronDownIcon, BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import CreateDeckModal from './CreateDeckModal';
@@ -26,6 +26,7 @@ interface DecksProps {
   newDeck: { id: string, title: string } | null;
   isCollapsed: boolean;
   onCollapseChange: (collapsed: boolean) => void;
+  refreshTrigger?: number;
 }
 
 export default function Decks({ 
@@ -36,7 +37,8 @@ export default function Decks({
   onClearDeck, 
   newDeck,
   isCollapsed,
-  onCollapseChange 
+  onCollapseChange,
+  refreshTrigger 
 }: DecksProps) {
   // Use props for collapse state instead of local state
   const isOpen = !isCollapsed;
@@ -95,6 +97,20 @@ export default function Decks({
       setIsLoading(false);
     }
   };
+
+  // Refresh function that can be called from parent components
+  const refreshDecks = useCallback(async () => {
+    if (session?.userId) {
+      await fetchDecks(session.userId);
+    }
+  }, [session?.userId]);
+
+  // Refresh decks when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger && session?.userId) {
+      fetchDecks(session.userId);
+    }
+  }, [refreshTrigger, session?.userId]);
 
   const createDefaultDecks = async (userId: string) => {
     const defaultDecks = ['counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];

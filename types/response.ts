@@ -67,6 +67,7 @@ export interface GPTResponseProps extends BaseResponseProps {
   onDeckSelect?: (id: string | null, title: string | null) => void;
   onBreakdownToggle?: React.MutableRefObject<(() => void) | null>;
   onShare?: (responseId: string) => void;
+  onDecksRefresh?: () => void;
 }
 
 // Community Response specific props
@@ -84,6 +85,7 @@ export interface CommunityResponseProps extends BaseResponseProps {
   currentUserHasAlias?: boolean;
   isImporting?: boolean;
   aliasColor?: string;
+  onDecksRefresh?: () => void;
 }
 
 // Union type for all response props

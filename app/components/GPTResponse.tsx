@@ -80,6 +80,7 @@ interface GPTResponseProps {
   onBreakdownClick?: () => void;
   onBreakdownToggle?: React.MutableRefObject<(() => void) | null>;
   containerWidth?: number;
+  onDecksRefresh?: () => void;
 }
 
 export default function GPTResponse({ 
@@ -122,7 +123,8 @@ export default function GPTResponse({
   onBreakdownClick,
   onBreakdownToggle,
   onDeckCreated,
-  containerWidth
+  containerWidth,
+  onDecksRefresh
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
@@ -1045,6 +1047,7 @@ export default function GPTResponse({
           isKanaEnabled={localKanaEnabled}
           onDeckCreated={onDeckCreated}
           onDeckSelect={onDeckSelect}
+          onDecksRefresh={onDecksRefresh}
         />
       )}
       {isDeleteModalOpen && (
