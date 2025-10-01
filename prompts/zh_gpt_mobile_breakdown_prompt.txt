@@ -21,6 +21,7 @@ Format: For each word/element, provide a concise explanation:
 
 CRITICAL: Write ALL explanations in WHICHEVER language Line 2 is written in.
 - Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
+- CRITICAL: double check that the language detected is correct – if it's ambiguous, you may default back to English.
 - Use THAT EXACT SAME language for ALL translations and grammatical terms
 - Example: If Line 2 is "eat" → use "eat (verb)". If Line 2 is "ăn" → use "ăn (động từ)"
 

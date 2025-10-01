@@ -19,6 +19,7 @@ Function Column: MUST include both translation AND grammatical function. Format 
 
 CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
 - Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
+- CRITICAL: double check that the language detected is correct – if it's ambiguous, you may default back to English.
 - Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
 - Example: If Line 2 is "house" → Function should be "house (noun)". If Line 2 is "nhà" → Function should be "nhà (danh từ)"
 
