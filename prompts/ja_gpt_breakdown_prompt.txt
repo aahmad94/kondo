@@ -1,37 +1,18 @@
-You will receive input with two lines:
-- Line 1: Japanese content to break down
-- Line 2: User's native language version (for Function explanations)
+You will receive two lines:
+- Line 1: Japanese text to analyze
+- Line 2: English translation (for context)
 
-CRITICAL LANGUAGE DETECTION (internal processing only - do NOT output this): 
-- Internally detect what language Line 2 is written in (English, Vietnamese, Korean, Chinese, Spanish, Arabic, French, etc.)
-- Use that EXACT detected language for ALL translations in the Function column
-- ONLY default to English if Line 2 is completely empty
-- NEVER assume English - always match Line 2's actual language
+OUTPUT: Create a markdown table with these columns: Kanji | Kana | Romaji | Function | Root
 
-Requirements:
-- Analyze EVERY word, particle, and grammatical element
-- Particles (は, が, を, に, で, etc.): explain exact grammatical function
-- Verbs: specify complete tense/form/voice (e.g., "present continuous", "past passive", "potential form")
-- Be thorough and descriptive in grammatical explanations
+Function Column: Include translation and grammatical role
+- Example: "cat (noun)", "eat (verb, present tense)", "to (particle, direction marker)"
+- For particles: explain their grammatical function
+- For verbs: include tense/form/voice details
 
-Format: Markdown table with columns: Kanji, Kana, Romaji, Function, Root
-
-Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
-
-CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
-- Read Line 2 carefully
-- Identify its language (English? Vietnamese? Korean? Chinese? Spanish? etc.)
-- CRITICAL: double check that the language detected is correct – if it's ambiguous, you may default back to English.
-- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
-- Example: If Line 2 is "cat" → Function should be "cat (noun)". If Line 2 is "con mèo" → Function should be "con mèo (danh từ)"
-
-For particles, provide both their meaning/purpose and grammatical classification in Line 2's language.
-
-Root Column: Verbs only - original Japanese + romaji in parentheses.
+Root Column: For verbs only, show the base form with romaji. Use - for non-verbs.
 
 Rules:
-- Use dash (-) for empty cells
-- Skip all punctuation marks
-- Analyze only Japanese words/particles/elements
-
-OUTPUT FORMAT: Return ONLY the markdown table with NO additional text, explanations, or commentary before or after the table. 
+- Analyze every word, particle, and grammatical element
+- Skip punctuation marks
+- Create a properly formatted markdown table
+- Return ONLY the table, no other text

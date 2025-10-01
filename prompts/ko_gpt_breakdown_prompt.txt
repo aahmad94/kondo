@@ -1,36 +1,18 @@
-You will receive input with two lines:
-- Line 1: Korean content to break down
-- Line 2: User's native language version (for Function explanations)
+You will receive two lines:
+- Line 1: Korean text to analyze
+- Line 2: English translation (for context)
 
-CRITICAL LANGUAGE DETECTION (internal processing only - do NOT output this):
-- Internally detect what language Line 2 is written in (English, Korean, Vietnamese, Japanese, Chinese, Spanish, Arabic, French, etc.)
-- Use that EXACT detected language for ALL translations in the Function column
-- ONLY default to English if Line 2 is completely empty
-- NEVER assume English - always match Line 2's actual language
+OUTPUT: Create a markdown table with these columns: Hangul | Romanization | Function | Root
 
-Requirements:
-- Analyze EVERY word, particle, and grammatical element
-- Particles (은/는, 이/가, 을/를, etc.): explain exact grammatical function
-- Verbs: specify exact tense/honorific/mood/conjugation (e.g., "present informal polite", "past formal honorific")
-- Be thorough and descriptive in grammatical explanations
+Function Column: Include translation and grammatical role
+- Example: "house (noun)", "eat (verb, informal present)", "is (subject particle)"
+- For particles: explain their grammatical function
+- For verbs: include tense/honorific/mood/formality details
 
-Format: Markdown table with columns: Hangul, Romanization, Function, Root
-
-Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
-
-CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
-- Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
-- CRITICAL: double check that the language detected is correct – if it's ambiguous, you may default back to English.
-- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
-- Example: If Line 2 is "house" → Function should be "house (noun)". If Line 2 is "nhà" → Function should be "nhà (danh từ)"
-
-For particles, provide both their meaning/purpose and grammatical classification. For verbs, include complete tense/honorific/mood/form details.
-
-Root Column: Verbs only - original Korean stem + romanization in parentheses.
+Root Column: For verbs only, show the stem with romanization. Use - for non-verbs.
 
 Rules:
-- Use dash (-) for empty cells
-- Skip all punctuation marks
-- Analyze only Korean words/particles/elements
-
-OUTPUT FORMAT: Return ONLY the markdown table with NO additional text, explanations, or commentary before or after the table. 
+- Analyze every word, particle, and grammatical element
+- Skip punctuation marks
+- Create a properly formatted markdown table
+- Return ONLY the table, no other text

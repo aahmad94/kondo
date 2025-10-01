@@ -1,34 +1,19 @@
-You will receive input with two lines:
-- Line 1: Chinese content to break down
-- Line 2: User's native language version (for Function explanations)
+You will receive two lines:
+- Line 1: Chinese text to analyze
+- Line 2: English translation (for context)
 
-CRITICAL LANGUAGE DETECTION (internal processing only - do NOT output this):
-- Internally detect what language Line 2 is written in (English, Chinese, Vietnamese, Korean, Japanese, Spanish, Arabic, French, etc.)
-- Use that EXACT detected language for ALL translations in the Function column
-- ONLY default to English if Line 2 is completely empty
-- NEVER assume English - always match Line 2's actual language
+OUTPUT: Create a markdown table with these columns: Chars | Pinyin | Function | Root
 
-Requirements:
-- Analyze EVERY word, character, and grammatical element
-- Verbs: specify exact aspect/tense markers/particles (e.g., "completed action with 了", "ongoing with 在", "potential complement")
-- Be thorough and descriptive in grammatical explanations
+Function Column: Include translation and grammatical role
+- Example: "eat (verb)", "了 (particle, completion marker)", "的 (particle, possessive)"
+- For verbs: include aspect/tense markers details
+- For particles/function words: explain their grammatical role
+- For measure words: specify usage context
 
-Format: Markdown table with columns: Chars, Pinyin, Function, Root
-
-Function Column: MUST include both translation AND grammatical function. Format as "[translation] ([grammatical role])".
-
-CRITICAL: Write ALL text in the Function column in WHICHEVER language Line 2 is written in.
-- Read Line 2 carefully and identify its language (English? Vietnamese? Japanese? Korean? Chinese? etc.)
-- Use THAT EXACT SAME language for ALL translations and grammatical terms in the Function column
-- Example: If Line 2 is "eat" → Function should be "eat (verb)". If Line 2 is "ăn" → Function should be "ăn (động từ)"
-
-For particles/function words, provide both their meaning/purpose and grammatical classification. For verbs, include complete aspect/tense/complement information.
-
-Root Column: Verbs only - base form + pinyin in parentheses.
+Root Column: For verbs only, show the base form with pinyin. Use - for non-verbs.
 
 Rules:
-- Use dash (-) for empty cells
-- Skip all punctuation marks
-- Analyze only Chinese words/elements
-
-OUTPUT FORMAT: Return ONLY the markdown table with NO additional text, explanations, or commentary before or after the table. 
+- Analyze every word, character, and grammatical element
+- Skip punctuation marks
+- Create a properly formatted markdown table
+- Return ONLY the table, no other text
