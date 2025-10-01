@@ -1,5 +1,6 @@
 import React, { useState, KeyboardEvent, useEffect, useRef } from 'react';
 import { useSession } from "next-auth/react"
+import { useUserAlias } from '../contexts/UserAliasContext';
 
 interface UserInputProps {
   onSubmit: (prompt: string, model?: string) => Promise<void>;
@@ -13,6 +14,7 @@ interface UserInputProps {
 export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserInputOffset, onQuoteToNull, selectedLanguage }: UserInputProps) {
   const [prompt, setPrompt] = useState<string>('');
   const { data: session } = useSession();
+  const { alias } = useUserAlias();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const textareaMaxHeight = 120;
   const textareaMinHeight = 50;
@@ -87,18 +89,27 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   };
   
   const getGreeting = () => {
-    const userName = session?.user?.name ? `, ${session.user.name}` : '';
+    let displayName = '';
+    
+    // Use alias if available, otherwise use first name from session
+    if (alias) {
+      displayName = `, ${alias}`;
+    } else if (session?.user?.name) {
+      const firstName = session.user.name.split(' ')[0];
+      displayName = `, ${firstName}`;
+    }
+    
     switch (selectedLanguage) {
       case 'ko':
-        return `${koGreeting}${userName}!`;
+        return `${koGreeting}${displayName}!`;
       case 'es':
-        return `${esGreeting}${userName}!`;
+        return `${esGreeting}${displayName}!`;
       case 'ar':
-        return `${arGreeting}${userName}!`;
+        return `${arGreeting}${displayName}!`;
       case 'zh':
-        return `${zhGreeting}${userName}!`;
+        return `${zhGreeting}${displayName}!`;
       default:
-        return `${jaGreeting}${userName}!`;
+        return `${jaGreeting}${displayName}!`;
     }
   };
 

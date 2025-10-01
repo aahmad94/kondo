@@ -27,7 +27,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const { theme, toggleTheme } = useTheme();
   
   // Get user alias information
-  const { alias, isPublic, refreshData } = useUserAlias();
+  const { alias, isPublic } = useUserAlias();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -60,13 +60,13 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const handleAliasCreated = (newAlias: string) => {
     setIsCreateAliasModalOpen(false);
     setShowDropdown(false);
-    refreshData();
+    // Context already updated via modal's createAlias call
   };
 
   const handleAliasUpdated = (newAlias: string) => {
     setIsEditAliasModalOpen(false);
     setShowDropdown(false);
-    refreshData();
+    // Context already updated via modal's updateAlias call
   };
 
   const handleAliasMenuClick = () => {

@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import FormModal from './ui/FormModal';
 import { 
-  updateUserAliasAction, 
   validateAliasAction 
 } from '@/actions/community';
+import { useUserAlias } from '../contexts/UserAliasContext';
 
 interface EditAliasModalProps {
   isOpen: boolean;
@@ -23,6 +23,7 @@ export default function EditAliasModal({ isOpen, onClose, onAliasUpdated, curren
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [validationTimer, setValidationTimer] = useState<NodeJS.Timeout | null>(null);
   const { data: session } = useSession();
+  const { updateAlias: updateAliasInContext } = useUserAlias();
 
   // Reset alias when modal opens
   useEffect(() => {
@@ -87,13 +88,13 @@ export default function EditAliasModal({ isOpen, onClose, onAliasUpdated, curren
     setIsUpdating(true);
 
     try {
-      const result = await updateUserAliasAction(alias);
+      const success = await updateAliasInContext(alias);
       
-      if (result.success) {
+      if (success) {
         onAliasUpdated(alias);
         onClose();
       } else {
-        setError(result.error || 'Failed to update alias');
+        setError('Failed to update alias');
       }
     } catch (error) {
       console.error('Error updating alias:', error);

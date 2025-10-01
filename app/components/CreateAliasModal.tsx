@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import FormModal from './ui/FormModal';
 import { 
-  createUserAliasAction, 
   validateAliasAction 
 } from '@/actions/community';
+import { useUserAlias } from '../contexts/UserAliasContext';
 
 interface CreateAliasModalProps {
   isOpen: boolean;
@@ -22,6 +22,7 @@ export default function CreateAliasModal({ isOpen, onClose, onAliasCreated }: Cr
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [validationTimer, setValidationTimer] = useState<NodeJS.Timeout | null>(null);
   const { data: session } = useSession();
+  const { createAlias: createAliasInContext } = useUserAlias();
 
   // Real-time validation with debouncing
   useEffect(() => {
@@ -77,14 +78,14 @@ export default function CreateAliasModal({ isOpen, onClose, onAliasCreated }: Cr
     setIsCreating(true);
 
     try {
-      const result = await createUserAliasAction(alias);
+      const success = await createAliasInContext(alias);
       
-      if (result.success) {
+      if (success) {
         onAliasCreated(alias);
         setAlias('');
         onClose();
       } else {
-        setError(result.error || 'Failed to create alias');
+        setError('Failed to create alias');
       }
     } catch (error) {
       console.error('Error creating alias:', error);
