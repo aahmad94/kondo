@@ -1,5 +1,6 @@
 import prisma from '../database/prisma';
 import { getUserLanguageId } from '../user/languageService';
+import { updateStreakOnActivity, type StreakData } from '../user/streakService';
 import fs from 'fs';
 import path from 'path';
 
@@ -9,6 +10,7 @@ const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'h
 
 /**
  * Creates a new GPT response with user's preferred language
+ * Also updates the user's streak if adding to a bookmark
  */
 export async function createGPTResponse(content: string, userId: string, bookmarkId?: string) {
   try {
@@ -32,7 +34,13 @@ export async function createGPTResponse(content: string, userId: string, bookmar
       },
     });
 
-    return newResponse;
+    // Update streak if response is added to a bookmark (deck)
+    let streakData: StreakData | undefined;
+    if (bookmarkId) {
+      streakData = await updateStreakOnActivity(userId);
+    }
+
+    return { response: newResponse, streakData };
   } catch (error) {
     console.error('Error creating GPT response:', error);
     throw error;

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib';
+import { updateStreakOnActivity } from '@/lib/user/streakService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -68,7 +69,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data: { updatedAt: new Date() }
       });
 
-      res.status(200).json(newResponse);
+      // Update user's streak since they added a response to a deck
+      const streakData = await updateStreakOnActivity(userId);
+
+      res.status(200).json({ response: newResponse, streakData });
     } catch (error) {
       console.error('Error adding response to bookmark:', error);
       res.status(500).json({ error: 'Failed to add response to bookmark' });

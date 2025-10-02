@@ -124,7 +124,7 @@ export default function ChatBoxMenuBar({
   const showNewReport = isDojo;
   const showEmailSubscription = isDojo; // Only show email button in Dojo
   const showAdditionalCommands = isRoot;
-  const showStats = !isCommunity; // Hide stats in community mode
+  const showStats = true; // Show stats in all modes
   const showImportEntireBookmark = isCommunityWithSelectedBookmark && onImportEntireBookmark;
 
   return (

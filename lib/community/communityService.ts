@@ -2,6 +2,7 @@ import prisma from '../database/prisma';
 import { hasPublicAlias } from './aliasService';
 import { createBookmark, checkBookmarkExists } from '../bookmarks/bookmarkService';
 import { getUserLanguageId } from '../user/languageService';
+import { updateStreakOnActivity } from '../user/streakService';
 import type { 
   CommunityFilters, 
   CommunityPagination,
@@ -224,11 +225,15 @@ export async function importFromCommunity(userId: string, communityResponseId: s
       };
     });
 
+    // Update user's streak since they added a response to a deck
+    const streakData = await updateStreakOnActivity(userId);
+
     return {
       success: true,
       response: result.response,
       bookmark: result.bookmark,
-      wasBookmarkCreated: result.wasBookmarkCreated
+      wasBookmarkCreated: result.wasBookmarkCreated,
+      streakData
     };
   } catch (error) {
     console.error('Error importing from community:', error);
@@ -355,11 +360,15 @@ export async function importFromCommunityToBookmark(
       };
     });
 
+    // Update user's streak since they added a response to a deck
+    const streakData = await updateStreakOnActivity(userId);
+
     return {
       success: true,
       response: result.response,
       bookmark: result.bookmark,
-      wasBookmarkCreated: result.wasBookmarkCreated
+      wasBookmarkCreated: result.wasBookmarkCreated,
+      streakData
     };
   } catch (error) {
     console.error('Error importing from community to bookmark:', error);
@@ -871,12 +880,16 @@ export async function importEntireCommunityBookmark(
       };
     });
 
+    // Update user's streak since they added responses to a deck
+    const streakData = await updateStreakOnActivity(userId);
+
     return {
       success: true,
       response: result.responses[0], // Return first response for compatibility
       bookmark: result.bookmark,
       wasBookmarkCreated: result.wasBookmarkCreated,
-      importedCount: result.importedCount
+      importedCount: result.importedCount,
+      streakData
     };
   } catch (error) {
     console.error('Error importing entire community bookmark:', error);

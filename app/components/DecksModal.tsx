@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import CreateDeckModal from './CreateDeckModal';
 import { useRouter } from 'next/navigation';
 import { FilterableDeckList } from './FilterableDeckList';
+import { StreakCelebrationModal } from './ui';
 
 interface Deck {
   id: string;
@@ -63,6 +64,9 @@ export default function DecksModal({
   const [decks, setDecks] = useState<Deck[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingToDeck, setIsAddingToDeck] = useState(false);
+  const [showStreakCelebration, setShowStreakCelebration] = useState(false);
+  const [streakData, setStreakData] = useState<{ currentStreak: number; maxStreak: number } | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<{ deckId: string; deckTitle: string } | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
@@ -127,22 +131,48 @@ export default function DecksModal({
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
-      // Find the deck title
+      // Parse response to check for streak data
+      const result = await res.json();
+      
+      // Check if we should celebrate a streak
+      const shouldCelebrate = result.streakData?.isNewStreak;
+      
+      // Find the deck info regardless of celebration
       const deck = decks.find(b => b.id === deckId);
-      if (deck) {
-        // Update URL with new query parameters
-        router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deck.title)}`);
-        // Notify parent component of deck selection
-        onDeckSelect?.(deckId, deck.title);
-      }
+      
+      if (shouldCelebrate) {
+        setStreakData({
+          currentStreak: result.streakData.currentStreak,
+          maxStreak: result.streakData.maxStreak
+        });
+        setShowStreakCelebration(true);
+        
+        // Store navigation info for the celebration modal button
+        if (deck && !communityResponse) {
+          setPendingNavigation({ deckId: deck.id, deckTitle: deck.title });
+        }
+        
+        // Refresh the decks sidebar immediately (don't wait)
+        if (onDecksRefresh) {
+          onDecksRefresh();
+        }
+      } else {
+        // No celebration, do navigation immediately
+        if (deck) {
+          // Update URL with new query parameters
+          router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deck.title)}`);
+          // Notify parent component of deck selection
+          onDeckSelect?.(deckId, deck.title);
+        }
 
-      // Refresh the decks sidebar to show updated timestamps
-      if (onDecksRefresh) {
-        onDecksRefresh();
+        // Refresh the decks sidebar to show updated timestamps
+        if (onDecksRefresh) {
+          onDecksRefresh();
+        }
+        
+        // Close the modal after successful addition
+        onClose();
       }
-
-      // Close the modal after successful addition
-      onClose();
     } catch (error) {
       console.error('Error adding response to deck:', error);
     } finally {
@@ -184,6 +214,9 @@ export default function DecksModal({
 
     try {
       setIsAddingToDeck(true);
+      // onCommunityImport doesn't return anything, but streak checking happens in ChatBox.tsx
+      // which receives the result from the action and could pass streak info back
+      // For now, we'll rely on the parent (ChatBox) to handle streak celebrations
       await onCommunityImport(communityResponse.id, deckId, createNew);
       onClose();
     } catch (error) {
@@ -258,6 +291,26 @@ export default function DecksModal({
           reservedDeckTitles={reservedDeckTitles}
           optionalCopy='Add to New Deck'
         />
+      )}
+
+      {/* Streak Celebration Modal */}
+      {streakData && (
+        <StreakCelebrationModal
+            isOpen={showStreakCelebration}
+            currentStreak={streakData.currentStreak}
+            maxStreak={streakData.maxStreak}
+            showNavigateButton={!!pendingNavigation}
+            onNavigateToDeck={pendingNavigation ? () => {
+              router.push(`/?deckId=${pendingNavigation.deckId}&deckTitle=${encodeURIComponent(pendingNavigation.deckTitle)}`);
+              onDeckSelect?.(pendingNavigation.deckId, pendingNavigation.deckTitle);
+            } : undefined}
+            onClose={() => {
+              setShowStreakCelebration(false);
+              setPendingNavigation(null);
+              // Also close the DecksModal after celebration
+              onClose();
+            }}
+          />
       )}
     </>
   );

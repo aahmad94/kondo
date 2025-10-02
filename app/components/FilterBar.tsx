@@ -202,7 +202,7 @@ export default function FilterBar({
                 disabled={isLoading || isLoadingBookmarks}
               >
                 <span className={selectedBookmark ? 'text-foreground' : 'text-muted-foreground'}>
-                  {selectedBookmark || 'all decks...'}
+                  {selectedBookmark || 'all community decks...'}
                 </span>
                 <ChevronDownIcon 
                   className={`h-4 w-4 text-muted-foreground transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 
@@ -215,13 +215,13 @@ export default function FilterBar({
                     <div className="px-3 py-2 text-sm text-muted-foreground">Loading...</div>
                   ) : (
                     <>
-                      {/* All decks option */}
+                      {/* All community decks option */}
                       <button
                         type="button"
                         onClick={() => handleBookmarkSelect('')}
                         className="w-full px-3 py-2 text-sm text-left hover:bg-muted focus:bg-muted focus:outline-none"
                       >
-                        <span className="text-muted-foreground">all decks</span>
+                        <span className="text-muted-foreground">all community decks</span>
                       </button>
                       
                       {/* Available deck options */}

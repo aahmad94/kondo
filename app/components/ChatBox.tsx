@@ -12,6 +12,7 @@ import FilterBar from './FilterBar';
 import CreateAliasModal from './CreateAliasModal';
 import DecksModal from './DecksModal';
 import ConfirmationModal from './ui/ConfirmationModal';
+import { StreakCelebrationModal } from './ui';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
@@ -200,6 +201,10 @@ export default function ChatBox({
   }>({ isOpen: false, communityResponse: null });
   const [sharedResponseTitle, setSharedResponseTitle] = useState('');
   const [selectedCommunityDeckTitle, setSelectedCommunityDeckTitle] = useState<string | null>(null);
+
+  // Streak celebration state
+  const [showStreakCelebration, setShowStreakCelebration] = useState(false);
+  const [streakData, setStreakData] = useState<{ currentStreak: number; maxStreak: number } | null>(null);
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -885,6 +890,15 @@ export default function ChatBox({
       }
       
       if (result.success) {
+        // Check if we should celebrate a streak
+        if ('streakData' in result && result.streakData?.isNewStreak) {
+          setStreakData({
+            currentStreak: result.streakData.currentStreak,
+            maxStreak: result.streakData.maxStreak
+          });
+          setShowStreakCelebration(true);
+        }
+
         // For single response imports, update the community response state
         if (communityResponseId !== 'batch-import') {
           updateCommunityResponse(communityResponseId, { 
@@ -1719,6 +1733,16 @@ export default function ChatBox({
         onDeckCreated={onDeckCreated}
         onDecksRefresh={onDecksRefresh}
       />
+
+      {/* Streak Celebration Modal */}
+      {streakData && (
+        <StreakCelebrationModal
+          isOpen={showStreakCelebration}
+          currentStreak={streakData.currentStreak}
+          maxStreak={streakData.maxStreak}
+          onClose={() => setShowStreakCelebration(false)}
+        />
+      )}
     </div>
   );
 }

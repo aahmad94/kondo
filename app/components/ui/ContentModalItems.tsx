@@ -30,10 +30,16 @@ interface StatsData {
   rank3: { count: number; percentage: number };
 }
 
+interface StreakData {
+  currentStreak: number;
+  maxStreak: number;
+}
+
 // --- Stats ---
 export function StatsContent({ selectedLanguage }: StatsContentProps) {
   const { data: session } = useSession();
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [streakData, setStreakData] = useState<StreakData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,12 +52,21 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
       setError(null);
       
       try {
-        const res = await fetch(`/api/getUserResponseStats?userId=${session.userId}&language=${selectedLanguage}`);
-        if (res.ok) {
-          const statsData = await res.json();
+        const [statsRes, streakRes] = await Promise.all([
+          fetch(`/api/getUserResponseStats?userId=${session.userId}&language=${selectedLanguage}`),
+          fetch(`/api/getUserStreak?userId=${session.userId}`)
+        ]);
+
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
           setStats(statsData);
         } else {
           setError('Failed to fetch stats');
+        }
+
+        if (streakRes.ok) {
+          const streakData = await streakRes.json();
+          setStreakData(streakData);
         }
       } catch (error) {
         console.error('Error fetching response stats:', error);
@@ -64,11 +79,25 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
     fetchStats();
   }, [session?.userId, selectedLanguage]);
 
-  const formatStats = (stats: StatsData) => {
+  const formatStats = (stats: StatsData, streakData: StreakData | null) => {
     const padLeft = (str: string, length: number) => str.padStart(length);
     const padRight = (str: string, length: number) => str.padEnd(length);
     
-    // Pad the visible text first, then apply HTML formatting with matching rank colors
+    let output = '';
+
+    // Streak section
+    if (streakData) {
+      const currentStreakStr = `<span style="color: ${COLORS.primary};">${padLeft(streakData.currentStreak.toString(), 3)}</span>`;
+      const maxStreakStr = `<span style="color: ${COLORS.primary};">${padLeft(streakData.maxStreak.toString(), 3)}</span>`;
+      const currentLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('current', 15)}</span>`;
+      const bestLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('best', 15)}</span>`;
+
+      output += `<span style="color: ${COLORS.primary};">Streak (days) 🔥</span>\n`;
+      output += `${currentLabel} ${currentStreakStr}\n`;
+      output += `${bestLabel} ${maxStreakStr}\n\n`;
+    }
+    
+    // Rank composition section
     const rank1Str = `<span style="color: ${COLORS.rank1};">${padLeft(stats.rank1.count.toString(), 3)}</span>`;
     const rank2Str = `<span style="color: ${COLORS.rank2};">${padLeft(stats.rank2.count.toString(), 3)}</span>`;
     const rank3Str = `<span style="color: ${COLORS.rank3};">${padLeft(stats.rank3.count.toString(), 3)}</span>`;
@@ -83,11 +112,13 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
     const easyLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('easy', 15)}</span>`;
     const totalLabel = `<span style="color: ${COLORS.secondary};">${padRight('total', 15)}</span>`;
 
-    return `<span style="color: ${COLORS.primary};">Rank composition</span>\n` +
-           `${hardLabel} ${rank1Str} ${pct1Str}\n` +
-           `${mediumLabel} ${rank2Str} ${pct2Str}\n` +
-           `${easyLabel} ${rank3Str} ${pct3Str}\n` +
-           `${totalLabel} ${totalStr}`;
+    output += `<span style="color: ${COLORS.primary};">Rank composition</span>\n`;
+    output += `${hardLabel} ${rank1Str} ${pct1Str}\n`;
+    output += `${mediumLabel} ${rank2Str} ${pct2Str}\n`;
+    output += `${easyLabel} ${rank3Str} ${pct3Str}\n`;
+    output += `${totalLabel} ${totalStr}`;
+
+    return output;
   };
 
   if (isLoading) {
@@ -129,7 +160,7 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
     );
   }
 
-  const formattedStats = formatStats(stats);
+  const formattedStats = formatStats(stats, streakData);
 
   return (
     <div className="max-w-none text-primary">

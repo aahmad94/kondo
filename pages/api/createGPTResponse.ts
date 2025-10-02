@@ -10,8 +10,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     try {
-      const newResponse = await createGPTResponse(content, userId, bookmarkId);
-      res.status(200).json(newResponse);
+      const result = await createGPTResponse(content, userId, bookmarkId);
+      res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Failed to create GPT response' });

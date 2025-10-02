@@ -87,6 +87,14 @@ export interface ImportFromCommunityResponse {
   response?: any; // GPTResponse with relations
   bookmark?: any; // Bookmark
   wasBookmarkCreated?: boolean;
+  importedCount?: number; // For bulk imports
+  streakData?: {
+    currentStreak: number;
+    maxStreak: number;
+    lastActivityDate: Date | null;
+    isNewStreak: boolean;
+    wasStreakBroken: boolean;
+  };
   error?: string;
 }
 
