@@ -1000,8 +1000,8 @@ export default function GPTResponse({
               onClick={isShareDisabled ? undefined : handleShareToCommunity}
               className={`text-xs px-2 py-1 rounded-sm transition-all duration-200 flex items-center gap-1 ${
                 isShareDisabled 
-                  ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-                  : 'bg-muted text-black dark:text-white cursor-pointer hover:opacity-80'
+                  ? 'bg-muted text-purple-600 dark:text-purple-400 cursor-not-allowed opacity-50'
+                  : 'bg-muted text-purple-600 dark:text-purple-400 cursor-pointer hover:bg-accent hover:text-purple-400 dark:hover:text-purple-300'
               }`}
             >
               <ArrowUpTrayIcon className="h-3 w-3" />
