@@ -192,7 +192,8 @@ export default function ChatBox({
   const [showShareAfterAliasFailureModal, setShowShareAfterAliasFailureModal] = useState(false);
   const [showImportSuccessModal, setShowImportSuccessModal] = useState(false);
   const [showImportErrorModal, setShowImportErrorModal] = useState(false);
-  const [importedBookmarkTitle, setImportedBookmarkTitle] = useState('');
+  const [importedDeckTitle, setImportedDeckTitle] = useState('');
+  const [importedDeckInfo, setImportedDeckInfo] = useState<{ id: string; title: string } | null>(null);
   const [importErrorMessage, setImportErrorMessage] = useState('');
   const [importedCount, setImportedCount] = useState<number | null>(null);
   const [communityImportModal, setCommunityImportModal] = useState<{
@@ -891,12 +892,19 @@ export default function ChatBox({
       
       if (result.success) {
         // Check if we should celebrate a streak
-        if ('streakData' in result && result.streakData?.isNewStreak) {
+        const hasStreakCelebration = 'streakData' in result && result.streakData?.isNewStreak;
+        
+        if (hasStreakCelebration && 'streakData' in result && result.streakData) {
           setStreakData({
             currentStreak: result.streakData.currentStreak,
             maxStreak: result.streakData.maxStreak
           });
           setShowStreakCelebration(true);
+          
+          // Set bookmark info for navigation button in streak modal
+          if (result.bookmark) {
+            setImportedDeckInfo({ id: result.bookmark.id, title: result.bookmark.title });
+          }
         }
 
         // For single response imports, update the community response state
@@ -921,11 +929,14 @@ export default function ChatBox({
           onDecksRefresh();
         }
         
-        // Show success confirmation instead of navigating away
-        // This allows users to continue importing multiple responses
-        setShowImportSuccessModal(true);
-        if (result.bookmark) {
-          setImportedBookmarkTitle(result.bookmark.title);
+        // Only show import success modal if NOT showing streak celebration
+        // The streak celebration modal serves as confirmation itself
+        if (!hasStreakCelebration) {
+          setShowImportSuccessModal(true);
+          if (result.bookmark) {
+            setImportedDeckTitle(result.bookmark.title);
+            setImportedDeckInfo({ id: result.bookmark.id, title: result.bookmark.title });
+          }
         }
         
         // Set imported count for batch imports
@@ -935,8 +946,8 @@ export default function ChatBox({
           setImportedCount(null);
         }
         
-        // For batch imports, also navigate to the bookmark
-        if (communityResponseId === 'batch-import' && result.bookmark) {
+        // For batch imports, also navigate to the bookmark (unless showing streak celebration)
+        if (communityResponseId === 'batch-import' && result.bookmark && !hasStreakCelebration) {
           onDeckSelect(result.bookmark.id, result.bookmark.title);
         }
       } else {
@@ -1674,20 +1685,60 @@ export default function ChatBox({
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-l text-card-foreground">Successfully Imported</h2>
               <button 
-                onClick={() => setShowImportSuccessModal(false)} 
+                onClick={() => {
+                  setShowImportSuccessModal(false);
+                  setImportedDeckInfo(null);
+                }} 
                 className="text-card-foreground hover:text-muted-foreground transition-colors"
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
             
-            <p className="text-card-foreground">
+            <p className="text-card-foreground mb-4">
               {importedCount !== null ? (
-                `Successfully imported ${importedCount} response${importedCount !== 1 ? 's' : ''} to '${importedBookmarkTitle}'. You can continue browsing the community feed or visit your bookmark to see the imported content.`
+                `Successfully imported ${importedCount} response${importedCount !== 1 ? 's' : ''} to '${importedDeckTitle}'.`
               ) : (
-                `The response has been successfully imported to '${importedBookmarkTitle}'. You can continue browsing the community feed or visit your bookmark to see the imported content.`
+                `The response has been successfully imported to '${importedDeckTitle}'.`
               )}
             </p>
+
+            {/* Navigation Buttons */}
+            <div className="flex gap-2">
+              {importedDeckInfo ? (
+                <>
+                  <button
+                    onClick={() => {
+                      onDeckSelect(importedDeckInfo.id, importedDeckInfo.title);
+                      setShowImportSuccessModal(false);
+                      setImportedDeckInfo(null);
+                    }}
+                    className="flex-1 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
+                  >
+                    Go to Deck
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowImportSuccessModal(false);
+                      setImportedDeckInfo(null);
+                    }}
+                    className="flex-1 px-4 py-2 text-sm bg-muted text-muted-foreground rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    Stay Here
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => {
+                    setShowImportSuccessModal(false);
+                    setImportedDeckInfo(null);
+                  }}
+                  className="w-full px-4 py-2 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
+                >
+                  Continue
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -1740,7 +1791,14 @@ export default function ChatBox({
           isOpen={showStreakCelebration}
           currentStreak={streakData.currentStreak}
           maxStreak={streakData.maxStreak}
-          onClose={() => setShowStreakCelebration(false)}
+          showNavigateButton={!!importedDeckInfo}
+          onNavigateToDeck={importedDeckInfo ? () => {
+            onDeckSelect(importedDeckInfo.id, importedDeckInfo.title);
+          } : undefined}
+          onClose={() => {
+            setShowStreakCelebration(false);
+            setImportedDeckInfo(null);
+          }}
         />
       )}
     </div>

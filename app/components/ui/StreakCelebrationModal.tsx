@@ -77,7 +77,7 @@ export function StreakCelebrationModal({
 
             {/* Encouragement Message */}
             <p className="text-xs text-muted-foreground mb-4">
-              Come back tomorrow to keep your streak going!
+              Add to your decks again tomorrow to keep your streak going!
             </p>
 
             {/* Action Buttons */}
