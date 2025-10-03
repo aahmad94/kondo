@@ -94,6 +94,7 @@ export async function importCommunityResponseAction(communityResponseId: string)
         response: result.response,
         bookmark: result.bookmark,
         wasBookmarkCreated: result.wasBookmarkCreated,
+        streakData: result.streakData,
         message: result.wasBookmarkCreated 
           ? 'Response imported and new bookmark created!'
           : 'Response imported to existing bookmark!'
@@ -474,6 +475,7 @@ export async function importEntireCommunityBookmarkAction(
         bookmark: result.bookmark,
         wasBookmarkCreated: result.wasBookmarkCreated,
         importedCount: result.importedCount,
+        streakData: result.streakData,
         message: `Successfully imported ${result.importedCount} responses from "${communityBookmarkTitle}" bookmark!`
       };
     } else {
