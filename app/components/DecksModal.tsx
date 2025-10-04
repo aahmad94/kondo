@@ -196,16 +196,12 @@ export default function DecksModal({
     } else if (!isAddingToDeck) {
       // For regular responses, use the regular add handler
       await handleAddToDeck(newDeck.id);
-      // handleAddToDeck already calls onClose() internally
+      // handleAddToDeck handles closing and celebration internally
+      // Don't call onDeckSelect here as it will interfere with streak celebration
+      // The celebration modal or handleAddToDeck will handle navigation
     }
 
     setIsCreateModalOpen(false);
-    
-    // For regular responses, notify parent component of deck selection for navigation
-    // For community imports, don't navigate - just show success modal instead
-    if (!communityResponse && onDeckSelect) {
-      onDeckSelect(newDeck.id, newDeck.title);
-    }
   };
 
   // Handler for community response imports
