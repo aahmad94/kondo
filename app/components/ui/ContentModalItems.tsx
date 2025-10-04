@@ -33,6 +33,7 @@ interface StatsData {
 interface StreakData {
   currentStreak: number;
   maxStreak: number;
+  lastActivityDate: Date | null;
 }
 
 // --- Stats ---
@@ -91,10 +92,12 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
       const maxStreakStr = `<span style="color: ${COLORS.primary};">${padLeft(streakData.maxStreak.toString(), 3)}</span>`;
       const currentLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('current', 15)}</span>`;
       const bestLabel = `<span style="color: ${COLORS.primaryTransparent};">${padRight('best', 15)}</span>`;
+      const lastActivityDateStr = streakData.lastActivityDate ? `<span style="color: ${COLORS.primaryTransparent};">${padRight(format(streakData.lastActivityDate, 'MM/dd/yyyy'), 15)}</span>` : null;
 
       output += `<span style="color: ${COLORS.primary};">Streak (days) 🔥</span>\n`;
       output += `${currentLabel} ${currentStreakStr}\n`;
-      output += `${bestLabel} ${maxStreakStr}\n\n`;
+      output += `${bestLabel} ${maxStreakStr}\n`;
+      output += `<span style="color: ${COLORS.primaryTransparent};">${padRight('last activity', 15)}</span> ${lastActivityDateStr}\n\n`;
     }
     
     // Rank composition section
@@ -198,8 +201,7 @@ export function DojoTipsList() {
     <div className="max-w-none text-primary">
       {tips.map((tip, index) => (
         <div key={index} style={{ marginBottom: '1rem' }}>
-          <strong className="text-muted-foreground">{index + 1}.</strong>{' '}
-          <strong className="text-primary">{tip.title}</strong>
+          <strong className="COLORS.primaryTransparent">{tip.title}</strong>
           {tip.icon && <>{' '}{tip.icon}</>}
           <span className="text-muted-foreground"> {tip.description}</span>
         </div>
@@ -302,7 +304,7 @@ export function CommunityInstructions() {
           <strong>Filter</strong> by deck titles, creators, or popularity
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong>Import</strong> interesting responses to your decks
+          <strong>Import</strong> responses to build your decks to contribute to your streak
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
           <strong>Share</strong> your own responses to help others learn
@@ -332,7 +334,7 @@ export function CreateInstructions() {
           <strong>Breakdown + audio guides</strong> are automatically generated
         </div>
         <div style={{ marginBottom: '0.5rem' }}>
-          <strong>Add to deck</strong> to rank and organize your learning materials
+          <strong>Add to deck</strong> to rank and organize your learning materials and contribute to your streak
         </div>
       </div>
 

@@ -33,11 +33,12 @@ export async function getOrCreateStreak(userId: string) {
 /**
  * Gets the user's current streak information
  */
-export async function getUserStreak(userId: string): Promise<{ currentStreak: number; maxStreak: number }> {
+export async function getUserStreak(userId: string): Promise<{ currentStreak: number; maxStreak: number; lastActivityDate: Date | null }> {
   const streak = await getOrCreateStreak(userId);
   return {
     currentStreak: streak.currentStreak,
-    maxStreak: streak.maxStreak
+    maxStreak: streak.maxStreak,
+    lastActivityDate: streak.lastActivityDate
   };
 }
 
