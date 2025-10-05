@@ -102,7 +102,7 @@ export async function shareToCommunity(userId: string, responseId: string): Prom
 /**
  * Imports a community response to user's library
  */
-export async function importFromCommunity(userId: string, communityResponseId: string): Promise<ImportFromCommunityResponse> {
+export async function importFromCommunity(userId: string, communityResponseId: string, timezone?: string): Promise<ImportFromCommunityResponse> {
   try {
     // Get the community response
     const communityResponse = await prisma.communityResponse.findUnique({
@@ -226,7 +226,7 @@ export async function importFromCommunity(userId: string, communityResponseId: s
     });
 
     // Update user's streak since they added a response to a deck
-    const streakData = await updateStreakOnActivity(userId);
+    const streakData = await updateStreakOnActivity(userId, timezone || 'UTC');
 
     return {
       success: true,
@@ -250,7 +250,8 @@ export async function importFromCommunity(userId: string, communityResponseId: s
 export async function importFromCommunityToBookmark(
   userId: string, 
   communityResponseId: string, 
-  targetBookmarkId: string
+  targetBookmarkId: string,
+  timezone?: string
 ): Promise<ImportFromCommunityResponse> {
   try {
     // Get the community response
@@ -361,7 +362,7 @@ export async function importFromCommunityToBookmark(
     });
 
     // Update user's streak since they added a response to a deck
-    const streakData = await updateStreakOnActivity(userId);
+    const streakData = await updateStreakOnActivity(userId, timezone || 'UTC');
 
     return {
       success: true,
@@ -731,7 +732,8 @@ export async function deleteCommunityResponse(userId: string, communityResponseI
 export async function importEntireCommunityBookmark(
   userId: string, 
   communityBookmarkTitle: string, 
-  targetBookmarkId?: string
+  targetBookmarkId?: string,
+  timezone?: string
 ): Promise<ImportFromCommunityResponse & { importedCount?: number }> {
   try {
     // Get user's language ID to ensure consistency
@@ -881,7 +883,7 @@ export async function importEntireCommunityBookmark(
     });
 
     // Update user's streak since they added responses to a deck
-    const streakData = await updateStreakOnActivity(userId);
+    const streakData = await updateStreakOnActivity(userId, timezone || 'UTC');
 
     return {
       success: true,

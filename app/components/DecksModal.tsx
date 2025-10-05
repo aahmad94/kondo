@@ -108,6 +108,10 @@ export default function DecksModal({
 
     try {
       setIsAddingToDeck(true);
+      
+      // Detect user's timezone
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      
       const res = await fetch('/api/addResponseToBookmark', {
         method: 'POST',
         headers: {
@@ -123,7 +127,8 @@ export default function DecksModal({
           furigana,
           isFuriganaEnabled,
           isPhoneticEnabled,
-          isKanaEnabled
+          isKanaEnabled,
+          timezone: userTimezone
         }),
       });
 

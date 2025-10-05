@@ -43,33 +43,49 @@ export async function getUserStreak(userId: string): Promise<{ currentStreak: nu
 }
 
 /**
- * Checks if a date is today (in UTC)
+ * Gets the start of day in a specific timezone
  */
-function isToday(date: Date): boolean {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const checkDate = new Date(date);
-  checkDate.setHours(0, 0, 0, 0);
-  return checkDate.getTime() === today.getTime();
+function getStartOfDayInTimezone(date: Date, timezone: string): Date {
+  const dateStr = date.toLocaleString('en-US', { timeZone: timezone });
+  const localDate = new Date(dateStr);
+  localDate.setHours(0, 0, 0, 0);
+  return localDate;
 }
 
 /**
- * Checks if a date is yesterday (in UTC)
+ * Gets the calendar date string (YYYY-MM-DD) in a specific timezone
  */
-function isYesterday(date: Date): boolean {
+function getCalendarDateInTimezone(date: Date, timezone: string): string {
+  return date.toLocaleDateString('en-CA', { timeZone: timezone }); // en-CA gives YYYY-MM-DD format
+}
+
+/**
+ * Checks if a date is today in the user's timezone
+ */
+function isToday(date: Date, timezone: string): boolean {
+  const todayStr = getCalendarDateInTimezone(new Date(), timezone);
+  const checkDateStr = getCalendarDateInTimezone(date, timezone);
+  return todayStr === checkDateStr;
+}
+
+/**
+ * Checks if a date is yesterday in the user's timezone
+ */
+function isYesterday(date: Date, timezone: string): boolean {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setHours(0, 0, 0, 0);
-  const checkDate = new Date(date);
-  checkDate.setHours(0, 0, 0, 0);
-  return checkDate.getTime() === yesterday.getTime();
+  const yesterdayStr = getCalendarDateInTimezone(yesterday, timezone);
+  const checkDateStr = getCalendarDateInTimezone(date, timezone);
+  return yesterdayStr === checkDateStr;
 }
 
 /**
  * Updates the user's streak when they add a response to a deck
  * Returns streak information including whether this triggers a celebration
+ * @param userId - The user's ID
+ * @param timezone - The user's timezone (e.g., 'America/New_York', 'Asia/Tokyo'). Defaults to UTC if not provided.
  */
-export async function updateStreakOnActivity(userId: string): Promise<StreakData> {
+export async function updateStreakOnActivity(userId: string, timezone: string = 'UTC'): Promise<StreakData> {
   const streak = await getOrCreateStreak(userId);
   
   const now = new Date();
@@ -78,15 +94,15 @@ export async function updateStreakOnActivity(userId: string): Promise<StreakData
   let isNewStreak = false;
   let wasStreakBroken = false;
 
-  // Check if this is the user's first activity today
-  if (!streak.lastActivityDate || !isToday(streak.lastActivityDate)) {
+  // Check if this is the user's first activity today (in user's timezone)
+  if (!streak.lastActivityDate || !isToday(streak.lastActivityDate, timezone)) {
     // This is the first response added to any deck today
     isNewStreak = true;
 
     if (!streak.lastActivityDate) {
       // First ever activity
       newCurrentStreak = 1;
-    } else if (isYesterday(streak.lastActivityDate)) {
+    } else if (isYesterday(streak.lastActivityDate, timezone)) {
       // Continuing the streak from yesterday
       newCurrentStreak = streak.currentStreak + 1;
     } else {
@@ -126,12 +142,14 @@ export async function updateStreakOnActivity(userId: string): Promise<StreakData
 /**
  * Checks if adding a response today would trigger a streak celebration
  * (i.e., this is the first response added to any deck today)
+ * @param userId - The user's ID
+ * @param timezone - The user's timezone (e.g., 'America/New_York', 'Asia/Tokyo'). Defaults to UTC if not provided.
  */
-export async function shouldCelebrateStreak(userId: string): Promise<boolean> {
+export async function shouldCelebrateStreak(userId: string, timezone: string = 'UTC'): Promise<boolean> {
   const streak = await getOrCreateStreak(userId);
   
-  // Celebrate if they haven't added anything today yet
-  if (!streak.lastActivityDate || !isToday(streak.lastActivityDate)) {
+  // Celebrate if they haven't added anything today yet (in user's timezone)
+  if (!streak.lastActivityDate || !isToday(streak.lastActivityDate, timezone)) {
     return true;
   }
   

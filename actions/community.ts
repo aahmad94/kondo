@@ -66,7 +66,7 @@ export async function shareResponseToCommunityAction(responseId: string) {
 /**
  * Server action to import a community response
  */
-export async function importCommunityResponseAction(communityResponseId: string) {
+export async function importCommunityResponseAction(communityResponseId: string, timezone?: string) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -86,7 +86,7 @@ export async function importCommunityResponseAction(communityResponseId: string)
       };
     }
 
-    const result = await importFromCommunity(userId, communityResponseId);
+    const result = await importFromCommunity(userId, communityResponseId, timezone);
     
     if (result.success) {
       return {
@@ -117,7 +117,7 @@ export async function importCommunityResponseAction(communityResponseId: string)
 /**
  * Server action to import a community response to a specific bookmark
  */
-export async function importCommunityResponseToBookmarkAction(communityResponseId: string, targetBookmarkId: string) {
+export async function importCommunityResponseToBookmarkAction(communityResponseId: string, targetBookmarkId: string, timezone?: string) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -137,7 +137,7 @@ export async function importCommunityResponseToBookmarkAction(communityResponseI
       };
     }
 
-    const result = await importFromCommunityToBookmark(userId, communityResponseId, targetBookmarkId);
+    const result = await importFromCommunityToBookmark(userId, communityResponseId, targetBookmarkId, timezone);
     return result;
   } catch (error) {
     console.error('Error in importCommunityResponseToBookmarkAction:', error);
@@ -445,7 +445,8 @@ export async function deleteGPTResponseWithCascadeAction(responseId: string, boo
  */
 export async function importEntireCommunityBookmarkAction(
   communityBookmarkTitle: string, 
-  targetBookmarkId?: string
+  targetBookmarkId?: string,
+  timezone?: string
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -466,7 +467,7 @@ export async function importEntireCommunityBookmarkAction(
       };
     }
 
-    const result = await importEntireCommunityBookmark(userId, communityBookmarkTitle, targetBookmarkId);
+    const result = await importEntireCommunityBookmark(userId, communityBookmarkTitle, targetBookmarkId, timezone);
     
     if (result.success) {
       return {

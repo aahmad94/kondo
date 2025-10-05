@@ -867,6 +867,9 @@ export default function ChatBox({
   // Handle import from DecksModal
   const handleCommunityImportFromModal = async (communityResponseId: string, bookmarkId?: string, createNew?: boolean) => {
     try {
+      // Detect user's timezone
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      
       let result;
       
       // Check if this is a batch import (entire bookmark)
@@ -874,19 +877,19 @@ export default function ChatBox({
         // Handle batch import of entire bookmark
         if (bookmarkId && !createNew) {
           // Import to specific existing bookmark
-          result = await importEntireCommunityBookmarkAction(selectedCommunityDeckTitle, bookmarkId);
+          result = await importEntireCommunityBookmarkAction(selectedCommunityDeckTitle, bookmarkId, userTimezone);
         } else {
           // Create new bookmark or use auto-create approach
-          result = await importEntireCommunityBookmarkAction(selectedCommunityDeckTitle);
+          result = await importEntireCommunityBookmarkAction(selectedCommunityDeckTitle, undefined, userTimezone);
         }
       } else {
         // Handle single response import
         if (bookmarkId && !createNew) {
           // Import to specific existing bookmark
-          result = await importCommunityResponseToBookmarkAction(communityResponseId, bookmarkId);
+          result = await importCommunityResponseToBookmarkAction(communityResponseId, bookmarkId, userTimezone);
         } else {
           // Create new bookmark or use auto-create approach
-          result = await importCommunityResponseAction(communityResponseId);
+          result = await importCommunityResponseAction(communityResponseId, userTimezone);
         }
       }
       

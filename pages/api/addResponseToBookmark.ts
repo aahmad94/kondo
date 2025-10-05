@@ -4,7 +4,7 @@ import { updateStreakOnActivity } from '@/lib/user/streakService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { bookmarkId, gptResponseContent, userId, cachedAudio, desktopBreakdownContent, mobileBreakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled } = req.body as {
+    const { bookmarkId, gptResponseContent, userId, cachedAudio, desktopBreakdownContent, mobileBreakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled, timezone } = req.body as {
       bookmarkId: string;
       gptResponseContent: string;
       userId: string;
@@ -15,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       isFuriganaEnabled?: boolean | null;
       isPhoneticEnabled?: boolean | null;
       isKanaEnabled?: boolean | null;
+      timezone?: string;
     };
 
     try {
@@ -70,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       // Update user's streak since they added a response to a deck
-      const streakData = await updateStreakOnActivity(userId);
+      const streakData = await updateStreakOnActivity(userId, timezone || 'UTC');
 
       res.status(200).json({ response: newResponse, streakData });
     } catch (error) {
