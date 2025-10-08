@@ -23,7 +23,6 @@ export default function Home() {
 
   // Define handleDeckSelect early with useCallback, before any hooks or early returns (around line 22, after state declarations)
   const handleDeckSelect = useCallback((id: string | null, title: string | null) => {
-    console.log('****handleDeckSelect****', { id, title });
     setSelectedDeck({ id, title });
     trackDeckSelect(id, title);
     const params = new URLSearchParams(searchParams?.toString() ?? '');

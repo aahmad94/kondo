@@ -73,7 +73,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // If already playing the same audio, pause it
       if (isPlaying && currentResponseId === responseId) {
-        console.log('⏸️ Pausing same audio');
         pauseAudio();
         return;
       }

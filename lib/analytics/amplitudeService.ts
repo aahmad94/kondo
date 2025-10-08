@@ -16,9 +16,6 @@ export const initAmplitude = (userEmail?: string) => {
     
     if (userEmail) {
       amplitude.setUserId(userEmail);
-      console.log('Amplitude initialized with user email:', userEmail);
-    } else {
-      console.log('Amplitude initialized without user email');
     }
     
     return true;
@@ -69,11 +66,6 @@ const trackEvent = async (eventName: string, properties: Record<string, any>) =>
     const eventProperties = { ...properties, ...userProps };
     
     amplitude.track(eventName, eventProperties);
-    
-    // Optional: Keep this for debugging, remove for production
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Tracking event: ${eventName}`, eventProperties);
-    }
     
   } catch (error) {
     console.error(`Failed to track event "${eventName}":`, error);
