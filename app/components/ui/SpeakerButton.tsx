@@ -16,6 +16,7 @@ interface SpeakerButtonProps {
   className?: string;
   onLoadingChange?: (loading: boolean) => void;
   onError?: (error: string) => void;
+  onAudioCached?: (audio: { audio: string; mimeType: string }) => void;
 }
 
 const SpeakerButton: React.FC<SpeakerButtonProps> = ({ 
@@ -27,11 +28,12 @@ const SpeakerButton: React.FC<SpeakerButtonProps> = ({
   buttonRef,
   className = '',
   onLoadingChange,
-  onError
+  onError,
+  onAudioCached
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { isMobile } = useIsMobile();
-  const { isPlaying, currentResponseId, playAudio } = useAudio();
+  const { isPlaying, currentResponseId, playAudio, getCachedAudio } = useAudio();
   const internalRef = React.useRef<HTMLButtonElement>(null);
   const ref = buttonRef || internalRef;
 
@@ -39,6 +41,8 @@ const SpeakerButton: React.FC<SpeakerButtonProps> = ({
   const isCurrentlyPlaying = isPlaying && currentResponseId === responseId;
 
   const handleClick = async () => {
+    const hadCachedAudio = !!cachedAudio;
+    
     await playAudio(
       responseId,
       cachedAudio,
@@ -47,6 +51,14 @@ const SpeakerButton: React.FC<SpeakerButtonProps> = ({
       onLoadingChange,
       onError
     );
+    
+    // After playing, if audio was just generated (not from props), get it from AudioContext cache
+    if (!hadCachedAudio && onAudioCached) {
+      const newlyCachedAudio = getCachedAudio(responseId);
+      if (newlyCachedAudio) {
+        onAudioCached(newlyCachedAudio);
+      }
+    }
   };
 
   return (

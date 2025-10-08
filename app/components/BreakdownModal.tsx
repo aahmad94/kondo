@@ -24,6 +24,8 @@ interface BreakdownModalProps {
   onPauseToggle?: (responseId: string, isPaused: boolean) => Promise<void>;
   selectedLanguage?: string;
   onLoadingChange?: (loading: boolean) => void;
+  cachedAudio?: { audio: string; mimeType: string } | null;
+  onAudioCached?: (audio: { audio: string; mimeType: string }) => void;
   onError?: (error: string) => void;
   onToggleView?: (toTextView: boolean) => void;
 }
@@ -44,6 +46,8 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   onPauseToggle,
   selectedLanguage = 'ja',
   onLoadingChange,
+  cachedAudio,
+  onAudioCached,
   onError,
   onToggleView
 }) => {
@@ -126,10 +130,12 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                 responseId={responseId}
                 textToSpeak={prepareTextForSpeech(originalResponse)}
                 selectedLanguage={selectedLanguage}
+                cachedAudio={cachedAudio}
                 tooltipContent="Listen to breakdown"
                 buttonRef={speakerButtonRef}
                 onLoadingChange={onLoadingChange}
                 onError={onError}
+                onAudioCached={onAudioCached}
               />
             )}
           </div>

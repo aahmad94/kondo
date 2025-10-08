@@ -20,6 +20,10 @@ interface Response {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  breakdown?: string | null;
+  mobileBreakdown?: string | null;
+  audio?: string | null;
+  audioMimeType?: string | null;
 }
 
 interface FlashcardModalProps {
@@ -227,6 +231,10 @@ export default function FlashcardModal({
                     isFuriganaEnabled={currentResponse.isFuriganaEnabled}
                     isPhoneticEnabled={currentResponse.isPhoneticEnabled}
                     isKanaEnabled={currentResponse.isKanaEnabled}
+                    breakdown={currentResponse.breakdown}
+                    mobileBreakdown={currentResponse.mobileBreakdown}
+                    audio={currentResponse.audio}
+                    audioMimeType={currentResponse.audioMimeType}
                     onRankUpdate={onRankUpdate}
                     onPauseToggle={onPauseToggle}
                     onFuriganaToggle={onFuriganaToggle}

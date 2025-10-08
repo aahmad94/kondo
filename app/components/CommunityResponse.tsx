@@ -79,6 +79,11 @@ export default function CommunityResponse(props: ResponseProps) {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [currentFurigana, setCurrentFurigana] = useState(data.furigana || '');
+  
+  // Audio cache state - initialize from props (like breakdown)
+  const [cachedAudioData, setCachedAudioData] = useState<{ audio: string; mimeType: string } | null>(
+    data.audio && data.audioMimeType ? { audio: data.audio, mimeType: data.audioMimeType } : null
+  );
 
   // GPT-specific state
   const [newRank, setNewRank] = useState(isGPTResponseProps(props) ? props.data.rank : 1);
@@ -697,8 +702,9 @@ export default function CommunityResponse(props: ResponseProps) {
                 textToSpeak={prepareTextForSpeech(data.content)}
                 selectedLanguage={selectedLanguage}
                 buttonRef={speakerButtonRef}
-                cachedAudio={data.audio && data.audioMimeType ? { audio: data.audio, mimeType: data.audioMimeType } : null}
+                cachedAudio={cachedAudioData}
                 onLoadingChange={onLoadingChange}
+                onAudioCached={(audioData) => setCachedAudioData(audioData)}
               />
             </>
           )}
@@ -883,6 +889,8 @@ export default function CommunityResponse(props: ResponseProps) {
           onPauseToggle={isGPTResponseProps(props) ? props.onPauseToggle : undefined}
           selectedLanguage={selectedLanguage}
           onLoadingChange={onLoadingChange}
+          cachedAudio={cachedAudioData}
+          onAudioCached={(audioData) => setCachedAudioData(audioData)}
           onError={(error) => {
             setErrorMessage(error);
             setIsErrorModalOpen(true);

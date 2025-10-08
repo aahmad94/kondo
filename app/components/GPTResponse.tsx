@@ -51,6 +51,8 @@ interface GPTResponseProps {
   isKanaEnabled?: boolean;
   breakdown?: string | null;
   mobileBreakdown?: string | null;
+  audio?: string | null;
+  audioMimeType?: string | null;
   hideContent?: boolean;
   showAnswer?: boolean;
   onToggleAnswer?: () => void;
@@ -99,6 +101,8 @@ export default function GPTResponse({
   isKanaEnabled,
   breakdown,
   mobileBreakdown,
+  audio,
+  audioMimeType,
   hideContent = false,
   showAnswer,
   onToggleAnswer,
@@ -165,6 +169,11 @@ export default function GPTResponse({
   const [isBreakdownTextView, setIsBreakdownTextView] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Audio cache state - initialize from props (like breakdown)
+  const [cachedAudioData, setCachedAudioData] = useState<{ audio: string; mimeType: string } | null>(
+    audio && audioMimeType ? { audio, mimeType: audioMimeType } : null
+  );
 
   const { isMobile, mobileOffset } = useIsMobile();
   
@@ -690,9 +699,10 @@ export default function GPTResponse({
                   responseId={responseId}
                   textToSpeak={prepareTextForSpeech(response)}
                   selectedLanguage={selectedLanguage}
-                  cachedAudio={null}
+                  cachedAudio={cachedAudioData}
                   buttonRef={speakerButtonRef}
                   onLoadingChange={onLoadingChange}
+                  onAudioCached={(audioData) => setCachedAudioData(audioData)}
                   tooltipContent={
                     selectedDeckTitle === 'flashcard' 
                       ? (
@@ -1038,7 +1048,7 @@ export default function GPTResponse({
           onClose={() => setIsDeckModalOpen(false)}
           response={response}
           reservedDeckTitles={reservedDeckTitles}
-          cachedAudio={null}
+          cachedAudio={cachedAudioData}
           desktopBreakdownContent={desktopBreakdownContent}
           mobileBreakdownContent={mobileBreakdownContent}
           furigana={currentFurigana}
@@ -1087,6 +1097,8 @@ export default function GPTResponse({
           onPauseToggle={onPauseToggle}
           selectedLanguage={selectedLanguage}
           onLoadingChange={onLoadingChange}
+          cachedAudio={cachedAudioData}
+          onAudioCached={(audioData) => setCachedAudioData(audioData)}
           onError={(error) => {
             setErrorMessage(error);
             setIsErrorModalOpen(true);

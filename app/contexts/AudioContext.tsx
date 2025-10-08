@@ -15,6 +15,7 @@ interface AudioContextType {
     onError?: (error: string) => void
   ) => Promise<void>;
   pauseAudio: () => void;
+  getCachedAudio: (responseId: string) => { audio: string; mimeType: string } | null;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -53,6 +54,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     setIsPlaying(false);
     setCurrentResponseId(null);
+  }, []);
+  
+  const getCachedAudio = useCallback((responseId: string) => {
+    return audioCacheRef.current.get(responseId) || null;
   }, []);
 
   const playAudio = useCallback(async (
@@ -228,7 +233,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   return (
-    <AudioContext.Provider value={{ isPlaying, currentResponseId, playAudio, pauseAudio }}>
+    <AudioContext.Provider value={{ isPlaying, currentResponseId, playAudio, pauseAudio, getCachedAudio }}>
       {children}
     </AudioContext.Provider>
   );

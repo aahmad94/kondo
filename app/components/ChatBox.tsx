@@ -65,6 +65,8 @@ interface Response {
   isKanaEnabled?: boolean;
   breakdown?: string | null;
   mobileBreakdown?: string | null;
+  audio?: string | null;
+  audioMimeType?: string | null;
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
   communityResponse?: {
@@ -90,6 +92,8 @@ interface BookmarkResponse {
   isKanaEnabled?: boolean;
   breakdown?: string | null;
   mobileBreakdown?: string | null;
+  audio?: string | null;
+  audioMimeType?: string | null;
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
   communityResponse?: {
@@ -338,24 +342,27 @@ export default function ChatBox({
       
       // Transform the response data
       const transformedResponses = data.map((response: BookmarkResponse) => ({
-        id: response.id,
-        content: response.content,
-        rank: response.rank,
-        isPaused: response.isPaused,
-        decks: response.decks,
-        createdAt: new Date(response.createdAt),
-        updatedAt: new Date(response.updatedAt),
-        furigana: response.furigana,
-        isFuriganaEnabled: response.isFuriganaEnabled,
-        isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
-        isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
-        breakdown: response.breakdown,
-        mobileBreakdown: response.mobileBreakdown,
-        source: response.source,
-        communityResponseId: response.communityResponseId,
-        communityResponse: response.communityResponse,
-        isSharedToCommunity: response.isSharedToCommunity,
-      }));
+          id: response.id,
+          content: response.content,
+          rank: response.rank,
+          isPaused: response.isPaused,
+          decks: response.decks,
+          createdAt: new Date(response.createdAt),
+          updatedAt: new Date(response.updatedAt),
+          furigana: response.furigana,
+          isFuriganaEnabled: response.isFuriganaEnabled,
+          isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
+          isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
+          breakdown: response.breakdown,
+          mobileBreakdown: response.mobileBreakdown,
+          audio: response.audio,
+          audioMimeType: response.audioMimeType,
+          source: response.source,
+          communityResponseId: response.communityResponseId,
+          communityResponse: response.communityResponse,
+          isSharedToCommunity: response.isSharedToCommunity,
+        }
+      ));
 
       // Sort responses using the new function
       const sortedResponses = sortResponses(transformedResponses);
@@ -383,24 +390,26 @@ export default function ChatBox({
       scrollToTop();
       const data = await res.json();
       const dict = Object.fromEntries(data.map((response: Response) => [response.id, {
-        id: response.id,
-        content: response.content,
-        rank: response.rank,
-        isPaused: response.isPaused,
-        decks: response.decks,
-        createdAt: new Date(response.createdAt),
-        updatedAt: new Date(response.updatedAt),
-        furigana: response.furigana,
-        isFuriganaEnabled: response.isFuriganaEnabled,
-        isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
-        isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
-        breakdown: response.breakdown,
-        mobileBreakdown: response.mobileBreakdown,
-        source: response.source,
-        communityResponseId: response.communityResponseId,
-        communityResponse: response.communityResponse,
-        isSharedToCommunity: response.isSharedToCommunity,
-      }]));
+          id: response.id,
+          content: response.content,
+          rank: response.rank,
+          isPaused: response.isPaused,
+          decks: response.decks,
+          createdAt: new Date(response.createdAt),
+          updatedAt: new Date(response.updatedAt),
+          furigana: response.furigana,
+          isFuriganaEnabled: response.isFuriganaEnabled,
+          isPhoneticEnabled: response.isPhoneticEnabled ?? true, // Default to true if not set
+          isKanaEnabled: response.isKanaEnabled ?? true, // Default to true if not set
+          breakdown: response.breakdown,
+          mobileBreakdown: response.mobileBreakdown,
+          audio: response.audio,
+          audioMimeType: response.audioMimeType,
+          source: response.source,
+          communityResponseId: response.communityResponseId,
+          communityResponse: response.communityResponse,
+          isSharedToCommunity: response.isSharedToCommunity,
+        }]));
       
       
       setBookmarkResponses(dict);
@@ -1448,6 +1457,8 @@ export default function ChatBox({
                     isKanaEnabled={response.isKanaEnabled}
                     breakdown={response.breakdown}
                     mobileBreakdown={response.mobileBreakdown}
+                    audio={response.audio}
+                    audioMimeType={response.audioMimeType}
                     onQuote={handleResponseQuote}
                     onRankUpdate={handleRankUpdate}
                     onDelete={handleResponseDelete}
@@ -1493,6 +1504,10 @@ export default function ChatBox({
                     isFuriganaEnabled={response.isFuriganaEnabled}
                     isPhoneticEnabled={response.isPhoneticEnabled}
                     isKanaEnabled={response.isKanaEnabled}
+                    breakdown={response.breakdown}
+                    mobileBreakdown={response.mobileBreakdown}
+                    audio={response.audio}
+                    audioMimeType={response.audioMimeType}
                     onDelete={handleResponseDelete}
                     onQuote={handleResponseQuote}
                     onRankUpdate={handleRankUpdate}
