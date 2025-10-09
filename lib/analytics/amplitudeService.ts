@@ -67,6 +67,11 @@ const trackEvent = async (eventName: string, properties: Record<string, any>) =>
     
     amplitude.track(eventName, eventProperties);
     
+    // Optional: Keep this for debugging, remove for production
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Tracking event: ${eventName}`, eventProperties);
+    }
+    
   } catch (error) {
     console.error(`Failed to track event "${eventName}":`, error);
   }
