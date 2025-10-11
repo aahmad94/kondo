@@ -1501,6 +1501,7 @@ export default function ChatBox({
                     reservedDeckTitles={reservedDeckTitles}
                     responseId={response.id}
                     isPaused={response.isPaused}
+                    furigana={response.furigana}
                     isFuriganaEnabled={response.isFuriganaEnabled}
                     isPhoneticEnabled={response.isPhoneticEnabled}
                     isKanaEnabled={response.isKanaEnabled}
