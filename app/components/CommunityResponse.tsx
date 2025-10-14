@@ -750,68 +750,68 @@ export default function CommunityResponse(props: ResponseProps) {
       </div>
 
       {/* Content */}
-      {parsedBlocks.some(items => items && items.length > 0) ? (
-        parsedBlocks.map((items, blockIdx) =>
-          items && items.length > 0 ? (
-            <React.Fragment key={blockIdx}>
-              {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
-                isStandardResponse(items) ? (
-                  <StandardResponse 
-                    items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
-                    selectedLanguage={selectedLanguage}
-                    responseId={data.id ?? null}
-                    cachedFurigana={currentFurigana}
-                    onFuriganaGenerated={setCurrentFurigana}
-                    isFuriganaEnabled={localFuriganaEnabled}
-                    isPhoneticEnabled={localPhoneticEnabled}
-                    isKanaEnabled={localKanaEnabled}
-                    hideContent={hideContent}
-                    containerWidth={containerWidth}
-                    isFlashcard={selectedDeckTitle === 'flashcard'}
-                  />
-                ) : (
-                  <div className="pr-3 text-primary">
-                    {items.map((item, idx) => {
-                      const numberMatch = item.match(/^\s*(\d+)\/\s*(.*)$/);
-                      if (numberMatch) {
-                        return (
-                          <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
-                            <span className="text-muted-foreground">{`${numberMatch[1]}.`}</span>{' '}
-                            {numberMatch[2]}
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div key={idx} style={{ marginBottom: '0.5em' }}>
-                            {item}
-                          </div>
-                        );
-                      }
-                    })}
-                  </div>
-                )
-              ) : (
-                <div className="pr-3 text-primary">
-                  <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
-                    <StyledMarkdown>
-                      {items.join('\n')}
-                    </StyledMarkdown>
-                  </ExpandableContent>
-                </div>
-              )}
-              {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
-            </React.Fragment>
-          ) : null
-        )
-      ) : (
-        <div className="pr-3 text-primary">
-          <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
-            <StyledMarkdown>
-              {cleanResponse}
-            </StyledMarkdown>
-          </ExpandableContent>
-        </div>
-      )}
+      <div className={`whitespace-pre-wrap overflow-x-auto ${selectedDeckTitle === 'flashcard' ? 'w-full flex justify-center items-center' : 'w-[90%]'}`}>
+        <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+          {parsedBlocks.some(items => items && items.length > 0) ? (
+            parsedBlocks.map((items, blockIdx) =>
+              items && items.length > 0 ? (
+                <React.Fragment key={blockIdx}>
+                  {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
+                    isStandardResponse(items) ? (
+                      <StandardResponse 
+                        items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
+                        selectedLanguage={selectedLanguage}
+                        responseId={data.id ?? null}
+                        cachedFurigana={currentFurigana}
+                        onFuriganaGenerated={setCurrentFurigana}
+                        isFuriganaEnabled={localFuriganaEnabled}
+                        isPhoneticEnabled={localPhoneticEnabled}
+                        isKanaEnabled={localKanaEnabled}
+                        hideContent={hideContent}
+                        containerWidth={containerWidth}
+                        isFlashcard={selectedDeckTitle === 'flashcard'}
+                      />
+                    ) : (
+                      <div className="pr-3 text-primary">
+                        {items.map((item, idx) => {
+                          const numberMatch = item.match(/^\s*(\d+)\/\s*(.*)$/);
+                          if (numberMatch) {
+                            return (
+                              <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
+                                <span className="text-muted-foreground">{`${numberMatch[1]}.`}</span>{' '}
+                                {numberMatch[2]}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div key={idx} style={{ marginBottom: '0.5em' }}>
+                                {item}
+                              </div>
+                            );
+                          }
+                        })}
+                      </div>
+                    )
+                  ) : (
+                    <div className="pr-3 text-primary">
+                      <StyledMarkdown>
+                        {items.join('\n')}
+                      </StyledMarkdown>
+                    </div>
+                  )}
+                  {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
+                </React.Fragment>
+              ) : null
+            )
+          ) : (
+            <div className="pr-3 text-primary">
+              <StyledMarkdown>
+                {cleanResponse}
+              </StyledMarkdown>
+            </div>
+          )}
+        </ExpandableContent>
+      </div>
 
       {/* Metadata badges */}
       {renderMetadata()}

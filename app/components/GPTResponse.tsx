@@ -888,78 +888,76 @@ export default function GPTResponse({
 
       {/* ------------ GPTResponse content ------------ */}
       <div className={`whitespace-pre-wrap overflow-x-auto ${selectedDeckTitle === 'flashcard' ? 'w-full flex justify-center items-center' : 'w-[90%]'}`}>
-        {parsedBlocks.some(items => items && items.length > 0) ? (
-          // For all responses, handle numbered lists specially, use Markdown for others
-          parsedBlocks.map((items, blockIdx) =>
-            items && items.length > 0 ? (
-              <React.Fragment key={blockIdx}>
-                {/* Check if this block contains numbered items that we want to render specially */}
-                {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
-                  // If block contains exactly 2, 3, or 4 numbered items with "/" format, use StandardResponse
-                  isStandardResponse(items) ? (
-                    <StandardResponse 
-                      items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
-                      selectedLanguage={selectedLanguage}
-                      responseId={responseId}
-                      cachedFurigana={currentFurigana}
-                      onFuriganaGenerated={handleFuriganaGenerated}
-                      isFuriganaEnabled={localFuriganaEnabled}
-                      isPhoneticEnabled={localPhoneticEnabled}
-                      isKanaEnabled={localKanaEnabled}
-                      hideContent={hideContent}
-                      containerWidth={containerWidth}
-                      isFlashcard={selectedDeckTitle === 'flashcard'}
-                    />
+        <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+          {parsedBlocks.some(items => items && items.length > 0) ? (
+            // For all responses, handle numbered lists specially, use Markdown for others
+            parsedBlocks.map((items, blockIdx) =>
+              items && items.length > 0 ? (
+                <React.Fragment key={blockIdx}>
+                  {/* Check if this block contains numbered items that we want to render specially */}
+                  {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
+                    // If block contains exactly 2, 3, or 4 numbered items with "/" format, use StandardResponse
+                    isStandardResponse(items) ? (
+                      <StandardResponse 
+                        items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
+                        selectedLanguage={selectedLanguage}
+                        responseId={responseId}
+                        cachedFurigana={currentFurigana}
+                        onFuriganaGenerated={handleFuriganaGenerated}
+                        isFuriganaEnabled={localFuriganaEnabled}
+                        isPhoneticEnabled={localPhoneticEnabled}
+                        isKanaEnabled={localKanaEnabled}
+                        hideContent={hideContent}
+                        containerWidth={containerWidth}
+                        isFlashcard={selectedDeckTitle === 'flashcard'}
+                      />
+                    ) : (
+                      // Otherwise use the existing custom logic for other numbered items
+                      <div className="pr-3 text-primary">
+                        {items.map((item, idx) => {
+                          const numberMatch = item.match(/^\s*(\d+)\/\s*/);
+                          if (numberMatch) {
+                            // This is a numbered item with "/" - convert to "." format
+                            const originalNumber = numberMatch[1];
+                            return (
+                              <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
+                                <span className="text-muted-foreground">{`${originalNumber}.`}</span>{' '}
+                                {item.replace(/^\s*\d+\/\s*/, '')}
+                              </div>
+                            );
+                          } else {
+                            // This is regular text (like headers) - render as-is
+                            return (
+                              <div key={idx} style={{ marginBottom: '0.5em' }}>
+                                {item}
+                              </div>
+                            );
+                          }
+                        })}
+                      </div>
+                    )
                   ) : (
-                    // Otherwise use the existing custom logic for other numbered items
-                    <div className="pr-3 text-primary">
-                      {items.map((item, idx) => {
-                        const numberMatch = item.match(/^\s*(\d+)\/\s*/);
-                        if (numberMatch) {
-                          // This is a numbered item with "/" - convert to "." format
-                          const originalNumber = numberMatch[1];
-                          return (
-                            <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
-                              <span className="text-muted-foreground">{`${originalNumber}.`}</span>{' '}
-                              {item.replace(/^\s*\d+\/\s*/, '')}
-                            </div>
-                          );
-                        } else {
-                          // This is regular text (like headers) - render as-is
-                          return (
-                            <div key={idx} style={{ marginBottom: '0.5em' }}>
-                              {item}
-                            </div>
-                          );
-                        }
-                      })}
-                    </div>
-                  )
-                ) : (
-           // For all other content (tables, regular text, etc.), use Markdown
-           <div className="pr-3 text-primary">
-             <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+             // For all other content (tables, regular text, etc.), use Markdown
+             <div className="pr-3 text-primary">
                <StyledMarkdown>
                  {items.join('\n')}
                </StyledMarkdown>
-             </ExpandableContent>
-           </div>
-                )}
-                {/* Add a line break between blocks */}
-                {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
-              </React.Fragment>
-            ) : null
-          )
-        ) : (
-          // Fallback to Markdown for non-list blocks
-          <div className="pr-3 text-primary">
-            <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
+             </div>
+                  )}
+                  {/* Add a line break between blocks */}
+                  {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
+                </React.Fragment>
+              ) : null
+            )
+          ) : (
+            // Fallback to Markdown for non-list blocks
+            <div className="pr-3 text-primary">
               <StyledMarkdown>
                 {cleanResponse}
               </StyledMarkdown>
-            </ExpandableContent>
-          </div>
-        )}
+            </div>
+          )}
+        </ExpandableContent>
       </div>
 
 
