@@ -41,6 +41,8 @@ interface DecksModalProps {
   communityResponse?: CommunityResponseForImport;
   onCommunityImport?: (communityResponseId: string, deckId?: string, createNew?: boolean) => Promise<void>;
   onDecksRefresh?: () => void;
+  // Callback for successful GPT response addition (without immediate navigation)
+  onGPTResponseAdded?: (deckId: string, deckTitle: string) => void;
 }
 
 export default function DecksModal({ 
@@ -59,7 +61,8 @@ export default function DecksModal({
   onDeckSelect,
   communityResponse,
   onCommunityImport,
-  onDecksRefresh
+  onDecksRefresh,
+  onGPTResponseAdded
 }: DecksModalProps) {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -162,11 +165,13 @@ export default function DecksModal({
           onDecksRefresh();
         }
       } else {
-        // No celebration, do navigation immediately
-        if (deck) {
-          // Update URL with new query parameters
+        // No celebration - for GPTResponse, notify parent to show navigation modal
+        if (deck && !communityResponse) {
+          // Notify parent that GPTResponse was successfully added
+          onGPTResponseAdded?.(deck.id, deck.title);
+        } else if (deck && communityResponse) {
+          // For community responses, navigate immediately (they handle it differently)
           router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deck.title)}`);
-          // Notify parent component of deck selection
           onDeckSelect?.(deckId, deck.title);
         }
 
@@ -307,6 +312,10 @@ export default function DecksModal({
             } : undefined}
             onClose={() => {
               setShowStreakCelebration(false);
+              // If user closes celebration without navigating, show navigation modal instead
+              if (pendingNavigation && !communityResponse) {
+                onGPTResponseAdded?.(pendingNavigation.deckId, pendingNavigation.deckTitle);
+              }
               setPendingNavigation(null);
               // Also close the DecksModal after celebration
               onClose();

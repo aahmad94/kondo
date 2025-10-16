@@ -25,7 +25,7 @@ import ErrorModal from './ErrorModal';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent } from './ui';
+import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent, DeckNavigationModal } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
@@ -148,6 +148,8 @@ export default function GPTResponse({
     importerCount: number;
   } | null>(null);
   const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false);
+  const [showDeckNavigationModal, setShowDeckNavigationModal] = useState(false);
+  const [addedDeckInfo, setAddedDeckInfo] = useState<{ id: string; title: string } | null>(null);
   
   // Determine if share button should be disabled
   const isShareDisabled = source === 'imported' || isSharedToCommunity || isSharing;
@@ -614,6 +616,12 @@ export default function GPTResponse({
     }
   };
 
+  const handleGPTResponseAdded = (deckId: string, deckTitle: string) => {
+    // Store the deck info and show navigation modal
+    setAddedDeckInfo({ id: deckId, title: deckTitle });
+    setShowDeckNavigationModal(true);
+  };
+
 
 
   return (
@@ -1056,6 +1064,25 @@ export default function GPTResponse({
           onDeckCreated={onDeckCreated}
           onDeckSelect={onDeckSelect}
           onDecksRefresh={onDecksRefresh}
+          onGPTResponseAdded={handleGPTResponseAdded}
+        />
+      )}
+      {showDeckNavigationModal && addedDeckInfo && (
+        <DeckNavigationModal
+          isOpen={showDeckNavigationModal}
+          title="Added to Deck"
+          message={`Successfully added response to '${addedDeckInfo.title}'.`}
+          deckInfo={addedDeckInfo}
+          onNavigateToDeck={(deckId, deckTitle) => {
+            if (onDeckSelect) {
+              router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
+              onDeckSelect(deckId, deckTitle);
+            }
+          }}
+          onStayHere={() => {
+            setShowDeckNavigationModal(false);
+            setAddedDeckInfo(null);
+          }}
         />
       )}
       {isDeleteModalOpen && (

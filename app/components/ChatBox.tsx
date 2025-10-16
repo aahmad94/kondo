@@ -12,7 +12,7 @@ import FilterBar from './FilterBar';
 import CreateAliasModal from './CreateAliasModal';
 import DecksModal from './DecksModal';
 import ConfirmationModal from './ui/ConfirmationModal';
-import { StreakCelebrationModal } from './ui';
+import { StreakCelebrationModal, DeckNavigationModal } from './ui';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
@@ -200,6 +200,8 @@ export default function ChatBox({
   const [importedDeckInfo, setImportedDeckInfo] = useState<{ id: string; title: string } | null>(null);
   const [importErrorMessage, setImportErrorMessage] = useState('');
   const [importedCount, setImportedCount] = useState<number | null>(null);
+  const [showShareNavigationModal, setShowShareNavigationModal] = useState(false);
+  const [sharedFromDeckInfo, setSharedFromDeckInfo] = useState<{ id: string; title: string } | null>(null);
   const [communityImportModal, setCommunityImportModal] = useState<{
     isOpen: boolean;
     communityResponse: any;
@@ -1002,13 +1004,20 @@ export default function ChatBox({
         // Immediately update local state to disable the share button
         updateResponseInCaches(responseId, { isSharedToCommunity: true });
         
-        // Get the bookmark title for the success message
+        // Get the response and deck info
         const response = Object.values(responses).find(r => r.id === responseId) || 
                          Object.values(bookmarkResponses).find(r => r.id === responseId);
         const deckTitle = response?.decks ? Object.values(response.decks)[0] : 'Unknown';
         
-        setSharedResponseTitle(deckTitle || 'your response');
-        setShowShareSuccessModal(true);
+        // If shared from a deck, show navigation modal with "Go to Community" option
+        if (selectedDeck.id && selectedDeck.title) {
+          setSharedFromDeckInfo({ id: selectedDeck.id, title: selectedDeck.title });
+          setShowShareNavigationModal(true);
+        } else {
+          // Otherwise, show the simple success modal
+          setSharedResponseTitle(deckTitle || 'your response');
+          setShowShareSuccessModal(true);
+        }
         
         // Refresh community feed with fresh data
         refetchCommunityFresh();
@@ -1699,67 +1708,24 @@ export default function ChatBox({
 
       {/* Import Success Modal */}
       {showImportSuccessModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[60]">
-          <div className="bg-card border border-border p-6 rounded-sm w-[400px] max-w-[70vw] max-h-[70vh] overflow-y-auto shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-l text-card-foreground">Successfully Imported</h2>
-              <button 
-                onClick={() => {
-                  setShowImportSuccessModal(false);
-                  setImportedDeckInfo(null);
-                }} 
-                className="text-card-foreground hover:text-muted-foreground transition-colors"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
-            </div>
-            
-            <p className="text-card-foreground mb-4">
-              {importedCount !== null ? (
-                `Successfully imported ${importedCount} response${importedCount !== 1 ? 's' : ''} to '${importedDeckTitle}'.`
-              ) : (
-                `The response has been successfully imported to '${importedDeckTitle}'.`
-              )}
-            </p>
-
-            {/* Navigation Buttons */}
-            <div className="flex gap-2">
-              {importedDeckInfo ? (
-                <>
-                  <button
-                    onClick={() => {
-                      onDeckSelect(importedDeckInfo.id, importedDeckInfo.title);
-                      setShowImportSuccessModal(false);
-                      setImportedDeckInfo(null);
-                    }}
-                    className="flex-1 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
-                  >
-                    Go to Deck
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowImportSuccessModal(false);
-                      setImportedDeckInfo(null);
-                    }}
-                    className="flex-1 px-4 py-2 text-sm bg-muted text-muted-foreground rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    Stay Here
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => {
-                    setShowImportSuccessModal(false);
-                    setImportedDeckInfo(null);
-                  }}
-                  className="w-full px-4 py-2 text-sm bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
-                >
-                  Continue
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+        <DeckNavigationModal
+          isOpen={showImportSuccessModal}
+          title="Successfully Imported"
+          message={
+            importedCount !== null
+              ? `Successfully imported ${importedCount} response${importedCount !== 1 ? 's' : ''} to '${importedDeckTitle}'.`
+              : `The response has been successfully imported to '${importedDeckTitle}'.`
+          }
+          deckInfo={importedDeckInfo}
+          onNavigateToDeck={(deckId, deckTitle) => {
+            onDeckSelect(deckId, deckTitle);
+            router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
+          }}
+          onStayHere={() => {
+            setShowImportSuccessModal(false);
+            setImportedDeckInfo(null);
+          }}
+        />
       )}
 
       {/* Import Error Modal */}
@@ -1817,6 +1783,28 @@ export default function ChatBox({
           onClose={() => {
             setShowStreakCelebration(false);
             setImportedDeckInfo(null);
+          }}
+        />
+      )}
+
+      {/* Share Navigation Modal - shown after sharing from a deck */}
+      {showShareNavigationModal && sharedFromDeckInfo && (
+        <DeckNavigationModal
+          isOpen={showShareNavigationModal}
+          title="Shared to Community"
+          message="Successfully shared to the community feed. Other people can now discover and import it."
+          deckInfo={null}
+          navigateToCommunity={true}
+          onNavigateToCommunity={() => {
+            onDeckSelect(null, 'community');
+            router.push('/?deckTitle=community');
+            setShowShareNavigationModal(false);
+            setSharedFromDeckInfo(null);
+          }}
+          onNavigateToDeck={() => {}}
+          onStayHere={() => {
+            setShowShareNavigationModal(false);
+            setSharedFromDeckInfo(null);
           }}
         />
       )}

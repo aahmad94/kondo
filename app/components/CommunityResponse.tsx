@@ -37,7 +37,8 @@ import {
   ImportBadgeButton,
   ConfirmationModal,
   AliasBadge,
-  ExpandableContent
+  ExpandableContent,
+  DeckNavigationModal
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
@@ -100,6 +101,8 @@ export default function CommunityResponse(props: ResponseProps) {
   const [isDeletingCommunity, setIsDeletingCommunity] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false);
+  const [showDeckNavigationModal, setShowDeckNavigationModal] = useState(false);
+  const [addedDeckInfo, setAddedDeckInfo] = useState<{ id: string; title: string } | null>(null);
 
   // Refs and other hooks
   const router = useRouter();
@@ -393,6 +396,12 @@ export default function CommunityResponse(props: ResponseProps) {
     } finally {
       setIsDeletingCommunity(false);
     }
+  };
+
+  const handleGPTResponseAdded = (deckId: string, deckTitle: string) => {
+    // Store the deck info and show navigation modal
+    setAddedDeckInfo({ id: deckId, title: deckTitle });
+    setShowDeckNavigationModal(true);
   };
 
   // Render action buttons based on response type
@@ -835,6 +844,25 @@ export default function CommunityResponse(props: ResponseProps) {
               onDeckCreated={props.onDeckCreated}
               onDeckSelect={props.onDeckSelect}
               onDecksRefresh={props.onDecksRefresh}
+              onGPTResponseAdded={handleGPTResponseAdded}
+            />
+          )}
+          {showDeckNavigationModal && addedDeckInfo && (
+            <DeckNavigationModal
+              isOpen={showDeckNavigationModal}
+              title="Added to Deck"
+              message={`Successfully added response to '${addedDeckInfo.title}'.`}
+              deckInfo={addedDeckInfo}
+              onNavigateToDeck={(deckId, deckTitle) => {
+                if (props.onDeckSelect) {
+                  router.push(`/?deckId=${deckId}&deckTitle=${encodeURIComponent(deckTitle)}`);
+                  props.onDeckSelect(deckId, deckTitle);
+                }
+              }}
+              onStayHere={() => {
+                setShowDeckNavigationModal(false);
+                setAddedDeckInfo(null);
+              }}
             />
           )}
           {isDeleteModalOpen && (

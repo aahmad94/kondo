@@ -12,4 +12,5 @@ export { default as DeleteIcon } from './DeleteIcon';
 export { StatsContent, DojoTipsList, AdditionalCommands, CommunityInstructions } from './ContentModalItems';
 export { ConfettiAnimation } from './ConfettiAnimation';
 export { StreakCelebrationModal } from './StreakCelebrationModal';
+export { DeckNavigationModal } from './DeckNavigationModal';
 export * from './buttons'; 
