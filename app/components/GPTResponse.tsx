@@ -1074,6 +1074,7 @@ export default function GPTResponse({
           isFuriganaEnabled={localFuriganaEnabled}
           isPhoneticEnabled={localPhoneticEnabled}
           isKanaEnabled={localKanaEnabled}
+          responseType={responseType}
           onDeckCreated={onDeckCreated}
           onDeckSelect={onDeckSelect}
           onDecksRefresh={onDecksRefresh}

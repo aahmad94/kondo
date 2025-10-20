@@ -1473,6 +1473,7 @@ export default function ChatBox({
                     mobileBreakdown={response.mobileBreakdown}
                     audio={response.audio}
                     audioMimeType={response.audioMimeType}
+                    responseType={response.responseType}
                     onQuote={handleResponseQuote}
                     onRankUpdate={handleRankUpdate}
                     onDelete={handleResponseDelete}
@@ -1523,6 +1524,7 @@ export default function ChatBox({
                     mobileBreakdown={response.mobileBreakdown}
                     audio={response.audio}
                     audioMimeType={response.audioMimeType}
+                    responseType={response.responseType}
                     onDelete={handleResponseDelete}
                     onQuote={handleResponseQuote}
                     onRankUpdate={handleRankUpdate}

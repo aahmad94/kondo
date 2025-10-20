@@ -4,7 +4,7 @@ import { updateStreakOnActivity } from '@/lib/user/streakService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { bookmarkId, gptResponseContent, userId, cachedAudio, desktopBreakdownContent, mobileBreakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled, timezone } = req.body as {
+    const { bookmarkId, gptResponseContent, userId, cachedAudio, desktopBreakdownContent, mobileBreakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled, responseType, timezone } = req.body as {
       bookmarkId: string;
       gptResponseContent: string;
       userId: string;
@@ -15,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       isFuriganaEnabled?: boolean | null;
       isPhoneticEnabled?: boolean | null;
       isKanaEnabled?: boolean | null;
+      responseType?: string;
       timezone?: string;
     };
 
@@ -60,6 +61,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }),
           ...(typeof isKanaEnabled === 'boolean' && {
             isKanaEnabled: isKanaEnabled
+          }),
+          ...(responseType && {
+            responseType: responseType
           })
         },
       });

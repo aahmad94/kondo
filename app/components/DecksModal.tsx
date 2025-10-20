@@ -35,6 +35,7 @@ interface DecksModalProps {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  responseType?: 'clarification' | 'response' | 'instruction';
   onDeckCreated?: (newDeck: { id: string, title: string }) => void;
   onDeckSelect?: (id: string | null, title: string | null) => void;
   // Community import props
@@ -57,6 +58,7 @@ export default function DecksModal({
   isFuriganaEnabled,
   isPhoneticEnabled,
   isKanaEnabled,
+  responseType = 'response',
   onDeckCreated,
   onDeckSelect,
   communityResponse,
@@ -131,6 +133,7 @@ export default function DecksModal({
           isFuriganaEnabled,
           isPhoneticEnabled,
           isKanaEnabled,
+          responseType,
           timezone: userTimezone
         }),
       });
