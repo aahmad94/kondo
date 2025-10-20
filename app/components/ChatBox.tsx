@@ -444,7 +444,8 @@ export default function ChatBox({
         body: JSON.stringify({ 
           prompt: processedPrompt,
           languageCode: selectedLanguage || 'ja',
-          model: model || 'gpt-4o' // Default to gpt-4o if no model is specified
+          model: model || 'gpt-4o', // Default to gpt-4o if no model is specified
+          responseType: responseQuote ? 'clarification' : 'response'
       }),
       });
 
@@ -465,7 +466,8 @@ export default function ChatBox({
           updatedAt: new Date(),
           isFuriganaEnabled: false,
           isPhoneticEnabled: true,
-          isKanaEnabled: true
+          isKanaEnabled: true,
+          responseType: responseQuote ? 'clarification' : 'response'
         }
       }));
       setResponseQuote(null);
@@ -483,7 +485,8 @@ export default function ChatBox({
           updatedAt: new Date(),
           isFuriganaEnabled: false,
           isPhoneticEnabled: true,
-          isKanaEnabled: true
+          isKanaEnabled: true,
+          responseType: responseQuote ? 'clarification' : 'response'
         }
       }));
     } finally {
