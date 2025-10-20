@@ -12,7 +12,7 @@ const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'h
  * Creates a new GPT response with user's preferred language
  * Also updates the user's streak if adding to a bookmark
  */
-export async function createGPTResponse(content: string, userId: string, bookmarkId?: string) {
+export async function createGPTResponse(content: string, userId: string, bookmarkId?: string, responseType: string = 'response') {
   try {
     // Get user's language ID (with fallback to Japanese)
     const languageId = await getUserLanguageId(userId);
@@ -20,6 +20,7 @@ export async function createGPTResponse(content: string, userId: string, bookmar
     const newResponse = await prisma.gPTResponse.create({
       data: {
         content,
+        responseType,
         user: {
           connect: { id: userId },
         },
@@ -79,6 +80,7 @@ export async function getAllUserResponsesByLanguage(userId: string) {
         isKanaEnabled: true,
         breakdown: true,
         mobileBreakdown: true,
+        responseType: true,
         source: true,
         communityResponseId: true,
         communityResponse: {
