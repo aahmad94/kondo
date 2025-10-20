@@ -22,7 +22,7 @@ export default async function handler(
   }
 
   try {
-    const { prompt, languageCode = 'ja', model = 'gpt-4o', systemPrompt: customSystemPrompt } = req.body;
+    const { prompt, languageCode = 'ja', model = 'gpt-4o', systemPrompt: customSystemPrompt, responseType = 'response' } = req.body;
     
     // Use custom system prompt if provided, otherwise use default language prompt
     const systemPrompt = customSystemPrompt || getPromptFromFile(languageCode);
@@ -38,7 +38,7 @@ export default async function handler(
     });
 
     const result = completion.choices[0]?.message?.content || 'No response generated';
-    return res.status(200).json({ result });
+    return res.status(200).json({ result, responseType });
   } catch (error) {
     console.error('Error:', error);
     return res.status(500).json({ message: 'Error processing request' });
