@@ -140,6 +140,7 @@ model GPTResponse {
   isPhoneticEnabled   Boolean              @default(true)
   isKanaEnabled       Boolean              @default(true)
   mobileBreakdown     String?
+  responseType        String               @default("response")
   source              String               @default("local")
   communityResponseId String?
   language            Language             @relation(fields: [languageId], references: [id])
