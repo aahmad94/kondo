@@ -52,6 +52,7 @@ export default async function handler(
         isKanaEnabled: true,
         breakdown: true,
         mobileBreakdown: true,
+        responseType: true,
         source: true,
         communityResponseId: true,
         communityResponse: {

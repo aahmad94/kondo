@@ -32,7 +32,8 @@ export default async function handler(
         furigana: true,
         isFuriganaEnabled: true,
         isPhoneticEnabled: true,
-        isKanaEnabled: true
+        isKanaEnabled: true,
+        responseType: true
       },
     });
 

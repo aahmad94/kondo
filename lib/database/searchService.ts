@@ -18,6 +18,7 @@ interface SearchResult {
   isKanaEnabled: boolean;
   breakdown: string | null;
   mobileBreakdown: string | null;
+  responseType?: 'clarification' | 'response' | 'instruction';
   bookmarks: Record<string, string>;
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
@@ -124,6 +125,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
         isKanaEnabled: result.iskanaenabled || false,
         breakdown: result.breakdown || null,
         mobileBreakdown: result.mobilebreakdown || null,
+        responseType: result.responsetype || 'response',
         decks: result.bookmarks || {},
         ...metadata
       };
