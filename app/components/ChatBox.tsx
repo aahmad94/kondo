@@ -67,6 +67,7 @@ interface Response {
   mobileBreakdown?: string | null;
   audio?: string | null;
   audioMimeType?: string | null;
+  responseType?: 'clarification' | 'response' | 'instruction';
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
   communityResponse?: {
@@ -94,6 +95,7 @@ interface BookmarkResponse {
   mobileBreakdown?: string | null;
   audio?: string | null;
   audioMimeType?: string | null;
+  responseType?: 'clarification' | 'response' | 'instruction';
   source?: 'local' | 'imported';
   communityResponseId?: string | null;
   communityResponse?: {
