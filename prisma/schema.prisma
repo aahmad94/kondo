@@ -190,6 +190,7 @@ model CommunityResponse {
   furigana          String?
   audio             String?
   audioMimeType     String?
+  responseType      String            @default("response")
   isActive          Boolean           @default(true)
   importCount       Int               @default(0)
   viewCount         Int               @default(0)
