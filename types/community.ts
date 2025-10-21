@@ -12,6 +12,7 @@ export interface CommunityResponse {
   furigana?: string | null;
   audio?: string | null;
   audioMimeType?: string | null;
+  responseType?: 'clarification' | 'response' | 'instruction';
   isActive: boolean;
   importCount: number;
   sharedAt: Date;

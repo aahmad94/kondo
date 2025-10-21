@@ -76,7 +76,7 @@ export async function shareToCommunity(userId: string, responseId: string): Prom
           furigana: gptResponse.furigana,
           audio: gptResponse.audio,
           audioMimeType: gptResponse.audioMimeType,
-          responseType: gptResponse.responseType
+          responseType: gptResponse.responseType || 'response'
         },
         include: {
           creator: { select: { alias: true } },
@@ -89,7 +89,7 @@ export async function shareToCommunity(userId: string, responseId: string): Prom
 
     return {
       success: true,
-      communityResponse
+      communityResponse: communityResponse as any
     };
   } catch (error) {
     console.error('Error sharing to community:', error);
@@ -467,7 +467,7 @@ export async function getCommunityFeed(
     const responsesWithImportStatus = responses.map(response => ({
       ...response,
       hasUserImported: userImportedResponseIds.has(response.id)
-    }));
+    })) as any;
 
     return {
       responses: responsesWithImportStatus,

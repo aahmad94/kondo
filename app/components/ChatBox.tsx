@@ -1379,6 +1379,7 @@ export default function ChatBox({
                         furigana: communityResponse.furigana,
                         audio: communityResponse.audio,
                         audioMimeType: communityResponse.audioMimeType,
+                        responseType: communityResponse.responseType,
                         originalResponseId: communityResponse.originalResponseId,
                         creatorAlias: communityResponse.creatorAlias,
                         creatorUserId: communityResponse.creatorUserId,
