@@ -42,7 +42,7 @@ import {
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
-import { extractExpressions, prepareTextForSpeech, getAliasCSSVars } from '@/lib/utils';
+import { extractExpressions, prepareTextForSpeech, getAliasCSSVars, parseClarificationResponse } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { deleteCommunityResponseAction } from '../../actions/community';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -761,7 +761,42 @@ export default function CommunityResponse(props: ResponseProps) {
       {/* Content */}
       <div className={`whitespace-pre-wrap overflow-x-auto ${selectedDeckTitle === 'flashcard' ? 'w-full flex justify-center items-center' : 'w-[90%]'}`}>
         <ExpandableContent maxHeight={262.5} className="overflow-x-auto w-full">
-          {parsedBlocks.some(items => items && items.length > 0) ? (
+          {isCommunityResponseProps(props) && props.data.responseType === 'clarification' ? (
+            // Special handling for community clarifications: parse into blocks and render each appropriately
+            (() => {
+              const clarificationBlocks = parseClarificationResponse(data.content);
+              return clarificationBlocks.map((block, blockIdx) => (
+                <React.Fragment key={blockIdx}>
+                  {block.type === 'expression' ? (
+                    // Render expression blocks as StandardResponse
+                    <StandardResponse 
+                      items={block.lines}
+                      selectedLanguage={selectedLanguage}
+                      responseId={`${data.id}-block-${blockIdx}`}
+                      cachedFurigana={null}
+                      onFuriganaGenerated={() => {}}
+                      isFuriganaEnabled={localFuriganaEnabled}
+                      isPhoneticEnabled={localPhoneticEnabled}
+                      isKanaEnabled={localKanaEnabled}
+                      responseType="clarification"
+                      hideContent={hideContent}
+                      containerWidth={containerWidth}
+                      isFlashcard={selectedDeckTitle === 'flashcard'}
+                    />
+                  ) : (
+                    // Render markdown blocks as StyledMarkdown
+                    <div className="pr-3 text-primary">
+                      <StyledMarkdown>
+                        {block.rawText}
+                      </StyledMarkdown>
+                    </div>
+                  )}
+                  {/* Add spacing between blocks */}
+                  {blockIdx < clarificationBlocks.length - 1 && <div style={{height: '1em'}} />}
+                </React.Fragment>
+              ));
+            })()
+          ) : parsedBlocks.some(items => items && items.length > 0) ? (
             parsedBlocks.map((items, blockIdx) =>
               items && items.length > 0 ? (
                 <React.Fragment key={blockIdx}>

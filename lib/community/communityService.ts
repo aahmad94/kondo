@@ -75,7 +75,8 @@ export async function shareToCommunity(userId: string, responseId: string): Prom
           mobileBreakdown: gptResponse.mobileBreakdown,
           furigana: gptResponse.furigana,
           audio: gptResponse.audio,
-          audioMimeType: gptResponse.audioMimeType
+          audioMimeType: gptResponse.audioMimeType,
+          responseType: gptResponse.responseType
         },
         include: {
           creator: { select: { alias: true } },
