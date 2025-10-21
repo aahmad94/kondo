@@ -29,7 +29,7 @@ import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent, DeckNavigati
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
-import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
+import { extractExpressions, prepareTextForSpeech, formatClarificationResponse } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -908,7 +908,7 @@ export default function GPTResponse({
                   {responseType === 'clarification' ? (
                     <div className="pr-3 text-primary">
                       <StyledMarkdown>
-                        {items.join('\n')}
+                        {formatClarificationResponse(items.join('\n'))}
                       </StyledMarkdown>
                     </div>
                   ) : (
@@ -974,7 +974,7 @@ export default function GPTResponse({
             // Fallback to Markdown for non-list blocks
             <div className="pr-3 text-primary">
               <StyledMarkdown>
-                {cleanResponse}
+                {responseType === 'clarification' ? formatClarificationResponse(cleanResponse) : cleanResponse}
               </StyledMarkdown>
             </div>
           )}

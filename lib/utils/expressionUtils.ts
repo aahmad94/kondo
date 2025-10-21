@@ -41,6 +41,15 @@ export function hasExpressions(response: string): boolean {
 }
 
 /**
+ * Transform numbered list format from "1/" to "1." for clarification responses
+ * Used when responseType is 'clarification' to ensure consistent Markdown formatting
+ */
+export function formatClarificationResponse(response: string): string {
+  // Replace numbered list format "1/" "2/" etc. with "1." "2." etc.
+  return response.replace(/^(\d+)\//gm, '$1.');
+}
+
+/**
  * Calculate placeholder dimensions based on text length and font size
  * Used for creating placeholder elements that match the expected size of actual content
  */
