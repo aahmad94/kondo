@@ -50,6 +50,70 @@ export function formatClarificationResponse(response: string): string {
 }
 
 /**
+ * Check if a block of lines represents a valid expression for StandardResponse
+ * Valid expressions have 2-4 numbered lines and the first line contains extractable content
+ */
+export function isValidExpression(lines: string[]): boolean {
+  const numberedLines = lines.filter(line => line.match(/^\s*\d+\/\s*/));
+  
+  // Must have 2-4 numbered items
+  if (![2, 3, 4].includes(numberedLines.length)) {
+    return false;
+  }
+  
+  // Check if first numbered line has extractable Japanese/content
+  const firstLine = numberedLines[0];
+  const match = firstLine.match(/^\s*1\/\s*(.*)$/);
+  if (!match || !match[1] || match[1].trim().length === 0) {
+    return false;
+  }
+  
+  return true;
+}
+
+export interface ClarificationBlock {
+  type: 'expression' | 'markdown';
+  lines: string[];
+  rawText: string;
+}
+
+/**
+ * Parse clarification responses into blocks that can be rendered as StandardResponse or Markdown
+ * This enables multiple StandardResponse components within one GPT response
+ */
+export function parseClarificationResponse(response: string): ClarificationBlock[] {
+  const blocks: ClarificationBlock[] = [];
+  
+  // Split by double newlines to get logical blocks
+  const rawBlocks = response.split(/\n\s*\n/).filter(block => block.trim());
+  
+  for (const rawBlock of rawBlocks) {
+    const lines = rawBlock.split('\n').map(line => line.trim()).filter(Boolean);
+    
+    // Check if this block has numbered items
+    const hasNumberedItems = lines.some(line => line.match(/^\s*\d+\/\s*/));
+    
+    if (hasNumberedItems && isValidExpression(lines)) {
+      // This is a valid expression block - use StandardResponse
+      blocks.push({
+        type: 'expression',
+        lines: lines,
+        rawText: rawBlock
+      });
+    } else {
+      // This is a text/markdown block
+      blocks.push({
+        type: 'markdown',
+        lines: lines,
+        rawText: rawBlock
+      });
+    }
+  }
+  
+  return blocks;
+}
+
+/**
  * Calculate placeholder dimensions based on text length and font size
  * Used for creating placeholder elements that match the expected size of actual content
  */
