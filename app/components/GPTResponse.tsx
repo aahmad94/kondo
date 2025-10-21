@@ -29,7 +29,7 @@ import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent, DeckNavigati
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
-import { extractExpressions, prepareTextForSpeech, formatClarificationResponse } from '@/lib/utils';
+import { extractExpressions, prepareTextForSpeech } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -680,8 +680,8 @@ export default function GPTResponse({
                 />
               )}
 
-              {/* Breakdown button - hide in flashcard mode when content is hidden */}
-              {hasExpression && (selectedDeckTitle !== 'flashcard' || showAnswer) && (
+              {/* Breakdown button - hide in flashcard mode when content is hidden, hide for clarifications */}
+              {hasExpression && responseType !== 'clarification' && (selectedDeckTitle !== 'flashcard' || showAnswer) && (
                 <IconButton 
                   icon={<TableCellsIcon className="h-6 w-6" />}
                   onClick={handleBreakdownClick}
@@ -703,8 +703,8 @@ export default function GPTResponse({
                 />
               )}
 
-              {/* Text-to-speech button - hide in flashcard mode when content is hidden */}
-              {hasExpression && responseId && (selectedDeckTitle !== 'flashcard' || showAnswer) && (
+              {/* Text-to-speech button - hide in flashcard mode when content is hidden, hide for clarifications */}
+              {hasExpression && responseId && responseType !== 'clarification' && (selectedDeckTitle !== 'flashcard' || showAnswer) && (
                 <SpeakerButton
                   responseId={responseId}
                   textToSpeak={prepareTextForSpeech(response)}
@@ -904,66 +904,56 @@ export default function GPTResponse({
             parsedBlocks.map((items, blockIdx) =>
               items && items.length > 0 ? (
                 <React.Fragment key={blockIdx}>
-                  {/* Skip StandardResponse for clarifications - always use Markdown */}
-                  {responseType === 'clarification' ? (
+                  {/* Check if this block contains numbered items that we want to render specially */}
+                  {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
+                    // If block contains exactly 2, 3, or 4 numbered items with "/" format, use StandardResponse
+                    isStandardResponse(items) ? (
+                      <StandardResponse 
+                        items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
+                        selectedLanguage={selectedLanguage}
+                        responseId={responseId}
+                        cachedFurigana={currentFurigana}
+                        onFuriganaGenerated={handleFuriganaGenerated}
+                        isFuriganaEnabled={localFuriganaEnabled}
+                        isPhoneticEnabled={localPhoneticEnabled}
+                        isKanaEnabled={localKanaEnabled}
+                        responseType={responseType}
+                        hideContent={hideContent}
+                        containerWidth={containerWidth}
+                        isFlashcard={selectedDeckTitle === 'flashcard'}
+                      />
+                    ) : (
+                      // Otherwise use the existing custom logic for other numbered items
+                      <div className="pr-3 text-primary">
+                        {items.map((item, idx) => {
+                          const numberMatch = item.match(/^\s*(\d+)\/\s*/);
+                          if (numberMatch) {
+                            // This is a numbered item with "/" - convert to "." format
+                            const originalNumber = numberMatch[1];
+                            return (
+                              <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
+                                <span className="text-muted-foreground">{`${originalNumber}.`}</span>{' '}
+                                {item.replace(/^\s*\d+\/\s*/, '')}
+                              </div>
+                            );
+                          } else {
+                            // This is regular text (like headers) - render as-is
+                            return (
+                              <div key={idx} style={{ marginBottom: '0.5em' }}>
+                                {item}
+                              </div>
+                            );
+                          }
+                        })}
+                      </div>
+                    )
+                  ) : (
+                    // For all other content (tables, regular text, etc.), use Markdown
                     <div className="pr-3 text-primary">
                       <StyledMarkdown>
-                        {formatClarificationResponse(items.join('\n'))}
+                        {items.join('\n')}
                       </StyledMarkdown>
                     </div>
-                  ) : (
-                    <>
-                      {/* Check if this block contains numbered items that we want to render specially */}
-                      {items.some(item => item.match(/^\s*\d+\/\s*/)) ? (
-                        // If block contains exactly 2, 3, or 4 numbered items with "/" format, use StandardResponse
-                        isStandardResponse(items) ? (
-                          <StandardResponse 
-                            items={items.filter(item => item.match(/^\s*\d+\/\s*/))} 
-                            selectedLanguage={selectedLanguage}
-                            responseId={responseId}
-                            cachedFurigana={currentFurigana}
-                            onFuriganaGenerated={handleFuriganaGenerated}
-                            isFuriganaEnabled={localFuriganaEnabled}
-                            isPhoneticEnabled={localPhoneticEnabled}
-                            isKanaEnabled={localKanaEnabled}
-                            hideContent={hideContent}
-                            containerWidth={containerWidth}
-                            isFlashcard={selectedDeckTitle === 'flashcard'}
-                          />
-                        ) : (
-                          // Otherwise use the existing custom logic for other numbered items
-                          <div className="pr-3 text-primary">
-                            {items.map((item, idx) => {
-                              const numberMatch = item.match(/^\s*(\d+)\/\s*/);
-                              if (numberMatch) {
-                                // This is a numbered item with "/" - convert to "." format
-                                const originalNumber = numberMatch[1];
-                                return (
-                                  <div key={idx} style={{ margin: 0, marginBottom: '0.5em', padding: 0 }}>
-                                    <span className="text-muted-foreground">{`${originalNumber}.`}</span>{' '}
-                                    {item.replace(/^\s*\d+\/\s*/, '')}
-                                  </div>
-                                );
-                              } else {
-                                // This is regular text (like headers) - render as-is
-                                return (
-                                  <div key={idx} style={{ marginBottom: '0.5em' }}>
-                                    {item}
-                                  </div>
-                                );
-                              }
-                            })}
-                          </div>
-                        )
-                      ) : (
-                        // For all other content (tables, regular text, etc.), use Markdown
-                        <div className="pr-3 text-primary">
-                          <StyledMarkdown>
-                            {items.join('\n')}
-                          </StyledMarkdown>
-                        </div>
-                      )}
-                    </>
                   )}
                   {/* Add a line break between blocks */}
                   {blockIdx < parsedBlocks.length - 1 && <div style={{height: '1em'}} />}
@@ -974,7 +964,7 @@ export default function GPTResponse({
             // Fallback to Markdown for non-list blocks
             <div className="pr-3 text-primary">
               <StyledMarkdown>
-                {responseType === 'clarification' ? formatClarificationResponse(cleanResponse) : cleanResponse}
+                {cleanResponse}
               </StyledMarkdown>
             </div>
           )}

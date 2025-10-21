@@ -13,6 +13,7 @@ interface StandardResponseProps {
   isFuriganaEnabled?: boolean;
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
+  responseType?: 'clarification' | 'response' | 'instruction';
   hideContent?: boolean;
   containerWidth?: number;
   isFlashcard?: boolean;
@@ -50,7 +51,9 @@ const PlaceholderLine = ({
   );
 };
 
-export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, hideContent = false, containerWidth = 20, isFlashcard = false }: StandardResponseProps) {
+export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, responseType = 'response', hideContent = false, containerWidth = 20, isFlashcard = false }: StandardResponseProps) {
+  // Auto-enable furigana for clarifications in Japanese
+  const shouldShowFurigana = isFuriganaEnabled || (responseType === 'clarification' && selectedLanguage === 'ja');
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -63,7 +66,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
   // Check if this is a Japanese 4-line standard response that needs furigana
   const isJapaneseFourLine = selectedLanguage === 'ja' && processedItems.length === 4;
-  const shouldUseFurigana = isJapaneseFourLine && containsKanji(processedItems[0]) && isFuriganaEnabled;
+  const shouldUseFurigana = isJapaneseFourLine && containsKanji(processedItems[0]) && shouldShowFurigana;
 
   // Helper function to get phonetic line index based on language
   const getPhoneticLineIndex = (language: string, itemsLength: number) => {
