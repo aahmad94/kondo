@@ -54,6 +54,8 @@ const PlaceholderLine = ({
 export default function StandardResponse({ items, selectedLanguage = 'ja', responseId, cachedFurigana, onFuriganaGenerated, isFuriganaEnabled = false, isPhoneticEnabled = true, isKanaEnabled = true, responseType = 'response', hideContent = false, containerWidth = 20, isFlashcard = false }: StandardResponseProps) {
   // Auto-enable furigana for clarifications in Japanese
   const shouldShowFurigana = isFuriganaEnabled || (responseType === 'clarification' && selectedLanguage === 'ja');
+  // Auto-hide romaji for clarifications in Japanese (furigana already shows pronunciation)
+  const shouldShowPhonetic = isPhoneticEnabled && !(responseType === 'clarification' && selectedLanguage === 'ja');
   const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -179,7 +181,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           )}
 
           {/* Third line - Romaji pronunciation */}
-          {isPhoneticEnabled && (
+          {shouldShowPhonetic && (
             hideContent ? (
               <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
@@ -225,7 +227,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           </span>
         ) : processedItems.length === 3 ? (
           // For 3-item responses, check if line 1 is phonetic and hide logic
-          phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
+          phoneticLineIndex === 1 && !shouldShowPhonetic ? null : (
             hideContent ? (
               <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
@@ -236,7 +238,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           )
         ) : processedItems.length === 4 ? (
           // For 4-item responses, check if line 1 is phonetic and hide logic
-          phoneticLineIndex === 1 && !isPhoneticEnabled ? null : (
+          phoneticLineIndex === 1 && !shouldShowPhonetic ? null : (
             hideContent ? (
               <PlaceholderLine text={processedItems[1]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (
@@ -255,7 +257,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
           </span>
         ) : processedItems.length === 4 ? (
           // For 4-item responses, check if line 2 is phonetic and hide logic
-          phoneticLineIndex === 2 && !isPhoneticEnabled ? null : (
+          phoneticLineIndex === 2 && !shouldShowPhonetic ? null : (
             hideContent ? (
               <PlaceholderLine text={processedItems[2]} fontSize="sm" divWidthRem={containerWidth} isFlashcard={isFlashcard} />
             ) : (

@@ -35,6 +35,7 @@ export interface CommunityResponseData extends BaseResponseData {
   isActive: boolean;
   importCount: number;
   sharedAt: Date;
+  responseType?: 'clarification' | 'response' | 'instruction';
   hasUserImported?: boolean;
 }
 
