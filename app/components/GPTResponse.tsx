@@ -793,7 +793,7 @@ export default function GPTResponse({
         {/* Right side */}
         <div className="flex items-center gap-3">
           {/* Language options dropdown - show for non-English languages except Spanish, but hide in flashcard mode */}
-          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && hasExpression && selectedDeckTitle !== 'flashcard' && (
+          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && (hasExpression || responseType === 'clarification') && selectedDeckTitle !== 'flashcard' && (
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}
@@ -808,8 +808,8 @@ export default function GPTResponse({
                     : 'min-w-[120px] w-max'
                 }`}>
                   <div className="py-1">
-                    {/* Furigana toggle - only for Japanese */}
-                    {selectedLanguage === 'ja' && (
+                    {/* Furigana toggle - only for Japanese and non-clarifications */}
+                    {selectedLanguage === 'ja' && responseType !== 'clarification' && (
                       <button
                         onClick={handleFuriganaToggle}
                         className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
@@ -826,8 +826,8 @@ export default function GPTResponse({
                       </button>
                     )}
                     
-                    {/* Kana toggle - only for Japanese */}
-                    {selectedLanguage === 'ja' && (
+                    {/* Kana toggle - only for Japanese and non-clarifications */}
+                    {selectedLanguage === 'ja' && responseType !== 'clarification' && (
                       <button
                         onClick={handleKanaToggle}
                         className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${

@@ -181,6 +181,10 @@ export async function importFromCommunity(userId: string, communityResponseId: s
           furigana: communityResponse.furigana,
           audio: communityResponse.audio,
           audioMimeType: communityResponse.audioMimeType,
+          responseType: communityResponse.responseType || 'response',
+          // For clarifications, auto-enable furigana and disable kana
+          isFuriganaEnabled: communityResponse.responseType === 'clarification',
+          isKanaEnabled: communityResponse.responseType !== 'clarification',
           bookmarks: {
             connect: { id: bookmark.id }
           }
@@ -317,6 +321,10 @@ export async function importFromCommunityToBookmark(
           furigana: communityResponse.furigana,
           audio: communityResponse.audio,
           audioMimeType: communityResponse.audioMimeType,
+          responseType: communityResponse.responseType || 'response',
+          // For clarifications, auto-enable furigana and disable kana
+          isFuriganaEnabled: communityResponse.responseType === 'clarification',
+          isKanaEnabled: communityResponse.responseType !== 'clarification',
           bookmarks: {
             connect: { id: targetBookmarkId }
           }
@@ -836,6 +844,10 @@ export async function importEntireCommunityBookmark(
             furigana: communityResponse.furigana,
             audio: communityResponse.audio,
             audioMimeType: communityResponse.audioMimeType,
+            responseType: communityResponse.responseType || 'response',
+            // For clarifications, auto-enable furigana and disable kana
+            isFuriganaEnabled: communityResponse.responseType === 'clarification',
+            isKanaEnabled: communityResponse.responseType !== 'clarification',
             bookmarks: {
               connect: { id: bookmark.id }
             }
