@@ -4,13 +4,124 @@ import { getCommunityFurigana } from '@/lib/community';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Helper function to generate furigana for multiple expression blocks in a clarification
+ */
+async function handleClarificationFurigana(
+  blocks: Array<{ japaneseText: string; hiraganaText: string }>,
+  responseId: string | undefined,
+  res: NextApiResponse
+) {
+  // Check cache first if responseId provided
+  if (responseId && responseId !== 'null' && responseId !== 'undefined' && !responseId.includes('temp') && !responseId.includes('block')) {
+    try {
+      const [communityResponse, gptResponse] = await Promise.all([
+        prisma.communityResponse.findUnique({
+          where: { id: responseId },
+          select: { furigana: true, responseType: true }
+        }),
+        prisma.gPTResponse.findUnique({
+          where: { id: responseId },
+          select: { furigana: true, responseType: true }
+        })
+      ]);
+
+      const cachedResponse = communityResponse || gptResponse;
+      if (cachedResponse?.furigana && cachedResponse.responseType === 'clarification') {
+        // Try to parse as JSON array
+        try {
+          const parsed = JSON.parse(cachedResponse.furigana);
+          if (Array.isArray(parsed)) {
+            console.log(`Returning cached furigana array for clarification ${responseId}`);
+            return res.status(200).json({ furiganaArray: cachedResponse.furigana });
+          }
+        } catch (e) {
+          // Not a JSON array, continue to generation
+        }
+      }
+    } catch (dbError) {
+      console.error('Error checking cached clarification furigana:', dbError);
+    }
+  }
+
+  // Generate furigana for each block
+  const promptPath = path.join(process.cwd(), 'prompts', 'furigana_prompt.txt');
+  const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
+  const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+
+  const furiganaPromises = blocks.map(async (block) => {
+    const prompt = promptTemplate.replace('{japaneseText}', block.japaneseText);
+    
+    const response = await fetch(`${appUrl}/api/openai`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        prompt: prompt,
+        languageCode: 'ja',
+        model: 'gpt-4o'
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate furigana for block');
+    }
+
+    const data = await response.json();
+    return data.result;
+  });
+
+  const furiganaResults = await Promise.all(furiganaPromises);
+  const furiganaArrayString = JSON.stringify(furiganaResults);
+
+  // Cache if responseId provided and valid
+  if (responseId && !responseId.includes('temp') && !responseId.includes('block')) {
+    try {
+      const [communityExists, gptExists] = await Promise.all([
+        prisma.communityResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        }),
+        prisma.gPTResponse.findUnique({
+          where: { id: responseId },
+          select: { id: true }
+        })
+      ]);
+
+      if (communityExists) {
+        await prisma.communityResponse.update({
+          where: { id: responseId },
+          data: { furigana: furiganaArrayString }
+        });
+        console.log(`Cached clarification furigana array for community response ${responseId}`);
+      } else if (gptExists) {
+        await prisma.gPTResponse.update({
+          where: { id: responseId },
+          data: { furigana: furiganaArrayString }
+        });
+        console.log(`Cached clarification furigana array for GPT response ${responseId}`);
+      }
+    } catch (dbError) {
+      console.error('Error caching clarification furigana:', dbError);
+    }
+  }
+
+  return res.status(200).json({ furiganaArray: furiganaArrayString });
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { japaneseText, responseId } = req.body;
+    const { japaneseText, responseId, isClarification, clarificationBlocks } = req.body;
+    
+    // Handle clarification batch processing
+    if (isClarification && clarificationBlocks && Array.isArray(clarificationBlocks)) {
+      return await handleClarificationFurigana(clarificationBlocks, responseId, res);
+    }
     
     if (!japaneseText) {
       return res.status(400).json({ error: 'Japanese text is required' });

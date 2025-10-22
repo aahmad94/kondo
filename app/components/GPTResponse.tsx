@@ -194,6 +194,19 @@ export default function GPTResponse({
   
   // Track current furigana (starts with cached furigana, gets updated when new furigana is generated)
   const [currentFurigana, setCurrentFurigana] = useState<string | null>(furigana || null);
+  
+  // For clarifications: array of furigana strings, one per expression block
+  const [clarificationFuriganaArray, setClarificationFuriganaArray] = useState<string[] | null>(() => {
+    if (responseType === 'clarification' && furigana) {
+      try {
+        const parsed = JSON.parse(furigana);
+        return Array.isArray(parsed) ? parsed : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
 
   const { theme } = useTheme();
 
@@ -225,6 +238,45 @@ export default function GPTResponse({
       setMobileBreakdownContent(mobileBreakdown);
     }
   }, [mobileBreakdown]);
+
+  // Generate and cache furigana array for clarifications
+  useEffect(() => {
+    const generateClarificationFurigana = async () => {
+      // Only for clarifications in Japanese with auto-enabled furigana
+      if (responseType !== 'clarification' || selectedLanguage !== 'ja' || !responseId) return;
+      
+      // Skip if already cached
+      if (clarificationFuriganaArray && clarificationFuriganaArray.length > 0) return;
+      
+      // Skip for temp responses during initial render
+      if (responseId.includes('temp')) return;
+      
+      // Parse the response to get expression blocks
+      const blocks = parseClarificationResponse(response);
+      const expressionBlocks = blocks.filter(b => b.type === 'expression');
+      
+      if (expressionBlocks.length === 0) return;
+      
+      try {
+        // Extract japanese and hiragana from each expression block
+        const blocksData = expressionBlocks.map(block => {
+          const lines = block.lines.filter(line => line.match(/^\s*\d+\/\s*/));
+          const japaneseText = lines[0]?.replace(/^\s*\d+\/\s*/, '').trim() || '';
+          const hiraganaText = lines[1]?.replace(/^\s*\d+\/\s*/, '').trim() || '';
+          return { japaneseText, hiraganaText };
+        });
+        
+        const { addFuriganaForClarification } = await import('@/lib/utils');
+        const furiganaArrayString = await addFuriganaForClarification(blocksData, responseId);
+        const parsed = JSON.parse(furiganaArrayString);
+        setClarificationFuriganaArray(parsed);
+      } catch (error) {
+        console.error('Error generating clarification furigana:', error);
+      }
+    };
+    
+    generateClarificationFurigana();
+  }, [responseType, selectedLanguage, responseId, response, clarificationFuriganaArray]);
 
   // Handle furigana updates from StandardResponse
   const handleFuriganaGenerated = (newFurigana: string) => {
@@ -903,24 +955,34 @@ export default function GPTResponse({
             // Special handling for clarifications: parse into blocks and render each appropriately
             (() => {
               const clarificationBlocks = parseClarificationResponse(response);
+              let expressionIndex = 0; // Track which expression block we're rendering
+              
               return clarificationBlocks.map((block, blockIdx) => (
                 <React.Fragment key={blockIdx}>
                   {block.type === 'expression' ? (
                     // Render expression blocks as StandardResponse
-                    <StandardResponse 
-                      items={block.lines}
-                      selectedLanguage={selectedLanguage}
-                      responseId={`${responseId}-block-${blockIdx}`}
-                      cachedFurigana={null}
-                      onFuriganaGenerated={() => {}}
-                      isFuriganaEnabled={localFuriganaEnabled}
-                      isPhoneticEnabled={localPhoneticEnabled}
-                      isKanaEnabled={localKanaEnabled}
-                      responseType={responseType}
-                      hideContent={hideContent}
-                      containerWidth={containerWidth}
-                      isFlashcard={selectedDeckTitle === 'flashcard'}
-                    />
+                    (() => {
+                      const currentExpressionIndex = expressionIndex;
+                      expressionIndex++; // Increment for next expression block
+                      const blockFurigana = clarificationFuriganaArray?.[currentExpressionIndex] || null;
+                      
+                      return (
+                        <StandardResponse 
+                          items={block.lines}
+                          selectedLanguage={selectedLanguage}
+                          responseId={`${responseId}-block-${blockIdx}`}
+                          cachedFurigana={blockFurigana}
+                          onFuriganaGenerated={() => {}}
+                          isFuriganaEnabled={localFuriganaEnabled}
+                          isPhoneticEnabled={localPhoneticEnabled}
+                          isKanaEnabled={localKanaEnabled}
+                          responseType={responseType}
+                          hideContent={hideContent}
+                          containerWidth={containerWidth}
+                          isFlashcard={selectedDeckTitle === 'flashcard'}
+                        />
+                      );
+                    })()
                   ) : (
                     // Render markdown blocks as StyledMarkdown
                     <div className="pr-3 text-primary">

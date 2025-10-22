@@ -81,6 +81,19 @@ export default function CommunityResponse(props: ResponseProps) {
   const [errorMessage, setErrorMessage] = useState('');
   const [currentFurigana, setCurrentFurigana] = useState(data.furigana || '');
   
+  // For clarifications: array of furigana strings, one per expression block
+  const [clarificationFuriganaArray, setClarificationFuriganaArray] = useState<string[] | null>(() => {
+    if (isCommunityResponseProps(props) && props.data.responseType === 'clarification' && data.furigana) {
+      try {
+        const parsed = JSON.parse(data.furigana);
+        return Array.isArray(parsed) ? parsed : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+  
   // Audio cache state - initialize from props (like breakdown)
   const [cachedAudioData, setCachedAudioData] = useState<{ audio: string; mimeType: string } | null>(
     data.audio && data.audioMimeType ? { audio: data.audio, mimeType: data.audioMimeType } : null
@@ -119,6 +132,42 @@ export default function CommunityResponse(props: ResponseProps) {
   // Hover states
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
   const [isDeckHovered, setIsBookmarkHovered] = useState(false);
+
+  // Generate and cache furigana array for clarifications
+  useEffect(() => {
+    const generateClarificationFurigana = async () => {
+      // Only for community clarifications in Japanese
+      if (!isCommunityResponseProps(props) || props.data.responseType !== 'clarification' || selectedLanguage !== 'ja') return;
+      
+      // Skip if already cached
+      if (clarificationFuriganaArray && clarificationFuriganaArray.length > 0) return;
+      
+      // Parse the response to get expression blocks
+      const blocks = parseClarificationResponse(data.content);
+      const expressionBlocks = blocks.filter(b => b.type === 'expression');
+      
+      if (expressionBlocks.length === 0) return;
+      
+      try {
+        // Extract japanese and hiragana from each expression block
+        const blocksData = expressionBlocks.map(block => {
+          const lines = block.lines.filter(line => line.match(/^\s*\d+\/\s*/));
+          const japaneseText = lines[0]?.replace(/^\s*\d+\/\s*/, '').trim() || '';
+          const hiraganaText = lines[1]?.replace(/^\s*\d+\/\s*/, '').trim() || '';
+          return { japaneseText, hiraganaText };
+        });
+        
+        const { addFuriganaForClarification } = await import('@/lib/utils');
+        const furiganaArrayString = await addFuriganaForClarification(blocksData, data.id);
+        const parsed = JSON.parse(furiganaArrayString);
+        setClarificationFuriganaArray(parsed);
+      } catch (error) {
+        console.error('Error generating clarification furigana:', error);
+      }
+    };
+    
+    generateClarificationFurigana();
+  }, [props, selectedLanguage, data.content, data.id, clarificationFuriganaArray]);
 
   // Parse response content (shared logic)
   const parseResponse = (response: string) => {
@@ -765,24 +814,34 @@ export default function CommunityResponse(props: ResponseProps) {
             // Special handling for community clarifications: parse into blocks and render each appropriately
             (() => {
               const clarificationBlocks = parseClarificationResponse(data.content);
+              let expressionIndex = 0; // Track which expression block we're rendering
+              
               return clarificationBlocks.map((block, blockIdx) => (
                 <React.Fragment key={blockIdx}>
                   {block.type === 'expression' ? (
                     // Render expression blocks as StandardResponse
-                    <StandardResponse 
-                      items={block.lines}
-                      selectedLanguage={selectedLanguage}
-                      responseId={`${data.id}-block-${blockIdx}`}
-                      cachedFurigana={null}
-                      onFuriganaGenerated={() => {}}
-                      isFuriganaEnabled={localFuriganaEnabled}
-                      isPhoneticEnabled={localPhoneticEnabled}
-                      isKanaEnabled={localKanaEnabled}
-                      responseType="clarification"
-                      hideContent={hideContent}
-                      containerWidth={containerWidth}
-                      isFlashcard={selectedDeckTitle === 'flashcard'}
-                    />
+                    (() => {
+                      const currentExpressionIndex = expressionIndex;
+                      expressionIndex++; // Increment for next expression block
+                      const blockFurigana = clarificationFuriganaArray?.[currentExpressionIndex] || null;
+                      
+                      return (
+                        <StandardResponse 
+                          items={block.lines}
+                          selectedLanguage={selectedLanguage}
+                          responseId={`${data.id}-block-${blockIdx}`}
+                          cachedFurigana={blockFurigana}
+                          onFuriganaGenerated={() => {}}
+                          isFuriganaEnabled={localFuriganaEnabled}
+                          isPhoneticEnabled={localPhoneticEnabled}
+                          isKanaEnabled={localKanaEnabled}
+                          responseType="clarification"
+                          hideContent={hideContent}
+                          containerWidth={containerWidth}
+                          isFlashcard={selectedDeckTitle === 'flashcard'}
+                        />
+                      );
+                    })()
                   ) : (
                     // Render markdown blocks as StyledMarkdown
                     <div className="pr-3 text-primary">
