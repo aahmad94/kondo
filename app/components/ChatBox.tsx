@@ -1186,11 +1186,11 @@ export default function ChatBox({
     }
   };
 
-  // Filter responses that have expressions for flashcard mode
+  // Filter responses that have expressions for flashcard mode (exclude clarifications)
   const getFlashcardResponses = (): Response[] => {
     const responsesToFilter = Object.values(bookmarkResponses);
     return responsesToFilter.filter((response: Response) => {
-      return extractExpressions(response.content).length > 0;
+      return extractExpressions(response.content).length > 0 && response.responseType !== 'clarification';
     });
   };
 
