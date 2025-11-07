@@ -17,7 +17,8 @@ import {
   ArrowDownTrayIcon,
   UserIcon,
   HeartIcon,
-  ShareIcon
+  ShareIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import DecksModal from './DecksModal';
@@ -25,6 +26,7 @@ import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
 import ErrorModal from './ErrorModal';
+import NoteModal from './NoteModal';
 import RankContainer from './ui/RankContainer';
 import IconButton from './ui/IconButton';
 import { 
@@ -116,6 +118,9 @@ export default function CommunityResponse(props: ResponseProps) {
   const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false);
   const [showDeckNavigationModal, setShowDeckNavigationModal] = useState(false);
   const [addedDeckInfo, setAddedDeckInfo] = useState<{ id: string; title: string } | null>(null);
+
+  // Note modal state (view only for community responses)
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
 
   // Refs and other hooks
   const router = useRouter();
@@ -710,6 +715,17 @@ export default function CommunityResponse(props: ResponseProps) {
           />
           <span>{communityData.importCount}</span>
         </span>
+
+        {/* View note button - only show if originalResponse has a note */}
+        {communityData.note && (
+          <span 
+            onClick={() => setIsNoteModalOpen(true)}
+            className="text-xs px-2 py-1 rounded-sm transition-all duration-200 flex items-center gap-1 bg-muted text-blue-600 dark:text-blue-400 cursor-pointer hover:bg-accent hover:text-blue-400 dark:hover:text-blue-300"
+          >
+            <DocumentTextIcon className="h-3 w-3" />
+            <span>note</span>
+          </span>
+        )}
       </div>
     );
   };
@@ -1027,6 +1043,17 @@ export default function CommunityResponse(props: ResponseProps) {
         onClose={() => setIsErrorModalOpen(false)}
         error={errorMessage}
       />
+
+      {/* Note Modal - view only for community responses */}
+      {isNoteModalOpen && isCommunityResponseProps(props) && props.data.note && (
+        <NoteModal
+          isOpen={isNoteModalOpen}
+          onClose={() => setIsNoteModalOpen(false)}
+          note={props.data.note}
+          isEditing={false}
+          onEdit={() => {}} // No-op since community responses are view-only
+        />
+      )}
     </div>
   );
 }

@@ -76,6 +76,7 @@ interface Response {
     creatorAlias: string;
   } | null;
   isSharedToCommunity?: boolean;
+  note?: string | null;
   onDeckCreated?: (newBookmark: { id: string, title: string }) => void;
 }
 
@@ -104,6 +105,7 @@ interface BookmarkResponse {
     creatorAlias: string;
   } | null;
   isSharedToCommunity?: boolean;
+  note?: string | null;
 }
 
 // Add sortResponses function
@@ -188,6 +190,7 @@ export default function ChatBox({
   const [pendingShare, setPendingShare] = useState<{
     responseId: string;
     deckTitle: string;
+    hasNote: boolean;
   } | null>(null);
   
   // Success modal state
@@ -209,6 +212,7 @@ export default function ChatBox({
     communityResponse: any;
   }>({ isOpen: false, communityResponse: null });
   const [sharedResponseTitle, setSharedResponseTitle] = useState('');
+  const [sharedResponseHadNote, setSharedResponseHadNote] = useState(false);
   const [selectedCommunityDeckTitle, setSelectedCommunityDeckTitle] = useState<string | null>(null);
 
   // Streak celebration state
@@ -366,6 +370,7 @@ export default function ChatBox({
           communityResponseId: response.communityResponseId,
           communityResponse: response.communityResponse,
           isSharedToCommunity: response.isSharedToCommunity,
+          note: response.note,
         }
       ));
 
@@ -410,6 +415,7 @@ export default function ChatBox({
           mobileBreakdown: response.mobileBreakdown,
           audio: response.audio,
           audioMimeType: response.audioMimeType,
+          note: response.note,
           responseType: response.responseType,
           source: response.source,
           communityResponseId: response.communityResponseId,
@@ -816,6 +822,7 @@ export default function ChatBox({
           communityResponseId: response.communityResponseId,
           communityResponse: response.communityResponse,
           isSharedToCommunity: response.isSharedToCommunity,
+          note: response.note,
         }));
 
         // Sort responses using the new function
@@ -1017,6 +1024,9 @@ export default function ChatBox({
                          Object.values(bookmarkResponses).find(r => r.id === responseId);
         const deckTitle = response?.decks ? Object.values(response.decks)[0] : 'Unknown';
         
+        // Track if the response had a note
+        setSharedResponseHadNote(!!response?.note);
+        
         // If shared from a deck, show navigation modal with "Go to Community" option
         if (selectedDeck.id && selectedDeck.title) {
           setSharedFromDeckInfo({ id: selectedDeck.id, title: selectedDeck.title });
@@ -1041,7 +1051,8 @@ export default function ChatBox({
           
           setPendingShare({
             responseId,
-            deckTitle: deckTitle || 'your response'
+            deckTitle: deckTitle || 'your response',
+            hasNote: !!response?.note
           });
           setIsCreateAliasModalOpen(true);
         } else if (result.error?.includes('already been shared')) {
@@ -1078,8 +1089,9 @@ export default function ChatBox({
           // Update local state to disable the share button
           updateResponseInCaches(pendingShare.responseId, { isSharedToCommunity: true });
           
-          // Show success modal with deck title
+          // Show success modal with deck title and note status
           setSharedResponseTitle(pendingShare.deckTitle);
+          setSharedResponseHadNote(pendingShare.hasNote);
           setShowShareAfterAliasSuccessModal(true);
           
           // Refresh community feed
@@ -1387,7 +1399,8 @@ export default function ChatBox({
                         isActive: communityResponse.isActive,
                         importCount: communityResponse.importCount,
                         sharedAt: communityResponse.sharedAt,
-                        hasUserImported: communityResponse.hasUserImported
+                        hasUserImported: communityResponse.hasUserImported,
+                        note: communityResponse.note
                       } as CommunityResponseData}
                       selectedDeckTitle="community"
                       selectedLanguage={selectedLanguage}
@@ -1478,6 +1491,7 @@ export default function ChatBox({
                     audio={response.audio}
                     audioMimeType={response.audioMimeType}
                     responseType={response.responseType}
+                    note={response.note}
                     onQuote={handleResponseQuote}
                     onRankUpdate={handleRankUpdate}
                     onDelete={handleResponseDelete}
@@ -1626,9 +1640,15 @@ export default function ChatBox({
               </button>
             </div>
             
-            <p className="text-card-foreground">
+            <p className="text-card-foreground mb-3">
               The response has successfully been shared to the community feed. Other people can now discover and import it.
             </p>
+            
+            {sharedResponseHadNote && (
+              <p className="text-card-foreground">
+                A snapshot of the current note has been created for the shared response.
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -1647,9 +1667,15 @@ export default function ChatBox({
               </button>
             </div>
             
-            <p className="text-card-foreground">
+            <p className="text-card-foreground mb-3">
               Your alias has been successfully created and your response from <span className="font-medium">{sharedResponseTitle}</span> has been shared to the community feed. Other people can now discover and import it.
             </p>
+            
+            {sharedResponseHadNote && (
+              <p className="text-card-foreground">
+                A snapshot of the current note has been created for the shared response.
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -1804,6 +1830,7 @@ export default function ChatBox({
           isOpen={showShareNavigationModal}
           title="Shared to Community"
           message="Successfully shared to the community feed. Other people can now discover and import it."
+          additionalMessage={sharedResponseHadNote ? "A snapshot of the current note has been created for the shared response." : undefined}
           deckInfo={null}
           navigateToCommunity={true}
           onNavigateToCommunity={() => {
@@ -1822,3 +1849,5 @@ export default function ChatBox({
     </div>
   );
 }
+
+

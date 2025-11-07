@@ -55,6 +55,7 @@ export default async function handler(
         responseType: true,
         source: true,
         communityResponseId: true,
+        note: true,
         communityResponse: {
           select: {
             id: true,

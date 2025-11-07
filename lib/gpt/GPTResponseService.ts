@@ -83,6 +83,7 @@ export async function getAllUserResponsesByLanguage(userId: string) {
         responseType: true,
         source: true,
         communityResponseId: true,
+        note: true,
         communityResponse: {
           select: {
             id: true,

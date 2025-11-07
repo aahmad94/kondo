@@ -15,7 +15,8 @@ CREATE OR REPLACE FUNCTION public.fuzzy_search_responses(
   isFuriganaEnabled boolean,
   isPhoneticEnabled boolean,
   isKanaEnabled boolean,
-  bookmarks jsonb
+  bookmarks jsonb,
+  note text
 ) LANGUAGE plpgsql AS $$
 BEGIN
   RETURN QUERY
@@ -29,7 +30,8 @@ BEGIN
     r."isFuriganaEnabled",
     r."isPhoneticEnabled",
     r."isKanaEnabled",
-    COALESCE(jsonb_object_agg(b.id, b.title) FILTER (WHERE b.id IS NOT NULL), '{}'::jsonb) AS bookmarks
+    COALESCE(jsonb_object_agg(b.id, b.title) FILTER (WHERE b.id IS NOT NULL), '{}'::jsonb) AS bookmarks,
+    r.note
   FROM "GPTResponse" r
   LEFT JOIN "_BookmarksToResponses" btr ON r.id = btr."B"
   LEFT JOIN "Bookmark" b ON btr."A" = b.id
@@ -38,7 +40,7 @@ BEGIN
       SELECT l.id FROM "Language" l WHERE code = language_code
     )
     AND to_tsvector('simple', r.content) @@ to_tsquery('simple', search_query)
-  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled", r."isPhoneticEnabled", r."isKanaEnabled"
+  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled", r."isPhoneticEnabled", r."isKanaEnabled", r.note
   ORDER BY ts_rank(to_tsvector('simple', r.content), to_tsquery('simple', search_query)) DESC
   LIMIT 10;
 END;
@@ -59,7 +61,8 @@ CREATE OR REPLACE FUNCTION ilike_search_responses(
   isFuriganaEnabled boolean,
   isPhoneticEnabled boolean,
   isKanaEnabled boolean,
-  bookmarks jsonb
+  bookmarks jsonb,
+  note text
 ) LANGUAGE plpgsql AS $$
 BEGIN
   RETURN QUERY
@@ -76,7 +79,8 @@ BEGIN
     COALESCE(
       jsonb_object_agg(b.id, b.title) FILTER (WHERE b.id IS NOT NULL),
       '{}'::jsonb
-    ) AS bookmarks
+    ) AS bookmarks,
+    r.note
   FROM "GPTResponse" r
   LEFT JOIN "_BookmarksToResponses" btr ON r.id = btr."B"
   LEFT JOIN "Bookmark" b ON btr."A" = b.id
@@ -85,7 +89,7 @@ BEGIN
       SELECT l.id FROM "Language" l WHERE code = language_code
     )
     AND r.content ILIKE '%' || search_query || '%'
-  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled", r."isPhoneticEnabled", r."isKanaEnabled"
+  GROUP BY r.id, r.content, r.rank, r."createdAt", r."isPaused", r.furigana, r."isFuriganaEnabled", r."isPhoneticEnabled", r."isKanaEnabled", r.note
   ORDER BY r."createdAt" DESC
   LIMIT 10;
 END;

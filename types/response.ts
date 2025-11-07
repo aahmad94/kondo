@@ -24,6 +24,7 @@ export interface GPTResponseData extends BaseResponseData {
   source: 'local' | 'imported';
   communityResponseId?: string | null;
   decks?: Record<string, string>;
+  note?: string | null;
 }
 
 // Community Response specific data
@@ -37,6 +38,7 @@ export interface CommunityResponseData extends BaseResponseData {
   sharedAt: Date;
   responseType?: 'clarification' | 'response' | 'instruction';
   hasUserImported?: boolean;
+  note?: string | null;
 }
 
 // Shared props for both response types

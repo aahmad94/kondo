@@ -28,6 +28,7 @@ interface SearchResult {
     creatorAlias: string;
   } | null;
   isSharedToCommunity?: boolean;
+  note?: string | null;
 }
 
 export async function fuzzySearchResponses(query: string, userId: string, languageCode: string): Promise<SearchResult[]> {
@@ -127,6 +128,7 @@ export async function fuzzySearchResponses(query: string, userId: string, langua
         mobileBreakdown: result.mobilebreakdown || null,
         responseType: result.responsetype || 'response',
         decks: result.bookmarks || {},
+        note: result.note || null,
         ...metadata
       };
     });

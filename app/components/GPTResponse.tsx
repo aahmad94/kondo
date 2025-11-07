@@ -14,7 +14,8 @@ import {
   TableCellsIcon,
   EyeIcon,
   EyeSlashIcon,
-  ArrowUpTrayIcon
+  ArrowUpTrayIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import DecksModal from './DecksModal';
@@ -22,6 +23,7 @@ import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
 import ErrorModal from './ErrorModal';
+import NoteModal from './NoteModal';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
@@ -29,6 +31,7 @@ import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent, DeckNavigati
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
+import { saveNoteAction } from '../../actions/notes';
 import { extractExpressions, prepareTextForSpeech, parseClarificationResponse } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -84,6 +87,7 @@ interface GPTResponseProps {
   onBreakdownToggle?: React.MutableRefObject<(() => void) | null>;
   containerWidth?: number;
   onDecksRefresh?: () => void;
+  note?: string | null;
 }
 
 export default function GPTResponse({ 
@@ -130,7 +134,8 @@ export default function GPTResponse({
   onBreakdownToggle,
   onDeckCreated,
   containerWidth,
-  onDecksRefresh
+  onDecksRefresh,
+  note
 }: GPTResponseProps) {
   const red = '#d93900'
   const yellow = '#b59f3b'
@@ -173,6 +178,12 @@ export default function GPTResponse({
   const [isBreakdownTextView, setIsBreakdownTextView] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Note modal state
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [localNote, setLocalNote] = useState(note || '');
+  const [isSavingNote, setIsSavingNote] = useState(false);
   
   // Audio cache state - initialize from props (like breakdown)
   const [cachedAudioData, setCachedAudioData] = useState<{ audio: string; mimeType: string } | null>(
@@ -238,6 +249,11 @@ export default function GPTResponse({
       setMobileBreakdownContent(mobileBreakdown);
     }
   }, [mobileBreakdown]);
+
+  // Sync local note with prop changes
+  useEffect(() => {
+    setLocalNote(note || '');
+  }, [note]);
 
   // Generate and cache furigana array for clarifications
   useEffect(() => {
@@ -676,6 +692,39 @@ export default function GPTResponse({
     setShowDeckNavigationModal(true);
   };
 
+  // Note handlers
+  const handleOpenNoteModal = (editing: boolean) => {
+    setIsEditingNote(editing);
+    setIsNoteModalOpen(true);
+  };
+
+  const handleSaveNote = async (noteText: string) => {
+    if (!responseId) return;
+    
+    try {
+      setIsSavingNote(true);
+      const result = await saveNoteAction(responseId, noteText);
+      
+      if (result.success) {
+        setLocalNote(noteText);
+        setIsEditingNote(false);
+      } else {
+        setErrorMessage(result.error || 'Failed to save note');
+        setIsErrorModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error saving note:', error);
+      setErrorMessage('Failed to save note');
+      setIsErrorModalOpen(true);
+    } finally {
+      setIsSavingNote(false);
+    }
+  };
+
+  const handleEditNote = () => {
+    setIsEditingNote(true);
+  };
+
 
 
   return (
@@ -859,6 +908,23 @@ export default function GPTResponse({
                         )}
                       </span>
                     </button>
+
+                    {/* Add/Edit Note - for all responses with responseId */}
+                    {responseId && (
+                      <button
+                        onClick={() => {
+                          handleOpenNoteModal(true);
+                          setShowFuriganaDropdown(false);
+                        }}
+                        className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
+                          isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
+                        }`}
+                      >
+                        <span className={isMobile ? 'truncate' : ''}>
+                          {localNote ? 'Edit note' : 'Add note'}
+                        </span>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -1124,6 +1190,17 @@ export default function GPTResponse({
               <span>share</span>
             </span>
           )}
+
+          {/* View note button - badge style */}
+          {localNote && responseId && (
+            <span 
+              onClick={() => handleOpenNoteModal(false)}
+              className="text-xs px-2 py-1 rounded-sm transition-all duration-200 flex items-center gap-1 bg-muted text-blue-600 dark:text-blue-400 cursor-pointer hover:bg-accent hover:text-blue-400 dark:hover:text-blue-300"
+            >
+              <DocumentTextIcon className="h-3 w-3" />
+              <span>note</span>
+            </span>
+          )}
           
           {/* Pause/Play button - conditional visibility based on deck and paused state */}
           {selectedDeckId && responseId && onPauseToggle && (
@@ -1239,6 +1316,19 @@ export default function GPTResponse({
         onClose={() => setIsErrorModalOpen(false)}
         error={errorMessage}
       />
+
+      {/* Note Modal */}
+      {isNoteModalOpen && (
+        <NoteModal
+          isOpen={isNoteModalOpen}
+          onClose={() => setIsNoteModalOpen(false)}
+          note={localNote}
+          isEditing={isEditingNote}
+          onSave={handleSaveNote}
+          onEdit={handleEditNote}
+          isSaving={isSavingNote}
+        />
+      )}
     </div>
   );
 }

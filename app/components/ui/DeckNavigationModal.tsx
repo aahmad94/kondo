@@ -6,6 +6,7 @@ interface DeckNavigationModalProps {
   isOpen: boolean;
   title: string;
   message: string;
+  additionalMessage?: string;
   deckInfo: {
     id: string;
     title: string;
@@ -25,6 +26,7 @@ export function DeckNavigationModal({
   isOpen,
   title,
   message,
+  additionalMessage,
   deckInfo,
   onNavigateToDeck,
   onStayHere,
@@ -46,9 +48,17 @@ export function DeckNavigationModal({
           </button>
         </div>
         
-        <p className="text-card-foreground mb-4">
+        <p className="text-card-foreground">
           {message}
         </p>
+
+        {additionalMessage && (
+          <p className="text-card-foreground mt-4 mb-4">
+            {additionalMessage}
+          </p>
+        )}
+
+        {!additionalMessage && <div className="mb-4" />}
 
         {/* Navigation Buttons */}
         <div className="flex gap-2">

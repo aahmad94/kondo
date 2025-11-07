@@ -143,6 +143,7 @@ model GPTResponse {
   responseType        String               @default("response")
   source              String               @default("local")
   communityResponseId String?
+  note                String?
   language            Language             @relation(fields: [languageId], references: [id])
   user                User                 @relation(fields: [userId], references: [id])
   bookmarks           Bookmark[]           @relation("BookmarksToResponses")
@@ -197,6 +198,7 @@ model CommunityResponse {
   sharedAt          DateTime          @default(now())
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+  note              String?
   
   creator           User              @relation(fields: [creatorUserId], references: [id])
   language          Language          @relation(fields: [languageId], references: [id])

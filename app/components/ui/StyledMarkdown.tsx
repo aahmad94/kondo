@@ -1,6 +1,7 @@
 import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 interface StyledMarkdownProps {
   children: string;
@@ -12,11 +13,12 @@ interface StyledMarkdownProps {
 const StyledMarkdown: React.FC<StyledMarkdownProps> = ({ 
   children, 
   className = "",
-  remarkPlugins = [remarkGfm],
+  remarkPlugins = [remarkGfm, remarkBreaks],
   components = {}
 }) => {
-  // Default table styling components
-  const defaultTableComponents = {
+  // Default components with table styling and link support
+  const defaultComponents = {
+    // Table components
     table: ({node, ...props}: any) => (
       <table {...props} style={{borderSpacing: '0 8px', borderCollapse: 'separate'}} />
     ),
@@ -29,11 +31,24 @@ const StyledMarkdown: React.FC<StyledMarkdownProps> = ({
     th: ({node, ...props}: any) => (
       <th {...props} style={{padding: '8px 12px', lineHeight: '1.5', fontWeight: 'bold'}} />
     ),
+    // Link component - opens in new tab and styled
+    a: ({node, ...props}: any) => (
+      <a 
+        {...props} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="text-blue-600 dark:text-blue-400 hover:underline"
+      />
+    ),
+    // Paragraph component - adds spacing between paragraphs
+    p: ({node, ...props}: any) => (
+      <p {...props} style={{marginBottom: '1em'}} />
+    ),
   };
 
-  // Merge default table components with any custom components passed in
+  // Merge default components with any custom components passed in
   const mergedComponents = {
-    ...defaultTableComponents,
+    ...defaultComponents,
     ...components
   };
 

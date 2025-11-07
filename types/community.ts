@@ -18,6 +18,7 @@ export interface CommunityResponse {
   sharedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  note?: string | null;
 }
 
 export interface CommunityResponseWithRelations extends CommunityResponse {
