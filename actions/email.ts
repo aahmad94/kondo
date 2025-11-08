@@ -113,18 +113,22 @@ export async function sendManualDailyEmailAction(): Promise<ActionResult> {
 /**
  * Unsubscribe user via email token (for unsubscribe links in emails)
  * Called from unsubscribe page with token from email
+ * Note: This is deprecated - use the /api/unsubscribe route instead for language-specific unsubscribe
  */
 export async function unsubscribeViaTokenAction(
   token: string
 ): Promise<ActionResult> {
   try {
-    // Validate and decode token to get userId
-    const userId = await validateUnsubscribeToken(token);
+    // Validate and decode token to get userId and languageCode
+    const tokenData = await validateUnsubscribeToken(token);
     
-    if (!userId) {
+    if (!tokenData) {
       throw new Error('Invalid or expired unsubscribe token');
     }
 
+    const { userId, languageCode } = tokenData;
+
+    // Unsubscribe from all languages (legacy behavior)
     await unsubscribeUserFromEmails(userId);
 
     return {
