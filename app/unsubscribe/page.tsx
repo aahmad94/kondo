@@ -139,8 +139,8 @@ export default function UnsubscribePage() {
         {status === 'success' && (
           <div className="space-y-4">
             <div className="text-6xl mb-4">✓</div>
-            <p className="text-lg mb-4">{message}</p>
-            <p className="text-gray-600 text-sm">
+            <p className="text-lg font-semibold mb-4 text-black">{message}</p>
+            <p className="text-black text-sm">
               {languageCode === 'all' 
                 ? "You've been unsubscribed from all Kondo emails. You can resubscribe anytime from your account settings."
                 : `You'll no longer receive ${languageName} Dojo Reports. Your other language subscriptions remain active.`
