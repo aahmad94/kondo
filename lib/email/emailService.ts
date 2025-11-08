@@ -1,7 +1,6 @@
 import { Resend } from 'resend';
 import { prisma } from '@/lib/database';
 import { generateUserSummary, getUserSummary } from '@/lib/gpt';
-import { formatResponseHTML, formatResponseText, type EmailResponse, type EmailFormatOptions } from './format';
 import { generateWelcomeEmailHTML, generateWelcomeEmailText } from './welcomeTemplate';
 import { generateDailyDigestHTML, generateDailyDigestText } from './dailyDigestTemplate';
 
@@ -122,11 +121,48 @@ export async function subscribeUserToEmails(
 }
 
 /**
- * Unsubscribe user from email updates
+ * Unsubscribe user from ALL email updates (all languages)
  */
 export async function unsubscribeUserFromEmails(userId: string): Promise<void> {
+  // Unsubscribe from all language-specific subscriptions
+  await prisma.userLanguageSubscription.updateMany({
+    where: { userId },
+    data: {
+      subscribed: false,
+      unsubscribedAt: new Date(),
+    },
+  });
+
+  // Also update the legacy user-level subscription flag
   await prisma.user.update({
     where: { id: userId },
+    data: {
+      subscribed: false,
+      unsubscribedAt: new Date(),
+    },
+  });
+}
+
+/**
+ * Unsubscribe user from a specific language's email updates
+ */
+export async function unsubscribeFromLanguage(userId: string, languageCode: string): Promise<void> {
+  // Get the language ID from the code
+  const language = await prisma.language.findUnique({
+    where: { code: languageCode },
+    select: { id: true }
+  });
+
+  if (!language) {
+    throw new Error(`Language not found for code: ${languageCode}`);
+  }
+
+  // Unsubscribe from this specific language
+  await prisma.userLanguageSubscription.updateMany({
+    where: {
+      userId,
+      languageId: language.id
+    },
     data: {
       subscribed: false,
       unsubscribedAt: new Date(),
@@ -257,11 +293,16 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       return;
     }
 
+    // Generate unsubscribe token (legacy - for all languages)
+    const userLanguageCode = await getUserLanguageCode(userId);
+    const unsubscribeToken = await generateUnsubscribeToken(userId, userLanguageCode);
+
     const emailContent = await generateDailyDigestHTML(
       user.name || 'Kondo User',
       summaryData.allResponses.slice(0, 6), // Show 6 responses since Gmail truncation persists anyway
       user.id,
-      isTest
+      isTest,
+      unsubscribeToken
     );
 
     const currentDate = new Date().toLocaleDateString('en-US', { 
@@ -270,7 +311,6 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       year: 'numeric' 
     });
     
-    const userLanguageCode = await getUserLanguageCode(userId);
     const languageFlag = getLanguageFlag(userLanguageCode);
     
     const subject = isTest 
@@ -283,7 +323,7 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       to: [recipientEmail],
       subject,
       html: emailContent,
-      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), user.id),
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), user.id, unsubscribeToken),
     });
 
     // Update last email sent timestamp (only for real emails, not tests)
@@ -349,11 +389,15 @@ export async function sendDojoReportByLanguageCode(userId: string, languageCode:
       return;
     }
 
+    // Generate language-specific unsubscribe token
+    const unsubscribeToken = await generateUnsubscribeToken(userId, language.code);
+
     const emailContent = await generateDailyDigestHTML(
       subscription.user.name || 'Kondo User',
       summaryData.allResponses.slice(0, 6),
       userId,
-      isTest
+      isTest,
+      unsubscribeToken
     );
 
     const currentDate = new Date().toLocaleDateString('en-US', { 
@@ -374,7 +418,7 @@ export async function sendDojoReportByLanguageCode(userId: string, languageCode:
       to: [recipientEmail],
       subject,
       html: emailContent,
-      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId),
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId, unsubscribeToken),
     });
 
     // Update last email sent timestamp (only for real emails, not tests)
@@ -461,11 +505,15 @@ export async function sendLanguageSpecificDailyDigest(userId: string, languageId
       allResponses: languageResponses
     };
 
+    // Generate language-specific unsubscribe token
+    const unsubscribeToken = await generateUnsubscribeToken(userId, subscription.language.code);
+
     const emailContent = await generateDailyDigestHTML(
       subscription.user.name || 'Kondo User',
       summaryData.allResponses.slice(0, 6),
       userId,
-      isTest
+      isTest,
+      unsubscribeToken
     );
 
     const currentDate = new Date().toLocaleDateString('en-US', { 
@@ -486,7 +534,7 @@ export async function sendLanguageSpecificDailyDigest(userId: string, languageId
       to: [recipientEmail],
       subject,
       html: emailContent,
-      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId),
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId, unsubscribeToken),
     });
 
     // Update last email sent timestamp (only for real emails, not tests)
@@ -536,21 +584,26 @@ export async function checkUserHasDailyContent(userId: string): Promise<boolean>
 }
 
 /**
- * Generate unsubscribe token (simple implementation)
+ * Generate unsubscribe token with optional language info
  */
-export async function generateUnsubscribeToken(userId: string): Promise<string> {
-  // Simple token generation - in production, use proper JWT or encrypted tokens
-  const token = Buffer.from(`${userId}:${Date.now()}`).toString('base64');
+export async function generateUnsubscribeToken(userId: string, languageCode?: string): Promise<string> {
+  // Token format: userId:languageCode:timestamp or userId:all:timestamp
+  const lang = languageCode || 'all';
+  const token = Buffer.from(`${userId}:${lang}:${Date.now()}`).toString('base64');
   return token;
 }
 
 /**
- * Validate unsubscribe token
+ * Validate unsubscribe token and return userId and languageCode
  */
-export async function validateUnsubscribeToken(token: string): Promise<string | null> {
+export async function validateUnsubscribeToken(token: string): Promise<{ userId: string; languageCode: string } | null> {
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const [userId, timestamp] = decoded.split(':');
+    const [userId, languageCode, timestamp] = decoded.split(':');
+    
+    if (!userId || !languageCode || !timestamp) {
+      return null;
+    }
     
     // Token expires after 30 days
     const tokenAge = Date.now() - parseInt(timestamp);
@@ -560,7 +613,7 @@ export async function validateUnsubscribeToken(token: string): Promise<string | 
       return null;
     }
     
-    return userId;
+    return { userId, languageCode };
   } catch (error) {
     console.error('Error validating unsubscribe token:', error);
     return null;

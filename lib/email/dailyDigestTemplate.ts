@@ -3,7 +3,7 @@ import { formatResponseHTML, formatResponseText, type EmailResponse, type EmailF
 /**
  * Generate HTML template for daily digest email
  */
-export async function generateDailyDigestHTML(userName: string, responses: any[], userId: string, isTest: boolean = false): Promise<string> {
+export async function generateDailyDigestHTML(userName: string, responses: any[], userId: string, isTest: boolean = false, unsubscribeToken?: string): Promise<string> {
   const currentDate = new Date().toLocaleDateString('en-US', { 
     month: 'long', 
     day: 'numeric', 
@@ -48,7 +48,7 @@ ${responsesHTML}
 </div>
 <div style="border-top:1px solid #ccc;padding-top:20px;text-align:center;font-size:12px;color:#000">
 <p style="color:#000">You're receiving this because you subscribed to Kondo daily updates.</p>
-<p style="color:#000"><a href="https://kondoai.com/unsubscribe?token={{unsubscribe_token}}" style="color:#000">Unsubscribe</a></p>
+${unsubscribeToken ? `<p style="color:#000"><a href="https://kondoai.com/unsubscribe?token=${unsubscribeToken}" style="color:#000">Unsubscribe</a></p>` : ''}
 </div>
 </body>
 </html>`;
@@ -57,7 +57,7 @@ ${responsesHTML}
 /**
  * Generate plain text template for daily digest email
  */
-export async function generateDailyDigestText(responses: any[], userId: string): Promise<string> {
+export async function generateDailyDigestText(responses: any[], userId: string, unsubscribeToken?: string): Promise<string> {
   const currentDate = new Date().toLocaleDateString('en-US', { 
     month: 'long', 
     day: 'numeric', 
@@ -79,6 +79,10 @@ export async function generateDailyDigestText(responses: any[], userId: string):
     return `${index + 1}. ${contentText}`;
   }).join('\n\n');
 
+  const unsubscribeText = unsubscribeToken 
+    ? `\nUnsubscribe: https://kondoai.com/unsubscribe?token=${unsubscribeToken}` 
+    : '';
+
   return `
 🪶 Dojo Report
 ${currentDate}
@@ -88,7 +92,6 @@ ${responsesText}
 Continue learning: https://kondoai.com
 
 ---
-You're receiving this because you subscribed to Kondo daily updates.
-Unsubscribe: https://kondoai.com/unsubscribe?token={{unsubscribe_token}}
+You're receiving this because you subscribed to Kondo daily updates.${unsubscribeText}
   `;
 }

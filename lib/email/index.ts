@@ -1,6 +1,7 @@
 export {
   subscribeUserToEmails,
   unsubscribeUserFromEmails,
+  unsubscribeFromLanguage,
   getUserEmailPreferences,
   updateEmailFrequency,
   updateUserEmailAddress,
