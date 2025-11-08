@@ -85,7 +85,7 @@ export default function UnsubscribePage() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white border-2 border-black p-8 text-center">
-        <h1 className="text-3xl font-bold mb-6">Unsubscribe</h1>
+        <h1 className="text-3xl font-bold mb-6 text-black">Unsubscribe</h1>
         
         {status === 'loading' && (
           <div className="space-y-4">
@@ -138,7 +138,7 @@ export default function UnsubscribePage() {
 
         {status === 'success' && (
           <div className="space-y-4">
-            <div className="text-6xl mb-4">✓</div>
+            <div className="text-6xl mb-4 text-black">✓</div>
             <p className="text-lg font-semibold mb-4 text-black">{message}</p>
             <p className="text-black text-sm">
               {languageCode === 'all' 
