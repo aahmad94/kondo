@@ -909,8 +909,8 @@ export default function GPTResponse({
                       </span>
                     </button>
 
-                    {/* Add/Edit Note - for all responses with responseId */}
-                    {responseId && (
+                    {/* Add/Edit Note - only show after bookmark has been added */}
+                    {responseId && selectedDeckTitle && (
                       <button
                         onClick={() => {
                           handleOpenNoteModal(true);
