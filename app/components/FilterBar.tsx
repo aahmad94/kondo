@@ -19,13 +19,15 @@ interface FilterBarProps {
   onShuffle?: () => void;
   isLoading?: boolean;
   initialFilters?: CommunityFilters;
+  isShuffled?: boolean; // Whether responses are currently shuffled
 }
 
 export default function FilterBar({ 
   onFiltersChange, 
   onShuffle,
   isLoading = false, 
-  initialFilters = {}
+  initialFilters = {},
+  isShuffled = false
 }: FilterBarProps) {
   const { isMobile } = useIsMobile();
   const router = useRouter();
@@ -34,19 +36,23 @@ export default function FilterBar({
   // Filter states
   const [selectedBookmark, setSelectedBookmark] = useState<string>(''); // Selected deck from dropdown
   const [creatorAlias, setCreatorAlias] = useState(initialFilters.creatorAlias || '');
-  const [selectedFilter, setSelectedFilter] = useState<'recent' | 'imports' | 'shuffle'>(initialFilters.sortBy || 'recent');
+  // Show shuffle as selected if isShuffled is true, otherwise use initialFilters.sortBy
+  const [selectedFilter, setSelectedFilter] = useState<'recent' | 'imports' | 'shuffle'>(
+    isShuffled ? 'shuffle' : (initialFilters.sortBy || 'recent')
+  );
 
   // Sync internal state with external filter changes
   useEffect(() => {
     setCreatorAlias(initialFilters.creatorAlias || '');
     setSelectedBookmark(initialFilters.deckTitle || '');
-    setSelectedFilter(initialFilters.sortBy || 'recent');
+    // Update selectedFilter: show shuffle if isShuffled is true, otherwise use sortBy from filters
+    setSelectedFilter(isShuffled ? 'shuffle' : (initialFilters.sortBy || 'recent'));
     
     // Update the input field value if it exists
     if (creatorInputRef.current) {
       creatorInputRef.current.value = initialFilters.creatorAlias || '';
     }
-  }, [initialFilters]);
+  }, [initialFilters, isShuffled]);
   
   // UI states
   const [searchDebounceTimer, setSearchDebounceTimer] = useState<NodeJS.Timeout | null>(null);

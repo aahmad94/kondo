@@ -160,7 +160,8 @@ export default function ChatBox({
     updateFilters: updateCommunityFilters,
     updateResponse: updateCommunityResponse,
     shuffleResponses: shuffleCommunityResponses,
-    filters: communityFilters
+    filters: communityFilters,
+    isShuffled: communityIsShuffled
   } = useCommunityFeed();
 
   // User alias hook for refreshing MenuBar state
@@ -179,6 +180,8 @@ export default function ChatBox({
   const ongoingRankUpdatesRef = useRef<Set<string>>(new Set());
   // Add ref to track previous bookmark to detect community mode entry
   const previousBookmarkRef = useRef(selectedDeck.title);
+  // Add ref to track if we've already auto-shuffled community responses
+  const hasAutoShuffledRef = useRef(false);
   // Flashcard mode state
   const [isFlashcardModalOpen, setIsFlashcardModalOpen] = useState(false);
   const [flashcardResponses, setFlashcardResponses] = useState<Response[]>([]);
@@ -236,11 +239,48 @@ export default function ChatBox({
     if (currentBookmark === 'community' && previousBookmark !== 'community') {
       console.log('Entering community mode - fetching fresh data');
       refetchCommunityFresh();
+      // Reset the auto-shuffle flag when entering community mode
+      hasAutoShuffledRef.current = false;
+    }
+    
+    // If we left community mode, reset the auto-shuffle flag for next time
+    if (currentBookmark !== 'community' && previousBookmark === 'community') {
+      hasAutoShuffledRef.current = false;
     }
     
     // Update ref for next comparison
     previousBookmarkRef.current = currentBookmark;
   }, [selectedDeck.title, refetchCommunityFresh]);
+
+  // Auto-shuffle community responses when first loading community mode
+  useEffect(() => {
+    // Only auto-shuffle if:
+    // 1. We're in community mode
+    // 2. Responses have loaded (not loading)
+    // 3. We have responses to shuffle
+    // 4. No specific filters are applied (user hasn't customized their view yet)
+    // 5. We haven't already auto-shuffled
+    // 6. Responses are not already shuffled
+    if (
+      isCommunityMode && 
+      !communityLoading && 
+      communityResponses.length > 0 &&
+      !communityFilters.deckTitle && 
+      !communityFilters.creatorAlias &&
+      communityFilters.sortBy !== 'imports' && // Don't auto-shuffle if user explicitly chose imports
+      !hasAutoShuffledRef.current &&
+      !communityIsShuffled // Don't shuffle if already shuffled
+    ) {
+      // Mark that we've done the auto-shuffle
+      hasAutoShuffledRef.current = true;
+      // Use setTimeout to ensure this runs after the render cycle
+      const timer = setTimeout(() => {
+        shuffleCommunityResponses();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isCommunityMode, communityLoading, communityResponses.length, communityFilters, shuffleCommunityResponses, communityIsShuffled]);
 
   // Update instructions when language changes
   useEffect(() => {
@@ -1291,6 +1331,7 @@ export default function ChatBox({
           onShuffle={handleCommunityShuffle}
           isLoading={communityLoading}
           initialFilters={communityFilters} // Pass current filters to sync state
+          isShuffled={communityIsShuffled} // Pass shuffle state to show shuffle as selected
         />
       )}
       
