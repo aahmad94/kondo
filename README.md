@@ -1,20 +1,23 @@
 # <img src="public/icon.png" alt="Kondo Icon" width="32" height="32" style="display: inline; vertical-align: middle;"> Kondo
 
-A language learning application that generates AI-powered content to help organize study material into bookmarks, with features for breakdown analysis, flashcards, and daily summaries.
+A language learning application that generates AI-powered content to help organize study material into study decks, with features for breakdown analysis, flashcards, and daily summaries.
 
-<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
-  <img src="public/assets/preview/08112025/kondo_preview_08112025.png">
+<div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+  <!-- <img src="public/assets/preview/11222025/11-22-2025 dark kondo prev.png" alt="Kondo Dark Mode Preview"> -->
+  <img src="public/assets/preview/11222025/11-22-2025 light kondo prev.png" alt="Kondo Light Mode Preview">
 </div>
 
 ## ✨ Key Features
 
-- **🎯 AI-Generated Study Material** - Generate contextualized language learning content using OpenAI and organize it into personalized bookmarks
-- **📊 Smart Ranking System** - Rank and organize your bookmarked responses to prioritize study material based on difficulty and mastery
-- **🥋 Daily Dojo Sessions** - Automatically compile lower-ranked responses from all bookmarks into focused daily study sessions
+- **🎯 AI-Generated Study Material** - Generate contextualized language learning content using OpenAI and organize it into personalized study decks
+- **👥 Community Feed** - Share and discover language learning content from the community, learn from others' examples, and contribute your own insights
+- **📊 Smart Ranking System** - Rank and organize responses in your study decks to prioritize study material based on difficulty and mastery
+- **🥋 Daily Dojo Sessions** - Automatically compile lower-ranked responses from all study decks into focused daily study sessions
 - **🔍 Content Breakdown & Analysis** - Dissect and analyze generated material with detailed explanations and context
 - **🃏 Interactive Flashcard Mode** - Study with interactive flashcards that hide and reveal content for effective memorization
-- **🌍 Multi-Language Support** - Learn Japanese, Korean, Spanish, Arabic, and Chinese with language-specific features
 - **🎧 Text-to-Speech Integration** - Listen to pronunciations with ElevenLabs voice synthesis
+- **🌍 Multi-Language Support** - Learn Japanese, Korean, Spanish, Arabic, and Chinese with language-specific features
+- **🔥 Daily Streaks** - Build and maintain your learning streak by adding content to your library daily through generating new content or importing from the community feed
 - **📱 Responsive Design** - Seamless experience across desktop and mobile devices
 
 ## 🚀 Getting Started
@@ -93,7 +96,7 @@ A language learning application that generates AI-powered content to help organi
 ### Additional Setup Notes
 
 - **Languages**: The app supports Japanese, Korean, Spanish, and Arabic. The seed script creates these languages in the database.
-- **Authentication**: Users sign in with Google OAuth and get default bookmarks created automatically.
+- **Authentication**: Users sign in with Google OAuth and get default study decks created automatically.
 - **Database**: Uses Prisma ORM with PostgreSQL for data management.
 
 ### Available Scripts
