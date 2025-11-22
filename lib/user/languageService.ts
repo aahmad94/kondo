@@ -7,7 +7,7 @@ interface LanguageInstructions {
 }
 
 const DOJO_INSTRUCTIONS = `
-  This tool aggregates responses across all your bookmarks daily, prioritizing those that are lower ranked.`
+  This tool aggregates responses across all your study decks daily, prioritizing those that are lower ranked.`
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
