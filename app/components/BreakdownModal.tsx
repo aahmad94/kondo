@@ -5,7 +5,7 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
-import { StyledMarkdown } from './ui';
+import { StyledMarkdown, AliasBadge } from './ui';
 import { prepareTextForSpeech } from '@/lib';
 
 interface BreakdownModalProps {
@@ -28,6 +28,13 @@ interface BreakdownModalProps {
   onAudioCached?: (audio: { audio: string; mimeType: string }) => void;
   onError?: (error: string) => void;
   onToggleView?: (toTextView: boolean) => void;
+  source?: 'local' | 'imported';
+  communityResponse?: {
+    id: string;
+    isActive: boolean;
+    creatorAlias: string;
+  } | null;
+  aliasColor?: string;
 }
 
 const BreakdownModal: React.FC<BreakdownModalProps> = ({ 
@@ -49,7 +56,10 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
   cachedAudio,
   onAudioCached,
   onError,
-  onToggleView
+  onToggleView,
+  source,
+  communityResponse,
+  aliasColor
 }) => {
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -164,7 +174,7 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 
         {/* View Toggle - only show if toggle is available */}
         {canToggle && (
-          <div className="flex justify-start pt-4 flex-shrink-0">
+          <div className="flex justify-start items-center gap-2 pt-4 flex-shrink-0">
             {!isLoading && 
               <button
                 onClick={handleToggleView}
@@ -174,6 +184,14 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                 {isTextView ? 'desktop/table view' : 'mobile/list view'}
               </button>
             }
+            {/* Owner alias badge - show for imported responses */}
+            {source === 'imported' && communityResponse?.creatorAlias && (
+              <AliasBadge 
+                alias={communityResponse.creatorAlias} 
+                customColor={aliasColor}
+                height="24px"
+              />
+            )}
           </div>
         )}
       </div>

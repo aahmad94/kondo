@@ -1307,6 +1307,9 @@ export default function GPTResponse({
             setIsErrorModalOpen(true);
           }}
           onToggleView={handleBreakdownFormatToggle}
+          source={source}
+          communityResponse={communityResponse}
+          aliasColor={aliasColor}
         />
       )}
 
