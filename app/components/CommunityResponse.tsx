@@ -284,6 +284,9 @@ export default function CommunityResponse(props: ResponseProps) {
     if (!data.id) return;
 
     try {
+      // Set initial view state based on device type
+      setIsBreakdownTextView(isMobile);
+      
       setIsBreakdownLoading(true);
       onLoadingChange?.(true);
       
