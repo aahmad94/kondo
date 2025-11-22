@@ -184,8 +184,8 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                 {isTextView ? 'desktop/table view' : 'mobile/list view'}
               </button>
             }
-            {/* Owner alias badge - show for imported responses */}
-            {source === 'imported' && communityResponse?.creatorAlias && (
+            {/* Owner alias badge - show for imported responses or community responses */}
+            {communityResponse?.creatorAlias && (
               <AliasBadge 
                 alias={communityResponse.creatorAlias} 
                 customColor={aliasColor}

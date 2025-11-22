@@ -62,6 +62,10 @@ import {
 
 export default function CommunityResponse(props: ResponseProps) {
   const { type, data, selectedDeckTitle, selectedLanguage = 'ja', hideContent = false, showAnswer, onToggleAnswer, onQuote, onBreakdownClick, onLoadingChange, containerWidth, onDeckSelect } = props;
+  
+  // Extract alias-related props for CommunityResponse
+  const aliasColor = isCommunityResponseProps(props) ? props.aliasColor : undefined;
+  const creatorAlias = isCommunityResponseProps(props) ? props.data.creatorAlias : undefined;
 
   // Colors
   const red = '#d93900';
@@ -1034,6 +1038,13 @@ export default function CommunityResponse(props: ResponseProps) {
             setIsErrorModalOpen(true);
           }}
           onToggleView={handleBreakdownFormatToggle}
+          source={isGPTResponseProps(props) ? props.data.source : undefined}
+          communityResponse={isCommunityResponseProps(props) && creatorAlias ? {
+            id: props.data.id,
+            isActive: props.data.isActive,
+            creatorAlias: creatorAlias
+          } : undefined}
+          aliasColor={aliasColor}
         />
       )}
 
