@@ -1066,6 +1066,7 @@ export default function CommunityResponse(props: ResponseProps) {
           note={props.data.note}
           isEditing={false}
           onEdit={() => {}} // No-op since community responses are view-only
+          isReadOnly={true}
         />
       )}
     </div>

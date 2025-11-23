@@ -13,6 +13,7 @@ interface NoteModalProps {
   onSave?: (note: string) => Promise<void>;
   onEdit?: () => void;
   isSaving?: boolean;
+  isReadOnly?: boolean;
 }
 
 const NoteModal: React.FC<NoteModalProps> = ({ 
@@ -22,7 +23,8 @@ const NoteModal: React.FC<NoteModalProps> = ({
   isEditing,
   onSave,
   onEdit,
-  isSaving = false
+  isSaving = false,
+  isReadOnly = false
 }) => {
   const [noteText, setNoteText] = useState(note);
   const [localIsSaving, setLocalIsSaving] = useState(false);
@@ -62,7 +64,7 @@ const NoteModal: React.FC<NoteModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center pb-4 flex-shrink-0">
           <h2 className="text-lg font-semibold text-foreground">
-            {isEditing ? 'Edit Note' : 'View Note'}
+            {isEditing ? 'Edit Note' : 'Note'}
           </h2>
           <button 
             onClick={onClose}
@@ -94,25 +96,27 @@ const NoteModal: React.FC<NoteModalProps> = ({
         </div>
 
         {/* Footer with action buttons */}
-        <div className="flex justify-end gap-2 pt-4 border-t border-border flex-shrink-0">
-          {isEditing ? (
-            <button
-              onClick={handleSave}
-              disabled={isLoading || !noteText.trim()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isLoading ? 'Saving...' : 'Save'}
-            </button>
-          ) : (
-            <button
-              onClick={handleEdit}
-              disabled={isLoading}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Edit
-            </button>
-          )}
-        </div>
+        {!isReadOnly && (
+          <div className="flex justify-end gap-2 pt-4 border-t border-border flex-shrink-0">
+            {isEditing ? (
+              <button
+                onClick={handleSave}
+                disabled={isLoading || !noteText.trim()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isLoading ? 'Saving...' : 'Save'}
+              </button>
+            ) : (
+              <button
+                onClick={handleEdit}
+                disabled={isLoading}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
