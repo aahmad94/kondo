@@ -4,7 +4,7 @@ A language learning application that generates AI-powered content to help organi
 
 <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
   <!-- <img src="public/assets/preview/11222025/11-22-2025 dark kondo prev.png" alt="Kondo Dark Mode Preview"> -->
-  <img src="public/assets/preview/11222025/11-22-2025 light kondo prev.png" alt="Kondo Light Mode Preview">
+  <img src="public/assets/preview/11222025/11-22-2025 dark kondo prev.png" alt="Kondo Light Mode Preview">
 </div>
 
 ## ✨ Key Features
