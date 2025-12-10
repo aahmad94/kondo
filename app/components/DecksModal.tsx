@@ -106,7 +106,7 @@ export default function DecksModal({
     }
   };
 
-  const handleAddToDeck = async (deckId: string) => {
+  const handleAddToDeck = async (deckId: string, providedDeck?: Deck) => {
     if (!session?.userId || isAddingToDeck) {
       return;
     }
@@ -149,7 +149,8 @@ export default function DecksModal({
       const shouldCelebrate = result.streakData?.isNewStreak;
       
       // Find the deck info regardless of celebration
-      const deck = decks.find(b => b.id === deckId);
+      // Use provided deck if available (e.g., when just created), otherwise search in decks array
+      const deck = providedDeck || decks.find(b => b.id === deckId);
       
       if (shouldCelebrate) {
         setStreakData({
@@ -208,7 +209,8 @@ export default function DecksModal({
       onClose();
     } else if (!isAddingToDeck) {
       // For regular responses, use the regular add handler
-      await handleAddToDeck(newDeck.id);
+      // Pass the newDeck directly to avoid state update timing issues
+      await handleAddToDeck(newDeck.id, newDeck);
       // handleAddToDeck handles closing and celebration internally
       // Don't call onDeckSelect here as it will interfere with streak celebration
       // The celebration modal or handleAddToDeck will handle navigation
