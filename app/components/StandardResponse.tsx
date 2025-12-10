@@ -78,7 +78,8 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
       case 'ja': return itemsLength === 4 ? 2 : -1; // 3rd line (index 2) for 4-line Japanese
       case 'zh': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Chinese
       case 'ko': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Korean
-      case 'ar': return itemsLength === 4 ? 2 : -1; // 3rd line (index 2) for 4-line Arabic
+      case 'ar': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Arabic
+      case 'ur': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Urdu
       default: return -1;
     }
   };
@@ -214,7 +215,16 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             isFlashcard={isFlashcard}
           />
         ) : (
-          <div className={`font-medium ${isJapaneseFourLine ? 'text-xl' : 'text-lg'}`}>
+          <div 
+            className={`font-medium ${isJapaneseFourLine ? 'text-xl' : (selectedLanguage === 'ar' || selectedLanguage === 'ur') ? '' : 'text-lg'}`}
+            style={selectedLanguage === 'ar' || selectedLanguage === 'ur' ? { 
+              fontSize: '1.575rem', 
+              lineHeight: '2.2rem'
+            } : selectedLanguage === 'ko' ? { 
+              fontSize: '1.125rem', 
+              lineHeight: '1.75rem'
+            } : undefined}
+          >
             {processedItems[0]}
           </div>
         )}

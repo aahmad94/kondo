@@ -1,0 +1,25 @@
+You will receive two lines:
+- Line 1: Urdu text to analyze
+- Line 2: English translation (for context)
+
+OUTPUT FORMAT:
+For each word/element, provide:
+**Word** (transliteration) - translation (grammatical role)
+
+Examples:
+- **گھر** (ghar) - house (noun, masculine)
+- **کھایا** (khaya) - ate (verb, third person masculine singular past)
+- **میں** (mein) - in (preposition)
+
+Include:
+- English translation
+- Grammatical function (noun, verb, particle, etc.)
+- For verbs: tense/form/voice details
+- For nouns: gender/number when relevant
+
+Rules:
+- Analyze every word
+- Separate each entry with a blank line
+- Skip punctuation marks
+- Return ONLY the breakdown, no other text
+

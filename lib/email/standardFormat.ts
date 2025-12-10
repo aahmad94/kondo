@@ -36,7 +36,8 @@ function getPhoneticLineIndex(language: string, itemsLength: number): number {
     case 'ja': return itemsLength === 4 ? 2 : -1; // 3rd line (index 2) for 4-line Japanese
     case 'zh': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Chinese
     case 'ko': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Korean
-    case 'ar': return itemsLength === 4 ? 2 : -1; // 3rd line (index 2) for 4-line Arabic
+    case 'ar': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Arabic
+    case 'ur': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Urdu
     default: return -1;
   }
 }

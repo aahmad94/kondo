@@ -23,6 +23,7 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
   const esGreeting = '¡Hola';
   const arGreeting = 'مرحباً';
   const zhGreeting = '你好';
+  const urGreeting = 'السلام علیکم';
 
 
   // Adjust the height of the textarea when the component is mounted
@@ -108,6 +109,8 @@ export default function UserInput({ onSubmit, isLoading, defaultPrompt, onUserIn
         return `${arGreeting}${displayName}!`;
       case 'zh':
         return `${zhGreeting}${displayName}!`;
+      case 'ur':
+        return `${urGreeting}${displayName}!`;
       default:
         return `${jaGreeting}${displayName}!`;
     }

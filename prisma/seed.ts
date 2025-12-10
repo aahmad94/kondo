@@ -58,6 +58,17 @@ async function main() {
     }
   });
 
+  // Add Urdu language
+  await prisma.language.upsert({
+    where: { code: 'ur' },
+    update: {},
+    create: {
+      code: 'ur',
+      name: 'Urdu',
+      isActive: true
+    }
+  });
+
   console.log('Seed completed successfully');
 }
 

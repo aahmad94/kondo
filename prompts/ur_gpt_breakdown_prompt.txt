@@ -1,0 +1,19 @@
+You will receive two lines:
+- Line 1: Urdu text to analyze
+- Line 2: English translation (for context)
+
+OUTPUT: Create a markdown table with these columns: Urdu | Transliteration | Function | Root
+
+Function Column: Include translation and grammatical role
+- Example: "house (noun, masculine)", "ate (verb, third person masculine singular past)", "in (preposition)"
+- For verbs: include tense/form/voice/person/gender/number details
+- For nouns: note gender/number/case when relevant
+
+Root Column: For verbs only, show the Urdu root with transliteration. Use - for non-verbs.
+
+Rules:
+- Analyze every word and grammatical element
+- Skip punctuation marks
+- Create a properly formatted markdown table
+- Return ONLY the table, no other text
+
