@@ -392,10 +392,62 @@ export default function GPTResponse({
     .replace(/ {2,}$/gm, '');
 
   // Prepare custom list items for numbered lists, restarting numbering for each block
-  const blocks = response
-    .split(/\r?\n\s*\r?\n/)
-    .map(block => block.trim())
-    .filter(Boolean);
+  // First, try to detect and merge consecutive numbered items that might be split by blank lines
+  const allLines = response.split(/\r?\n/);
+  const numberedLinesWithIndices: Array<{ idx: number; number: number; line: string }> = [];
+  
+  // Find all lines that start with numbered format (1/, 2/, 3/, etc.) and extract their numbers
+  allLines.forEach((line, idx) => {
+    const match = line.match(/^\s*(\d+)\/\s*/);
+    if (match) {
+      numberedLinesWithIndices.push({
+        idx,
+        number: parseInt(match[1]),
+        line: line.trim()
+      });
+    }
+  });
+  
+  // Check if we have sequential numbered items starting from 1 that form a phrase (2-4 items)
+  // and if they're separated by blank lines, merge them
+  let blocks: string[] = [];
+  if (numberedLinesWithIndices.length >= 2 && numberedLinesWithIndices.length <= 4) {
+    // Check if these are sequential starting from 1 (1/, 2/, 3/ or 1/, 2/, 3/, 4/)
+    const isSequential = numberedLinesWithIndices.every((item, i) => item.number === i + 1);
+    
+    if (isSequential) {
+      const firstIdx = numberedLinesWithIndices[0].idx;
+      const lastIdx = numberedLinesWithIndices[numberedLinesWithIndices.length - 1].idx;
+      const linesBetween = lastIdx - firstIdx;
+      
+      // If numbered items are close together (within reasonable range), treat as one block
+      if (linesBetween <= 10) { // Allow some spacing between items
+        const mergedBlock = allLines.slice(firstIdx, lastIdx + 1)
+          .filter(line => line.trim()) // Remove blank lines
+          .join('\n');
+        blocks.push(mergedBlock);
+        
+        // Add any remaining content before and after
+        if (firstIdx > 0) {
+          const beforeBlock = allLines.slice(0, firstIdx).join('\n').trim();
+          if (beforeBlock) blocks.unshift(beforeBlock);
+        }
+        if (lastIdx < allLines.length - 1) {
+          const afterBlock = allLines.slice(lastIdx + 1).join('\n').trim();
+          if (afterBlock) blocks.push(afterBlock);
+        }
+      } else {
+        // Fall back to original splitting method
+        blocks = response.split(/\r?\n\s*\r?\n/).map(block => block.trim()).filter(Boolean);
+      }
+    } else {
+      // Not sequential, use original splitting method
+      blocks = response.split(/\r?\n\s*\r?\n/).map(block => block.trim()).filter(Boolean);
+    }
+  } else {
+    // Use original splitting method
+    blocks = response.split(/\r?\n\s*\r?\n/).map(block => block.trim()).filter(Boolean);
+  }
 
   // Extract numbered lines from each block
   const parsedBlocks = blocks.map((block, blockIdx) => {

@@ -8,27 +8,34 @@
  * Used for determining if a response has expressions (for buttons, flashcards, etc.)
  */
 export function extractExpressions(response: string): string[] {
-  // If the first line doesn't include a number, return an empty array
-  // hasExpression will be false, and the response will be rendered as a regular text
-  // speaker and breakdown buttons will not be shown
-  const firstLineIncludesNumber = response.split('\n')[0].includes('1/');
-  if (!firstLineIncludesNumber) {
-    return [];
-  }
-
   // Find all numbered items (e.g., 1/ ... 2/ ... 3/ ...)
   const numberedItems: RegExpMatchArray[] = [...response.matchAll(/^\d+\/\s*(.*)$/gm)];
-  const notStandardList = numberedItems.some(item => item[0].includes('5/'));
-  let expressions: string[] = [];
+  
+  // If no numbered items found, return empty array
+  if (numberedItems.length === 0) {
+    return [];
+  }
+  
+  // Check if we have a valid phrase format (2-4 numbered items, sequential starting from 1)
+  const numbers = numberedItems.map(item => {
+    const match = item[0].match(/^\s*(\d+)\//);
+    return match ? parseInt(match[1]) : null;
+  }).filter((num): num is number => num !== null);
+  
+  // Check if numbers are sequential starting from 1 and within valid range (2-4 items)
+  const isSequential = numbers.length >= 2 && numbers.length <= 4 && 
+                       numbers.every((num, i) => num === i + 1);
   
   // If 5 or more, return empty array (not standard list)
-  if (notStandardList) {
+  const notStandardList = numbers.some(num => num >= 5);
+  if (notStandardList || !isSequential) {
     return [];
-  } else {
-    expressions = numberedItems
-      .map((match: RegExpMatchArray) => (match[0].includes('1/') ? match[1].trim() : undefined))
-      .filter((item: string | undefined): item is string => !!item);
   }
+  
+  // Extract expressions from numbered items that start with 1/
+  const expressions = numberedItems
+    .map((match: RegExpMatchArray) => (match[0].includes('1/') ? match[1].trim() : undefined))
+    .filter((item: string | undefined): item is string => !!item);
   
   return expressions.filter(Boolean);
 }
@@ -84,8 +91,62 @@ export interface ClarificationBlock {
 export function parseClarificationResponse(response: string): ClarificationBlock[] {
   const blocks: ClarificationBlock[] = [];
   
-  // Split by double newlines to get logical blocks
-  const rawBlocks = response.split(/\n\s*\n/).filter(block => block.trim());
+  // First, try to detect and merge consecutive numbered items that might be split by blank lines
+  const allLines = response.split(/\r?\n/);
+  const numberedLinesWithIndices: Array<{ idx: number; number: number; line: string }> = [];
+  
+  // Find all lines that start with numbered format (1/, 2/, 3/, etc.) and extract their numbers
+  allLines.forEach((line, idx) => {
+    const match = line.match(/^\s*(\d+)\/\s*/);
+    if (match) {
+      numberedLinesWithIndices.push({
+        idx,
+        number: parseInt(match[1]),
+        line: line.trim()
+      });
+    }
+  });
+  
+  // Check if we have sequential numbered items starting from 1 that form a phrase (2-4 items)
+  // and if they're separated by blank lines, merge them
+  let rawBlocks: string[] = [];
+  if (numberedLinesWithIndices.length >= 2 && numberedLinesWithIndices.length <= 4) {
+    // Check if these are sequential starting from 1 (1/, 2/, 3/ or 1/, 2/, 3/, 4/)
+    const isSequential = numberedLinesWithIndices.every((item, i) => item.number === i + 1);
+    
+    if (isSequential) {
+      const firstIdx = numberedLinesWithIndices[0].idx;
+      const lastIdx = numberedLinesWithIndices[numberedLinesWithIndices.length - 1].idx;
+      const linesBetween = lastIdx - firstIdx;
+      
+      // If numbered items are close together (within reasonable range), treat as one block
+      if (linesBetween <= 10) { // Allow some spacing between items
+        const mergedBlock = allLines.slice(firstIdx, lastIdx + 1)
+          .filter(line => line.trim()) // Remove blank lines
+          .join('\n');
+        rawBlocks.push(mergedBlock);
+        
+        // Add any remaining content before and after
+        if (firstIdx > 0) {
+          const beforeBlock = allLines.slice(0, firstIdx).join('\n').trim();
+          if (beforeBlock) rawBlocks.unshift(beforeBlock);
+        }
+        if (lastIdx < allLines.length - 1) {
+          const afterBlock = allLines.slice(lastIdx + 1).join('\n').trim();
+          if (afterBlock) rawBlocks.push(afterBlock);
+        }
+      } else {
+        // Fall back to original splitting method
+        rawBlocks = response.split(/\n\s*\n/).filter(block => block.trim());
+      }
+    } else {
+      // Not sequential, use original splitting method
+      rawBlocks = response.split(/\n\s*\n/).filter(block => block.trim());
+    }
+  } else {
+    // Use original splitting method
+    rawBlocks = response.split(/\n\s*\n/).filter(block => block.trim());
+  }
   
   for (const rawBlock of rawBlocks) {
     const lines = rawBlock.split('\n').map(line => line.trim()).filter(Boolean);
