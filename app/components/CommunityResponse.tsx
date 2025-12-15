@@ -16,7 +16,6 @@ import {
   EyeSlashIcon,
   ArrowDownTrayIcon,
   UserIcon,
-  HeartIcon,
   ShareIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/solid';
@@ -701,28 +700,6 @@ export default function CommunityResponse(props: ResponseProps) {
           />
         )}
 
-        {/* Import count with tooltip - always visible, red heart when > 0 */}
-        <span className="text-xs px-2 py-1 rounded-sm bg-muted text-muted-foreground flex items-center gap-1">
-          <IconButton
-            icon={<HeartIcon className={`h-3 w-3 ${communityData.importCount > 0 ? 'text-red-500' : 'text-muted-foreground'}`} />}
-            onClick={() => {}} // No-op since it's just a display element
-            tooltipContent={
-              communityData.importCount === 0
-                ? "Be the first to import this"
-                : communityData.importCount === 1
-                ? "This has been imported 1 time"
-                : `This has been imported ${communityData.importCount} times`
-            }
-            className="!p-0 !text-inherit cursor-default"
-            colorScheme="custom"
-            customColors={{
-              default: 'text-inherit',
-              hover: 'text-inherit'
-            }}
-          />
-          <span>{communityData.importCount}</span>
-        </span>
-
         {/* View note button - only show if originalResponse has a note */}
         {communityData.note && (
           <span 
@@ -742,7 +719,7 @@ export default function CommunityResponse(props: ResponseProps) {
   const hasExpression = expressions.length > 0;
 
   return (
-    <div className={`px-3 py-3 rounded text-foreground w-full ${selectedDeckTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
+    <div className={`relative px-3 py-3 rounded text-foreground w-full ${selectedDeckTitle !== 'flashcard' ? 'border-b-2 border-border' : ''}`}>
       {/* Header with rank/alias and action buttons - matching GPTResponse layout */}
       <div className="flex items-start justify-between mb-4">
         {/* Left side - Rank container for GPT, User alias badge for Community */}
@@ -941,6 +918,13 @@ export default function CommunityResponse(props: ResponseProps) {
 
       {/* Metadata badges */}
       {renderMetadata()}
+
+      {/* Import count text - bottom right corner (Community only) */}
+      {isCommunityResponseProps(props) && props.data.importCount > 0 && (
+        <div className="absolute bottom-3 right-3 text-xs font-mono text-muted-foreground">
+          imported {props.data.importCount} {props.data.importCount === 1 ? 'time' : 'times'}
+        </div>
+      )}
 
       {/* Modals */}
       {isGPTResponseProps(props) && (
