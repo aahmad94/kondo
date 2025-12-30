@@ -1037,6 +1037,7 @@ export default function ChatBox({
   };
 
   const handleShareToCommunity = async (responseId: string) => {
+    setIsLoading(true);
     try {
       // First check if already shared
       const shareCheck = await checkResponseSharedAction(responseId);
@@ -1048,6 +1049,7 @@ export default function ChatBox({
         
         setSharedResponseTitle(deckTitle || 'your response');
         setShowAlreadySharedModal(true);
+        setIsLoading(false);
         return;
       }
 
@@ -1107,6 +1109,8 @@ export default function ChatBox({
       }
     } catch (error) {
       console.error('Error sharing to community:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1119,6 +1123,7 @@ export default function ChatBox({
     
     // If there's a pending share, attempt to share the response now
     if (pendingShare) {
+      setIsLoading(true);
       try {
         console.log('Attempting to share pending response:', pendingShare);
         const result = await shareResponseToCommunityAction(pendingShare.responseId);
@@ -1148,6 +1153,7 @@ export default function ChatBox({
       } finally {
         // Clear pending share regardless of outcome
         setPendingShare(null);
+        setIsLoading(false);
       }
     }
   };
