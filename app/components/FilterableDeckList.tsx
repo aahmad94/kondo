@@ -45,10 +45,11 @@ export function FilterableDeckList({
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredDecks = useMemo(() => {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
     return decks
       .filter(deck => !reservedDeckTitles.includes(deck.title))
       .filter(deck => 
-        deck.title.toLowerCase().includes(searchTerm.toLowerCase())
+        deck.title.toLowerCase().includes(normalizedSearchTerm)
       )
       .sort((a: Deck, b: Deck) => {
         if (!a.updatedAt) return 1;
