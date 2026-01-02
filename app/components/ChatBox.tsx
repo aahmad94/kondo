@@ -23,6 +23,7 @@ import QuoteBar from './QuoteBar';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useCommunityFeed } from '../hooks/useCommunityFeed';
 import { useUserAlias } from '../contexts/UserAliasContext';
+import { useDojoVisitTracking } from '../hooks/useDojoVisitTracking';
 import { 
   shareResponseToCommunityAction, 
   importCommunityResponseAction,
@@ -218,9 +219,13 @@ export default function ChatBox({
   const [sharedResponseHadNote, setSharedResponseHadNote] = useState(false);
   const [selectedCommunityDeckTitle, setSelectedCommunityDeckTitle] = useState<string | null>(null);
 
-  // Streak celebration state
-  const [showStreakCelebration, setShowStreakCelebration] = useState(false);
-  const [streakData, setStreakData] = useState<{ currentStreak: number; maxStreak: number } | null>(null);
+  // Streak celebration state - managed by useDojoVisitTracking hook
+  const {
+    showStreakCelebration,
+    streakData,
+    setShowStreakCelebration,
+    setStreakData
+  } = useDojoVisitTracking(session?.userId, selectedDeck.title);
 
   // Keep flashcard responses in sync with bookmark responses when modal is open
   useEffect(() => {
@@ -304,7 +309,6 @@ export default function ChatBox({
     };
     updateInstructions();
   }, [session, selectedLanguage]);
-
 
   // When the selected bookmark changes, fetch the responses
   useEffect(() => {
