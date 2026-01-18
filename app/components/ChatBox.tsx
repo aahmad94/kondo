@@ -148,6 +148,11 @@ export default function ChatBox({
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   
+  // Pagination state for bookmarks
+  const [bookmarkPage, setBookmarkPage] = useState<number>(1);
+  const [bookmarkHasMore, setBookmarkHasMore] = useState<boolean>(false);
+  const [bookmarkLoadingMore, setBookmarkLoadingMore] = useState<boolean>(false);
+  
   // Community mode state and hooks
   const {
     responses: communityResponses,
@@ -320,8 +325,12 @@ export default function ChatBox({
       // Clear any pending quote when selecting a bookmark
       setResponseQuote(null);
       
+      // Reset pagination when switching bookmarks
+      setBookmarkPage(1);
+      setBookmarkHasMore(false);
+      
       if (selectedDeck.id === "all") {
-        fetchAllResponses(session.userId);
+        fetchAllResponses(session.userId, 1, false);
       } else if (selectedDeck.title === 'daily summary') {
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
@@ -330,7 +339,7 @@ export default function ChatBox({
           handleGenerateSummary(false);
         }
       } else {
-        fetchBookmarkResponses(session.userId, selectedDeck.id);
+        fetchBookmarkResponses(session.userId, selectedDeck.id, 1, false);
       }
     }
     // Only clear responses if we explicitly don't have a selected bookmark
@@ -375,7 +384,7 @@ export default function ChatBox({
   }
 
   // Fetch bookmark responses from database and sets responses in ascending order by id, then descending by rank
-  const fetchBookmarkResponses = async (userId: string, deckId: string) => {
+  const fetchBookmarkResponses = async (userId: string, deckId: string, page: number = 1, append: boolean = false) => {
     // Skip fetching for reserved decks
     if (selectedDeck.title && reservedDeckTitles.includes(selectedDeck.title)) {
       setBookmarkResponses({});
@@ -383,17 +392,27 @@ export default function ChatBox({
     }
 
     try {
-      setBookmarkResponses({});
-      setIsLoading(true);
-      const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${deckId}`);
+      if (!append) {
+        setBookmarkResponses({});
+        setIsLoading(true);
+        scrollToTop();
+      } else {
+        setBookmarkLoadingMore(true);
+      }
+      
+      const res = await fetch(`/api/getBookmarkResponses?userId=${userId}&bookmarkId=${deckId}&page=${page}&limit=20`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      scrollToTop();
-      const data = await res.json();      
+      
+      const data = await res.json();
+      
+      // Handle both old format (array) and new format (object with responses, hasMore)
+      const responseData = Array.isArray(data) ? data : data.responses;
+      const hasMore = Array.isArray(data) ? false : data.hasMore;
       
       // Transform the response data
-      const transformedResponses = data.map((response: BookmarkResponse) => ({
+      const transformedResponses = responseData.map((response: BookmarkResponse) => ({
           id: response.id,
           content: response.content,
           rank: response.rank,
@@ -424,26 +443,45 @@ export default function ChatBox({
       // Convert to dictionary
       const dict = Object.fromEntries((sortedResponses as Response[]).map((r: Response) => [r.id, r]));
       
+      if (append) {
+        setBookmarkResponses(prev => ({ ...prev, ...dict }));
+      } else {
+        setBookmarkResponses(dict);
+        setBookmarkPage(1);
+      }
       
-      setBookmarkResponses(dict);
+      setBookmarkHasMore(hasMore);
       setIsLoading(false);
+      setBookmarkLoadingMore(false);
     } catch (error) {
       setIsLoading(false);
+      setBookmarkLoadingMore(false);
       console.error('Error fetching bookmark responses:', error);
     }
   };
 
-  const fetchAllResponses = async (userId: string) => {
-    setBookmarkResponses({});
-    setIsLoading(true);
+  const fetchAllResponses = async (userId: string, page: number = 1, append: boolean = false) => {
     try {
-      const res = await fetch(`/api/getUserResponses?userId=${userId}`);
+      if (!append) {
+        setBookmarkResponses({});
+        setIsLoading(true);
+        scrollToTop();
+      } else {
+        setBookmarkLoadingMore(true);
+      }
+      
+      const res = await fetch(`/api/getUserResponses?userId=${userId}&page=${page}&limit=20`);
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      scrollToTop();
+      
       const data = await res.json();
-      const dict = Object.fromEntries(data.map((response: Response) => [response.id, {
+      
+      // Handle both old format (array) and new format (object with responses, hasMore)
+      const responseData = Array.isArray(data) ? data : data.responses;
+      const hasMore = Array.isArray(data) ? false : data.hasMore;
+      
+      const dict = Object.fromEntries(responseData.map((response: Response) => [response.id, {
           id: response.id,
           content: response.content,
           rank: response.rank,
@@ -467,16 +505,40 @@ export default function ChatBox({
           isSharedToCommunity: response.isSharedToCommunity,
         }]));
       
+      if (append) {
+        setBookmarkResponses(prev => ({ ...prev, ...dict }));
+      } else {
+        setBookmarkResponses(dict);
+        setBookmarkPage(1);
+      }
       
-      setBookmarkResponses(dict);
+      setBookmarkHasMore(hasMore);
       setIsLoading(false);
+      setBookmarkLoadingMore(false);
     } catch (error) {
       setIsLoading(false);
+      setBookmarkLoadingMore(false);
       console.error('Error fetching all responses:', error);
     } finally {
-      scrollToBottom();
+      if (!append) {
+        scrollToBottom();
+      }
     }
   }
+  
+  // Load more bookmark responses
+  const loadMoreBookmarks = async () => {
+    if (!session?.userId || !bookmarkHasMore || bookmarkLoadingMore) return;
+    
+    const nextPage = bookmarkPage + 1;
+    setBookmarkPage(nextPage);
+    
+    if (selectedDeck.id === "all") {
+      await fetchAllResponses(session.userId, nextPage, true);
+    } else if (selectedDeck.id) {
+      await fetchBookmarkResponses(session.userId, selectedDeck.id, nextPage, true);
+    }
+  };
 
   // Handle the user's input, does not save to database
   const handleSubmit = async (prompt: string, model?: string) => {
@@ -1564,6 +1626,19 @@ export default function ChatBox({
                   />
                 ));
               })()}
+              
+              {/* Load More Button */}
+              {bookmarkHasMore && (
+                <div className="flex justify-center my-4">
+                  <button
+                    onClick={loadMoreBookmarks}
+                    disabled={bookmarkLoadingMore}
+                    className="px-4 py-2 bg-muted text-muted-foreground rounded-sm hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:hover:bg-muted disabled:hover:text-muted-foreground transition-colors duration-200 text-sm"
+                  >
+                    {bookmarkLoadingMore ? 'Loading...' : 'Load More'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ) :

@@ -50,58 +50,76 @@ export async function createGPTResponse(content: string, userId: string, bookmar
 
 /**
  * Gets all user responses by their preferred language with bookmark dictionary format
+ * Supports pagination with page and limit parameters
  */
-export async function getAllUserResponsesByLanguage(userId: string) {
+export async function getAllUserResponsesByLanguage(
+  userId: string,
+  page: number = 1,
+  limit: number = 20
+) {
   try {
     // Get user's language ID (with fallback to Japanese)
     const languageId = await getUserLanguageId(userId);
 
-    const responses = await prisma.gPTResponse.findMany({
-      where: {
-        userId: userId,
-        languageId: languageId
-      },
-      select: {
-        id: true,
-        content: true,
-        rank: true,
-        isPaused: true,
-        bookmarks: {
-          select: {
-            id: true,
-            title: true
+    const offset = (page - 1) * limit;
+
+    // Get responses and total count
+    const [responses, totalCount] = await Promise.all([
+      prisma.gPTResponse.findMany({
+        where: {
+          userId: userId,
+          languageId: languageId
+        },
+        select: {
+          id: true,
+          content: true,
+          rank: true,
+          isPaused: true,
+          bookmarks: {
+            select: {
+              id: true,
+              title: true
+            }
+          },
+          createdAt: true,
+          updatedAt: true,
+          furigana: true,
+          isFuriganaEnabled: true,
+          isPhoneticEnabled: true,
+          isKanaEnabled: true,
+          breakdown: true,
+          mobileBreakdown: true,
+          responseType: true,
+          source: true,
+          communityResponseId: true,
+          note: true,
+          communityResponse: {
+            select: {
+              id: true,
+              isActive: true,
+              creatorAlias: true
+            }
+          },
+          originalCommunityPost: {
+            select: {
+              id: true,
+              isActive: true
+            }
           }
         },
-        createdAt: true,
-        updatedAt: true,
-        furigana: true,
-        isFuriganaEnabled: true,
-        isPhoneticEnabled: true,
-        isKanaEnabled: true,
-        breakdown: true,
-        mobileBreakdown: true,
-        responseType: true,
-        source: true,
-        communityResponseId: true,
-        note: true,
-        communityResponse: {
-          select: {
-            id: true,
-            isActive: true,
-            creatorAlias: true
-          }
+        orderBy: {
+          createdAt: 'desc'
         },
-        originalCommunityPost: {
-          select: {
-            id: true,
-            isActive: true
-          }
+        skip: offset,
+        take: limit
+      }),
+      prisma.gPTResponse.count({
+        where: {
+          userId: userId,
+          languageId: languageId
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+      })
+    ]);
 
     // Transform bookmarks into a dictionary format
     const transformedResponses = responses.map(response => {
@@ -120,7 +138,11 @@ export async function getAllUserResponsesByLanguage(userId: string) {
       };
     });
 
-    return transformedResponses;
+    return {
+      responses: transformedResponses,
+      totalCount,
+      hasMore: offset + limit < totalCount
+    };
   } catch (error) {
     console.error('Error fetching all user responses by language:', error);
     throw error;

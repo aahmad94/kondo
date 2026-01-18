@@ -9,11 +9,16 @@ export default async function handler(
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { bookmarkId, userId } = req.query;
+  const { bookmarkId, userId, page, limit } = req.query;
 
   if (!bookmarkId || !userId || typeof userId !== 'string' || typeof bookmarkId !== 'string') {
     return res.status(400).json({ message: 'Missing required parameters' });
   }
+
+  // Parse pagination parameters with defaults
+  const pageNum = page ? parseInt(page as string, 10) : 1;
+  const limitNum = limit ? parseInt(limit as string, 10) : 20;
+  const offset = (pageNum - 1) * limitNum;
 
   try {
     // First get the bookmark to get its languageId
@@ -30,50 +35,65 @@ export default async function handler(
       return res.status(404).json({ message: 'Bookmark not found' });
     }
 
-    const responses = await prisma.gPTResponse.findMany({
-      where: {
-        bookmarks: {
-          some: {
-            id: bookmarkId
+    // Get responses and total count
+    const [responses, totalCount] = await Promise.all([
+      prisma.gPTResponse.findMany({
+        where: {
+          bookmarks: {
+            some: {
+              id: bookmarkId
+            }
+          },
+          languageId: bookmarkInfo.languageId // Use the bookmark's languageId
+        },
+        select: {
+          id: true,
+          content: true,
+          rank: true,
+          isPaused: true,
+          createdAt: true,
+          updatedAt: true,
+          furigana: true,
+          isFuriganaEnabled: true,
+          isPhoneticEnabled: true,
+          isKanaEnabled: true,
+          breakdown: true,
+          mobileBreakdown: true,
+          responseType: true,
+          source: true,
+          communityResponseId: true,
+          note: true,
+          communityResponse: {
+            select: {
+              id: true,
+              isActive: true,
+              creatorAlias: true
+            }
+          },
+          originalCommunityPost: {
+            select: {
+              id: true,
+              isActive: true
+            }
           }
         },
-        languageId: bookmarkInfo.languageId // Use the bookmark's languageId
-      },
-      select: {
-        id: true,
-        content: true,
-        rank: true,
-        isPaused: true,
-        createdAt: true,
-        updatedAt: true,
-        furigana: true,
-        isFuriganaEnabled: true,
-        isPhoneticEnabled: true,
-        isKanaEnabled: true,
-        breakdown: true,
-        mobileBreakdown: true,
-        responseType: true,
-        source: true,
-        communityResponseId: true,
-        note: true,
-        communityResponse: {
-          select: {
-            id: true,
-            isActive: true,
-            creatorAlias: true
-          }
+        orderBy: {
+          rank: 'asc'
         },
-        originalCommunityPost: {
-          select: {
-            id: true,
-            isActive: true
-          }
+        skip: offset,
+        take: limitNum
+      }),
+      prisma.gPTResponse.count({
+        where: {
+          bookmarks: {
+            some: {
+              id: bookmarkId
+            }
+          },
+          languageId: bookmarkInfo.languageId
         }
-      },
-      orderBy: {
-        rank: 'asc'
-      }
-    });
+      })
+    ]);
 
     const bookmark = await prisma.bookmark.findUnique({
       where: {
@@ -106,7 +126,11 @@ export default async function handler(
       };
     });
 
-    return res.status(200).json(formattedResponses);
+    return res.status(200).json({
+      responses: formattedResponses,
+      totalCount,
+      hasMore: offset + limitNum < totalCount
+    });
   } catch (error) {
     console.error('Error fetching bookmark responses:', error);
     return res.status(500).json({ message: 'Error fetching bookmark responses' });
