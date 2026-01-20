@@ -16,19 +16,53 @@ const inngest = new Inngest({ id: 'Kondo' });
 const initDojoFanOutFunction = inngest.createFunction(
   { id: "init-dojo-fan-out" },
   { cron: "TZ=America/New_York 1 0 * * *" },
-  async ({ step, event }) => {
+  async ({ step }) => {
     try {
       console.log("[Inngest] Starting daily summary generation (fan-out)...");
       const users = await step.run("fetch-unique-users", async () => {
+        // First, get all user IDs that meet our criteria:
+        // 1. Have email subscriptions (User.subscribed OR UserLanguageSubscription.subscribed)
+        // 2. OR have a streak >= 1
+        
+        const [emailSubscribedUsers, usersWithStreak] = await Promise.all([
+          // Users with email subscriptions
+          prisma.user.findMany({
+            where: {
+              OR: [
+                { subscribed: true },
+                { languageSubscriptions: { some: { subscribed: true } } }
+              ]
+            },
+            select: { id: true }
+          }),
+          // Users with streak >= 1
+          prisma.streak.findMany({
+            where: {
+              currentStreak: { gte: 1 }
+            },
+            select: { userId: true }
+          })
+        ]);
+        
+        // Combine and deduplicate user IDs
+        const eligibleUserIds = new Set([
+          ...emailSubscribedUsers.map(u => u.id),
+          ...usersWithStreak.map(s => s.userId)
+        ]);
+        
+        // Now get users who have bookmarks AND are in our eligible list
         const users = await prisma.gPTResponse.findMany({
           select: { userId: true },
           distinct: ['userId'],
           where: {
-            userId: { not: '' },
+            userId: { 
+              not: '',
+              in: Array.from(eligibleUserIds)
+            },
             bookmarks: { some: { title: { not: 'daily summary' } } }
           }
         });
-        console.log(`[Inngest] Found ${users.length} users with bookmarked responses`);
+        console.log(`[Inngest] Found ${users.length} eligible users with bookmarked responses (${eligibleUserIds.size} total eligible users)`);
         return users;
       });
       
@@ -74,21 +108,39 @@ const initDojoFanOutFunction = inngest.createFunction(
 const dailyEmailTriggerFunction = inngest.createFunction(
   { id: "daily-email-trigger" },
   { cron: "TZ=America/New_York 30 1 * * *" }, // 1:30 AM EST - 30 minutes after summaries
-  async ({ step, event }) => {
+  async ({ step }) => {
     try {
       console.log("[Inngest] Starting daily email trigger (fan-out)...");
       
-      // Get all users with daily email subscriptions
+      // Get all users with daily email subscriptions OR streak >= 1
       const userSubscriptions = await step.run("fetch-email-subscribers", async () => {
-        const subscriptions = await prisma.userLanguageSubscription.findMany({
-          where: {
-            subscribed: true,
-            emailFrequency: 'daily'
-          },
-          select: { userId: true },
-          distinct: ['userId']
-        });
-        console.log(`[Inngest] Found ${subscriptions.length} users with daily email subscriptions`);
+        const [emailSubscribers, usersWithStreak] = await Promise.all([
+          // Users with daily email subscriptions
+          prisma.userLanguageSubscription.findMany({
+            where: {
+              subscribed: true,
+              emailFrequency: 'daily'
+            },
+            select: { userId: true },
+            distinct: ['userId']
+          }),
+          // Users with streak >= 1
+          prisma.streak.findMany({
+            where: {
+              currentStreak: { gte: 1 }
+            },
+            select: { userId: true }
+          })
+        ]);
+        
+        // Combine and deduplicate user IDs
+        const eligibleUserIds = new Set([
+          ...emailSubscribers.map(s => s.userId),
+          ...usersWithStreak.map(s => s.userId)
+        ]);
+        
+        const subscriptions = Array.from(eligibleUserIds).map(userId => ({ userId }));
+        console.log(`[Inngest] Found ${subscriptions.length} eligible users (${emailSubscribers.length} with daily email subscriptions, ${usersWithStreak.length} with streak >= 1)`);
         return subscriptions;
       });
       
@@ -119,17 +171,35 @@ const weeklyEmailTriggerFunction = inngest.createFunction(
     try {
       console.log("[Inngest] Starting weekly email digest...");
       
-      // Get all users with weekly email subscriptions
+      // Get all users with weekly email subscriptions OR streak >= 1
       const weeklySubscriptions = await step.run("fetch-weekly-subscribers", async () => {
-        const subscriptions = await prisma.userLanguageSubscription.findMany({
-          where: {
-            subscribed: true,
-            emailFrequency: 'weekly'
-          },
-          select: { userId: true },
-          distinct: ['userId']
-        });
-        console.log(`[Inngest] Found ${subscriptions.length} users with weekly subscriptions`);
+        const [emailSubscribers, usersWithStreak] = await Promise.all([
+          // Users with weekly email subscriptions
+          prisma.userLanguageSubscription.findMany({
+            where: {
+              subscribed: true,
+              emailFrequency: 'weekly'
+            },
+            select: { userId: true },
+            distinct: ['userId']
+          }),
+          // Users with streak >= 1
+          prisma.streak.findMany({
+            where: {
+              currentStreak: { gte: 1 }
+            },
+            select: { userId: true }
+          })
+        ]);
+        
+        // Combine and deduplicate user IDs
+        const eligibleUserIds = new Set([
+          ...emailSubscribers.map(s => s.userId),
+          ...usersWithStreak.map(s => s.userId)
+        ]);
+        
+        const subscriptions = Array.from(eligibleUserIds).map(userId => ({ userId }));
+        console.log(`[Inngest] Found ${subscriptions.length} eligible users (${emailSubscribers.length} with weekly email subscriptions, ${usersWithStreak.length} with streak >= 1)`);
         return subscriptions;
       });
       
