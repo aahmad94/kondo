@@ -100,26 +100,67 @@ export default function Home() {
     setDecksRefreshTrigger(prev => prev + 1);
   }, []);
 
-  // Then place the useEffect after other top-level hooks but before early returns (around original position ~32)
+  // Sync initial deck from URL or user's landing page preference
   useEffect(() => {
-    if (searchParams && !hasSyncedRef.current) {
-      const deckId = searchParams.get('deckId');
-      const deckTitle = searchParams.get('deckTitle');
-      
-      if (deckId && deckTitle) {
-        // Regular deck with ID and title
-        setSelectedDeck({ id: deckId, title: deckTitle });
-      } else if (deckTitle && reservedDeckTitles.includes(deckTitle)) {
-        // Reserved deck (community, daily summary, etc.) with only title
-        setSelectedDeck({ id: null, title: deckTitle });
-      } else {
-        // No params - default to community
+    if (!searchParams || hasSyncedRef.current) return;
+
+    const deckId = searchParams.get('deckId');
+    const deckTitle = searchParams.get('deckTitle');
+
+    if (deckId && deckTitle) {
+      setSelectedDeck({ id: deckId, title: deckTitle });
+      hasSyncedRef.current = true;
+      return;
+    }
+    if (deckTitle && reservedDeckTitles.includes(deckTitle)) {
+      setSelectedDeck({ id: null, title: deckTitle });
+      hasSyncedRef.current = true;
+      return;
+    }
+
+    // No URL params: apply user's landing page preference (wait for session so dojo can resolve deckId)
+    if (!session?.userId) return;
+
+    hasSyncedRef.current = true;
+    const applyLandingPage = async () => {
+      try {
+        const res = await fetch('/api/landingPage');
+        if (!res.ok) {
+          handleDeckSelect(null, 'community');
+          return;
+        }
+        const { landingPage } = await res.json();
+        if (landingPage === 'create') {
+          handleDeckSelect(null, null);
+          return;
+        }
+        if (landingPage === 'community') {
+          handleDeckSelect(null, 'community');
+          return;
+        }
+        if (landingPage === 'dojo') {
+          const bookmarksRes = await fetch(`/api/getBookmarks?userId=${session.userId}`);
+          if (!bookmarksRes.ok) {
+            handleDeckSelect(null, 'community');
+            return;
+          }
+          const decks = await bookmarksRes.json();
+          const dailySummaryDeck = decks.find((d: { title: string }) => d.title === 'daily summary');
+          if (dailySummaryDeck) {
+            handleDeckSelect(dailySummaryDeck.id, dailySummaryDeck.title);
+          } else {
+            handleDeckSelect(null, 'community');
+          }
+          return;
+        }
+        handleDeckSelect(null, 'community');
+      } catch {
         handleDeckSelect(null, 'community');
       }
-      hasSyncedRef.current = true;
-    }
-    // Do NOT sync from URL again after initial load
-  }, [searchParams, reservedDeckTitles, handleDeckSelect, setSelectedDeck]);
+    };
+
+    applyLandingPage();
+  }, [searchParams, reservedDeckTitles, handleDeckSelect, session?.userId]);
 
 
   if (status === "loading") {

@@ -9,6 +9,7 @@ import LanguageSelector from './LanguageSelector';
 import { useTheme } from '../contexts/ThemeContext';
 import CreateAliasModal from './CreateAliasModal';
 import EditAliasModal from './EditAliasModal';
+import LandingPageModal from './LandingPageModal';
 import { useUserAlias } from '../contexts/UserAliasContext';
 
 interface MenuBarProps {
@@ -23,6 +24,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isCreateAliasModalOpen, setIsCreateAliasModalOpen] = useState(false);
   const [isEditAliasModalOpen, setIsEditAliasModalOpen] = useState(false);
+  const [isLandingPageModalOpen, setIsLandingPageModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
   
@@ -119,8 +121,19 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
                     >
                       <div className="flex-col w-full text-wrap">
                         <span>
-                          {alias && isPublic ? `Edit Alias (@${alias})` : 'Create Alias'}
+                          {alias && isPublic ? `Edit alias (@${alias})` : 'Create alias'}
                         </span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        setIsLandingPageModalOpen(true);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
+                    >
+                      <div className="flex-col w-full text-wrap">
+                        <span>Landing page</span>
                       </div>
                     </button>
                     <button
@@ -131,7 +144,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
                     >
                       <div className="flex-col w-full text-wrap">
-                        <span>{theme === 'light' ? 'Dark Mode 🌙' : 'Light Mode ☀️'}</span>
+                        <span>{theme === 'light' ? 'Dark mode 🌙' : 'Light mode ☀️'}</span>
                       </div>
                     </button>
                     <button
@@ -187,6 +200,11 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
         onClose={() => setIsEditAliasModalOpen(false)}
         onAliasUpdated={handleAliasUpdated}
         currentAlias={alias || ''}
+      />
+
+      <LandingPageModal
+        isOpen={isLandingPageModalOpen}
+        onClose={() => setIsLandingPageModalOpen(false)}
       />
     </>
   )

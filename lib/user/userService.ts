@@ -43,4 +43,48 @@ export async function updateUserTheme(userEmail: string, theme: Theme): Promise<
   } finally {
     await prisma.$disconnect();
   }
+}
+
+export type LandingPage = 'create' | 'dojo' | 'community';
+
+export async function getLandingPage(userEmail: string): Promise<LandingPage> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: userEmail,
+      },
+      select: {
+        landingPage: true,
+      },
+    });
+
+    if (!user?.landingPage) {
+      return 'community';
+    }
+
+    const valid: LandingPage[] = ['create', 'dojo', 'community'];
+    return valid.includes(user.landingPage as LandingPage) ? (user.landingPage as LandingPage) : 'community';
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function updateLandingPage(userEmail: string, landingPage: LandingPage): Promise<LandingPage> {
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        email: userEmail,
+      },
+      data: {
+        landingPage,
+      },
+      select: {
+        landingPage: true,
+      },
+    });
+
+    return (updatedUser.landingPage ?? 'community') as LandingPage;
+  } finally {
+    await prisma.$disconnect();
+  }
 } 

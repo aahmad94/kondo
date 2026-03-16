@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDownIcon, PauseCircleIcon, ShareIcon } from '@heroicons/react/24/solid';
 import { format } from 'date-fns';
 import { useSession } from "next-auth/react";
+import LoadingDots from './LoadingDots';
 
 // Color constants for consistent styling - now using CSS custom properties for theme awareness
 const COLORS = {
@@ -126,24 +127,10 @@ export function StatsContent({ selectedLanguage }: StatsContentProps) {
 
   if (isLoading) {
     return (
-      <div className="max-w-none flex items-center justify-center py-8 text-primary">
-        <span className="ml-3">Loading stats</span>
-        <span className="dots-animation">
-          <style jsx>{`
-            .dots-animation::after {
-              content: '';
-              animation: dots 1.5s steps(4, end) infinite;
-            }
-            
-            @keyframes dots {
-              0%, 20% { content: '.'; }
-              40% { content: '..'; }
-              60% { content: '...'; }
-              80%, 100% { content: ''; }
-            }
-          `}</style>
-        </span>
-      </div>
+      <LoadingDots
+        label="Loading stats"
+        className="max-w-none flex items-center justify-center py-8 text-primary ml-3"
+      />
     );
   }
 
