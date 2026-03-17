@@ -19,6 +19,7 @@ export default function Home() {
   const [isClearingDeck, setIsClearingDeck] = useState(false);
   const [isDecksCollapsed, setIsDecksCollapsed] = useState<boolean>(false);
   const [decksRefreshTrigger, setDecksRefreshTrigger] = useState<number>(0);
+  const [isLandingResolved, setIsLandingResolved] = useState(false);
   const hasSyncedRef = useRef(false);
 
   // Define handleDeckSelect early with useCallback, before any hooks or early returns (around line 22, after state declarations)
@@ -110,11 +111,13 @@ export default function Home() {
     if (deckId && deckTitle) {
       setSelectedDeck({ id: deckId, title: deckTitle });
       hasSyncedRef.current = true;
+      setIsLandingResolved(true);
       return;
     }
     if (deckTitle && reservedDeckTitles.includes(deckTitle)) {
       setSelectedDeck({ id: null, title: deckTitle });
       hasSyncedRef.current = true;
+      setIsLandingResolved(true);
       return;
     }
 
@@ -156,6 +159,8 @@ export default function Home() {
         handleDeckSelect(null, 'community');
       } catch {
         handleDeckSelect(null, 'community');
+      } finally {
+        setIsLandingResolved(true);
       }
     };
 
@@ -192,6 +197,22 @@ export default function Home() {
     setSelectedLanguage(languageCode);
     handleDeckSelect(null, null);
   };
+
+  // While we're resolving the initial landing page / deck selection,
+  // render the header and a centered spinner instead of mounting ChatBox/Decks.
+  if (!isLandingResolved) {
+    return (
+      <div className="flex flex-col h-dvh bg-background">
+        <MenuBar
+          onClearDeck={handleClearDeck}
+          onLanguageChange={handleLanguageChange}
+        />
+        <div className="flex-1 bg-background flex items-center justify-center">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="flex flex-col h-dvh bg-background">
