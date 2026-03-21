@@ -48,53 +48,47 @@ export default function Home() {
     }
   }, [status, router])
 
-  // Add this useEffect after the other useEffects
   useEffect(() => {
-    if (session?.userId) {
-      // First check local storage
-      const storedLanguage = localStorage.getItem('preferredLanguage');
-      if (storedLanguage) {
-        try {
-          const { code } = JSON.parse(storedLanguage);
-          setSelectedLanguage(code);
-          return; // Exit early if we found a stored language
-        } catch (error) {
-          console.error('Error parsing stored language:', error);
-          // Continue to fetch from DB if parsing fails
-        }
-      }
+    if (!session?.userId) return;
 
-      // If no stored language or parsing failed, fetch from DB
-      fetch(`/api/getUserLanguagePreference?userId=${session.userId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.languageId) {
-            // Fetch the language code for this ID
-            fetch('/api/getLanguages')
-              .then(res => res.json())
-              .then(languages => {
-                const userLanguage = languages.find((lang: any) => lang.id === data.languageId);
-                if (userLanguage) {
-                  setSelectedLanguage(userLanguage.code);
-                  // Store the fetched language in local storage
-                  localStorage.setItem('preferredLanguage', JSON.stringify({
-                    code: userLanguage.code,
-                    id: userLanguage.id,
-                    name: userLanguage.name
-                  }));
-                } else {
-                  setSelectedLanguage('ja'); // Fallback to Japanese if language not found
-                }
-              });
-          } else {
-            setSelectedLanguage('ja'); // Fallback to Japanese if no preference found
-          }
-        })
-        .catch(() => {
-          setSelectedLanguage('ja'); // Fallback to Japanese on error
-        });
+    // Optimistically apply localStorage value for fast initial render,
+    // but always reconcile with DB — the DB is the cross-device source of truth.
+    const storedLanguage = localStorage.getItem('preferredLanguage');
+    if (storedLanguage) {
+      try {
+        const { code } = JSON.parse(storedLanguage);
+        setSelectedLanguage(code);
+      } catch {
+        // localStorage value is corrupt; DB fetch below will recover
+      }
     }
-  }, [session]);
+
+    // Always fetch from DB to catch changes made on other devices/sessions
+    Promise.all([
+      fetch(`/api/getUserLanguagePreference?userId=${session.userId}`).then(r => r.json()),
+      fetch('/api/getLanguages').then(r => r.json()),
+    ])
+      .then(([preference, languages]) => {
+        if (!preference.languageId) {
+          if (!storedLanguage) setSelectedLanguage('ja');
+          return;
+        }
+        const userLanguage = languages.find((lang: any) => lang.id === preference.languageId);
+        if (userLanguage) {
+          setSelectedLanguage(userLanguage.code);
+          localStorage.setItem('preferredLanguage', JSON.stringify({
+            code: userLanguage.code,
+            id: userLanguage.id,
+            name: userLanguage.name,
+          }));
+        } else if (!storedLanguage) {
+          setSelectedLanguage('ja');
+        }
+      })
+      .catch(() => {
+        if (!storedLanguage) setSelectedLanguage('ja');
+      });
+  }, [session?.userId]);
 
   // Define triggerDecksRefresh before early returns
   const triggerDecksRefresh = useCallback(() => {

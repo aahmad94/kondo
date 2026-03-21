@@ -87,7 +87,7 @@ export default function LandingPageModal({ isOpen, onClose }: LandingPageModalPr
         </div>
 
         <div className="p-4 flex flex-col gap-4">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground py-2">
             Choose which view opens when you visit Kondo
           </p>
           {isLoading ? (
