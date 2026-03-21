@@ -14,4 +14,6 @@ export { StatsContent, DojoTipsList, AdditionalCommands, CommunityInstructions }
 export { ConfettiAnimation } from './ConfettiAnimation';
 export { StreakCelebrationModal } from './StreakCelebrationModal';
 export { DeckNavigationModal } from './DeckNavigationModal';
-export * from './buttons'; 
+export * from './buttons';
+export { default as CommandPill } from './CommandPill';
+export type { CommandPillProps, CommandPillOption } from './CommandPill';
