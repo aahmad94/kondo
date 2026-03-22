@@ -52,7 +52,7 @@ const CommandPill: React.FC<CommandPillProps> = ({
 
   const pillClasses = [
     'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium',
-    'transition-all duration-150 select-none whitespace-nowrap',
+    'transition-all duration-150 select-none whitespace-nowrap flex-shrink-0',
     isDisabled
       ? 'opacity-25 cursor-not-allowed'
       : 'cursor-pointer',

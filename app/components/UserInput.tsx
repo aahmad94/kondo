@@ -226,7 +226,7 @@ export default function UserInput({
   return (
     <div className="flex flex-col bg-background rounded-sm">
       {/* ── Floating command pills ── */}
-      <div className="flex items-center gap-2 px-3 pt-2.5 pb-0 flex-wrap">
+      <div className="flex items-center gap-2 px-3 pt-2.5 pb-0 overflow-x-auto scrollbar-none">
         <CommandPill
           label="random"
           isActive={activeCommand === 'random'}
