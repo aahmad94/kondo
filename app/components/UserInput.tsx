@@ -191,12 +191,11 @@ export default function UserInput({
   };
 
   const getPlaceholder = (): string => {
-    if (activeCommand === 'random') return '[optional] enter topic for a random phrase';
+    if (activeCommand === 'random') return '[optional topic]';
     if (activeCommand === 'terms') {
-      const langName = LANGUAGE_NAMES[selectedLanguage] || 'Japanese';
-      return `Enter text to get related terms in ${langName}`;
+      return `[term]`;
     }
-    if (activeCommand === 'verb') return 'Enter verb to get conjugation table';
+    if (activeCommand === 'verb') return '[verb]';
 
     // Default greeting
     const base = greetings[selectedLanguage] ?? greetings.ja;
