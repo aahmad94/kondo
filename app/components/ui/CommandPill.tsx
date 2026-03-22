@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface CommandPillOption {
   value: string;
@@ -35,16 +36,46 @@ const CommandPill: React.FC<CommandPillProps> = ({
   isOpen,
   onToggle,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const isDropdown = Array.isArray(options) && options.length > 0;
 
-  // Close dropdown when clicking outside
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+
+  const updateMenuPosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setMenuStyle({
+      position: 'fixed',
+      left: rect.left,
+      // Anchor above the trigger; we'll use bottom offset from viewport
+      top: rect.top - 4,
+      transform: 'translateY(-100%)',
+      minWidth: rect.width,
+      zIndex: 9999,
+    });
+  }, []);
+
+  // Recalculate position whenever the menu opens or the container scrolls/resizes
+  useEffect(() => {
+    if (!isDropdown || !isOpen) return;
+    updateMenuPosition();
+    window.addEventListener('scroll', updateMenuPosition, true);
+    window.addEventListener('resize', updateMenuPosition);
+    return () => {
+      window.removeEventListener('scroll', updateMenuPosition, true);
+      window.removeEventListener('resize', updateMenuPosition);
+    };
+  }, [isDropdown, isOpen, updateMenuPosition]);
+
+  // Close when clicking outside both the trigger and the portal menu
   useEffect(() => {
     if (!isDropdown || !isOpen) return;
     const handleOutsideClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        onToggle?.();
-      }
+      const target = e.target as Node;
+      const clickedTrigger = triggerRef.current?.contains(target);
+      const clickedMenu = menuRef.current?.contains(target);
+      if (!clickedTrigger && !clickedMenu) onToggle?.();
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
@@ -53,9 +84,7 @@ const CommandPill: React.FC<CommandPillProps> = ({
   const pillClasses = [
     'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium',
     'transition-all duration-150 select-none whitespace-nowrap flex-shrink-0',
-    isDisabled
-      ? 'opacity-25 cursor-not-allowed'
-      : 'cursor-pointer',
+    isDisabled ? 'opacity-25 cursor-not-allowed' : 'cursor-pointer',
     isActive
       ? 'bg-primary text-primary-foreground shadow-sm'
       : isDisabled
@@ -68,9 +97,40 @@ const CommandPill: React.FC<CommandPillProps> = ({
     const displayValue = selectedValue ?? (options?.[0]?.value || '');
     const displayLabel = options?.find(o => o.value === displayValue)?.label ?? displayValue;
 
+    const dropdownMenu = isOpen && !isDisabled ? (
+      <div
+        ref={menuRef}
+        role="listbox"
+        style={menuStyle}
+        className="bg-card border border-border rounded-xl shadow-lg py-1 min-w-[100px] overflow-hidden"
+      >
+        {options!.map((option) => (
+          <button
+            key={option.value}
+            role="option"
+            type="button"
+            aria-selected={displayValue === option.value}
+            onClick={() => {
+              onValueChange?.(option.value);
+              onToggle?.();
+            }}
+            className={[
+              'w-full text-left px-3 py-1.5 text-sm transition-colors',
+              displayValue === option.value
+                ? 'text-primary font-semibold bg-accent/50'
+                : 'text-card-foreground hover:bg-accent hover:text-accent-foreground',
+            ].join(' ')}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    ) : null;
+
     return (
-      <div ref={containerRef} className="relative">
+      <>
         <button
+          ref={triggerRef}
           type="button"
           disabled={isDisabled}
           onClick={isDisabled ? undefined : onToggle}
@@ -80,12 +140,8 @@ const CommandPill: React.FC<CommandPillProps> = ({
         >
           {icon && <span className="flex-shrink-0 w-3.5 h-3.5">{icon}</span>}
           <span>
-            {label}
-            {displayValue !== 'medium' || isActive ? (
-              <span className="ml-1 opacity-70">{displayLabel}</span>
-            ) : null}
+            {displayLabel}
           </span>
-          {/* Chevron */}
           <svg
             className={`w-3 h-3 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
@@ -97,34 +153,10 @@ const CommandPill: React.FC<CommandPillProps> = ({
           </svg>
         </button>
 
-        {isOpen && !isDisabled && (
-          <div
-            role="listbox"
-            className="absolute bottom-full mb-1.5 left-0 bg-card border border-border rounded-xl shadow-lg py-1 z-50 min-w-[100px] overflow-hidden"
-          >
-            {options!.map((option) => (
-              <button
-                key={option.value}
-                role="option"
-                type="button"
-                aria-selected={displayValue === option.value}
-                onClick={() => {
-                  onValueChange?.(option.value);
-                  onToggle?.();
-                }}
-                className={[
-                  'w-full text-left px-3 py-1.5 text-sm transition-colors',
-                  displayValue === option.value
-                    ? 'text-primary font-semibold bg-accent/50'
-                    : 'text-card-foreground hover:bg-accent hover:text-accent-foreground',
-                ].join(' ')}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+        {typeof window !== 'undefined' && dropdownMenu
+          ? createPortal(dropdownMenu, document.body)
+          : null}
+      </>
     );
   }
 
