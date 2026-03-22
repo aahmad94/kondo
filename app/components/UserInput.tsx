@@ -193,9 +193,9 @@ export default function UserInput({
   const getPlaceholder = (): string => {
     if (activeCommand === 'random') return '[optional topic]';
     if (activeCommand === 'terms') {
-      return `[term]`;
+      return `[term for related words]`;
     }
-    if (activeCommand === 'verb') return '[verb]';
+    if (activeCommand === 'verb') return '[verb to conjugate]';
 
     // Default greeting
     const base = greetings[selectedLanguage] ?? greetings.ja;
