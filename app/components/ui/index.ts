@@ -17,3 +17,4 @@ export { DeckNavigationModal } from './DeckNavigationModal';
 export * from './buttons';
 export { default as CommandPill } from './CommandPill';
 export type { CommandPillProps, CommandPillOption } from './CommandPill';
+export { AppearanceSubmenu } from './AppearanceSubmenu';

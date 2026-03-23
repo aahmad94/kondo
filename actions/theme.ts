@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import { updateUserTheme } from "@/lib/user";
 
-export async function updateUserThemeAction(theme: 'light' | 'dark') {
+export async function updateUserThemeAction(theme: 'light' | 'dark' | 'system') {
   try {
     const session = await getServerSession(authOptions);
     

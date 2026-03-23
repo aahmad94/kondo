@@ -16,7 +16,7 @@ model User {
   subscribed            Boolean?                   @default(false)
   createdAt             DateTime                   @default(now())
   updatedAt             DateTime                   @updatedAt
-  theme                 String?                    @default("light")
+  theme                 String?                    @default("system")
   landingPage           String?                    @default("community")
   emailFrequency        String?                    @default("daily")
   emailSubscribedAt     DateTime?

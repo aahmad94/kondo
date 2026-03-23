@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import LanguageSelector from './LanguageSelector';
 import { useTheme } from '../contexts/ThemeContext';
+import { AppearanceSubmenu } from './ui';
 import CreateAliasModal from './CreateAliasModal';
 import EditAliasModal from './EditAliasModal';
 import LandingPageModal from './LandingPageModal';
@@ -26,7 +27,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const [isEditAliasModalOpen, setIsEditAliasModalOpen] = useState(false);
   const [isLandingPageModalOpen, setIsLandingPageModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { theme, toggleTheme } = useTheme();
+  const { theme, effectiveTheme, setThemeMode } = useTheme();
   
   // Get user alias information
   const { alias, isPublic } = useUserAlias();
@@ -93,7 +94,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
             alt="Kondo Logo"
             width={42}
             height={42}
-            className={`mr-2 transition-all duration-200 ${theme === 'light' ? 'brightness-0 saturate-100' : ''}`}
+            className={`mr-2 transition-all duration-200 ${effectiveTheme === 'light' ? 'brightness-0' : ''}`}
           />
           Kondo
         </Link>
@@ -136,17 +137,14 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
                         <span>Landing page</span>
                       </div>
                     </button>
-                    <button
-                      onClick={() => {
-                        toggleTheme();
+                    <AppearanceSubmenu
+                      key={String(showDropdown)}
+                      currentTheme={theme}
+                      onSelect={(mode) => {
+                        setThemeMode(mode);
                         setShowDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
-                    >
-                      <div className="flex-col w-full text-wrap">
-                        <span>{theme === 'light' ? 'Dark mode 🌙' : 'Light mode ☀️'}</span>
-                      </div>
-                    </button>
+                    />
                     <button
                       onClick={() => {
                         setShowDropdown(false);

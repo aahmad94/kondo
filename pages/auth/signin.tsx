@@ -17,18 +17,34 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
   const { isMobile, mobileOffset } = useIsMobile();
   const yellow = '#b59f3b'
   
-  // Theme detection state
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  
-  // Check localStorage for theme on mount
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
-      const detectedTheme = savedTheme || 'dark'; // Default to dark
-      setTheme(detectedTheme);
-      // Apply theme class to document element
-      document.documentElement.className = detectedTheme;
-    }
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const resolveTheme = (): 'light' | 'dark' => {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'light' || stored === 'dark') return stored;
+      // 'system' or no value → follow OS
+      return mq.matches ? 'dark' : 'light';
+    };
+
+    const applyTheme = (t: 'light' | 'dark') => {
+      setTheme(t);
+      document.documentElement.className = t;
+    };
+
+    applyTheme(resolveTheme());
+
+    // Keep in sync if OS preference changes while on this page
+    const handler = () => {
+      const stored = localStorage.getItem('theme');
+      if (!stored || stored === 'system') {
+        applyTheme(mq.matches ? 'dark' : 'light');
+      }
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
   }, []);
 
   useEffect(() => {
@@ -81,7 +97,7 @@ export default function SignIn({ providers, csrfToken }: InferGetServerSideProps
                     <img 
                       src="/icon.png" 
                       alt="Kondo" 
-                      className={`w-12 h-12 mr-3 ${theme === 'light' ? 'brightness-0 saturate-100' : ''}`}
+                      className={`w-12 h-12 mr-3 ${theme === 'light' ? 'brightness-0' : ''}`}
                     />
                     <h1 className="text-4xl font-medium text-foreground">Kondo</h1>
                   </div>

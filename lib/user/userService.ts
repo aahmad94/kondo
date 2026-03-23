@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'system';
 
 export async function getUserTheme(userEmail: string): Promise<Theme> {
   try {
@@ -19,7 +19,9 @@ export async function getUserTheme(userEmail: string): Promise<Theme> {
       throw new Error('User not found');
     }
 
-    return (user.theme as Theme) || 'dark';
+    const valid: Theme[] = ['light', 'dark', 'system'];
+    const stored = user.theme as Theme;
+    return valid.includes(stored) ? stored : 'system';
   } finally {
     await prisma.$disconnect();
   }

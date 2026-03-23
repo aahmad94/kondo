@@ -193,7 +193,7 @@ export default function UserInput({
   const getPlaceholder = (): string => {
     if (activeCommand === 'random') return '[optional topic]';
     if (activeCommand === 'terms') {
-      return `[term for related words]`;
+      return `[word to get related terms]`;
     }
     if (activeCommand === 'verb') return '[verb to conjugate]';
 
