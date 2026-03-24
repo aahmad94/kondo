@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 800" width="1060" height="800"
+  font-family="ui-monospace,Menlo,monospace">
+  <defs>
+    <marker id="ah-slate"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#64748b"/></marker>
+    <marker id="ah-blue"    markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#1d6fa4"/></marker>
+    <marker id="ah-violet"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#6e40c9"/></marker>
+    <marker id="ah-emerald" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2ea043"/></marker>
+    <marker id="ah-amber"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#bb8009"/></marker>
+    <marker id="ah-green"   markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#238636"/></marker>
+    <marker id="ah-orange"  markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#bd561d"/></marker>
+    <marker id="ah-red"     markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#da3633"/></marker>
+    <marker id="ah-pink"    markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8957e5"/></marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1060" height="800" fill="#0d1117"/>
+
+  <!-- Title -->
+  <text x="530" y="30" font-size="15" fill="#f0f6fc" text-anchor="middle" font-weight="bold">Kondo - Theme System Flow</text>
+
+  <!-- Pages Router divider -->
+  <line x1="763" y1="48" x2="763" y2="730" stroke="#21262d" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="769" y="61" font-size="10" fill="#484f58">PAGES ROUTER (own context)</text>
+
+  <!-- DATA SOURCES y=68-130 -->
+  <text x="18" y="61" font-size="10" fill="#484f58" font-weight="bold">DATA SOURCES</text>
+
+  <!-- PostgreSQL DB -->
+  <rect x="18"  y="68" width="178" height="62" rx="6" fill="#0d2137" stroke="#1d6fa4" stroke-width="1.5"/>
+  <text x="107" y="90"  font-size="11" fill="#79c0ff" text-anchor="middle" font-weight="bold">PostgreSQL DB</text>
+  <text x="107" y="106" font-size="9"  fill="#58a6ff" text-anchor="middle">User.theme</text>
+  <text x="107" y="122" font-size="9"  fill="#484f58" text-anchor="middle">&apos;light&apos; | &apos;dark&apos; | &apos;system&apos;</text>
+
+  <!-- localStorage -->
+  <rect x="214" y="68" width="178" height="62" rx="6" fill="#160d33" stroke="#6e40c9" stroke-width="1.5"/>
+  <text x="303" y="90"  font-size="11" fill="#d2a8ff" text-anchor="middle" font-weight="bold">localStorage</text>
+  <text x="303" y="106" font-size="9"  fill="#bc8cff" text-anchor="middle">&apos;theme&apos; key</text>
+  <text x="303" y="122" font-size="9"  fill="#484f58" text-anchor="middle">&apos;light&apos; | &apos;dark&apos; | &apos;system&apos;</text>
+
+  <!-- OS / matchMedia -->
+  <rect x="410" y="68" width="210" height="62" rx="6" fill="#03200f" stroke="#2ea043" stroke-width="1.5"/>
+  <text x="515" y="90"  font-size="11" fill="#56d364" text-anchor="middle" font-weight="bold">OS / matchMedia</text>
+  <text x="515" y="106" font-size="9"  fill="#3fb950" text-anchor="middle">prefers-color-scheme</text>
+  <text x="515" y="122" font-size="9"  fill="#484f58" text-anchor="middle">live system preference</text>
+
+  <!-- SERVICES y=158-220 -->
+  <text x="18" y="152" font-size="10" fill="#484f58" font-weight="bold">SERVICES</text>
+
+  <!-- userService.ts -->
+  <rect x="18"  y="158" width="178" height="62" rx="6" fill="#1a1100" stroke="#bb8009" stroke-width="1.5"/>
+  <text x="107" y="178" font-size="11" fill="#e3b341" text-anchor="middle" font-weight="bold">userService.ts</text>
+  <text x="107" y="194" font-size="9"  fill="#d29922" text-anchor="middle">lib/user/userService.ts</text>
+  <text x="107" y="208" font-size="9"  fill="#484f58" text-anchor="middle">getUserTheme() / updateUserTheme()</text>
+
+  <!-- getUserTheme API -->
+  <rect x="214" y="158" width="178" height="62" rx="6" fill="#1a1100" stroke="#bb8009" stroke-width="1.5"/>
+  <text x="303" y="178" font-size="11" fill="#e3b341" text-anchor="middle" font-weight="bold">getUserTheme API</text>
+  <text x="303" y="194" font-size="9"  fill="#d29922" text-anchor="middle">pages/api/getUserTheme.ts</text>
+  <text x="303" y="208" font-size="9"  fill="#484f58" text-anchor="middle">GET -&gt; returns User.theme</text>
+
+  <!-- actions/theme.ts -->
+  <rect x="410" y="158" width="210" height="62" rx="6" fill="#1a1100" stroke="#bb8009" stroke-width="1.5"/>
+  <text x="515" y="178" font-size="11" fill="#e3b341" text-anchor="middle" font-weight="bold">actions/theme.ts</text>
+  <text x="515" y="194" font-size="9"  fill="#d29922" text-anchor="middle">updateUserThemeAction()</text>
+  <text x="515" y="208" font-size="9"  fill="#484f58" text-anchor="middle">server action -&gt; DB write</text>
+
+  <!-- THEMECONTEXT y=252-445 -->
+  <text x="18" y="244" font-size="10" fill="#484f58" font-weight="bold">APP ROUTER CONTEXT</text>
+
+  <!-- outer box -->
+  <rect x="15" y="252" width="728" height="193" rx="8" fill="#040f0a" stroke="#238636" stroke-width="2"/>
+  <text x="379" y="271" font-size="12" fill="#3fb950" text-anchor="middle" font-weight="bold">ThemeContext  -  app/contexts/ThemeContext.tsx</text>
+
+  <!-- theme (state) -->
+  <rect x="28"  y="280" width="205" height="76" rx="5" fill="#071a10" stroke="#2ea043" stroke-width="1"/>
+  <text x="131" y="298" font-size="10" fill="#3fb950" text-anchor="middle" font-weight="bold">theme  (useState)</text>
+  <text x="131" y="313" font-size="9"  fill="#56d364" text-anchor="middle">init: localStorage read</text>
+  <text x="131" y="327" font-size="9"  fill="#484f58" text-anchor="middle">default -&gt; &apos;system&apos;</text>
+  <text x="131" y="341" font-size="9"  fill="#484f58" text-anchor="middle">loadTheme() corrects on auth</text>
+  <text x="131" y="353" font-size="8"  fill="#2f5c40" text-anchor="middle">stored pref: light | dark | system</text>
+
+  <!-- systemPreference (state) -->
+  <rect x="248" y="280" width="218" height="76" rx="5" fill="#071a10" stroke="#2ea043" stroke-width="1"/>
+  <text x="357" y="298" font-size="10" fill="#3fb950" text-anchor="middle" font-weight="bold">systemPreference  (useState)</text>
+  <text x="357" y="313" font-size="9"  fill="#56d364" text-anchor="middle">init: matchMedia.matches</text>
+  <text x="357" y="327" font-size="9"  fill="#484f58" text-anchor="middle">useEffect -&gt; change listener</text>
+  <text x="357" y="341" font-size="9"  fill="#484f58" text-anchor="middle">always tracks live OS state</text>
+  <text x="357" y="353" font-size="8"  fill="#2f5c40" text-anchor="middle">resolves to: light | dark</text>
+
+  <!-- setThemeMode -->
+  <rect x="483" y="280" width="248" height="76" rx="5" fill="#071a10" stroke="#2ea043" stroke-width="1"/>
+  <text x="607" y="298" font-size="10" fill="#3fb950" text-anchor="middle" font-weight="bold">setThemeMode(mode)</text>
+  <text x="607" y="313" font-size="9"  fill="#56d364" text-anchor="middle">-&gt; setTheme(mode)</text>
+  <text x="607" y="327" font-size="9"  fill="#484f58" text-anchor="middle">-&gt; localStorage.setItem(&apos;theme&apos;)</text>
+  <text x="607" y="341" font-size="9"  fill="#484f58" text-anchor="middle">-&gt; updateUserThemeAction() if authed</text>
+  <text x="607" y="353" font-size="8"  fill="#2f5c40" text-anchor="middle">useCallback([session])</text>
+
+  <!-- effectiveTheme (useMemo) - dashed border = computed, not state -->
+  <rect x="90"  y="368" width="590" height="65" rx="5" fill="#071a10" stroke="#196127" stroke-width="1.5" stroke-dasharray="5,2"/>
+  <text x="385" y="388" font-size="10" fill="#3fb950" text-anchor="middle" font-weight="bold">effectiveTheme  (useMemo)</text>
+  <text x="385" y="403" font-size="9"  fill="#56d364" text-anchor="middle">theme === &apos;system&apos;  ?  systemPreference  :  theme</text>
+  <text x="385" y="418" font-size="9"  fill="#484f58" text-anchor="middle">always &apos;light&apos; | &apos;dark&apos;  -  recomputes inline every render, no useEffect needed</text>
+
+  <!-- theme -> effectiveTheme -->
+  <line x1="131" y1="356" x2="200" y2="368" stroke="#2ea043" stroke-width="1.5" marker-end="url(#ah-green)"/>
+  <!-- systemPreference -> effectiveTheme -->
+  <line x1="357" y1="356" x2="357" y2="368" stroke="#2ea043" stroke-width="1.5" marker-end="url(#ah-green)"/>
+
+  <!-- APP ROUTER LAYOUT CHAIN y=470-524 -->
+  <text x="18" y="464" font-size="10" fill="#484f58" font-weight="bold">APP ROUTER LAYOUT CHAIN</text>
+
+  <!-- app/layout.tsx -->
+  <rect x="18"  y="471" width="138" height="53" rx="6" fill="#150c04" stroke="#bd561d" stroke-width="1.5"/>
+  <text x="87"  y="491" font-size="11" fill="#ffa657" text-anchor="middle" font-weight="bold">app/layout.tsx</text>
+  <text x="87"  y="506" font-size="9"  fill="#d1861a" text-anchor="middle">&lt;html&gt; &lt;body&gt;</text>
+  <text x="87"  y="519" font-size="8"  fill="#484f58" text-anchor="middle">root entry point</text>
+  <line x1="156" y1="498" x2="178" y2="498" stroke="#bd561d" stroke-width="1.5" marker-end="url(#ah-orange)"/>
+
+  <!-- Providers -->
+  <rect x="178" y="471" width="155" height="53" rx="6" fill="#150c04" stroke="#bd561d" stroke-width="1.5"/>
+  <text x="256" y="489" font-size="11" fill="#ffa657" text-anchor="middle" font-weight="bold">&lt;Providers&gt;</text>
+  <text x="256" y="504" font-size="9"  fill="#d1861a" text-anchor="middle">app/providers.tsx</text>
+  <text x="256" y="518" font-size="8"  fill="#484f58" text-anchor="middle">wraps &lt;ThemeProvider&gt;</text>
+  <line x1="333" y1="498" x2="355" y2="498" stroke="#bd561d" stroke-width="1.5" marker-end="url(#ah-orange)"/>
+
+  <!-- ThemeWrapper -->
+  <rect x="355" y="471" width="185" height="53" rx="6" fill="#150c04" stroke="#bd561d" stroke-width="1.5"/>
+  <text x="448" y="489" font-size="11" fill="#ffa657" text-anchor="middle" font-weight="bold">&lt;ThemeWrapper&gt;</text>
+  <text x="448" y="504" font-size="9"  fill="#d1861a" text-anchor="middle">useTheme() -&gt; effectiveTheme</text>
+  <text x="448" y="518" font-size="8"  fill="#484f58" text-anchor="middle">useEffect([effectiveTheme]) -&gt; .className</text>
+
+  <!-- ThemeContext -> ThemeWrapper context value arrow -->
+  <line x1="448" y1="445" x2="448" y2="471" stroke="#238636" stroke-width="1.5" marker-end="url(#ah-green)"/>
+  <text x="455" y="461" font-size="8" fill="#2ea043">context value</text>
+
+  <!-- DOM OUTPUT y=554-613 -->
+  <line x1="448" y1="524" x2="448" y2="551" stroke="#da3633" stroke-width="1.5" marker-end="url(#ah-red)"/>
+
+  <rect x="100" y="551" width="545" height="62" rx="6" fill="#130000" stroke="#da3633" stroke-width="2"/>
+  <text x="373" y="572" font-size="12" fill="#ff7b72" text-anchor="middle" font-weight="bold">document.documentElement.className = &apos;dark&apos; | &apos;light&apos;</text>
+  <text x="373" y="589" font-size="9"  fill="#f85149" text-anchor="middle">tailwind.config.ts  darkMode: [&quot;class&quot;]  -  globals.css  .dark{} | :root{}</text>
+  <text x="373" y="604" font-size="9"  fill="#484f58" text-anchor="middle">CSS custom properties cascade to every child element</text>
+
+  <!-- FINAL OUTPUT y=640-692 -->
+  <line x1="373" y1="613" x2="373" y2="637" stroke="#bd561d" stroke-width="1.5" marker-end="url(#ah-orange)"/>
+
+  <rect x="100" y="637" width="545" height="53" rx="6" fill="#150c04" stroke="#bd561d" stroke-width="1.5"/>
+  <text x="373" y="657" font-size="11" fill="#ffa657" text-anchor="middle" font-weight="bold">app/page.tsx + all App Router routes</text>
+  <text x="373" y="672" font-size="9"  fill="#d1861a" text-anchor="middle">Tailwind tokens (bg-background, text-foreground...) resolve via inherited CSS vars</text>
+  <text x="373" y="685" font-size="8"  fill="#484f58" text-anchor="middle">no per-component theme logic required</text>
+
+  <!-- COMPONENTS (right of layout chain) -->
+  <text x="662" y="464" font-size="10" fill="#484f58" font-weight="bold">COMPONENTS</text>
+
+  <!-- MenuBar -->
+  <rect x="660" y="471" width="90" height="53" rx="6" fill="#100020" stroke="#8957e5" stroke-width="1.5"/>
+  <text x="705" y="490" font-size="10" fill="#d2a8ff" text-anchor="middle" font-weight="bold">MenuBar</text>
+  <text x="705" y="504" font-size="8"  fill="#bc8cff" text-anchor="middle">useTheme()</text>
+  <text x="705" y="516" font-size="8"  fill="#484f58" text-anchor="middle">theme / effectiveTheme</text>
+  <line x1="705" y1="524" x2="705" y2="551" stroke="#8957e5" stroke-width="1.5" marker-end="url(#ah-pink)"/>
+
+  <!-- AppearanceSubmenu -->
+  <rect x="650" y="551" width="110" height="62" rx="6" fill="#100020" stroke="#8957e5" stroke-width="1.5"/>
+  <text x="705" y="570" font-size="10" fill="#d2a8ff" text-anchor="middle" font-weight="bold">Appearance</text>
+  <text x="705" y="584" font-size="9"  fill="#d2a8ff" text-anchor="middle">Submenu</text>
+  <text x="705" y="598" font-size="8"  fill="#bc8cff" text-anchor="middle">Light / Dark / System</text>
+  <text x="705" y="608" font-size="7"  fill="#484f58" text-anchor="middle">onSelect -&gt; setThemeMode()</text>
+
+  <!-- setThemeMode feedback arrow -->
+  <path d="M 760 582 Q 745 582 745 318 Q 745 290 731 290" stroke="#8957e5" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#ah-pink)"/>
+  <text x="751" y="430" font-size="8" fill="#8957e5" transform="rotate(90,751,430)">setThemeMode()</text>
+
+  <!-- INTER-SECTION ARROWS -->
+
+  <!-- DB bottom -> userService top -->
+  <line x1="107" y1="130" x2="107" y2="158" stroke="#1d6fa4" stroke-width="1.5" marker-end="url(#ah-blue)"/>
+
+  <!-- localStorage dashed -> theme state init read -->
+  <line x1="303" y1="130" x2="180" y2="252" stroke="#6e40c9" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ah-violet)"/>
+  <text x="228" y="198" font-size="8" fill="#6e40c9">init read</text>
+
+  <!-- OS -> systemPreference -->
+  <line x1="515" y1="130" x2="420" y2="252" stroke="#2ea043" stroke-width="1.5" marker-end="url(#ah-emerald)"/>
+
+  <!-- userService -> getUserTheme API -->
+  <line x1="196" y1="189" x2="214" y2="189" stroke="#bb8009" stroke-width="1.5" marker-end="url(#ah-amber)"/>
+
+  <!-- getUserTheme API -> theme state (fetch on auth) -->
+  <line x1="303" y1="220" x2="230" y2="252" stroke="#bb8009" stroke-width="1.5" marker-end="url(#ah-amber)"/>
+  <text x="242" y="245" font-size="8" fill="#bb8009">fetch on auth</text>
+
+  <!-- actions/theme -> userService (write path) -->
+  <line x1="410" y1="189" x2="392" y2="189" stroke="#bb8009" stroke-width="1.5" marker-end="url(#ah-amber)"/>
+
+  <!-- actions/theme -> DB async write -->
+  <path d="M 515 158 Q 515 99 196 99" stroke="#bb8009" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#ah-amber)"/>
+  <text x="405" y="88" font-size="8" fill="#bb8009">DB write</text>
+
+  <!-- setThemeMode -> localStorage write-back -->
+  <path d="M 607 280 Q 607 145 392 130" stroke="#6e40c9" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#ah-violet)"/>
+  <text x="566" y="180" font-size="8" fill="#6e40c9">write</text>
+
+  <!-- setThemeMode -> actions/theme trigger -->
+  <path d="M 607 280 Q 607 230 620 220" stroke="#bb8009" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#ah-amber)"/>
+
+  <!-- PAGES ROUTER x=769-1045 -->
+  <rect x="769" y="68" width="276" height="290" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+  <text x="907" y="88"  font-size="12" fill="#8b949e" text-anchor="middle" font-weight="bold">pages/auth/signin.tsx</text>
+  <text x="907" y="103" font-size="8"  fill="#484f58" text-anchor="middle">Pages Router - no ThemeProvider inheritance</text>
+
+  <!-- Step 1 -->
+  <rect x="783" y="112" width="248" height="54" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <text x="907" y="130" font-size="9"  fill="#8b949e" text-anchor="middle" font-weight="bold">1. read localStorage(&apos;theme&apos;)</text>
+  <text x="907" y="145" font-size="8"  fill="#484f58" text-anchor="middle">&apos;light&apos; | &apos;dark&apos; - use directly</text>
+  <text x="907" y="158" font-size="8"  fill="#484f58" text-anchor="middle">&apos;system&apos; or empty - fall through</text>
+
+  <!-- Step 2 -->
+  <rect x="783" y="175" width="248" height="40" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <text x="907" y="193" font-size="9"  fill="#8b949e" text-anchor="middle" font-weight="bold">2. matchMedia fallback</text>
+  <text x="907" y="207" font-size="8"  fill="#484f58" text-anchor="middle">window.matchMedia(&apos;(prefers-color-scheme: dark)&apos;)</text>
+
+  <!-- Step 3 -->
+  <rect x="783" y="224" width="248" height="40" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <text x="907" y="242" font-size="9"  fill="#8b949e" text-anchor="middle" font-weight="bold">3. matchMedia change listener</text>
+  <text x="907" y="256" font-size="8"  fill="#484f58" text-anchor="middle">live updates while on signin page</text>
+
+  <!-- Step 4 -->
+  <rect x="783" y="273" width="248" height="40" rx="4" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <text x="907" y="291" font-size="9"  fill="#8b949e" text-anchor="middle" font-weight="bold">4. document.documentElement.className</text>
+  <text x="907" y="305" font-size="8"  fill="#484f58" text-anchor="middle">sets &apos;dark&apos; | &apos;light&apos; directly, no context</text>
+
+  <text x="907" y="334" font-size="8" fill="#6e7681" text-anchor="middle">bypasses ThemeContext - standalone DOM write</text>
+  <text x="907" y="348" font-size="8" fill="#6e7681" text-anchor="middle">localStorage kept in sync for when user logs in</text>
+
+  <!-- signin -> DOM arrow (dashed) -->
+  <path d="M 907 358 Q 907 582 645 582" stroke="#30363d" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#ah-slate)"/>
+  <text x="850" y="480" font-size="8" fill="#484f58" text-anchor="middle" transform="rotate(90,850,480)">same DOM target</text>
+
+  <!-- OS -> signin matchMedia -->
+  <line x1="620" y1="99" x2="769" y2="140" stroke="#2ea043" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ah-emerald)"/>
+
+  <!-- localStorage -> signin -->
+  <path d="M 392 99 Q 560 52 783 133" stroke="#6e40c9" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#ah-violet)"/>
+
+  <!-- LEGEND y=716-792 -->
+  <rect x="15" y="716" width="1030" height="76" rx="6" fill="#090d12" stroke="#21262d" stroke-width="1"/>
+  <text x="30" y="733" font-size="10" fill="#484f58" font-weight="bold">LEGEND</text>
+
+  <line x1="30" y1="749" x2="66" y2="749" stroke="#484f58" stroke-width="1.5" marker-end="url(#ah-slate)"/>
+  <text x="74" y="753" font-size="9" fill="#8b949e">sync data flow</text>
+
+  <line x1="168" y1="749" x2="204" y2="749" stroke="#484f58" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ah-slate)"/>
+  <text x="212" y="753" font-size="9" fill="#8b949e">async / write-back</text>
+
+  <rect x="310" y="741" width="12" height="12" rx="2" fill="#0d2137" stroke="#1d6fa4" stroke-width="1.5"/>
+  <text x="328" y="752" font-size="9" fill="#79c0ff">Database</text>
+
+  <rect x="395" y="741" width="12" height="12" rx="2" fill="#160d33" stroke="#6e40c9" stroke-width="1.5"/>
+  <text x="413" y="752" font-size="9" fill="#d2a8ff">localStorage</text>
+
+  <rect x="496" y="741" width="12" height="12" rx="2" fill="#03200f" stroke="#2ea043" stroke-width="1.5"/>
+  <text x="514" y="752" font-size="9" fill="#56d364">OS / matchMedia</text>
+
+  <rect x="618" y="741" width="12" height="12" rx="2" fill="#1a1100" stroke="#bb8009" stroke-width="1.5"/>
+  <text x="636" y="752" font-size="9" fill="#e3b341">Services / API</text>
+
+  <rect x="718" y="741" width="12" height="12" rx="2" fill="#040f0a" stroke="#238636" stroke-width="1.5"/>
+  <text x="736" y="752" font-size="9" fill="#3fb950">ThemeContext</text>
+
+  <rect x="826" y="741" width="12" height="12" rx="2" fill="#150c04" stroke="#bd561d" stroke-width="1.5"/>
+  <text x="844" y="752" font-size="9" fill="#ffa657">App Router layout</text>
+
+  <rect x="955" y="741" width="12" height="12" rx="2" fill="#130000" stroke="#da3633" stroke-width="1.5"/>
+  <text x="973" y="752" font-size="9" fill="#ff7b72">DOM output</text>
+
+  <rect x="310" y="761" width="12" height="12" rx="2" fill="#100020" stroke="#8957e5" stroke-width="1.5"/>
+  <text x="328" y="772" font-size="9" fill="#d2a8ff">Components</text>
+
+  <rect x="420" y="761" width="12" height="12" rx="2" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+  <text x="438" y="772" font-size="9" fill="#8b949e">Pages Router (separate)</text>
+
+  <text x="598" y="772" font-size="8" fill="#484f58">dashed border = useMemo computed value (not state)</text>
+</svg>

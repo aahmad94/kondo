@@ -3,7 +3,7 @@ import { formatResponseHTML, formatResponseText, type EmailResponse, type EmailF
 /**
  * Generate HTML template for daily digest email
  */
-export async function generateDailyDigestHTML(userName: string, responses: any[], userId: string, isTest: boolean = false, unsubscribeToken?: string): Promise<string> {
+export async function generateDailyDigestHTML(userName: string, responses: any[], userId: string, isTest: boolean = false, unsubscribeToken?: string, deckUrl?: string): Promise<string> {
   const currentDate = new Date().toLocaleDateString('en-US', { 
     month: 'long', 
     day: 'numeric', 
@@ -44,7 +44,7 @@ ${testBadge}
 </div>
 ${responsesHTML}
 <div style="text-align:center;margin:30px 0">
-<a href="https://kondoai.com" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;display:inline-block">Continue Learning on Kondo</a>
+<a href="${deckUrl || 'https://kondoai.com'}" style="background:#000;color:#fff;padding:12px 24px;text-decoration:none;display:inline-block">Continue Learning on Kondo</a>
 </div>
 <div style="border-top:1px solid #ccc;padding-top:20px;text-align:center;font-size:12px;color:#000">
 <p style="color:#000">You're receiving this because you subscribed to Kondo daily updates.</p>
@@ -57,7 +57,7 @@ ${unsubscribeToken ? `<p style="color:#000"><a href="https://kondoai.com/unsubsc
 /**
  * Generate plain text template for daily digest email
  */
-export async function generateDailyDigestText(responses: any[], userId: string, unsubscribeToken?: string): Promise<string> {
+export async function generateDailyDigestText(responses: any[], userId: string, unsubscribeToken?: string, deckUrl?: string): Promise<string> {
   const currentDate = new Date().toLocaleDateString('en-US', { 
     month: 'long', 
     day: 'numeric', 
@@ -89,7 +89,7 @@ ${currentDate}
 
 ${responsesText}
 
-Continue learning: https://kondoai.com
+Continue learning: ${deckUrl || 'https://kondoai.com'}
 
 ---
 You're receiving this because you subscribed to Kondo daily updates.${unsubscribeText}

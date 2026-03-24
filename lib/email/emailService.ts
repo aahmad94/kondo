@@ -37,6 +37,23 @@ function getLanguageFlag(languageCode: string): string {
   return flags[languageCode] || '🌐';
 }
 
+// Helper to build the Dojo deep-link URL for a user's latest DailySummary in a language
+async function getDailyDeckUrl(userId: string, languageId: string): Promise<string> {
+  try {
+    const summary = await prisma.dailySummary.findFirst({
+      where: { userId, languageId },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true }
+    });
+    if (summary?.id) {
+      return `https://kondoai.com/?deckId=${summary.id}&deckTitle=daily+summary`;
+    }
+  } catch (error) {
+    console.error('Error fetching daily deck URL:', error);
+  }
+  return 'https://kondoai.com';
+}
+
 // Helper function to get all active language subscriptions for a user
 async function getUserLanguageSubscriptions(userId: string) {
   try {
@@ -298,12 +315,22 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
     const userLanguageCode = await getUserLanguageCode(userId);
     const unsubscribeToken = await generateUnsubscribeToken(userId, userLanguageCode);
 
+    // Get the user's language ID for the deck URL
+    const userLanguagePreference = await prisma.userLanguagePreference.findUnique({
+      where: { userId },
+      select: { languageId: true }
+    });
+    const deckUrl = userLanguagePreference?.languageId
+      ? await getDailyDeckUrl(userId, userLanguagePreference.languageId)
+      : 'https://kondoai.com';
+
     const emailContent = await generateDailyDigestHTML(
       user.name || 'Kondo User',
       summaryData.allResponses.slice(0, 6), // Show 6 responses since Gmail truncation persists anyway
       user.id,
       isTest,
-      unsubscribeToken
+      unsubscribeToken,
+      deckUrl
     );
 
     const currentDate = new Date().toLocaleDateString('en-US', { 
@@ -324,7 +351,7 @@ export async function sendDailyDigest(userId: string, isTest: boolean = false): 
       to: [recipientEmail],
       subject,
       html: emailContent,
-      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), user.id, unsubscribeToken),
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), user.id, unsubscribeToken, deckUrl),
     });
 
     // Update last email sent timestamp (only for real emails, not tests)
@@ -393,12 +420,15 @@ export async function sendDojoReportByLanguageCode(userId: string, languageCode:
     // Generate language-specific unsubscribe token
     const unsubscribeToken = await generateUnsubscribeToken(userId, language.code);
 
+    const deckUrl = await getDailyDeckUrl(userId, language.id);
+
     const emailContent = await generateDailyDigestHTML(
       subscription.user.name || 'Kondo User',
       summaryData.allResponses.slice(0, 6),
       userId,
       isTest,
-      unsubscribeToken
+      unsubscribeToken,
+      deckUrl
     );
 
     const currentDate = new Date().toLocaleDateString('en-US', { 
@@ -419,7 +449,7 @@ export async function sendDojoReportByLanguageCode(userId: string, languageCode:
       to: [recipientEmail],
       subject,
       html: emailContent,
-      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId, unsubscribeToken),
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId, unsubscribeToken, deckUrl),
     });
 
     // Update last email sent timestamp (only for real emails, not tests)
@@ -509,12 +539,15 @@ export async function sendLanguageSpecificDailyDigest(userId: string, languageId
     // Generate language-specific unsubscribe token
     const unsubscribeToken = await generateUnsubscribeToken(userId, subscription.language.code);
 
+    const deckUrl = await getDailyDeckUrl(userId, languageId);
+
     const emailContent = await generateDailyDigestHTML(
       subscription.user.name || 'Kondo User',
       summaryData.allResponses.slice(0, 6),
       userId,
       isTest,
-      unsubscribeToken
+      unsubscribeToken,
+      deckUrl
     );
 
     const currentDate = new Date().toLocaleDateString('en-US', { 
@@ -535,7 +568,7 @@ export async function sendLanguageSpecificDailyDigest(userId: string, languageId
       to: [recipientEmail],
       subject,
       html: emailContent,
-      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId, unsubscribeToken),
+      text: await generateDailyDigestText(summaryData.allResponses.slice(0, 6), userId, unsubscribeToken, deckUrl),
     });
 
     // Update last email sent timestamp (only for real emails, not tests)
