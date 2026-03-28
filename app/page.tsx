@@ -12,7 +12,7 @@ export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedDeck, setSelectedDeck] = useState<{ id: string | null, title: string | null }>({ id: null, title: 'community' });
+  const [selectedDeck, setSelectedDeck] = useState<{ id: string | null, title: string | null }>({ id: null, title: null });
   const [reservedDeckTitles, setReservedDeckTitles] = useState<string[]>(['all responses', 'daily summary', 'community', 'dojo', 'search']);
   const [newDeck, setNewDeck] = useState<{ id: string, title: string } | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
@@ -123,7 +123,7 @@ export default function Home() {
       try {
         const res = await fetch('/api/landingPage');
         if (!res.ok) {
-          handleDeckSelect(null, 'community');
+          handleDeckSelect(null, null);
           return;
         }
         const { landingPage } = await res.json();
@@ -138,7 +138,7 @@ export default function Home() {
         if (landingPage === 'dojo') {
           const bookmarksRes = await fetch(`/api/getBookmarks?userId=${session.userId}`);
           if (!bookmarksRes.ok) {
-            handleDeckSelect(null, 'community');
+            handleDeckSelect(null, null);
             return;
           }
           const decks = await bookmarksRes.json();
@@ -146,13 +146,13 @@ export default function Home() {
           if (dailySummaryDeck) {
             handleDeckSelect(dailySummaryDeck.id, dailySummaryDeck.title);
           } else {
-            handleDeckSelect(null, 'community');
+            handleDeckSelect(null, null);
           }
           return;
         }
-        handleDeckSelect(null, 'community');
+        handleDeckSelect(null, null);
       } catch {
-        handleDeckSelect(null, 'community');
+        handleDeckSelect(null, null);
       } finally {
         setIsLandingResolved(true);
       }

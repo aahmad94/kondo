@@ -61,11 +61,11 @@ export async function getLandingPage(userEmail: string): Promise<LandingPage> {
     });
 
     if (!user?.landingPage) {
-      return 'community';
+      return 'create';
     }
 
     const valid: LandingPage[] = ['create', 'dojo', 'community'];
-    return valid.includes(user.landingPage as LandingPage) ? (user.landingPage as LandingPage) : 'community';
+    return valid.includes(user.landingPage as LandingPage) ? (user.landingPage as LandingPage) : 'create';
   } finally {
     await prisma.$disconnect();
   }
@@ -85,7 +85,7 @@ export async function updateLandingPage(userEmail: string, landingPage: LandingP
       },
     });
 
-    return (updatedUser.landingPage ?? 'community') as LandingPage;
+    return (updatedUser.landingPage ?? 'create') as LandingPage;
   } finally {
     await prisma.$disconnect();
   }
