@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSession } from "next-auth/react";
-import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, WrenchIcon, AcademicCapIcon, ChevronDownIcon, BuildingLibraryIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon, PlusCircleIcon, QueueListIcon, XCircleIcon, DocumentTextIcon, WrenchIcon, AcademicCapIcon, ChevronDownIcon, BuildingLibraryIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import CreateDeckModal from './CreateDeckModal';
 import DeleteDeckModal from './DeleteDeckModal';
 import EditDeckModal from './EditDeckModal';
@@ -393,6 +393,16 @@ export default function Decks({
                   >
                     <QueueListIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
                     <span className="text-blue-400">all responses</span>
+                  </div>
+
+                  <div
+                    className={`search-button cursor-pointer hover:bg-accent hover:rounded-sm transition-all px-2 py-1 inline-block
+                      ${selectedDeck.id === "search" ? 'bg-accent rounded-sm' : ''}`}
+                    onClick={() => handleDeckInteraction("search", "search")}
+                    onTouchStart={() => handleDeckInteraction("search", "search")}
+                  >
+                    <MagnifyingGlassIcon className="h-4 w-4 inline mr-2 text-blue-400"/>
+                    <span className="text-blue-400">search</span>
                   </div>
 
                   <div

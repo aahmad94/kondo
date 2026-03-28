@@ -176,10 +176,9 @@ export default function ChatBox({
   const [quoteBarHeight, setQuoteBarHeight] = useState<number>(0);
   const [instructions, setInstructions] = useState({ main: '', dailySummary: '', dojoDetailed: '' });
   const [dailySummaryCache, setDailySummaryCache] = useState<Record<string, Response> | null>(null);
-  const [searchResultsCache, setSearchResultsCache] = useState<Record<string, Response> | null>(null);
+  const [summaryTimestamp, setSummaryTimestamp] = useState<Date | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [summaryTimestamp, setSummaryTimestamp] = useState<Date | null>(null);
   // Add ref to track previous language
   const previousLanguageRef = useRef(selectedLanguage);
   // Add ref to track ongoing rank updates to prevent duplicates
@@ -302,8 +301,7 @@ export default function ChatBox({
         if (selectedLanguage !== previousLanguageRef.current) {
           // Clear ChatBox responses and URL params
           setResponses({});
-          // Clear search and dojo caches
-          setSearchResultsCache(null);
+          // Clear dojo cache
           setDailySummaryCache(null);
           setSearchQuery('');
           router.push('/');
@@ -331,6 +329,10 @@ export default function ChatBox({
       
       if (selectedDeck.id === "all") {
         fetchAllResponses(session.userId, 1, false);
+      } else if (selectedDeck.id === "search") {
+        // Search deck: start empty and wait for user query
+        setBookmarkResponses({});
+        setSearchQuery('');
       } else if (selectedDeck.title === 'daily summary') {
         // Use cached summary if available, otherwise fetch
         if (dailySummaryCache) {
@@ -643,14 +645,6 @@ export default function ChatBox({
         return copy;
       });
 
-      // Update search results cache
-      setSearchResultsCache(prev => {
-        if (!prev) return prev;
-        const copy = { ...prev };
-        delete copy[responseId];
-        return copy;
-      });
-
       // Update daily summary cache
       setDailySummaryCache(prev => {
         if (!prev) return prev;
@@ -658,6 +652,7 @@ export default function ChatBox({
         delete copy[responseId];
         return copy;
       });
+
       
     } catch (error) {
       console.error('Error deleting response:', error);
@@ -724,18 +719,7 @@ export default function ChatBox({
       return updated;
     });
 
-    // Update searchResultsCache if it exists
-    setSearchResultsCache(prev => {
-      if (!prev) return prev;
-      const updated = { ...prev };
-      if (updated[responseId]) {
-        updated[responseId] = {
-          ...updated[responseId],
-          ...updates,
-        };
-      }
-      return updated;
-    });
+
   };
 
   const handleRankUpdate = async (responseId: string, newRank: number) => {
@@ -1271,39 +1255,23 @@ export default function ChatBox({
     updateCommunityFilters({ deckTitle: deckTitle });
   };
 
-
   const handleSearch = async (query: string) => {
     if (!session?.userId || !query.trim()) {
-      setSearchResultsCache(null);
-      // If we're in "all responses" view and search is cleared, reload all responses
-      if (selectedDeck.id === "all" && session?.userId) {
-        fetchAllResponses(session.userId);
-      }
+      setBookmarkResponses({});
       return;
     }
 
-    // Replace all spaces with ' & ' for to_tsquery compatibility
     const formattedQuery = query.trim().replace(/\s+/g, ' & ');
 
     try {
       setIsSearching(true);
       const res = await fetch(`/api/searchResponses?query=${encodeURIComponent(formattedQuery)}&languageCode=${selectedLanguage}`);
-      if (!res.ok) {
-        throw new Error('Failed to search responses');
-      }
+      if (!res.ok) throw new Error('Failed to search responses');
       const data = await res.json();
       const dict = Object.fromEntries(data.map((r: Response) => [r.id, r]));
-      setSearchResultsCache(dict);
-      
-      // If we're in "all responses" view, update the bookmarkResponses directly
-      if (selectedDeck.id === "all") {
-        setBookmarkResponses(dict);
-      } else {
-        setBookmarkResponses(dict);
-      }
+      setBookmarkResponses(dict);
     } catch (error) {
       console.error('Error searching responses:', error);
-      setSearchResultsCache(null);
       setBookmarkResponses({});
     } finally {
       setIsSearching(false);
@@ -1555,27 +1523,89 @@ export default function ChatBox({
           </div>
         )}
         
-        {selectedDeck.id && !isCommunityMode ? (
+        {selectedDeck.id === "search" && !isCommunityMode ? (
           <div className="w-full md:flex md:justify-center">
             <div className="w-full md:max-w-2xl">
-              {/* Search bar for all responses */}
-              {selectedDeck.id === "all" && (
-                <div className="mb-4">
-                  <SearchBar
-                    onSearch={handleSearch}
-                    selectedLanguage={selectedLanguage}
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                  />
-                </div>
-              )}
-              
-              {/* Loading indicator for search */}
-              {selectedDeck.id === "all" && isSearching && (
+              <div className="mb-4">
+                <SearchBar
+                  onSearch={handleSearch}
+                  selectedLanguage={selectedLanguage}
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                />
+              </div>
+
+              {isSearching && (
                 <div className="fixed inset-0 flex items-center justify-center bg-background/50 z-[90]">
                   <div className="animate-spin h-8 w-8 border-4 border-foreground border-t-transparent rounded-full"></div>
                 </div>
               )}
+
+              {!searchQuery.trim() && (
+                <div className="text-center text-muted-foreground mt-12 text-sm">
+                  Search across all your responses
+                </div>
+              )}
+
+              {searchQuery.trim() && !isSearching && Object.keys(bookmarkResponses).length === 0 && (
+                <div className="text-center text-muted-foreground mt-12 text-sm">
+                  No results found
+                </div>
+              )}
+
+              {(() => {
+                const importedResponses = Object.values(bookmarkResponses).filter(r => r.source === 'imported' && r.communityResponse?.creatorAlias);
+                const uniqueAliases = [...new Set(importedResponses.map(r => r.communityResponse!.creatorAlias).filter(Boolean))];
+                const aliasColorMap = createAliasColorMap(uniqueAliases);
+
+                return Object.values(bookmarkResponses).map((response: Response, index: number) => (
+                  <GPTResponse
+                    key={response.id || index}
+                    response={response.content}
+                    selectedDeckId={selectedDeck.id}
+                    selectedDeckTitle={selectedDeck.title ?? ''}
+                    reservedDeckTitles={reservedDeckTitles}
+                    responseId={response.id}
+                    rank={response.rank}
+                    createdAt={response.createdAt}
+                    isPaused={response.isPaused}
+                    decks={response.decks}
+                    furigana={response.furigana}
+                    isFuriganaEnabled={response.isFuriganaEnabled}
+                    isPhoneticEnabled={response.isPhoneticEnabled}
+                    isKanaEnabled={response.isKanaEnabled}
+                    breakdown={response.breakdown}
+                    mobileBreakdown={response.mobileBreakdown}
+                    audio={response.audio}
+                    audioMimeType={response.audioMimeType}
+                    responseType={response.responseType}
+                    note={response.note}
+                    onQuote={handleResponseQuote}
+                    onRankUpdate={handleRankUpdate}
+                    onDelete={handleResponseDelete}
+                    onPauseToggle={handlePauseToggle}
+                    onFuriganaToggle={handleFuriganaToggle}
+                    onPhoneticToggle={handlePhoneticToggle}
+                    onKanaToggle={handleKanaToggle}
+                    onDeckSelect={onDeckSelect}
+                    onShare={handleShareToCommunity}
+                    source={response.source}
+                    communityResponseId={response.communityResponseId}
+                    communityResponse={response.communityResponse}
+                    aliasColor={response.communityResponse?.creatorAlias ? aliasColorMap.get(response.communityResponse.creatorAlias) : undefined}
+                    isSharedToCommunity={response.isSharedToCommunity}
+                    selectedLanguage={selectedLanguage}
+                    onLoadingChange={setIsLoading}
+                    onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                    onDecksRefresh={onDecksRefresh}
+                  />
+                ));
+              })()}
+            </div>
+          </div>
+        ) : selectedDeck.id && !isCommunityMode ? (
+          <div className="w-full md:flex md:justify-center">
+            <div className="w-full md:max-w-2xl">
               
               {/* Generate alias color mapping for imported responses */}
               {(() => {
