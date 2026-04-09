@@ -94,7 +94,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
 
   return (
     <>
-      <nav className="bg-card border-b border-border shadow-md flex justify-between items-center w-full">
+      <nav className="bg-card border-b border-border shadow-md flex justify-between items-center w-full" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <Link 
           className="flex items-center text-2xl pt-2 pl-4 text-card-foreground"
           href="/"
