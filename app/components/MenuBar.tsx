@@ -11,6 +11,7 @@ import { AppearanceSubmenu } from './ui';
 import CreateAliasModal from './CreateAliasModal';
 import EditAliasModal from './EditAliasModal';
 import LandingPageModal from './LandingPageModal';
+import AddToHomeScreenModal from './AddToHomeScreenModal';
 import { useUserAlias } from '../contexts/UserAliasContext';
 
 interface MenuBarProps {
@@ -26,6 +27,8 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const [isCreateAliasModalOpen, setIsCreateAliasModalOpen] = useState(false);
   const [isEditAliasModalOpen, setIsEditAliasModalOpen] = useState(false);
   const [isLandingPageModalOpen, setIsLandingPageModalOpen] = useState(false);
+  const [isAddToHomeScreenModalOpen, setIsAddToHomeScreenModalOpen] = useState(false);
+  const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { theme, effectiveTheme, setThemeMode } = useTheme();
   
@@ -43,6 +46,14 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    const ua = window.navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    const isStandalone = (window.navigator as any).standalone === true;
+    setShowAddToHomeScreen(isIOS && isSafari && !isStandalone);
   }, []);
 
   if (status === "loading") {
@@ -137,6 +148,19 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
                         <span>Landing page</span>
                       </div>
                     </button>
+                    {showAddToHomeScreen && (
+                      <button
+                        onClick={() => {
+                          setShowDropdown(false);
+                          setIsAddToHomeScreenModalOpen(true);
+                        }}
+                        className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
+                      >
+                        <div className="flex-col w-full text-wrap">
+                          <span>Add to Home Screen</span>
+                        </div>
+                      </button>
+                    )}
                     <AppearanceSubmenu
                       key={String(showDropdown)}
                       currentTheme={theme}
@@ -203,6 +227,11 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
       <LandingPageModal
         isOpen={isLandingPageModalOpen}
         onClose={() => setIsLandingPageModalOpen(false)}
+      />
+
+      <AddToHomeScreenModal
+        isOpen={isAddToHomeScreenModalOpen}
+        onClose={() => setIsAddToHomeScreenModalOpen(false)}
       />
     </>
   )
