@@ -1748,7 +1748,7 @@ export default function ChatBox({
             <div
               className="bg-background"
               style={{
-                paddingBottom: isIOSStandalone ? '20px' : '2px',
+                paddingBottom: isIOSStandalone ? '24px' : '2px',
               }}
             >
               <UserInput 
