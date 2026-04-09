@@ -1,0 +1,31 @@
+{
+  "name": "Kondo",
+  "short_name": "Kondo",
+  "description": "Leverage AI to learn new languages",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/light-mode_08042025.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any",
+      "media": "(prefers-color-scheme: light)"
+    },
+    {
+      "src": "/assets/dark-mode_08042025.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any",
+      "media": "(prefers-color-scheme: dark)"
+    }
+  ]
+}

@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   title: "Kondo",
   description: "Leverage AI to learn new languages",
   themeColor: "#111827",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Kondo",
+  },
   icons: {
     icon: [
       {
@@ -27,15 +33,22 @@ export const metadata: Metadata = {
         type: "image/png",
       },
       {
-        url: "/icon.png", 
+        url: "/icon.png",
         sizes: "48x48",
         type: "image/png",
       },
       {
         url: "/icon.png",
-        sizes: "64x64", 
+        sizes: "64x64",
         type: "image/png",
-      }
+      },
+    ],
+    apple: [
+      {
+        url: "/icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
     ],
   },
 };
