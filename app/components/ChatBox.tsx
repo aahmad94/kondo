@@ -1771,10 +1771,7 @@ export default function ChatBox({
             
             {/* Input at the very bottom - UserInput only */}
             <div
-              className="bg-background"
-              style={{
-                paddingBottom: isIOSStandalone && !isKeyboardVisible ? '24px' : '2px',
-              }}
+              className={`bg-background ${isIOSStandalone && !isKeyboardVisible ? 'pb-7' : 'pb-0.5'}`}
             >
               <UserInput 
                 onSubmit={handleSubmit} 
