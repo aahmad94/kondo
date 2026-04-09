@@ -140,12 +140,37 @@ export default function ChatBox({
   // Mode detection
   const isCommunityMode = selectedDeck.title === 'community';
   const [isIOSStandalone, setIsIOSStandalone] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   useEffect(() => {
     const isIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent);
     const isStandalone = (window.navigator as any).standalone === true;
     setIsIOSStandalone(isIOS && isStandalone);
   }, []);
+
+  useEffect(() => {
+    if (!isIOSStandalone) return;
+
+    const handleFocusIn = (e: FocusEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        setIsKeyboardVisible(true);
+      }
+    };
+
+    const handleFocusOut = (e: FocusEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        setIsKeyboardVisible(false);
+      }
+    };
+
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+    };
+  }, [isIOSStandalone]);
   
   // Personal mode state
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, Response>>({});
@@ -1748,7 +1773,7 @@ export default function ChatBox({
             <div
               className="bg-background"
               style={{
-                paddingBottom: isIOSStandalone ? '24px' : '2px',
+                paddingBottom: isIOSStandalone && !isKeyboardVisible ? '24px' : '2px',
               }}
             >
               <UserInput 
