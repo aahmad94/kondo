@@ -139,6 +139,13 @@ export default function ChatBox({
   
   // Mode detection
   const isCommunityMode = selectedDeck.title === 'community';
+  const [isIOSStandalone, setIsIOSStandalone] = useState(false);
+
+  useEffect(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(window.navigator.userAgent);
+    const isStandalone = (window.navigator as any).standalone === true;
+    setIsIOSStandalone(isIOS && isStandalone);
+  }, []);
   
   // Personal mode state
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, Response>>({});
@@ -1738,10 +1745,11 @@ export default function ChatBox({
             )}
             
             {/* Input at the very bottom - UserInput only */}
-            <div 
-              className="bg-background" 
-              style={{ 
-                paddingBottom: 'env(safe-area-inset-bottom)' 
+            <div
+              className="bg-background"
+              style={{
+                paddingTop: isIOSStandalone ? undefined : '4px',
+                paddingBottom: isIOSStandalone ? 'env(safe-area-inset-bottom)' : '4px',
               }}
             >
               <UserInput 
