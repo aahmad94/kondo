@@ -45,16 +45,9 @@ export const metadata: Metadata = {
     ],
     apple: [
       {
-        url: "/icon-light.png",
+        url: "/icon-ios.png",
         sizes: "180x180",
         type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon.png",
-        sizes: "180x180",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
       },
     ],
   },

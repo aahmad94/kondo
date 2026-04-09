@@ -8,18 +8,10 @@
   "theme_color": "#111827",
   "icons": [
     {
-      "src": "/icon-light.png",
+      "src": "/icon-ios.png",
       "sizes": "any",
       "type": "image/png",
-      "purpose": "any",
-      "media": "(prefers-color-scheme: light)"
-    },
-    {
-      "src": "/icon.png",
-      "sizes": "any",
-      "type": "image/png",
-      "purpose": "any",
-      "media": "(prefers-color-scheme: dark)"
+      "purpose": "any maskable"
     }
   ]
 }
