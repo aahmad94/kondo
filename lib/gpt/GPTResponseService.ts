@@ -17,10 +17,19 @@ export async function createGPTResponse(content: string, userId: string, bookmar
     // Get user's language ID (with fallback to Japanese)
     const languageId = await getUserLanguageId(userId);
 
+    // Look up language code to set language-aware defaults
+    const language = await prisma.language.findUnique({
+      where: { id: languageId },
+      select: { code: true },
+    });
+    const isJapanese = language?.code === 'ja';
+
     const newResponse = await prisma.gPTResponse.create({
       data: {
         content,
         responseType,
+        isFuriganaEnabled: isJapanese,
+        isPhoneticEnabled: !isJapanese,
         user: {
           connect: { id: userId },
         },

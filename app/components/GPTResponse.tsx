@@ -926,7 +926,31 @@ export default function GPTResponse({
                         </span>
                       </button>
                     )}
-                    
+
+                    {/* Phonetic toggle - labeled "romaji" for Japanese, "romanization" for others */}
+                    <button
+                      onClick={handlePhoneticToggle}
+                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
+                        isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
+                      }`}
+                    >
+                      <span className={isMobile ? 'truncate' : ''}>
+                        {selectedLanguage === 'ja' ? (
+                          localPhoneticEnabled ? (
+                            <span>Hide romaji</span>
+                          ) : (
+                            <span>Show romaji</span>
+                          )
+                        ) : (
+                          localPhoneticEnabled ? (
+                            <span>Hide romanization</span>
+                          ) : (
+                            <span>Show romanization</span>
+                          )
+                        )}
+                      </span>
+                    </button>
+
                     {/* Kana toggle - only for Japanese and non-clarifications */}
                     {selectedLanguage === 'ja' && responseType !== 'clarification' && (
                       <button
@@ -944,22 +968,6 @@ export default function GPTResponse({
                         </span>
                       </button>
                     )}
-
-                    {/* Phonetic toggle - for all supported languages */}
-                    <button
-                      onClick={handlePhoneticToggle}
-                      className={`flex items-center w-full px-3 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent ${
-                        isMobile ? 'whitespace-normal' : 'whitespace-nowrap'
-                      }`}
-                    >
-                      <span className={isMobile ? 'truncate' : ''}>
-                        {localPhoneticEnabled ? (
-                          <span>Hide romanization</span>
-                        ) : (
-                          <span>Show romanization</span>
-                        )}
-                      </span>
-                    </button>
 
                     {/* Add/Edit Note - only show after bookmark has been added */}
                     {responseId && selectedDeckTitle && (
