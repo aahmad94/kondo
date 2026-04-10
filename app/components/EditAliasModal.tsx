@@ -49,22 +49,16 @@ export default function EditAliasModal({ isOpen, onClose, onAliasUpdated, curren
     setIsLoadingAliases(true);
     try {
       const response = await fetch('/api/user/aliases');
-      console.log('[EditAliasModal] aliases response status:', response.status);
       if (response.ok) {
         const data = await response.json();
-        console.log('[EditAliasModal] aliases data:', data);
         // Filter out the current alias so only previous ones appear
         const previous = (data.aliases as PreviousAlias[]).filter(
           (a) => a.alias !== currentAlias
         );
-        console.log('[EditAliasModal] previous aliases:', previous);
         setPreviousAliases(previous);
-      } else {
-        const text = await response.text();
-        console.error('[EditAliasModal] aliases fetch failed:', response.status, text);
       }
-    } catch (err) {
-      console.error('[EditAliasModal] aliases fetch error:', err);
+    } catch {
+      // silently ignore — dropdown just won't appear
     } finally {
       setIsLoadingAliases(false);
     }
