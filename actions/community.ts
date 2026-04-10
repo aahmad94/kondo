@@ -2,7 +2,7 @@
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
-import { 
+import {
   shareToCommunity,
   importFromCommunity,
   importFromCommunityToBookmark,
@@ -16,6 +16,7 @@ import {
   checkGPTResponseDeletionImpact,
   deleteGPTResponseWithCascade
 } from "@/lib/community";
+import { switchToAlias } from "@/lib/user/aliasService";
 
 /**
  * Server action to share a GPTResponse to the community feed
@@ -250,6 +251,47 @@ export async function validateAliasAction(alias: string) {
     return {
       isValid: false,
       error: 'Unable to validate alias. Please try again.'
+    };
+  }
+}
+
+/**
+ * Server action to switch to a previously owned alias
+ */
+export async function switchUserAliasAction(alias: string) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return {
+        success: false,
+        error: 'Unauthorized: Please sign in to switch your alias'
+      };
+    }
+
+    const userId = (session as any).userId || (session.user as any).id;
+    if (!userId) {
+      return {
+        success: false,
+        error: 'Unable to identify user'
+      };
+    }
+
+    const result = await switchToAlias(userId, alias);
+
+    if (result.success) {
+      return { success: true };
+    } else {
+      return {
+        success: false,
+        error: result.error || 'Failed to switch alias'
+      };
+    }
+  } catch (error) {
+    console.error('Error in switchUserAliasAction:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to switch alias'
     };
   }
 }
