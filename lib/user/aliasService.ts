@@ -271,8 +271,47 @@ export function validateAliasFormat(alias: string): { valid: boolean; error?: st
 }
 
 /**
- * Get alias statistics for a user
+ * Get all aliases ever used by a user, merging UserAlias records
+ * with distinct creatorAlias values from CommunityResponse.
  */
+export async function getHistoricalAliases(
+  userId: string
+): Promise<{ id: string; alias: string; createdAt: Date }[]> {
+  try {
+    const [userAliases, communityAliases] = await Promise.all([
+      prisma.userAlias.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.communityResponse.findMany({
+        where: { creatorUserId: userId },
+        select: { creatorAlias: true, sharedAt: true },
+        distinct: ['creatorAlias'],
+        orderBy: { sharedAt: 'desc' }
+      })
+    ]);
+
+    const aliasSet = new Set(userAliases.map((a) => a.alias));
+
+    const communityOnly = communityAliases
+      .filter((ca) => !aliasSet.has(ca.creatorAlias))
+      .map((ca) => ({
+        id: `community:${ca.creatorAlias}`,
+        alias: ca.creatorAlias,
+        createdAt: ca.sharedAt
+      }));
+
+    return [
+      ...userAliases.map((a) => ({ id: a.id, alias: a.alias, createdAt: a.createdAt })),
+      ...communityOnly
+    ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  } catch (error) {
+    console.error('Error fetching historical aliases:', error);
+    return [];
+  }
+}
+
+
 export async function getAliasStats(userId: string): Promise<{
   totalAliases: number;
   currentAlias: string | null;

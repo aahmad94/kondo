@@ -4,7 +4,7 @@ import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import {
   createUserAlias,
   switchToAlias,
-  getUserAliases,
+  getHistoricalAliases,
   validateAliasFormat,
   getCurrentUserAlias
 } from '@/lib/user/aliasService';
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const aliases = await getUserAliases(userId);
+    const aliases = await getHistoricalAliases(userId);
     const currentAlias = await getCurrentUserAlias(userId);
 
     return NextResponse.json({

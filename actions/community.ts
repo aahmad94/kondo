@@ -16,7 +16,7 @@ import {
   checkGPTResponseDeletionImpact,
   deleteGPTResponseWithCascade
 } from "@/lib/community";
-import { switchToAlias } from "@/lib/user/aliasService";
+import { createUserAlias } from "@/lib/user/aliasService";
 
 /**
  * Server action to share a GPTResponse to the community feed
@@ -277,7 +277,10 @@ export async function switchUserAliasAction(alias: string) {
       };
     }
 
-    const result = await switchToAlias(userId, alias);
+    // createUserAlias handles both cases: switching to an existing UserAlias
+    // entry and re-activating a historical alias only present in CommunityResponse
+    // (where it creates a new UserAlias row if the alias is still available).
+    const result = await createUserAlias(userId, alias, true);
 
     if (result.success) {
       return { success: true };
