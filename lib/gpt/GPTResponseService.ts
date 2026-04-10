@@ -29,7 +29,8 @@ export async function createGPTResponse(content: string, userId: string, bookmar
         content,
         responseType,
         isFuriganaEnabled: isJapanese,
-        isPhoneticEnabled: !isJapanese,
+        isPhoneticEnabled: true,
+        isKanaEnabled: !isJapanese,
         user: {
           connect: { id: userId },
         },
