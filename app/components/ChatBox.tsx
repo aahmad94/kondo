@@ -606,8 +606,8 @@ export default function ChatBox({
           isPaused: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          isFuriganaEnabled: false,
-          isPhoneticEnabled: true,
+          isFuriganaEnabled: selectedLanguage === 'ja',
+          isPhoneticEnabled: selectedLanguage !== 'ja',
           isKanaEnabled: true,
           responseType: responseQuote ? 'clarification' : 'response'
         }
@@ -625,8 +625,8 @@ export default function ChatBox({
           isPaused: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          isFuriganaEnabled: false,
-          isPhoneticEnabled: true,
+          isFuriganaEnabled: selectedLanguage === 'ja',
+          isPhoneticEnabled: selectedLanguage !== 'ja',
           isKanaEnabled: true,
           responseType: responseQuote ? 'clarification' : 'response'
         }
