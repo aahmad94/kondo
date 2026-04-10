@@ -152,9 +152,11 @@ export default function ChatBox({
     if (!isIOSStandalone) return;
     if (!window.visualViewport) return;
 
+    const baseHeight = window.visualViewport.height;
+
     const handleViewportResize = () => {
-      const heightDiff = window.innerHeight - (window.visualViewport?.height ?? window.innerHeight);
-      setIsKeyboardVisible(heightDiff > 100);
+      const diff = baseHeight - (window.visualViewport?.height ?? baseHeight);
+      setIsKeyboardVisible(diff > 100);
     };
 
     window.visualViewport.addEventListener('resize', handleViewportResize);
