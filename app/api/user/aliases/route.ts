@@ -13,13 +13,14 @@ import {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
+
+    const userId = (session as any)?.userId || session?.user?.id;
+    if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const aliases = await getUserAliases(session.user.id);
-    const currentAlias = await getCurrentUserAlias(session.user.id);
+    const aliases = await getUserAliases(userId);
+    const currentAlias = await getCurrentUserAlias(userId);
 
     return NextResponse.json({
       aliases,
