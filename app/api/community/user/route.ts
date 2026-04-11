@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../pages/api/auth/[...nextauth]";
-import { getUserAlias, getCommunityProfile } from '@/lib/community';
+import { getCommunityProfile } from '@/lib/community';
+import { getUserAliasInfo } from '@/lib/user/aliasService';
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     const includeProfile = searchParams.get('includeProfile') === 'true';
 
     // Get user alias info
-    const aliasInfo = await getUserAlias(userId);
+    const aliasInfo = await getUserAliasInfo(userId);
 
     let response: any = {
       success: true,

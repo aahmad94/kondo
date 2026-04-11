@@ -7,7 +7,6 @@ import {
   importFromCommunity,
   importFromCommunityToBookmark,
   importEntireCommunityBookmark,
-  validateAlias,
   getUserSharingStats,
   isResponseShared,
   deleteCommunityResponse,
@@ -248,14 +247,11 @@ export async function validateAliasAction(alias: string) {
       return { isValid: false, error: formatResult.error };
     }
 
-    // Get the current user so we can detect "owned by self" vs "taken by another"
     const session = await getServerSession(authOptions);
     const userId = (session as any)?.userId || (session?.user as any)?.id;
 
     if (!userId) {
-      // Fall back to community check (User.alias) if no session
-      const result = await validateAlias(alias);
-      return result;
+      return { isValid: false, error: 'Please sign in to validate an alias' };
     }
 
     const availability = await checkAliasAvailability(alias, userId);

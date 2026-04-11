@@ -271,6 +271,47 @@ export function validateAliasFormat(alias: string): { valid: boolean; error?: st
 }
 
 /**
+ * Get the current alias and public status for a user
+ */
+export async function getUserAliasInfo(userId: string): Promise<{ alias: string | null; isPublic: boolean }> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        alias: true,
+        isAliasPublic: true
+      }
+    });
+    return {
+      alias: user?.alias || null,
+      isPublic: user?.isAliasPublic || false
+    };
+  } catch (error) {
+    console.error('Error getting user alias info:', error);
+    return { alias: null, isPublic: false };
+  }
+}
+
+/**
+ * Checks if user has a public alias (required for sharing to community)
+ */
+export async function hasPublicAlias(userId: string): Promise<boolean> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        alias: true,
+        isAliasPublic: true
+      }
+    });
+    return !!(user?.alias && user?.isAliasPublic);
+  } catch (error) {
+    console.error('Error checking public alias:', error);
+    return false;
+  }
+}
+
+/**
  * Get alias statistics for a user
  */
 export async function getAliasStats(userId: string): Promise<{

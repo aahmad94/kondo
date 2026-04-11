@@ -1,15 +1,16 @@
 import prisma from '../database/prisma';
-import { hasPublicAlias } from './aliasService';
+import { hasPublicAlias } from '@/lib/user/aliasService';
 import { createBookmark, checkBookmarkExists } from '../bookmarks/bookmarkService';
 import { getUserLanguageId } from '../user/languageService';
 import { updateStreakOnActivity } from '../user/streakService';
-import type { 
-  CommunityFilters, 
+import type {
+  CommunityFilters,
   CommunityPagination,
   ShareToCommunityResponse,
   ImportFromCommunityResponse,
   CommunityFeedResponse,
-  UserSharingStats
+  UserSharingStats,
+  CommunityUserProfile
 } from '../../types/community';
 
 /**
@@ -955,6 +956,50 @@ export async function getUserSharingStats(userId: string): Promise<UserSharingSt
       totalShared: 0,
       totalImportsByOthers: 0
     };
+  }
+}
+
+/**
+ * Gets user profile information for community display
+ */
+export async function getCommunityProfile(userId: string): Promise<CommunityUserProfile | null> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        alias: true,
+        isAliasPublic: true,
+        createdAt: true
+      }
+    });
+
+    if (!user?.alias || !user?.isAliasPublic) {
+      return null;
+    }
+
+    const [communityStats, importStats] = await Promise.all([
+      prisma.communityResponse.aggregate({
+        where: { creatorUserId: userId, isActive: true },
+        _count: { id: true },
+        _sum: { importCount: true }
+      }),
+      prisma.communityResponse.findMany({
+        where: { creatorUserId: userId, isActive: true },
+        select: { languageId: true },
+        distinct: ['languageId']
+      })
+    ]);
+
+    return {
+      alias: user.alias,
+      totalShared: communityStats._count.id || 0,
+      totalImports: communityStats._sum.importCount || 0,
+      languagesShared: importStats.length,
+      memberSince: user.createdAt
+    };
+  } catch (error) {
+    console.error('Error getting community profile:', error);
+    return null;
   }
 }
 
