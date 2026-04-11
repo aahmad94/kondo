@@ -177,6 +177,37 @@ export default function EditAliasModal({ isOpen, onClose, onAliasUpdated, curren
           Update your community alias. This will be displayed on all your shared responses.
         </p>
 
+        {/* Previous aliases dropdown */}
+        {!isLoadingAliases && previousAliases.length > 0 && (
+          <div className="border-b border-border pb-4">
+            <label htmlFor="previous-alias" className="block text-sm font-medium text-card-foreground mb-2">
+              Switch to a previous alias
+            </label>
+            <select
+              id="previous-alias"
+              defaultValue=""
+              onChange={(e) => {
+                if (e.target.value) {
+                  handleSwitchToPrevious(e.target.value);
+                  e.target.value = '';
+                }
+              }}
+              disabled={isDisabled}
+              className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="" disabled>Select a previous alias...</option>
+              {previousAliases.map((a) => (
+                <option key={a.id} value={a.alias}>
+                  @{a.alias}
+                </option>
+              ))}
+            </select>
+            {isSwitching && (
+              <p className="mt-2 text-xs text-muted-foreground">Switching alias...</p>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleUpdateAlias} className="space-y-4">
           <div>
             <label htmlFor="alias" className="block text-sm font-medium text-card-foreground mb-2">
@@ -240,37 +271,6 @@ export default function EditAliasModal({ isOpen, onClose, onAliasUpdated, curren
             </button>
           </div>
         </form>
-
-        {/* Previous aliases dropdown */}
-        {!isLoadingAliases && previousAliases.length > 0 && (
-          <div className="border-t border-border pt-4">
-            <label htmlFor="previous-alias" className="block text-sm font-medium text-card-foreground mb-2">
-              Switch to a previous alias
-            </label>
-            <select
-              id="previous-alias"
-              defaultValue=""
-              onChange={(e) => {
-                if (e.target.value) {
-                  handleSwitchToPrevious(e.target.value);
-                  e.target.value = '';
-                }
-              }}
-              disabled={isDisabled}
-              className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="" disabled>Select a previous alias...</option>
-              {previousAliases.map((a) => (
-                <option key={a.id} value={a.alias}>
-                  @{a.alias}
-                </option>
-              ))}
-            </select>
-            {isSwitching && (
-              <p className="mt-2 text-xs text-muted-foreground">Switching alias...</p>
-            )}
-          </div>
-        )}
       </div>
     </FormModal>
   );
