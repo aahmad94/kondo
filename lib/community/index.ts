@@ -1,8 +1,6 @@
 // Alias management
 export {
   validateAlias,
-  createAlias,
-  updateAlias,
   getUserAlias,
   hasPublicAlias,
   getCommunityProfile

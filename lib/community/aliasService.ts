@@ -1,9 +1,8 @@
 import prisma from '../database/prisma';
-import type { 
-  AliasValidationResult, 
-  AliasOperationResult, 
+import type {
+  AliasValidationResult,
   UserAliasInfo,
-  CommunityUserProfile 
+  CommunityUserProfile
 } from '../../types/community';
 
 /**
@@ -40,71 +39,6 @@ export async function validateAlias(alias: string): Promise<AliasValidationResul
   } catch (error) {
     console.error('Error validating alias:', error);
     return { isValid: false, error: 'Unable to validate alias. Please try again.' };
-  }
-}
-
-/**
- * Creates or updates a user's alias
- */
-export async function createAlias(userId: string, alias: string): Promise<AliasOperationResult> {
-  try {
-    // Validate alias first
-    const validation = await validateAlias(alias);
-    if (!validation.isValid) {
-      return { success: false, error: validation.error };
-    }
-
-    // Update user with new alias
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        alias,
-        isAliasPublic: true,
-        aliasCreatedAt: new Date()
-      }
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error creating alias:', error);
-    return { success: false, error: 'Failed to create alias. Please try again.' };
-  }
-}
-
-/**
- * Updates an existing alias
- */
-export async function updateAlias(userId: string, newAlias: string): Promise<AliasOperationResult> {
-  try {
-    // Check if user has an existing alias
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { alias: true }
-    });
-
-    if (!user?.alias) {
-      return { success: false, error: 'No existing alias found' };
-    }
-
-    // Validate new alias
-    const validation = await validateAlias(newAlias);
-    if (!validation.isValid) {
-      return { success: false, error: validation.error };
-    }
-
-    // Update user with new alias
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        alias: newAlias,
-        updatedAt: new Date()
-      }
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating alias:', error);
-    return { success: false, error: 'Failed to update alias. Please try again.' };
   }
 }
 
