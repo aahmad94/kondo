@@ -1,13 +1,3 @@
-// Alias management
-export {
-  validateAlias,
-  createAlias,
-  updateAlias,
-  getUserAlias,
-  hasPublicAlias,
-  getCommunityProfile
-} from './aliasService';
-
 // Community sharing and importing
 export {
   shareToCommunity,
@@ -19,7 +9,8 @@ export {
   isResponseShared,
   deleteCommunityResponse,
   checkGPTResponseDeletionImpact,
-  deleteGPTResponseWithCascade
+  deleteGPTResponseWithCascade,
+  getCommunityProfile
 } from './communityService';
 
 // Community breakdown caching

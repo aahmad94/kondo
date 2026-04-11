@@ -7,16 +7,13 @@ import {
   importFromCommunity,
   importFromCommunityToBookmark,
   importEntireCommunityBookmark,
-  createAlias,
-  updateAlias,
-  validateAlias,
   getUserSharingStats,
   isResponseShared,
   deleteCommunityResponse,
   checkGPTResponseDeletionImpact,
   deleteGPTResponseWithCascade
 } from "@/lib/community";
-import { switchToAlias } from "@/lib/user/aliasService";
+import { createUserAlias, switchToAlias, checkAliasAvailability, validateAliasFormat } from "@/lib/user/aliasService";
 
 /**
  * Server action to share a GPTResponse to the community feed
@@ -172,8 +169,8 @@ export async function createUserAliasAction(alias: string) {
       };
     }
 
-    const result = await createAlias(userId, alias);
-    
+    const result = await createUserAlias(userId, alias);
+
     if (result.success) {
       return {
         success: true,
@@ -217,8 +214,8 @@ export async function updateUserAliasAction(newAlias: string) {
       };
     }
 
-    const result = await updateAlias(userId, newAlias);
-    
+    const result = await createUserAlias(userId, newAlias);
+
     if (result.success) {
       return {
         success: true,
@@ -244,8 +241,26 @@ export async function updateUserAliasAction(newAlias: string) {
  */
 export async function validateAliasAction(alias: string) {
   try {
-    const result = await validateAlias(alias);
-    return result;
+    // Check format first (length, allowed characters)
+    const formatResult = validateAliasFormat(alias);
+    if (!formatResult.valid) {
+      return { isValid: false, error: formatResult.error };
+    }
+
+    const session = await getServerSession(authOptions);
+    const userId = (session as any)?.userId || (session?.user as any)?.id;
+
+    if (!userId) {
+      return { isValid: false, error: 'Please sign in to validate an alias' };
+    }
+
+    const availability = await checkAliasAvailability(alias, userId);
+
+    if (!availability.available) {
+      return { isValid: false, error: 'This alias is already taken' };
+    }
+
+    return { isValid: true };
   } catch (error) {
     console.error('Error in validateAliasAction:', error);
     return {
