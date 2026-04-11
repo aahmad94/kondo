@@ -14,7 +14,7 @@ import {
   checkGPTResponseDeletionImpact,
   deleteGPTResponseWithCascade
 } from "@/lib/community";
-import { createUserAlias, switchToAlias } from "@/lib/user/aliasService";
+import { createUserAlias, switchToAlias, checkAliasAvailability, validateAliasFormat } from "@/lib/user/aliasService";
 
 /**
  * Server action to share a GPTResponse to the community feed
@@ -242,8 +242,29 @@ export async function updateUserAliasAction(newAlias: string) {
  */
 export async function validateAliasAction(alias: string) {
   try {
-    const result = await validateAlias(alias);
-    return result;
+    // Check format first (length, allowed characters)
+    const formatResult = validateAliasFormat(alias);
+    if (!formatResult.valid) {
+      return { isValid: false, error: formatResult.error };
+    }
+
+    // Get the current user so we can detect "owned by self" vs "taken by another"
+    const session = await getServerSession(authOptions);
+    const userId = (session as any)?.userId || (session?.user as any)?.id;
+
+    if (!userId) {
+      // Fall back to community check (User.alias) if no session
+      const result = await validateAlias(alias);
+      return result;
+    }
+
+    const availability = await checkAliasAvailability(alias, userId);
+
+    if (!availability.available) {
+      return { isValid: false, error: 'This alias is already taken' };
+    }
+
+    return { isValid: true };
   } catch (error) {
     console.error('Error in validateAliasAction:', error);
     return {
