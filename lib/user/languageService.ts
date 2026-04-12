@@ -11,7 +11,7 @@ const DOJO_INSTRUCTIONS = `
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Japanese.
+  Create study material for your library — leverage the pills below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -19,7 +19,7 @@ const JAPANESE_INSTRUCTIONS = {
 
 const KOREAN_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Korean.
+  Create study material for your library — leverage the pills below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -27,7 +27,7 @@ const KOREAN_INSTRUCTIONS = {
 
 const SPANISH_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Spanish.
+  Create study material for your library — leverage the pills below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -35,7 +35,7 @@ const SPANISH_INSTRUCTIONS = {
 
 const ARABIC_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Arabic.
+  Create study material for your library — leverage the pills below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -43,8 +43,7 @@ const ARABIC_INSTRUCTIONS = {
 
 const CHINESE_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Chinese.
-
+  Create study material for your library — leverage the pills below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -52,7 +51,7 @@ const CHINESE_INSTRUCTIONS = {
 
 const URDU_INSTRUCTIONS = {
   main: `
-  Enter a phrase or sentence to translate to Urdu.
+  Create study material for your library — leverage the pills below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
