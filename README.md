@@ -1,6 +1,6 @@
 # <img src="public/icon.png" alt="Kondo Icon" width="32" height="32" style="display: inline; vertical-align: middle;"> Kondo
 
-A language learning application that generates AI-powered content to help organize study material into study decks, with features for breakdown analysis, flashcards, and daily summaries.
+A language learning platform and to generate and organize AI-powered language learning content into study decks, with features for breakdown analysis, flashcards, and daily summaries.
 
 <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
   <!-- <img src="public/assets/preview/11222025/11-22-2025 dark kondo prev.png" alt="Kondo Dark Mode Preview"> -->
