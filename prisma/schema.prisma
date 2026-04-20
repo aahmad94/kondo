@@ -39,7 +39,15 @@ model User {
   aliases               UserAlias[]
   currentAlias          UserAlias?                 @relation("CurrentUserAlias", fields: [currentAliasId], references: [id])
   streak                Streak?
+  // Stripe subscription
+  stripeCustomerId      String?                    @unique
+  subscriptionStatus    String                     @default("free")
+  subscriptionId        String?                    @unique
+  subscriptionEndsAt    DateTime?
+  stripePriceId         String?
+  usageTracking         UsageTracking?
 }
+
 
 model Account {
   id                String   @id @default(cuid())
@@ -253,8 +261,26 @@ model Streak {
   lastActivityDate DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  
+
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  @@index([userId])
+}
+
+model UsageTracking {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  // Weekly response quota (generated + imported, resets every Monday UTC)
+  responsesThisWeek Int      @default(0)
+  weekStartDate     DateTime @default(now())
+  // Daily feature quotas (reset at midnight UTC)
+  breakdownsToday   Int      @default(0)
+  ttsToday          Int      @default(0)
+  dailyResetDate    DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }

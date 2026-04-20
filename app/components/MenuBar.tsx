@@ -12,6 +12,7 @@ import CreateAliasModal from './CreateAliasModal';
 import EditAliasModal from './EditAliasModal';
 import LandingPageModal from './LandingPageModal';
 import AddToHomeScreenModal from './AddToHomeScreenModal';
+import PremiumModal from './PremiumModal';
 import { useUserAlias } from '../contexts/UserAliasContext';
 
 interface MenuBarProps {
@@ -29,6 +30,9 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const [isLandingPageModalOpen, setIsLandingPageModalOpen] = useState(false);
   const [isAddToHomeScreenModalOpen, setIsAddToHomeScreenModalOpen] = useState(false);
   const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [premiumTriggerContext, setPremiumTriggerContext] = useState<string | undefined>(undefined);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { theme, effectiveTheme, setThemeMode } = useTheme();
   
@@ -54,6 +58,39 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
     const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
     const isStandalone = (window.navigator as any).standalone === true;
     setShowAddToHomeScreen(isIOS && isSafari && !isStandalone);
+  }, []);
+
+  // Fetch subscription status so the menu label is accurate
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+    fetch('/api/stripe/subscription-status')
+      .then((r) => r.json())
+      .then((data) => setIsPremium(data.isPremium === true))
+      .catch(() => {});
+  }, [status]);
+
+  // Listen for the global quota-exceeded event dispatched by API callers
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { context?: string } | undefined;
+      setPremiumTriggerContext(detail?.context);
+      setIsPremiumModalOpen(true);
+    };
+    window.addEventListener('kondo:quota-exceeded', handler);
+    return () => window.removeEventListener('kondo:quota-exceeded', handler);
+  }, []);
+
+  // Show upgrade success toast when redirected back from Stripe
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('upgrade') === 'success') {
+      setIsPremium(true);
+      setIsPremiumModalOpen(true);
+      setPremiumTriggerContext(undefined);
+      // Clean the URL without a full reload
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   if (status === "loading") {
@@ -127,6 +164,22 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
               {showDropdown && (
                 <div className="absolute right-0 mt-2 min-w-[100px] w-max rounded-md shadow-lg bg-popover ring-1 ring-border z-[60]">
                   <div className="py-1">
+                    {/* Premium / Manage Subscription */}
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        setPremiumTriggerContext(undefined);
+                        setIsPremiumModalOpen(true);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left hover:bg-accent whitespace-nowrap"
+                    >
+                      {isPremium ? (
+                        <span className="text-popover-foreground">Manage subscription</span>
+                      ) : (
+                        <span className="font-semibold text-amber-500">✦ Go Premium</span>
+                      )}
+                    </button>
+                    <div className="border-t border-border my-1" />
                     <button
                       onClick={handleAliasMenuClick}
                       className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
@@ -232,6 +285,13 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
       <AddToHomeScreenModal
         isOpen={isAddToHomeScreenModalOpen}
         onClose={() => setIsAddToHomeScreenModalOpen(false)}
+      />
+
+      <PremiumModal
+        isOpen={isPremiumModalOpen}
+        onClose={() => { setIsPremiumModalOpen(false); setPremiumTriggerContext(undefined); }}
+        isPremium={isPremium}
+        triggerContext={premiumTriggerContext}
       />
     </>
   )
