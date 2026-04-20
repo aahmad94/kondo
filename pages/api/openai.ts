@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
+import { authOptions } from './auth/[...nextauth]';
+import { checkResponseQuota, quotaExceededResponse } from '@/lib/stripe/subscriptionService';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -22,8 +25,19 @@ export default async function handler(
   }
 
   try {
+    const session = await getServerSession(req, res, authOptions);
+    const userId = (session as any)?.userId || (session?.user as any)?.id;
+
+    // Only enforce quota for authenticated users
+    if (userId) {
+      const quota = await checkResponseQuota(userId);
+      if (!quota.allowed) {
+        return res.status(429).json(quotaExceededResponse('responses', quota));
+      }
+    }
+
     const { prompt, languageCode = 'ja', model = 'gpt-4o', systemPrompt: customSystemPrompt, responseType = 'response' } = req.body;
-    
+
     // Use custom system prompt if provided, otherwise use default language prompt
     const systemPrompt = customSystemPrompt || getPromptFromFile(languageCode);
 

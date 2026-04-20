@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { convertTextToSpeech } from '@/lib';
 import { getCommunityAudio } from '@/lib/community';
 import prisma from '@/lib/database/prisma';
+import {
+  checkTTSQuota,
+  incrementTTSUsage,
+  quotaExceededResponse,
+} from '@/lib/stripe/subscriptionService';
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = (session as any)?.userId || (session?.user as any)?.id;
+
     const { text, language, responseId } = await request.json();
 
     if (!text || !language) {
@@ -14,8 +24,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Enforce daily TTS quota for authenticated users
+    if (userId) {
+      const quota = await checkTTSQuota(userId);
+      if (!quota.allowed) {
+        return NextResponse.json(quotaExceededResponse('tts', quota), { status: 429 });
+      }
+    }
+
     let result;
-    
+
     // Check if responseId is provided and valid (not null, undefined, empty string, or temp)
     if (responseId && responseId !== 'null' && responseId !== 'undefined' && !responseId.includes('temp')) {
       // Determine if this is a community response or GPT response
@@ -31,23 +49,22 @@ export async function POST(request: Request) {
       ]);
 
       if (communityResponse) {
-        // Handle community response with caching
         result = await getCommunityAudio(responseId, text, language);
       } else if (gptResponse) {
-        // Handle regular GPT response with caching
         result = await convertTextToSpeech(text, language, responseId);
       } else {
-        // Response ID provided but not found in database - likely unsaved response
-        // Generate without caching
         result = await convertTextToSpeech(text, language, undefined);
       }
     } else {
-      // Handle case where responseId is not provided or is temp (e.g., unsaved GPT responses)
-      // Pass undefined to prevent caching attempts
       result = await convertTextToSpeech(text, language, undefined);
     }
-    
-    return NextResponse.json({ 
+
+    // Increment usage after successful TTS generation
+    if (userId) {
+      await incrementTTSUsage(userId);
+    }
+
+    return NextResponse.json({
       success: true,
       audio: result.audio,
       mimeType: result.mimeType
@@ -55,11 +72,11 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error in text-to-speech API:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: error.message || 'Failed to convert text to speech'
       },
       { status: 500 }
     );
   }
-} 
+}

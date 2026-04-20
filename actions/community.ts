@@ -14,6 +14,11 @@ import {
   deleteGPTResponseWithCascade
 } from "@/lib/community";
 import { createUserAlias, switchToAlias, checkAliasAvailability, validateAliasFormat } from "@/lib/user/aliasService";
+import {
+  checkResponseQuota,
+  incrementResponseUsage,
+  quotaExceededResponse,
+} from "@/lib/stripe/subscriptionService";
 
 /**
  * Server action to share a GPTResponse to the community feed
@@ -84,16 +89,26 @@ export async function importCommunityResponseAction(communityResponseId: string,
       };
     }
 
+    // Enforce weekly response quota on imports (imports count toward the library limit)
+    const quota = await checkResponseQuota(userId);
+    if (!quota.allowed) {
+      return {
+        success: false,
+        ...quotaExceededResponse('responses', quota),
+      };
+    }
+
     const result = await importFromCommunity(userId, communityResponseId, timezone);
-    
+
     if (result.success) {
+      await incrementResponseUsage(userId);
       return {
         success: true,
         response: result.response,
         bookmark: result.bookmark,
         wasBookmarkCreated: result.wasBookmarkCreated,
         streakData: result.streakData,
-        message: result.wasBookmarkCreated 
+        message: result.wasBookmarkCreated
           ? 'Response imported and new bookmark created!'
           : 'Response imported to existing bookmark!'
       };
@@ -135,7 +150,19 @@ export async function importCommunityResponseToBookmarkAction(communityResponseI
       };
     }
 
+    // Enforce weekly response quota on imports
+    const quota = await checkResponseQuota(userId);
+    if (!quota.allowed) {
+      return {
+        success: false,
+        ...quotaExceededResponse('responses', quota),
+      };
+    }
+
     const result = await importFromCommunityToBookmark(userId, communityResponseId, targetBookmarkId, timezone);
+    if (result.success) {
+      await incrementResponseUsage(userId);
+    }
     return result;
   } catch (error) {
     console.error('Error in importCommunityResponseToBookmarkAction:', error);
@@ -524,9 +551,23 @@ export async function importEntireCommunityBookmarkAction(
       };
     }
 
+    // Enforce weekly response quota — check before bulk import
+    const quota = await checkResponseQuota(userId);
+    if (!quota.allowed) {
+      return {
+        success: false,
+        ...quotaExceededResponse('responses', quota),
+      };
+    }
+
     const result = await importEntireCommunityBookmark(userId, communityBookmarkTitle, targetBookmarkId, timezone);
-    
+
     if (result.success) {
+      // Increment once per response imported (up to remaining quota)
+      const count = result.importedCount ?? 1;
+      for (let i = 0; i < count; i++) {
+        await incrementResponseUsage(userId);
+      }
       return {
         success: true,
         response: result.response,
