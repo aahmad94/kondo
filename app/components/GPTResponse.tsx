@@ -28,6 +28,8 @@ import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
 import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent, DeckNavigationModal } from './ui';
+import ContentModal from './ui/ContentModal';
+import QuotaExceededContent, { type QuotaFeature } from './ui/QuotaExceededContent';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
@@ -178,6 +180,7 @@ export default function GPTResponse({
   const [isBreakdownTextView, setIsBreakdownTextView] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [quotaModalFeature, setQuotaModalFeature] = useState<QuotaFeature | null>(null);
   
   // Note modal state
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
@@ -667,6 +670,10 @@ export default function GPTResponse({
 
       if (!res.ok) {
         const error = await res.json();
+        if (res.status === 429 && error.error === 'QUOTA_EXCEEDED') {
+          setQuotaModalFeature('breakdown');
+          return;
+        }
         throw new Error(error.error || 'Failed to generate breakdown');
       }
 
@@ -880,8 +887,12 @@ export default function GPTResponse({
                       : "Listen to pronunciation"
                   }
                   onError={(error) => {
-                    setErrorMessage(error);
-                    setIsErrorModalOpen(true);
+                    if (error === 'QUOTA_EXCEEDED:tts') {
+                      setQuotaModalFeature('tts');
+                    } else {
+                      setErrorMessage(error);
+                      setIsErrorModalOpen(true);
+                    }
                   }}
                 />
               )}
@@ -1372,6 +1383,24 @@ export default function GPTResponse({
           aliasColor={aliasColor}
         />
       )}
+
+      {/* Quota exceeded modal — uses ContentModal with an upgrade CTA */}
+      <ContentModal
+        isOpen={!!quotaModalFeature}
+        onClose={() => setQuotaModalFeature(null)}
+        title="Limit reached"
+        contentComponent={
+          quotaModalFeature ? (
+            <QuotaExceededContent
+              feature={quotaModalFeature}
+              onUpgradeClick={() => {
+                setQuotaModalFeature(null);
+                window.dispatchEvent(new CustomEvent('kondo:quota-exceeded'));
+              }}
+            />
+          ) : undefined
+        }
+      />
 
       {/* Error Modal */}
       <ErrorModal

@@ -592,6 +592,15 @@ export default function ChatBox({
       });
 
       if (!res.ok) {
+        if (res.status === 429) {
+          const errorData = await res.json();
+          if (errorData.error === 'QUOTA_EXCEEDED') {
+            window.dispatchEvent(new CustomEvent('kondo:quota-exceeded', {
+              detail: { context: "You've used all your free responses this week" }
+            }));
+            return;
+          }
+        }
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data: { result: string } = await res.json();
@@ -981,12 +990,20 @@ export default function ChatBox({
       if (result.success) {
         // Refresh community feed to update import counts with fresh data
         refetchCommunityFresh();
-        
+
         // Show success message
         console.log('Successfully imported response:', result.message);
       } else {
         console.error('Failed to import response:', result.error);
-        
+
+        // Quota exceeded — open the Premium upgrade modal
+        if ((result as any).error === 'QUOTA_EXCEEDED' || (result as any).quotaType) {
+          window.dispatchEvent(new CustomEvent('kondo:quota-exceeded', {
+            detail: { context: "You've used all your free responses this week" }
+          }));
+          return;
+        }
+
         // If the error is about importing own response, show self-import modal
         if (result.error?.includes('your own shared response')) {
           setShowSelfImportModal(true);
@@ -1097,7 +1114,15 @@ export default function ChatBox({
         }
       } else {
         console.error('Failed to import response:', result.error);
-        
+
+        // Quota exceeded — open the Premium upgrade modal instead of error modal
+        if ((result as any).error === 'QUOTA_EXCEEDED' || (result as any).quotaType) {
+          window.dispatchEvent(new CustomEvent('kondo:quota-exceeded', {
+            detail: { context: "You've used all your free responses this week" }
+          }));
+          return;
+        }
+
         // Show specific error modals based on error type
         if (result.error?.includes('your own shared response')) {
           setShowSelfImportModal(true);

@@ -169,6 +169,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (!res.ok) {
         const error = await res.json();
+        if (res.status === 429 && error.error === 'QUOTA_EXCEEDED') {
+          // Signal the quota error with a typed sentinel so GPTResponse can show
+          // the in-context ContentModal rather than a generic error
+          onError?.('QUOTA_EXCEEDED:tts');
+          return;
+        }
         throw new Error(error.error || 'Failed to generate speech');
       }
 
