@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FREE_LIMITS } from '@/lib/stripe/subscriptionService';
+import { FREE_LIMITS } from '@/lib/stripe/quotaLimits';
 
 interface PremiumModalProps {
   isOpen: boolean;

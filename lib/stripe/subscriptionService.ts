@@ -1,22 +1,11 @@
+import 'server-only';
 import prisma from '@/lib/database/prisma';
 import stripe from './stripeClient';
+import { FREE_LIMITS, type QuotaType, type QuotaResult } from './quotaLimits';
 
-// ─── Free-tier limits ────────────────────────────────────────────────────────
-export const FREE_LIMITS = {
-  RESPONSES_PER_WEEK: 15,
-  BREAKDOWNS_PER_DAY: 5,
-  TTS_PER_DAY: 10,
-} as const;
-
-export type QuotaType = 'responses' | 'breakdowns' | 'tts';
-
-export interface QuotaResult {
-  allowed: boolean;
-  isPremium: boolean;
-  current: number;
-  limit: number;
-  remaining: number;
-}
+// Re-export client-safe constants/types so existing server imports keep working.
+export { FREE_LIMITS };
+export type { QuotaType, QuotaResult };
 
 // ─── Date helpers (UTC) ───────────────────────────────────────────────────────
 
