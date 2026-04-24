@@ -166,8 +166,21 @@ export async function getOrCreateStripeCustomer(userId: string, email: string): 
     select: { stripeCustomerId: true },
   });
 
+  // Verify the stored customer still exists in the current Stripe mode/account.
+  // If it was created in test mode (or deleted), Stripe returns { deleted: true }
+  // or throws `resource_missing`; in either case we create a fresh one.
   if (user?.stripeCustomerId) {
-    return user.stripeCustomerId;
+    try {
+      const existing = await stripe.customers.retrieve(user.stripeCustomerId);
+      if (!(existing as any).deleted) {
+        return user.stripeCustomerId;
+      }
+    } catch (err: any) {
+      if (err?.code !== 'resource_missing') throw err;
+    }
+    console.warn(
+      `[stripe] stored customer ${user.stripeCustomerId} not found for user ${userId}; creating a new one`,
+    );
   }
 
   const customer = await stripe.customers.create({ email, metadata: { userId } });
