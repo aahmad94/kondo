@@ -6,7 +6,7 @@ import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
 import { StyledMarkdown, AliasBadge } from './ui';
-import { prepareTextForSpeech } from '@/lib';
+import { prepareTextForSpeech } from '@/lib/utils';
 
 interface BreakdownModalProps {
   isOpen: boolean;

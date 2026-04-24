@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCommunityProfile } from '@/lib/community';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     userId: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { userId } = params;
+    const { userId } = await params;
 
     if (!userId) {
       return NextResponse.json(

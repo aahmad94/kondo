@@ -1,3 +1,4 @@
+import 'server-only';
 import prisma from '../database/prisma';
 import fs from 'fs';
 import path from 'path';

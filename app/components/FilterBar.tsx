@@ -11,8 +11,8 @@ import {
   ArrowsRightLeftIcon
 } from '@heroicons/react/24/outline';
 import { useIsMobile } from '../hooks/useIsMobile';
-import { CommunityClientService } from '@/lib/community';
-import type { CommunityFilters } from '@/lib/community';
+import { CommunityClientService } from '@/lib/community/communityClientService';
+import type { CommunityFilters } from '@/types/community';
 
 interface FilterBarProps {
   onFiltersChange: (filters: CommunityFilters) => void;

@@ -1,14 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { CommunityClientService } from '@/lib/community';
+import { CommunityClientService } from '@/lib/community/communityClientService';
 import { 
   createUserAliasAction, 
   updateUserAliasAction, 
   validateAliasAction,
   getUserSharingStatsAction
 } from '@/actions/community';
-import type { CommunityUserProfile, UserSharingStats } from '@/lib/community';
+import type { CommunityUserProfile, UserSharingStats } from '@/types/community';
 
 interface UserAliasContextType {
   alias: string | null;

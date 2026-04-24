@@ -12,10 +12,10 @@
     "esModuleInterop": true,
     "module": "ESNext",
     "target": "ES6",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "types": [
       "jest",
@@ -28,11 +28,22 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./app/components/*", "./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/utils/*": ["./lib/utils/*"],
-      "@/hooks/*": ["./lib/hooks/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./app/components/*",
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/utils/*": [
+        "./lib/utils/*"
+      ],
+      "@/hooks/*": [
+        "./lib/hooks/*"
+      ]
     }
   },
   "include": [
@@ -40,7 +51,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "pages/_app.js"
+    "pages/_app.js",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

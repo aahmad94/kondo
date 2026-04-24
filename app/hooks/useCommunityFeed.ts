@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { CommunityClientService } from '@/lib/community';
+import { CommunityClientService } from '@/lib/community/communityClientService';
 import type { 
   CommunityFilters, 
   CommunityPagination, 
   CommunityResponseForFeed
-} from '@/lib/community';
+} from '@/types/community';
 
 interface UseCommunityFeedReturn {
   responses: CommunityResponseForFeed[];

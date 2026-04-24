@@ -1,3 +1,4 @@
+import 'server-only';
 import prisma from '../database/prisma';
 import { getUserLanguageId } from '../user/languageService';
 import { updateStreakOnActivity, type StreakData } from '../user/streakService';

@@ -5,7 +5,7 @@ import { Listbox, Transition } from '@headlessui/react'
 import { ChevronUpDownIcon } from '@heroicons/react/24/solid'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { trackLanguageChange } from '@/lib';
+import { trackLanguageChange } from '@/lib/analytics';
 
 interface Language {
   id: string;

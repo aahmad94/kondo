@@ -35,7 +35,7 @@ import {
 import type { 
   CommunityResponseWithRelations, 
   CommunityFilters
-} from '@/lib/community';
+} from '@/types/community';
 import type {
   GPTResponseData,
   CommunityResponseData

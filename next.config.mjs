@@ -1,15 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['lh3.googleusercontent.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+    ],
   },
-  experimental: {
-    esmExternals: true
-  },
-  webpack: (config) => {
-    config.resolve.fallback = { fs: false, path: false };
-    return config;
-  }
+  // Turbopack is enabled by default in Next 16.
+  // An empty config silences the legacy-webpack-config warning and
+  // is sufficient because Turbopack auto-handles Node.js built-in
+  // fallbacks (fs, path, etc.) for browser bundles.
+  turbopack: {},
 };
 
 export default nextConfig;
