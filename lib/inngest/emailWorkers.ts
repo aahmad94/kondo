@@ -7,8 +7,10 @@ const inngest = new Inngest({ id: 'Kondo' });
 
 // Dedicated email function: process daily emails for a single user
 export const sendDailyEmailsFunction = inngest.createFunction(
-  { id: "send-daily-emails" },
-  { event: "send.daily.emails" },
+  {
+    id: "send-daily-emails",
+    triggers: [{ event: "send.daily.emails" }],
+  },
   async ({ event, step }) => {
     const { userId } = event.data;
     try {
@@ -74,8 +76,10 @@ export const sendDailyEmailsFunction = inngest.createFunction(
 
 // Weekly email worker: process weekly emails for a single user
 export const sendWeeklyEmailsFunction = inngest.createFunction(
-  { id: "send-weekly-emails" },
-  { event: "send.weekly.emails" },
+  {
+    id: "send-weekly-emails",
+    triggers: [{ event: "send.weekly.emails" }],
+  },
   async ({ event, step }) => {
     const { userId } = event.data;
     try {

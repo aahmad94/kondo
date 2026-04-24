@@ -14,8 +14,10 @@ const inngest = new Inngest({ id: 'Kondo' });
 
 // Main function: fetch users and fan out summary generation events
 const initDojoFanOutFunction = inngest.createFunction(
-  { id: "init-dojo-fan-out" },
-  { cron: "TZ=America/New_York 1 0 * * *" },
+  {
+    id: "init-dojo-fan-out",
+    triggers: [{ cron: "TZ=America/New_York 1 0 * * *" }],
+  },
   async ({ step }) => {
     try {
       console.log("[Inngest] Starting daily summary generation (fan-out)...");
@@ -106,8 +108,11 @@ const initDojoFanOutFunction = inngest.createFunction(
 
 // Email trigger function: runs 30 minutes after summary generation
 const dailyEmailTriggerFunction = inngest.createFunction(
-  { id: "daily-email-trigger" },
-  { cron: "TZ=America/New_York 30 1 * * *" }, // 1:30 AM EST - 30 minutes after summaries
+  {
+    id: "daily-email-trigger",
+    // 1:30 AM EST - 30 minutes after summaries
+    triggers: [{ cron: "TZ=America/New_York 30 1 * * *" }],
+  },
   async ({ step }) => {
     try {
       console.log("[Inngest] Starting daily email trigger (fan-out)...");
@@ -165,8 +170,11 @@ const dailyEmailTriggerFunction = inngest.createFunction(
 
 // Weekly email trigger function: runs every Sunday at 1:00 AM EST
 const weeklyEmailTriggerFunction = inngest.createFunction(
-  { id: "weekly-email-trigger" },
-  { cron: "TZ=America/New_York 1 0 * * 0" }, // Sunday at 1:00 AM EST
+  {
+    id: "weekly-email-trigger",
+    // Sunday at 1:00 AM EST
+    triggers: [{ cron: "TZ=America/New_York 1 0 * * 0" }],
+  },
   async ({ step }) => {
     try {
       console.log("[Inngest] Starting weekly email digest...");

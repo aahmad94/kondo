@@ -6,8 +6,10 @@ const inngest = new Inngest({ id: 'Kondo' });
 
 // Worker function: process a single user summary (no emails)
 export const buildDojoReportFunction = inngest.createFunction(
-  { id: "build-dojo-report" },
-  { event: "generate.user.summary" },
+  {
+    id: "build-dojo-report",
+    triggers: [{ event: "generate.user.summary" }],
+  },
   async ({ event, step }) => {
     const { userId } = event.data;
     try {

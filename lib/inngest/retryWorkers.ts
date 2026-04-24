@@ -6,8 +6,10 @@ const inngest = new Inngest({ id: 'Kondo' });
 
 // Retry function for failed summary generations
 export const retryFailedSummaryFunction = inngest.createFunction(
-  { id: "retry-failed-summary" },
-  { event: "retry.summary.generation" },
+  {
+    id: "retry-failed-summary",
+    triggers: [{ event: "retry.summary.generation" }],
+  },
   async ({ event, step }) => {
     const { userId, attemptNumber = 1 } = event.data;
     const MAX_RETRIES = 3;
