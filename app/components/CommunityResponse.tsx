@@ -587,8 +587,8 @@ export default function CommunityResponse(props: ResponseProps) {
 
     return (
       <>
-        {/* Voice chat (Grok) button */}
-        {data.content && (
+        {/* Voice chat (Grok) button - hidden in flashcard mode */}
+        {data.content && selectedDeckTitle !== 'flashcard' && (
           !isMobile ? (
             <Tooltip
               content="Ask a question about this content"

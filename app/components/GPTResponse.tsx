@@ -995,8 +995,8 @@ export default function GPTResponse({
             </div>
           )}
 
-          {/* Voice chat (Grok) button - only for actual responses */}
-          {type !== 'instruction' && response && (
+          {/* Voice chat (Grok) button - only for actual responses, hidden in flashcard mode */}
+          {type !== 'instruction' && response && selectedDeckTitle !== 'flashcard' && (
             !isMobile ? (
               <Tooltip
                 content="Ask a question about this content"
