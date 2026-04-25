@@ -342,15 +342,12 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[90]">
       <div className="bg-card border border-border p-6 rounded-sm w-[560px] max-w-[92vw] max-h-[85vh] flex flex-col">
         <div className="flex justify-between items-center pb-4 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <MicrophoneIcon className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold text-foreground">
-              Ask a question about this content
-            </h2>
-          </div>
+          <h2 className="text-lg font-semibold text-foreground">
+            Ask a question about this phrase or try to test your pronunciation
+          </h2>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors ml-3 flex-shrink-0"
             aria-label="Close voice chat"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -387,7 +384,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
         <div className="flex-1 overflow-y-auto mb-4 bg-background border border-border rounded-md p-3 min-h-[120px] max-h-[220px]">
           {transcript.length === 0 ? (
             <p className="text-muted-foreground italic text-sm">
-              Ask a question about the content above — answers are grounded only in this material.
+              Ask a question about the content above, or repeat the phrase aloud to test your pronunciation.
             </p>
           ) : (
             <div className="space-y-3">

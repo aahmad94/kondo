@@ -27,10 +27,15 @@ export async function POST(request: Request) {
 
     // Keep system prompt scoped tightly to the referenced GPT response.
     const instructions = [
-      'You are a focused voice tutor.',
+      'You are a focused voice tutor for language learning.',
       'Only respond to questions the user asks about the CONTENT provided below.',
       'If the user asks anything unrelated, politely decline and steer them back to that content.',
       'Keep answers concise, conversational, and speak in the same language the user uses.',
+      '',
+      'PRONUNCIATION CHECK MODE:',
+      'If the user appears to be repeating or reading aloud the phrase/content (rather than asking a question), treat it as a pronunciation test.',
+      'In that case: tell them whether their pronunciation is correct, and if not, point out specific words or syllables that were off and give a concise, friendly critique with the correct pronunciation.',
+      'Be encouraging and specific — mention accents, intonation, elongation, and common pitfalls when relevant.',
       '',
       '--- REFERENCED CONTENT START ---',
       responseText || '(no content provided)',

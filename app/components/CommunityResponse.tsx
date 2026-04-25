@@ -19,8 +19,9 @@ import {
   ShareIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/solid';
-import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
+import { ChatBubbleLeftEllipsisIcon, MicrophoneIcon } from '@heroicons/react/24/outline';
 import DecksModal from './DecksModal';
+import VoiceChatModal from './VoiceChatModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
@@ -140,6 +141,11 @@ export default function CommunityResponse(props: ResponseProps) {
   // Hover states
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
   const [isDeckHovered, setIsBookmarkHovered] = useState(false);
+  const [isVoiceHovered, setIsVoiceHovered] = useState(false);
+
+  // Voice chat state
+  const [isVoiceChatOpen, setIsVoiceChatOpen] = useState(false);
+  const voiceButtonRef = useRef<HTMLButtonElement>(null);
 
   // Generate and cache furigana array for clarifications
   useEffect(() => {
@@ -581,6 +587,37 @@ export default function CommunityResponse(props: ResponseProps) {
 
     return (
       <>
+        {/* Voice chat (Grok) button */}
+        {data.content && (
+          !isMobile ? (
+            <Tooltip
+              content="Ask a question about this content"
+              isVisible={isVoiceHovered}
+              buttonRef={voiceButtonRef}
+            >
+              <button
+                ref={voiceButtonRef}
+                onClick={() => setIsVoiceChatOpen(true)}
+                onMouseEnter={() => setIsVoiceHovered(true)}
+                onMouseLeave={() => setIsVoiceHovered(false)}
+                className="text-foreground hover:text-muted-foreground transition-colors duration-200"
+                aria-label="Ask a question about this content"
+              >
+                <MicrophoneIcon className="h-6 w-6" />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              ref={voiceButtonRef}
+              onClick={() => setIsVoiceChatOpen(true)}
+              className="text-foreground hover:text-muted-foreground transition-colors duration-200"
+              aria-label="Ask a question about this content"
+            >
+              <MicrophoneIcon className="h-6 w-6" />
+            </button>
+          )
+        )}
+
         {/* Quote button */}
         {onQuote && (
           <QuoteButton
@@ -1041,6 +1078,16 @@ export default function CommunityResponse(props: ResponseProps) {
         onClose={() => setIsErrorModalOpen(false)}
         error={errorMessage}
       />
+
+      {/* Voice Chat Modal (xAI Grok Think Fast) */}
+      {isVoiceChatOpen && (
+        <VoiceChatModal
+          isOpen={isVoiceChatOpen}
+          onClose={() => setIsVoiceChatOpen(false)}
+          responseText={data.content}
+          language={selectedLanguage}
+        />
+      )}
 
       {/* Note Modal - view only for community responses */}
       {isNoteModalOpen && isCommunityResponseProps(props) && props.data.note && (
