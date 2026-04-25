@@ -17,8 +17,9 @@ import {
   ArrowUpTrayIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/solid';
-import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
+import { ChatBubbleLeftEllipsisIcon, MicrophoneIcon } from '@heroicons/react/24/outline';
 import DecksModal from './DecksModal';
+import VoiceChatModal from './VoiceChatModal';
 import DeleteGPTResponseModal from './DeleteGPTResponseModal';
 import EnhancedDeleteModal from './EnhancedDeleteModal';
 import BreakdownModal from './BreakdownModal';
@@ -166,6 +167,9 @@ export default function GPTResponse({
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
   const [isQuoteHovered, setIsQuoteHovered] = useState(false);
   const [isDeckHovered, setIsDeckHovered] = useState(false);
+  const [isVoiceHovered, setIsVoiceHovered] = useState(false);
+  const [isVoiceChatOpen, setIsVoiceChatOpen] = useState(false);
+  const voiceButtonRef = React.useRef<HTMLButtonElement>(null);
   const quoteButtonRef = React.useRef<HTMLButtonElement>(null);
   const breakdownButtonRef = React.useRef<HTMLButtonElement>(null);
   const deckButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -991,6 +995,37 @@ export default function GPTResponse({
             </div>
           )}
 
+          {/* Voice chat (Grok) button - only for actual responses */}
+          {type !== 'instruction' && response && (
+            !isMobile ? (
+              <Tooltip
+                content="Ask a question about this content"
+                isVisible={isVoiceHovered}
+                buttonRef={voiceButtonRef}
+              >
+                <button
+                  ref={voiceButtonRef}
+                  onClick={() => setIsVoiceChatOpen(true)}
+                  onMouseEnter={() => setIsVoiceHovered(true)}
+                  onMouseLeave={() => setIsVoiceHovered(false)}
+                  className="text-foreground hover:text-muted-foreground transition-colors duration-200"
+                  aria-label="Ask a question about this content"
+                >
+                  <MicrophoneIcon className="h-6 w-6" />
+                </button>
+              </Tooltip>
+            ) : (
+              <button
+                ref={voiceButtonRef}
+                onClick={() => setIsVoiceChatOpen(true)}
+                className="text-foreground hover:text-muted-foreground transition-colors duration-200"
+                aria-label="Ask a question about this content"
+              >
+                <MicrophoneIcon className="h-6 w-6" />
+              </button>
+            )
+          )}
+
           {/* Quote button - always show when onQuote is available */}
           {onQuote && (
             !isMobile ? (
@@ -1379,6 +1414,16 @@ export default function GPTResponse({
         onClose={() => setIsErrorModalOpen(false)}
         error={errorMessage}
       />
+
+      {/* Voice Chat Modal (xAI Grok Think Fast) */}
+      {isVoiceChatOpen && (
+        <VoiceChatModal
+          isOpen={isVoiceChatOpen}
+          onClose={() => setIsVoiceChatOpen(false)}
+          responseText={response}
+          language={selectedLanguage}
+        />
+      )}
 
       {/* Note Modal */}
       {isNoteModalOpen && (
