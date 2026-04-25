@@ -341,13 +341,10 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[90]">
       <div className="bg-card border border-border p-6 rounded-sm w-[560px] max-w-[92vw] max-h-[85vh] flex flex-col">
-        <div className="flex justify-between items-center pb-4 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-foreground">
-            Ask a question about this phrase or try to test your pronunciation
-          </h2>
+        <div className="flex justify-end items-center pb-2 flex-shrink-0">
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors ml-3 flex-shrink-0"
+            className="text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Close voice chat"
           >
             <XMarkIcon className="h-6 w-6" />
