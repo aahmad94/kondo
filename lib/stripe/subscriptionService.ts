@@ -247,6 +247,28 @@ export async function syncSubscriptionFromStripe(
   });
 }
 
+// ─── Quota errors ─────────────────────────────────────────────────────────────
+
+/**
+ * Thrown by service-layer code when a user has exhausted a quota. API routes
+ * can catch this and translate it into a 429 via `quotaExceededResponse`.
+ */
+export class QuotaExceededError extends Error {
+  readonly quotaType: QuotaType;
+  readonly quota: QuotaResult;
+
+  constructor(quotaType: QuotaType, quota: QuotaResult) {
+    super(`Quota exceeded: ${quotaType}`);
+    this.name = 'QuotaExceededError';
+    this.quotaType = quotaType;
+    this.quota = quota;
+  }
+}
+
+export function isQuotaExceededError(err: unknown): err is QuotaExceededError {
+  return err instanceof QuotaExceededError;
+}
+
 // ─── Quota error payload (for API responses) ──────────────────────────────────
 
 export function quotaExceededResponse(type: QuotaType, quota: QuotaResult) {

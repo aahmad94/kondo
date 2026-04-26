@@ -11,7 +11,11 @@ const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'h
 
 /**
  * Creates a new GPT response with user's preferred language
- * Also updates the user's streak if adding to a bookmark
+ * Also updates the user's streak if adding to a bookmark.
+ *
+ * Note: the per-user weekly response quota is enforced and incremented at the
+ * generation boundary (pages/api/openai.ts), not here, since the expensive
+ * resource is the GPT call — not the DB insert.
  */
 export async function createGPTResponse(content: string, userId: string, bookmarkId?: string, responseType: string = 'response') {
   try {

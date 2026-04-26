@@ -4,7 +4,11 @@ import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
 import { authOptions } from './auth/[...nextauth]';
-import { checkResponseQuota, quotaExceededResponse } from '@/lib/stripe/subscriptionService';
+import {
+  checkResponseQuota,
+  incrementResponseUsage,
+  quotaExceededResponse,
+} from '@/lib/stripe/subscriptionService';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -52,6 +56,13 @@ export default async function handler(
     });
 
     const result = completion.choices[0]?.message?.content || 'No response generated';
+
+    // Count this generation toward the user's weekly response quota.
+    // Done after a successful completion so failed OpenAI calls don't count.
+    if (userId) {
+      await incrementResponseUsage(userId);
+    }
+
     return res.status(200).json({ result, responseType });
   } catch (error) {
     console.error('Error:', error);
