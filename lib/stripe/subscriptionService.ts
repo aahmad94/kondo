@@ -53,7 +53,6 @@ async function getOrCreateUsageTracking(userId: string) {
     return tracking;
   }
 
-  // Determine what needs to be reset
   const weekStart = getStartOfWeekUTC();
   const dayStart = getStartOfDayUTC();
 
@@ -64,8 +63,16 @@ async function getOrCreateUsageTracking(userId: string) {
     tracking = await prisma.usageTracking.update({
       where: { userId },
       data: {
-        ...(needsWeekReset && { responsesThisWeek: 0, weekStartDate: weekStart }),
-        ...(needsDayReset && { breakdownsToday: 0, ttsToday: 0, dailyResetDate: dayStart }),
+        ...(needsWeekReset && {
+          responsesThisWeek: 0,
+          voiceChatsThisWeek: 0,
+          weekStartDate: weekStart,
+        }),
+        ...(needsDayReset && {
+          breakdownsToday: 0,
+          ttsToday: 0,
+          dailyResetDate: dayStart,
+        }),
       },
     });
   }
@@ -132,6 +139,25 @@ export async function checkTTSQuota(userId: string): Promise<QuotaResult> {
   };
 }
 
+export async function checkVoiceChatQuota(userId: string): Promise<QuotaResult> {
+  const premium = await isPremiumUser(userId);
+  if (premium) {
+    return { allowed: true, isPremium: true, current: 0, limit: Infinity, remaining: Infinity };
+  }
+
+  const tracking = await getOrCreateUsageTracking(userId);
+  const current = tracking.voiceChatsThisWeek;
+  const limit = FREE_LIMITS.VOICE_CHATS_PER_WEEK;
+
+  return {
+    allowed: current < limit,
+    isPremium: false,
+    current,
+    limit,
+    remaining: Math.max(0, limit - current),
+  };
+}
+
 // ─── Quota increments ─────────────────────────────────────────────────────────
 
 export async function incrementResponseUsage(userId: string): Promise<void> {
@@ -155,6 +181,14 @@ export async function incrementTTSUsage(userId: string): Promise<void> {
   await prisma.usageTracking.update({
     where: { userId },
     data: { ttsToday: { increment: 1 } },
+  });
+}
+
+export async function incrementVoiceChatUsage(userId: string): Promise<void> {
+  await getOrCreateUsageTracking(userId);
+  await prisma.usageTracking.update({
+    where: { userId },
+    data: { voiceChatsThisWeek: { increment: 1 } },
   });
 }
 
@@ -220,6 +254,7 @@ export function quotaExceededResponse(type: QuotaType, quota: QuotaResult) {
     responses: `You've used all ${FREE_LIMITS.RESPONSES_PER_WEEK} of your free responses this week. Upgrade to Premium for unlimited access.`,
     breakdowns: `You've used all ${FREE_LIMITS.BREAKDOWNS_PER_DAY} free breakdowns today. Upgrade to Premium for unlimited access.`,
     tts: `You've used all ${FREE_LIMITS.TTS_PER_DAY} free audio generations today. Upgrade to Premium for unlimited access.`,
+    voice: `You've used all ${FREE_LIMITS.VOICE_CHATS_PER_WEEK} free voice chats this week. Upgrade to Premium for unlimited access.`,
   };
 
   return {

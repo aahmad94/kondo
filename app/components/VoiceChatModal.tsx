@@ -205,7 +205,11 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
 
       if (!sessionRes.ok) {
         const err = await sessionRes.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to obtain voice session');
+        const msg =
+          err.error === 'QUOTA_EXCEEDED' && err.message
+            ? err.message
+            : err.message || err.error || 'Failed to obtain voice session';
+        throw new Error(msg);
       }
 
       const { value: token, instructions } = await sessionRes.json();

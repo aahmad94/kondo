@@ -11,24 +11,60 @@ interface PremiumModalProps {
   triggerContext?: string;
 }
 
+type UsageKey =
+  | 'responsesThisWeek'
+  | 'voiceChatsThisWeek'
+  | 'breakdownsToday'
+  | 'ttsToday';
+
 interface FeatureRow {
   label: string;
   free: string;
   premium: string;
+  usageKey?: UsageKey;
+  limit?: number;
 }
 
 const FEATURES: FeatureRow[] = [
-  { label: 'Responses', free: `${FREE_LIMITS.RESPONSES_PER_WEEK}/week`, premium: 'Unlimited' },
-  { label: 'Breakdown analysis', free: `${FREE_LIMITS.BREAKDOWNS_PER_DAY}/day`, premium: 'Unlimited' },
-  { label: 'Audio / TTS', free: `${FREE_LIMITS.TTS_PER_DAY}/day`, premium: 'Unlimited' },
+  {
+    label: 'Responses',
+    free: `${FREE_LIMITS.RESPONSES_PER_WEEK}/week`,
+    premium: 'Unlimited',
+    usageKey: 'responsesThisWeek',
+    limit: FREE_LIMITS.RESPONSES_PER_WEEK,
+  },
+  {
+    label: 'Voice chat',
+    free: `${FREE_LIMITS.VOICE_CHATS_PER_WEEK}/week`,
+    premium: 'Unlimited',
+    usageKey: 'voiceChatsThisWeek',
+    limit: FREE_LIMITS.VOICE_CHATS_PER_WEEK,
+  },
+  {
+    label: 'Breakdown analysis',
+    free: `${FREE_LIMITS.BREAKDOWNS_PER_DAY}/day`,
+    premium: 'Unlimited',
+    usageKey: 'breakdownsToday',
+    limit: FREE_LIMITS.BREAKDOWNS_PER_DAY,
+  },
+  {
+    label: 'Audio / TTS',
+    free: `${FREE_LIMITS.TTS_PER_DAY}/day`,
+    premium: 'Unlimited',
+    usageKey: 'ttsToday',
+    limit: FREE_LIMITS.TTS_PER_DAY,
+  },
   { label: 'Community feed', free: '✓', premium: '✓' },
   { label: 'Daily Dojo', free: '✓', premium: '✓' },
   { label: 'Email summaries', free: '✓', premium: '✓' },
 ];
 
+type UsageMap = Record<UsageKey, number>;
+
 const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium = false, triggerContext }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [usage, setUsage] = useState<UsageMap | null>(null);
 
   // Close on Escape
   useEffect(() => {
@@ -39,6 +75,31 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium 
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [isOpen, onClose]);
+
+  // Fetch current usage when the modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/stripe/subscription-status');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled || !data?.usage) return;
+        setUsage({
+          responsesThisWeek: data.usage.responsesThisWeek ?? 0,
+          voiceChatsThisWeek: data.usage.voiceChatsThisWeek ?? 0,
+          breakdownsToday: data.usage.breakdownsToday ?? 0,
+          ttsToday: data.usage.ttsToday ?? 0,
+        });
+      } catch {
+        // non-fatal — usage column will just stay blank
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -75,7 +136,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium 
       className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[70] px-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-card border border-border rounded-sm shadow-xl w-full max-w-md">
+      <div className="bg-card border border-border rounded-sm shadow-xl w-full max-w-lg">
         {/* Header */}
         <div className="flex items-start justify-between p-6 pb-4 border-b border-border">
           <div>
@@ -109,19 +170,43 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium 
           <table className="w-full text-sm">
             <thead>
               <tr>
-                <th className="text-left text-muted-foreground font-normal pb-2 w-1/2" />
-                <th className="text-center text-muted-foreground font-medium pb-2 w-1/4">Free</th>
-                <th className="text-center font-semibold text-amber-500 pb-2 w-1/4">Premium</th>
+                <th className="text-left text-muted-foreground font-normal pb-2 w-[40%]" />
+                <th className="text-center text-muted-foreground font-medium pb-2 w-[20%]">Free</th>
+                <th className="text-center text-muted-foreground font-medium pb-2 w-[20%]">Usage</th>
+                <th className="text-center font-semibold text-amber-500 pb-2 w-[20%]">Premium</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {FEATURES.map((row) => (
-                <tr key={row.label}>
-                  <td className="py-2.5 text-card-foreground">{row.label}</td>
-                  <td className="py-2.5 text-center text-muted-foreground">{row.free}</td>
-                  <td className="py-2.5 text-center font-medium text-card-foreground">{row.premium}</td>
-                </tr>
-              ))}
+              {FEATURES.map((row) => {
+                const hasQuota = row.usageKey != null && row.limit != null;
+                const current = hasQuota && usage ? usage[row.usageKey!] : null;
+                const maxedOut =
+                  !isPremium && hasQuota && current != null && current >= (row.limit as number);
+                let usageCell: React.ReactNode = '—';
+                if (hasQuota) {
+                  if (isPremium) {
+                    usageCell = '—';
+                  } else if (current == null) {
+                    usageCell = <span className="text-muted-foreground/60">…</span>;
+                  } else {
+                    usageCell = current;
+                  }
+                }
+                return (
+                  <tr key={row.label}>
+                    <td className="py-2.5 text-card-foreground">{row.label}</td>
+                    <td className="py-2.5 text-center text-muted-foreground">{row.free}</td>
+                    <td
+                      className={`py-2.5 text-center font-medium ${
+                        maxedOut ? 'text-red-500' : 'text-card-foreground'
+                      }`}
+                    >
+                      {usageCell}
+                    </td>
+                    <td className="py-2.5 text-center font-medium text-card-foreground">{row.premium}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

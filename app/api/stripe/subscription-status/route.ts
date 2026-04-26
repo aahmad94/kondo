@@ -26,6 +26,7 @@ export async function GET() {
         responsesThisWeek: true,
         breakdownsToday: true,
         ttsToday: true,
+        voiceChatsThisWeek: true,
       },
     }),
   ]);
@@ -40,6 +41,7 @@ export async function GET() {
       responsesThisWeek: usage?.responsesThisWeek ?? 0,
       breakdownsToday: usage?.breakdownsToday ?? 0,
       ttsToday: usage?.ttsToday ?? 0,
+      voiceChatsThisWeek: usage?.voiceChatsThisWeek ?? 0,
     },
     limits: FREE_LIMITS,
   });

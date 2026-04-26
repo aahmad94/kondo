@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import {
+  checkVoiceChatQuota,
+  incrementVoiceChatUsage,
+  quotaExceededResponse,
+} from '@/lib/stripe/subscriptionService';
 
 export const runtime = 'nodejs';
 
@@ -11,6 +16,16 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = (session as any)?.userId || (session?.user as any)?.id;
+
+    // Enforce weekly voice chat quota for authenticated users
+    if (userId) {
+      const quota = await checkVoiceChatQuota(userId);
+      if (!quota.allowed) {
+        return NextResponse.json(quotaExceededResponse('voice', quota), { status: 429 });
+      }
     }
 
     const apiKey = process.env.XAI_VOICE_API_KEY;
@@ -73,6 +88,12 @@ export async function POST(request: Request) {
     }
 
     const data = await res.json();
+
+    // Count a successful session mint toward the weekly voice chat quota
+    if (userId) {
+      await incrementVoiceChatUsage(userId);
+    }
+
     return NextResponse.json({
       value: data.value,
       expires_at: data.expires_at,
