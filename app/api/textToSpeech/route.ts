@@ -5,11 +5,15 @@ import { convertTextToSpeech } from '@/lib';
 import { getCommunityAudio } from '@/lib/community';
 import prisma from '@/lib/database/prisma';
 import {
-  checkTTSQuota,
-  incrementTTSUsage,
+  isQuotaExceededError,
   quotaExceededResponse,
 } from '@/lib/stripe/subscriptionService';
 
+// Quota note: TTS counting (and the up-front "have you maxed out today?"
+// check) lives inside the service layer (`convertTextToSpeech` /
+// `getCommunityAudio`). That layer dedups via the `QuotaConsumption` table
+// so each (user, responseId) counts at most once per UTC day, regardless of
+// how many times the play button is pressed.
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,14 +26,6 @@ export async function POST(request: Request) {
         { error: 'Text and language are required' },
         { status: 400 }
       );
-    }
-
-    // Enforce daily TTS quota for authenticated users
-    if (userId) {
-      const quota = await checkTTSQuota(userId);
-      if (!quota.allowed) {
-        return NextResponse.json(quotaExceededResponse('tts', quota), { status: 429 });
-      }
     }
 
     let result;
@@ -49,19 +45,14 @@ export async function POST(request: Request) {
       ]);
 
       if (communityResponse) {
-        result = await getCommunityAudio(responseId, text, language);
+        result = await getCommunityAudio(responseId, text, language, userId);
       } else if (gptResponse) {
-        result = await convertTextToSpeech(text, language, responseId);
+        result = await convertTextToSpeech(text, language, responseId, userId);
       } else {
-        result = await convertTextToSpeech(text, language, undefined);
+        result = await convertTextToSpeech(text, language, undefined, userId);
       }
     } else {
-      result = await convertTextToSpeech(text, language, undefined);
-    }
-
-    // Increment usage after successful TTS generation
-    if (userId) {
-      await incrementTTSUsage(userId);
+      result = await convertTextToSpeech(text, language, undefined, userId);
     }
 
     return NextResponse.json({
@@ -70,6 +61,12 @@ export async function POST(request: Request) {
       mimeType: result.mimeType
     });
   } catch (error: any) {
+    if (isQuotaExceededError(error)) {
+      return NextResponse.json(
+        quotaExceededResponse(error.quotaType, error.quota),
+        { status: 429 },
+      );
+    }
     console.error('Error in text-to-speech API:', error);
     return NextResponse.json(
       {

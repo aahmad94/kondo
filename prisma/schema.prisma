@@ -46,6 +46,7 @@ model User {
   subscriptionEndsAt    DateTime?
   stripePriceId         String?
   usageTracking         UsageTracking?
+  quotaConsumptions     QuotaConsumption[]
 }
 
 
@@ -284,4 +285,22 @@ model UsageTracking {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Records that a (user, feature, responseId) tuple has been counted toward
+// the user's daily quota on a given UTC day. Used to dedup repeat clicks on
+// the same response within the same day so we don't double-count, while still
+// allowing the same response to count again on a later day.
+model QuotaConsumption {
+  id         String   @id @default(cuid())
+  userId     String
+  feature    String   // 'breakdown' | 'tts'
+  responseId String   // GPTResponse.id or CommunityResponse.id
+  dayBucket  DateTime // midnight UTC of the day this was counted
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, feature, responseId, dayBucket])
+  @@index([userId, dayBucket])
 }

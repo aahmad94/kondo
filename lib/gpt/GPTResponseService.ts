@@ -2,6 +2,7 @@ import 'server-only';
 import prisma from '../database/prisma';
 import { getUserLanguageId } from '../user/languageService';
 import { updateStreakOnActivity, type StreakData } from '../user/streakService';
+import { gateDailyResponseFeature } from '../stripe/subscriptionService';
 import fs from 'fs';
 import path from 'path';
 
@@ -305,7 +306,7 @@ export async function getUserResponseStats(userId: string, language: string) {
 }
 
 
-export async function convertTextToSpeech(text: string, language: string, responseId?: string) {
+export async function convertTextToSpeech(text: string, language: string, responseId?: string, userId?: string) {
   if (!text) {
     throw new Error('Text content is required');
   }
@@ -313,6 +314,11 @@ export async function convertTextToSpeech(text: string, language: string, respon
   if (!language) {
     throw new Error('Language is required');
   }
+
+  // Quota gate: counts at most once per (userId, responseId) per UTC day.
+  // Throws QuotaExceededError up front if the user is maxed out today.
+  // For unauthenticated callers the gate is a no-op.
+  const { commit: commitQuota } = await gateDailyResponseFeature('tts', userId, responseId);
 
   try {
     // Only check database if we have a responseId
@@ -323,7 +329,9 @@ export async function convertTextToSpeech(text: string, language: string, respon
       });
 
       if (existingResponse?.audio && existingResponse?.audioMimeType) {
-        // Return existing audio from database
+        // Cache hit: return persisted audio. Still record consumption so
+        // revisiting on a later day counts again.
+        await commitQuota();
         return {
           audio: existingResponse.audio,
           mimeType: existingResponse.audioMimeType
@@ -393,6 +401,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
       }
     }
 
+    await commitQuota();
     return {
       audio: audioBase64,
       mimeType: audioBlob.type
@@ -403,7 +412,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
   }
 }
 
-export async function getBreakdown(text: string, language: string, responseId?: string, isMobile?: boolean) {
+export async function getBreakdown(text: string, language: string, responseId?: string, isMobile?: boolean, userId?: string) {
   if (!text) {
     throw new Error('Text content is required');
   }
@@ -411,6 +420,11 @@ export async function getBreakdown(text: string, language: string, responseId?: 
   if (!language) {
     throw new Error('Language is required');
   }
+
+  // Quota gate: counts at most once per (userId, responseId) per UTC day.
+  // Throws QuotaExceededError up front if the user is maxed out today.
+  // For unauthenticated callers the gate is a no-op.
+  const { commit: commitQuota } = await gateDailyResponseFeature('breakdown', userId, responseId);
 
   try {
     // Extract content between 1/ and 2/ using regex
@@ -432,7 +446,7 @@ export async function getBreakdown(text: string, language: string, responseId?: 
 
     // Combine content with original user input
     const combinedContent = content + '\n' + originalUserInput;
-    
+
     // Only check database if we have a responseId
     if (responseId) {
       const existingResponse = await prisma.gPTResponse.findUnique({
@@ -440,9 +454,13 @@ export async function getBreakdown(text: string, language: string, responseId?: 
         select: { breakdown: true, mobileBreakdown: true }
       });
 
+      // Cache hits below: still record consumption so revisiting on a later
+      // day counts again.
+
       // If we already have both breakdowns, return them along with the requested one
       if (existingResponse?.breakdown && existingResponse?.mobileBreakdown) {
         const requestedBreakdown = isMobile ? existingResponse.mobileBreakdown : existingResponse.breakdown;
+        await commitQuota();
         return {
           breakdown: requestedBreakdown,
           desktopBreakdown: existingResponse.breakdown,
@@ -452,12 +470,14 @@ export async function getBreakdown(text: string, language: string, responseId?: 
 
       // Return existing breakdown based on device type if available
       if (isMobile && existingResponse?.mobileBreakdown) {
+        await commitQuota();
         return {
           breakdown: existingResponse.mobileBreakdown,
           desktopBreakdown: existingResponse.breakdown || '',
           mobileBreakdown: existingResponse.mobileBreakdown
         };
       } else if (!isMobile && existingResponse?.breakdown) {
+        await commitQuota();
         return {
           breakdown: existingResponse.breakdown,
           desktopBreakdown: existingResponse.breakdown,
@@ -500,15 +520,16 @@ export async function getBreakdown(text: string, language: string, responseId?: 
 
       if (responseExists) {
         // Update the appropriate breakdown field based on device type
-        const updateData = isMobile 
+        const updateData = isMobile
           ? { mobileBreakdown: breakdown }
           : { breakdown };
-          
+
         await prisma.gPTResponse.update({
           where: { id: responseId },
           data: updateData
         });
 
+        await commitQuota();
         // Return the new breakdown along with any existing ones
         return {
           breakdown,
@@ -518,6 +539,7 @@ export async function getBreakdown(text: string, language: string, responseId?: 
       }
     }
 
+    await commitQuota();
     // Return just the generated breakdown if no database operations
     return {
       breakdown,

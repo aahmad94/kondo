@@ -5,11 +5,15 @@ import { getBreakdown } from '@/lib';
 import { getCommunityBreakdown } from '@/lib/community';
 import prisma from '@/lib/database/prisma';
 import {
-  checkBreakdownQuota,
-  incrementBreakdownUsage,
+  isQuotaExceededError,
   quotaExceededResponse,
 } from '@/lib/stripe/subscriptionService';
 
+// Quota note: breakdown counting (and the up-front "have you maxed out today?"
+// check) lives inside the service layer (`getBreakdown` / `getCommunityBreakdown`).
+// That layer dedups via the `QuotaConsumption` table so each (user, responseId)
+// counts at most once per UTC day, regardless of how many times the modal is
+// opened or the API is hit.
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,14 +27,6 @@ export async function POST(request: Request) {
 
     if (!language) {
       return NextResponse.json({ error: 'Language is required' }, { status: 400 });
-    }
-
-    // Enforce daily breakdown quota for authenticated users
-    if (userId) {
-      const quota = await checkBreakdownQuota(userId);
-      if (!quota.allowed) {
-        return NextResponse.json(quotaExceededResponse('breakdowns', quota), { status: 429 });
-      }
     }
 
     let result;
@@ -50,21 +46,14 @@ export async function POST(request: Request) {
       ]);
 
       if (communityResponse) {
-        // Handle community response with caching
-        result = await getCommunityBreakdown(responseId, isMobile);
+        result = await getCommunityBreakdown(responseId, isMobile, userId);
       } else if (gptResponse) {
-        // Handle regular GPT response with caching
-        result = await getBreakdown(text, language, responseId, isMobile);
+        result = await getBreakdown(text, language, responseId, isMobile, userId);
       } else {
-        result = await getBreakdown(text, language, undefined, isMobile);
+        result = await getBreakdown(text, language, undefined, isMobile, userId);
       }
     } else {
-      result = await getBreakdown(text, language, undefined, isMobile);
-    }
-
-    // Increment usage after successful generation (only counts new API calls, not cached)
-    if (userId) {
-      await incrementBreakdownUsage(userId);
+      result = await getBreakdown(text, language, undefined, isMobile, userId);
     }
 
     return NextResponse.json({
@@ -73,6 +62,12 @@ export async function POST(request: Request) {
       mobileBreakdown: result.mobileBreakdown
     });
   } catch (error: any) {
+    if (isQuotaExceededError(error)) {
+      return NextResponse.json(
+        quotaExceededResponse(error.quotaType, error.quota),
+        { status: 429 },
+      );
+    }
     console.error('Error in breakdown API:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to generate breakdown' },
