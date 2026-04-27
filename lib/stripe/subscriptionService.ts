@@ -272,17 +272,19 @@ export function isQuotaExceededError(err: unknown): err is QuotaExceededError {
 // ─── Per-response/day quota gate (breakdown + TTS) ────────────────────────────
 
 /**
- * Detects null/undefined/empty/temp responseIds. Temp responses are transient
- * client-side artifacts that don't have a stable id, so we can't dedup against
- * them — every server hit for a temp response counts. (Repeat clicks are
- * suppressed by the client-side caches.)
+ * Detects responseIds usable as a dedup key. We accept both persisted ids
+ * (e.g. cuids from GPTResponse / CommunityResponse) AND client-generated
+ * temp ids (e.g. `temp_<ts>_<rand>`), since temp ids are stable for the
+ * lifetime of the in-memory response and consequently unique enough to
+ * dedup against. When a temp response is later saved into a deck,
+ * `migrateQuotaConsumption` rewrites the responseId on its consumption
+ * rows to the new persisted id so dedup carries over.
  */
-function isPersistedResponseId(responseId: string | null | undefined): responseId is string {
+function isStableResponseId(responseId: string | null | undefined): responseId is string {
   return (
     !!responseId &&
     responseId !== 'null' &&
-    responseId !== 'undefined' &&
-    !responseId.includes('temp')
+    responseId !== 'undefined'
   );
 }
 
@@ -296,7 +298,7 @@ async function shouldCountConsumption(
   feature: 'breakdown' | 'tts',
   responseId: string | null | undefined,
 ): Promise<boolean> {
-  if (!isPersistedResponseId(responseId)) return true;
+  if (!isStableResponseId(responseId)) return true;
 
   const existing = await prisma.quotaConsumption.findUnique({
     where: {
@@ -317,7 +319,7 @@ async function recordConsumption(
   feature: 'breakdown' | 'tts',
   responseId: string | null | undefined,
 ): Promise<void> {
-  if (!isPersistedResponseId(responseId)) return;
+  if (!isStableResponseId(responseId)) return;
   try {
     await prisma.quotaConsumption.create({
       data: {
@@ -331,6 +333,35 @@ async function recordConsumption(
     // P2002 = unique constraint violation; another concurrent request already
     // recorded today's consumption for this (user, feature, responseId).
     // Treat it as already-counted and move on.
+    if (err?.code !== 'P2002') throw err;
+  }
+}
+
+/**
+ * Rewrites the responseId on a user's `QuotaConsumption` rows. Used when a
+ * temp (in-memory) response is saved into a deck and gets a real persisted
+ * id — we carry forward today's dedup window so the user isn't charged
+ * again for breakdown/TTS work they already did pre-save. Original
+ * `dayBucket` values are preserved.
+ *
+ * Idempotent: if no rows match (e.g. the temp had no consumption yet),
+ * this is a no-op. Safe to call unconditionally on save.
+ */
+export async function migrateQuotaConsumption(
+  userId: string,
+  fromResponseId: string,
+  toResponseId: string,
+): Promise<void> {
+  if (!fromResponseId || !toResponseId || fromResponseId === toResponseId) return;
+  try {
+    await prisma.quotaConsumption.updateMany({
+      where: { userId, responseId: fromResponseId },
+      data: { responseId: toResponseId },
+    });
+  } catch (err: any) {
+    // P2002 can theoretically happen if a row already exists for the
+    // destination id (e.g. user already broke down the persisted response
+    // today via some other path). Treat as already-deduped and move on.
     if (err?.code !== 'P2002') throw err;
   }
 }

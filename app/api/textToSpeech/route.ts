@@ -30,8 +30,13 @@ export async function POST(request: Request) {
 
     let result;
 
-    // Check if responseId is provided and valid (not null, undefined, empty string, or temp)
-    if (responseId && responseId !== 'null' && responseId !== 'undefined' && !responseId.includes('temp')) {
+    const hasResponseId = responseId && responseId !== 'null' && responseId !== 'undefined';
+    const isTempResponseId = hasResponseId && responseId.includes('temp');
+
+    // For temp ids we skip the community/gpt lookup (the row doesn't exist
+    // in either table) but still forward the id to the service so per-day
+    // dedup works against the stable client-side temp id.
+    if (hasResponseId && !isTempResponseId) {
       // Determine if this is a community response or GPT response
       const [communityResponse, gptResponse] = await Promise.all([
         prisma.communityResponse.findUnique({
@@ -52,7 +57,7 @@ export async function POST(request: Request) {
         result = await convertTextToSpeech(text, language, undefined, userId);
       }
     } else {
-      result = await convertTextToSpeech(text, language, undefined, userId);
+      result = await convertTextToSpeech(text, language, hasResponseId ? responseId : undefined, userId);
     }
 
     return NextResponse.json({

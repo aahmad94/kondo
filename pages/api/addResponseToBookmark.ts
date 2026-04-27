@@ -1,10 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib';
 import { updateStreakOnActivity } from '@/lib/user/streakService';
+import { migrateQuotaConsumption } from '@/lib/stripe/subscriptionService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { bookmarkId, gptResponseContent, userId, cachedAudio, desktopBreakdownContent, mobileBreakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled, responseType, timezone } = req.body as {
+    const { bookmarkId, gptResponseContent, userId, cachedAudio, desktopBreakdownContent, mobileBreakdownContent, furigana, isFuriganaEnabled, isPhoneticEnabled, isKanaEnabled, responseType, tempResponseId, timezone } = req.body as {
       bookmarkId: string;
       gptResponseContent: string;
       userId: string;
@@ -16,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       isPhoneticEnabled?: boolean | null;
       isKanaEnabled?: boolean | null;
       responseType?: string;
+      tempResponseId?: string | null;
       timezone?: string;
     };
 
@@ -73,6 +75,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { id: bookmarkId },
         data: { updatedAt: new Date() }
       });
+
+      // Carry forward any breakdown/TTS quota consumption that was recorded
+      // against the in-memory temp id so dedup continues to work for the
+      // newly persisted response. No-op when there are no rows to migrate.
+      if (tempResponseId) {
+        await migrateQuotaConsumption(userId, tempResponseId, newResponse.id);
+      }
 
       // Update user's streak since they added a response to a deck
       const streakData = await updateStreakOnActivity(userId, timezone || 'UTC');

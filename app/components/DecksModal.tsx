@@ -36,6 +36,11 @@ interface DecksModalProps {
   isPhoneticEnabled?: boolean;
   isKanaEnabled?: boolean;
   responseType?: 'clarification' | 'response' | 'instruction';
+  // Pre-save temp id (e.g. `temp_<ts>_<rand>`) used as a dedup key for the
+  // breakdown/TTS quota while the response was in-memory. Forwarded to
+  // the save endpoint so any QuotaConsumption rows can be migrated to the
+  // new persisted id.
+  tempResponseId?: string | null;
   onDeckCreated?: (newDeck: { id: string, title: string }) => void;
   onDeckSelect?: (id: string | null, title: string | null) => void;
   // Community import props
@@ -59,6 +64,7 @@ export default function DecksModal({
   isPhoneticEnabled,
   isKanaEnabled,
   responseType = 'response',
+  tempResponseId,
   onDeckCreated,
   onDeckSelect,
   communityResponse,
@@ -134,6 +140,7 @@ export default function DecksModal({
           isPhoneticEnabled,
           isKanaEnabled,
           responseType,
+          tempResponseId,
           timezone: userTimezone
         }),
       });
