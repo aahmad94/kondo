@@ -1,12 +1,18 @@
 import prisma from '../database/prisma';
+import { gateDailyResponseFeature } from '../stripe/subscriptionService';
 
 /**
- * Gets or generates audio for a community response with caching
+ * Gets or generates audio for a community response with caching.
+ *
+ * Quota: counts at most once per (userId, communityResponseId) per UTC day.
+ * Cache hits still record a consumption row so revisiting on a later day
+ * counts again. Throws QuotaExceededError if the user is maxed out today.
  */
 export async function getCommunityAudio(
-  communityResponseId: string, 
+  communityResponseId: string,
   text: string,
-  language: string
+  language: string,
+  userId?: string,
 ) {
   if (!communityResponseId) {
     throw new Error('Community response ID is required');
@@ -20,12 +26,14 @@ export async function getCommunityAudio(
     throw new Error('Language is required');
   }
 
+  const { commit: commitQuota } = await gateDailyResponseFeature('tts', userId, communityResponseId);
+
   try {
     // First, check if we already have the audio cached
     const existingCommunityResponse = await prisma.communityResponse.findUnique({
       where: { id: communityResponseId },
-      select: { 
-        audio: true, 
+      select: {
+        audio: true,
         audioMimeType: true
       }
     });
@@ -36,6 +44,7 @@ export async function getCommunityAudio(
 
     // If we already have cached audio, return it
     if (existingCommunityResponse.audio && existingCommunityResponse.audioMimeType) {
+      await commitQuota();
       return {
         audio: existingCommunityResponse.audio,
         mimeType: existingCommunityResponse.audioMimeType
@@ -54,6 +63,7 @@ export async function getCommunityAudio(
       }
     });
 
+    await commitQuota();
     return audioResult;
   } catch (error) {
     console.error('Error getting community audio:', error);

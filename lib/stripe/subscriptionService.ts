@@ -269,6 +269,146 @@ export function isQuotaExceededError(err: unknown): err is QuotaExceededError {
   return err instanceof QuotaExceededError;
 }
 
+// ─── Per-response/day quota gate (breakdown + TTS) ────────────────────────────
+
+/**
+ * Detects responseIds usable as a dedup key. We accept both persisted ids
+ * (e.g. cuids from GPTResponse / CommunityResponse) AND client-generated
+ * temp ids (e.g. `temp_<ts>_<rand>`), since temp ids are stable for the
+ * lifetime of the in-memory response and consequently unique enough to
+ * dedup against. When a temp response is later saved into a deck,
+ * `migrateQuotaConsumption` rewrites the responseId on its consumption
+ * rows to the new persisted id so dedup carries over.
+ */
+function isStableResponseId(responseId: string | null | undefined): responseId is string {
+  return (
+    !!responseId &&
+    responseId !== 'null' &&
+    responseId !== 'undefined'
+  );
+}
+
+/**
+ * Decides whether the given (user, feature, responseId) should count toward
+ * today's quota. Persisted responses are deduped via the `QuotaConsumption`
+ * table — at most one count per (userId, feature, responseId, UTC day).
+ */
+async function shouldCountConsumption(
+  userId: string,
+  feature: 'breakdown' | 'tts',
+  responseId: string | null | undefined,
+): Promise<boolean> {
+  if (!isStableResponseId(responseId)) return true;
+
+  const existing = await prisma.quotaConsumption.findUnique({
+    where: {
+      userId_feature_responseId_dayBucket: {
+        userId,
+        feature,
+        responseId,
+        dayBucket: getStartOfDayUTC(),
+      },
+    },
+    select: { id: true },
+  });
+  return existing == null;
+}
+
+async function recordConsumption(
+  userId: string,
+  feature: 'breakdown' | 'tts',
+  responseId: string | null | undefined,
+): Promise<void> {
+  if (!isStableResponseId(responseId)) return;
+  try {
+    await prisma.quotaConsumption.create({
+      data: {
+        userId,
+        feature,
+        responseId,
+        dayBucket: getStartOfDayUTC(),
+      },
+    });
+  } catch (err: any) {
+    // P2002 = unique constraint violation; another concurrent request already
+    // recorded today's consumption for this (user, feature, responseId).
+    // Treat it as already-counted and move on.
+    if (err?.code !== 'P2002') throw err;
+  }
+}
+
+/**
+ * Rewrites the responseId on a user's `QuotaConsumption` rows. Used when a
+ * temp (in-memory) response is saved into a deck and gets a real persisted
+ * id — we carry forward today's dedup window so the user isn't charged
+ * again for breakdown/TTS work they already did pre-save. Original
+ * `dayBucket` values are preserved.
+ *
+ * Idempotent: if no rows match (e.g. the temp had no consumption yet),
+ * this is a no-op. Safe to call unconditionally on save.
+ */
+export async function migrateQuotaConsumption(
+  userId: string,
+  fromResponseId: string,
+  toResponseId: string,
+): Promise<void> {
+  if (!fromResponseId || !toResponseId || fromResponseId === toResponseId) return;
+  try {
+    await prisma.quotaConsumption.updateMany({
+      where: { userId, responseId: fromResponseId },
+      data: { responseId: toResponseId },
+    });
+  } catch (err: any) {
+    // P2002 can theoretically happen if a row already exists for the
+    // destination id (e.g. user already broke down the persisted response
+    // today via some other path). Treat as already-deduped and move on.
+    if (err?.code !== 'P2002') throw err;
+  }
+}
+
+/**
+ * Up-front gate for breakdown/TTS service calls.
+ *
+ * If the (user, feature, responseId) tuple has already been counted for the
+ * current UTC day, returns a no-op completion handler — the caller proceeds
+ * with the (likely cached) work and we don't touch the counter.
+ *
+ * Otherwise, runs the appropriate quota check (throws `QuotaExceededError`
+ * if the user is maxed out for today) and returns a `commit` callback that
+ * the caller invokes after the operation succeeds; commit records the
+ * consumption row and increments the daily counter.
+ */
+export async function gateDailyResponseFeature(
+  feature: 'breakdown' | 'tts',
+  userId: string | null | undefined,
+  responseId: string | null | undefined,
+): Promise<{ commit: () => Promise<void> }> {
+  // Anonymous / unauthenticated callers are never gated.
+  if (!userId) return { commit: async () => {} };
+
+  const willCount = await shouldCountConsumption(userId, feature, responseId);
+  if (!willCount) return { commit: async () => {} };
+
+  const quota = feature === 'breakdown'
+    ? await checkBreakdownQuota(userId)
+    : await checkTTSQuota(userId);
+
+  if (!quota.allowed) {
+    throw new QuotaExceededError(feature === 'breakdown' ? 'breakdowns' : 'tts', quota);
+  }
+
+  return {
+    commit: async () => {
+      await recordConsumption(userId, feature, responseId);
+      if (feature === 'breakdown') {
+        await incrementBreakdownUsage(userId);
+      } else {
+        await incrementTTSUsage(userId);
+      }
+    },
+  };
+}
+
 // ─── Quota error payload (for API responses) ──────────────────────────────────
 
 export function quotaExceededResponse(type: QuotaType, quota: QuotaResult) {

@@ -1,27 +1,35 @@
 import 'server-only';
 import prisma from '../database/prisma';
+import { gateDailyResponseFeature } from '../stripe/subscriptionService';
 import fs from 'fs';
 import path from 'path';
 
 const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
 
 /**
- * Gets or generates breakdown for a community response with caching
+ * Gets or generates breakdown for a community response with caching.
+ *
+ * Quota: counts at most once per (userId, communityResponseId) per UTC day.
+ * Cache hits still record a consumption row so revisiting on a later day
+ * counts again. Throws QuotaExceededError if the user is maxed out today.
  */
 export async function getCommunityBreakdown(
-  communityResponseId: string, 
-  isMobile?: boolean
+  communityResponseId: string,
+  isMobile?: boolean,
+  userId?: string,
 ) {
   if (!communityResponseId) {
     throw new Error('Community response ID is required');
   }
 
+  const { commit: commitQuota } = await gateDailyResponseFeature('breakdown', userId, communityResponseId);
+
   try {
     // First, check if we already have the breakdown cached
     const existingCommunityResponse = await prisma.communityResponse.findUnique({
       where: { id: communityResponseId },
-      select: { 
-        breakdown: true, 
+      select: {
+        breakdown: true,
         mobileBreakdown: true,
         content: true,
         language: { select: { code: true } }
@@ -35,6 +43,7 @@ export async function getCommunityBreakdown(
     // If we already have both breakdowns, return them along with the requested one
     if (existingCommunityResponse.breakdown && existingCommunityResponse.mobileBreakdown) {
       const requestedBreakdown = isMobile ? existingCommunityResponse.mobileBreakdown : existingCommunityResponse.breakdown;
+      await commitQuota();
       return {
         breakdown: requestedBreakdown,
         desktopBreakdown: existingCommunityResponse.breakdown,
@@ -44,12 +53,14 @@ export async function getCommunityBreakdown(
 
     // Return existing breakdown based on device type if available
     if (isMobile && existingCommunityResponse.mobileBreakdown) {
+      await commitQuota();
       return {
         breakdown: existingCommunityResponse.mobileBreakdown,
         desktopBreakdown: existingCommunityResponse.breakdown || '',
         mobileBreakdown: existingCommunityResponse.mobileBreakdown
       };
     } else if (!isMobile && existingCommunityResponse.breakdown) {
+      await commitQuota();
       return {
         breakdown: existingCommunityResponse.breakdown,
         desktopBreakdown: existingCommunityResponse.breakdown,
@@ -65,15 +76,16 @@ export async function getCommunityBreakdown(
     );
 
     // Update the community response with the new breakdown
-    const updateData = isMobile 
+    const updateData = isMobile
       ? { mobileBreakdown: breakdown }
       : { breakdown };
-      
+
     await prisma.communityResponse.update({
       where: { id: communityResponseId },
       data: updateData
     });
 
+    await commitQuota();
     // Return the new breakdown along with any existing ones
     return {
       breakdown,

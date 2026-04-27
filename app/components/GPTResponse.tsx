@@ -1334,6 +1334,10 @@ export default function GPTResponse({
           isPhoneticEnabled={localPhoneticEnabled}
           isKanaEnabled={localKanaEnabled}
           responseType={responseType}
+          // Temp id used pre-save as a dedup key for the breakdown/TTS quota.
+          // Forwarded to the save endpoint so the server can carry over any
+          // QuotaConsumption rows from the temp to the new persisted id.
+          tempResponseId={responseId && responseId.includes('temp') ? responseId : null}
           onDeckCreated={onDeckCreated}
           onDeckSelect={onDeckSelect}
           onDecksRefresh={onDecksRefresh}
