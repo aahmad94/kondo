@@ -184,9 +184,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium 
                   !isPremium && hasQuota && current != null && current >= (row.limit as number);
                 let usageCell: React.ReactNode = '—';
                 if (hasQuota) {
-                  if (isPremium) {
-                    usageCell = '—';
-                  } else if (current == null) {
+                  if (current == null) {
                     usageCell = <span className="text-muted-foreground/60">…</span>;
                   } else {
                     usageCell = current;
