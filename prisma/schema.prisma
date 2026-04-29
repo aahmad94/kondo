@@ -45,6 +45,7 @@ model User {
   subscriptionId        String?                    @unique
   subscriptionEndsAt    DateTime?
   stripePriceId         String?
+  cancelAtPeriodEnd     Boolean                    @default(false)
   usageTracking         UsageTracking?
   quotaConsumptions     QuotaConsumption[]
 }

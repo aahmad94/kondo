@@ -33,19 +33,39 @@ export async function POST(request: Request) {
         const subscription = event.data.object;
         const customerId = subscription.customer as string;
         const status = subscription.status === 'active' ? 'premium' : 'free';
-        const priceId = subscription.items.data[0]?.price?.id;
-        // current_period_end is on the billing cycle anchor in Stripe v22
-        const periodEnd = (subscription as any).current_period_end as number | undefined;
+        const item = subscription.items.data[0];
+        const priceId = item?.price?.id;
+        // In Stripe API 2026-03-25.dahlia, `current_period_end` moved off the
+        // subscription object and onto each subscription item. Fall back to the
+        // legacy location for older event payloads.
+        const periodEnd =
+          ((item as any)?.current_period_end as number | undefined) ??
+          ((subscription as any).current_period_end as number | undefined);
         const endsAt = periodEnd ? new Date(periodEnd * 1000) : undefined;
+        const cancelAtPeriodEnd = (subscription as any).cancel_at_period_end === true;
 
-        await syncSubscriptionFromStripe(customerId, status as any, subscription.id, priceId, endsAt);
+        await syncSubscriptionFromStripe(
+          customerId,
+          status as any,
+          subscription.id,
+          priceId,
+          endsAt,
+          cancelAtPeriodEnd,
+        );
         break;
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
         const customerId = subscription.customer as string;
-        await syncSubscriptionFromStripe(customerId, 'canceled', subscription.id);
+        await syncSubscriptionFromStripe(
+          customerId,
+          'canceled',
+          subscription.id,
+          undefined,
+          undefined,
+          false,
+        );
         break;
       }
 

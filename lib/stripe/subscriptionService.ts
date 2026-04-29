@@ -235,6 +235,7 @@ export async function syncSubscriptionFromStripe(
   subscriptionId?: string,
   priceId?: string,
   endsAt?: Date,
+  cancelAtPeriodEnd?: boolean,
 ): Promise<void> {
   await prisma.user.updateMany({
     where: { stripeCustomerId: customerId },
@@ -243,6 +244,7 @@ export async function syncSubscriptionFromStripe(
       ...(subscriptionId !== undefined && { subscriptionId }),
       ...(priceId !== undefined && { stripePriceId: priceId }),
       ...(endsAt !== undefined && { subscriptionEndsAt: endsAt }),
+      ...(cancelAtPeriodEnd !== undefined && { cancelAtPeriodEnd }),
     },
   });
 }

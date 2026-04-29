@@ -32,6 +32,8 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null);
+  const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false);
   const [premiumTriggerContext, setPremiumTriggerContext] = useState<string | undefined>(undefined);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { theme, effectiveTheme, setThemeMode } = useTheme();
@@ -65,7 +67,11 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
     if (status !== 'authenticated') return;
     fetch('/api/stripe/subscription-status')
       .then((r) => r.json())
-      .then((data) => setIsPremium(data.isPremium === true))
+      .then((data) => {
+        setIsPremium(data.isPremium === true);
+        setSubscriptionEndsAt(data.subscriptionEndsAt ?? null);
+        setCancelAtPeriodEnd(data.cancelAtPeriodEnd === true);
+      })
       .catch(() => {});
   }, [status]);
 
@@ -291,6 +297,8 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
         isOpen={isPremiumModalOpen}
         onClose={() => { setIsPremiumModalOpen(false); setPremiumTriggerContext(undefined); }}
         isPremium={isPremium}
+        subscriptionEndsAt={subscriptionEndsAt}
+        cancelAtPeriodEnd={cancelAtPeriodEnd}
         triggerContext={premiumTriggerContext}
       />
     </>

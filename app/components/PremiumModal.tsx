@@ -7,8 +7,23 @@ interface PremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
   isPremium?: boolean;
+  /** ISO date string of when the current billing period ends */
+  subscriptionEndsAt?: string | null;
+  /** True when the user has canceled but still has access until period end */
+  cancelAtPeriodEnd?: boolean;
   /** Optional label shown above the headline, e.g. "You've hit your limit" */
   triggerContext?: string;
+}
+
+function formatPeriodEnd(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 type UsageKey =
@@ -61,7 +76,14 @@ const FEATURES: FeatureRow[] = [
 
 type UsageMap = Record<UsageKey, number>;
 
-const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium = false, triggerContext }) => {
+const PremiumModal: React.FC<PremiumModalProps> = ({
+  isOpen,
+  onClose,
+  isPremium = false,
+  subscriptionEndsAt = null,
+  cancelAtPeriodEnd = false,
+  triggerContext,
+}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usage, setUsage] = useState<UsageMap | null>(null);
@@ -164,6 +186,21 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium 
             </svg>
           </button>
         </div>
+
+        {/* Subscription status banner */}
+        {isPremium && (() => {
+          const endsLabel = formatPeriodEnd(subscriptionEndsAt);
+          if (!endsLabel) return null;
+          return cancelAtPeriodEnd ? (
+            <div className="mx-6 mt-4 rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-600 dark:text-amber-400">
+              Your premium plan ends on <span className="font-semibold">{endsLabel}</span>.
+            </div>
+          ) : (
+            <div className="mx-6 mt-4 rounded border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+              Renews on <span className="font-semibold text-card-foreground">{endsLabel}</span>.
+            </div>
+          );
+        })()}
 
         {/* Feature table */}
         <div className="px-6 pt-4">

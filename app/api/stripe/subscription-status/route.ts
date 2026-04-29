@@ -18,7 +18,7 @@ export async function GET() {
   const [user, usage] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { subscriptionStatus: true, subscriptionEndsAt: true },
+      select: { subscriptionStatus: true, subscriptionEndsAt: true, cancelAtPeriodEnd: true },
     }),
     prisma.usageTracking.findUnique({
       where: { userId },
@@ -37,6 +37,7 @@ export async function GET() {
     isPremium,
     subscriptionStatus: user?.subscriptionStatus ?? 'free',
     subscriptionEndsAt: user?.subscriptionEndsAt ?? null,
+    cancelAtPeriodEnd: user?.cancelAtPeriodEnd ?? false,
     usage: {
       responsesThisWeek: usage?.responsesThisWeek ?? 0,
       breakdownsToday: usage?.breakdownsToday ?? 0,
