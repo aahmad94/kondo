@@ -180,6 +180,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium 
               {FEATURES.map((row) => {
                 const hasQuota = row.usageKey != null && row.limit != null;
                 const current = hasQuota && usage ? usage[row.usageKey!] : null;
+                // Premium users see their counts but never get the red "maxed out" treatment.
                 const maxedOut =
                   !isPremium && hasQuota && current != null && current >= (row.limit as number);
                 let usageCell: React.ReactNode = '—';
