@@ -214,7 +214,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, isPremium 
         <div className="p-6 pt-5">
           {!isPremium && (
             <div className="text-center mb-4">
-              <span className="text-2xl font-bold text-card-foreground">$5.99</span>
+              <span className="text-2xl font-bold text-card-foreground">$1.99</span>
               <span className="text-muted-foreground text-sm"> / month</span>
             </div>
           )}
