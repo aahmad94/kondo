@@ -17,7 +17,7 @@ model User {
   createdAt             DateTime                   @default(now())
   updatedAt             DateTime                   @updatedAt
   theme                 String?                    @default("system")
-  landingPage           String?                    @default("community")
+  landingPage           String?                    @default("create")
   emailFrequency        String?                    @default("daily")
   emailSubscribedAt     DateTime?
   lastEmailSent         DateTime?

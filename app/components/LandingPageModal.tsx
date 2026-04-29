@@ -18,7 +18,7 @@ const LANDING_PAGE_OPTIONS: { value: LandingPage; label: string }[] = [
 ];
 
 export default function LandingPageModal({ isOpen, onClose }: LandingPageModalProps) {
-  const [landingPage, setLandingPage] = useState<LandingPage>('community');
+  const [landingPage, setLandingPage] = useState<LandingPage>('create');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -37,7 +37,7 @@ export default function LandingPageModal({ isOpen, onClose }: LandingPageModalPr
             setLandingPage(data.landingPage as LandingPage);
           }
         })
-        .catch(() => setLandingPage('community'))
+        .catch(() => setLandingPage('create'))
         .finally(() => setIsLoading(false));
     }
   }, [isOpen]);
