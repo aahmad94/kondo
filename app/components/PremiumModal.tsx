@@ -262,9 +262,6 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
 
           {isPremium ? (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground text-center mb-3">
-                You have full access to all features.
-              </p>
               <button
                 onClick={handleManageBilling}
                 disabled={loading}
@@ -283,11 +280,11 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
             </button>
           )}
 
-          <p className="text-xs text-muted-foreground text-center mt-3">
-            {isPremium
-              ? 'Manage billing, update payment method, or cancel anytime.'
-              : 'Secure payment via Stripe. Cancel anytime.'}
-          </p>
+          {!isPremium && (
+            <p className="text-xs text-muted-foreground text-center mt-3">
+              Secure payment via Stripe. Cancel anytime.
+            </p>
+          )}
         </div>
       </div>
     </div>
