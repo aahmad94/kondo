@@ -329,8 +329,12 @@ export async function convertTextToSpeech(text: string, language: string, respon
       });
 
       if (existingResponse?.audio && existingResponse?.audioMimeType) {
-        // Cache hit: return persisted audio. Still record consumption so
-        // revisiting on a later day counts again.
+        // DB cache hit: no ElevenLabs call needed. Still call commitQuota()
+        // so this access counts toward today's quota — the gate above
+        // already enforced free-user limits and the dedup logic ensures we
+        // count at most once per (user, responseId, day). The client-side
+        // /api/stripe/check-and-record-usage path handles the parallel case
+        // where the client short-circuits this endpoint entirely.
         await commitQuota();
         return {
           audio: existingResponse.audio,
@@ -454,8 +458,12 @@ export async function getBreakdown(text: string, language: string, responseId?: 
         select: { breakdown: true, mobileBreakdown: true }
       });
 
-      // Cache hits below: still record consumption so revisiting on a later
-      // day counts again.
+      // DB cache hits below: no OpenAI call needed. Each branch still calls
+      // commitQuota() so the access counts toward today's quota — the gate
+      // above already enforced free-user limits and the dedup logic ensures
+      // we count at most once per (user, responseId, day). The client-side
+      // /api/stripe/check-and-record-usage path handles the parallel case
+      // where the client short-circuits this endpoint entirely.
 
       // If we already have both breakdowns, return them along with the requested one
       if (existingResponse?.breakdown && existingResponse?.mobileBreakdown) {

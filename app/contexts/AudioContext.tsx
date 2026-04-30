@@ -92,6 +92,17 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // Handle cached audio (either from props or local cache) - no loading state needed since it's instantaneous
       if (cachedAudio) {
+        // Fire-and-forget: record the usage on the server but don't block
+        // playback on the round-trip. Free users over quota may briefly hear
+        // one extra cached audio; the trade-off is instant playback.
+        if (responseId) {
+          fetch('/api/stripe/check-and-record-usage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feature: 'tts', responseId }),
+          }).catch(() => {});
+        }
+
         // console.log('💾 Using cached audio - NO LOADING STATE');
         
         if (!audioRef.current) {

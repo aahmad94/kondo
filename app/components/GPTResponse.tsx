@@ -618,6 +618,16 @@ export default function GPTResponse({
         setCurrentBreakdownContent(cachedBreakdown);
         setIsBreakdownModalOpen(true);
         if (responseId) await trackBreakdownClick(responseId);
+        // Fire-and-forget: record the usage on the server but don't block the
+        // modal opening on the round-trip. Free users over quota may briefly
+        // see one extra cached breakdown; the trade-off is instant open.
+        if (responseId) {
+          fetch('/api/stripe/check-and-record-usage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feature: 'breakdown', responseId }),
+          }).catch(() => {});
+        }
         return;
       }
 

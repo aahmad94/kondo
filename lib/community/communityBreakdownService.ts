@@ -40,6 +40,13 @@ export async function getCommunityBreakdown(
       throw new Error('Community response not found');
     }
 
+    // DB cache hits below: no OpenAI call needed. Each branch still calls
+    // commitQuota() so the access counts toward today's quota — the gate
+    // above already enforced free-user limits and the dedup logic ensures we
+    // count at most once per (user, communityResponseId, day). The
+    // client-side /api/stripe/check-and-record-usage path handles the
+    // parallel case where the client short-circuits this endpoint entirely.
+
     // If we already have both breakdowns, return them along with the requested one
     if (existingCommunityResponse.breakdown && existingCommunityResponse.mobileBreakdown) {
       const requestedBreakdown = isMobile ? existingCommunityResponse.mobileBreakdown : existingCommunityResponse.breakdown;
