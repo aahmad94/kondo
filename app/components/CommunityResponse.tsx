@@ -298,33 +298,18 @@ export default function CommunityResponse(props: ResponseProps) {
       const existingContent = isMobile ? mobileBreakdownContent : desktopBreakdownContent;
       
       if (existingContent) {
-        // Cache hit: ask the server to record (and enforce) the quota BEFORE
-        // opening the modal. Free users over their daily breakdown limit will
-        // get a 429 here and see the upgrade prompt instead of the breakdown.
-        if (data.id) {
-          try {
-            const res = await fetch('/api/stripe/check-and-record-usage', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ feature: 'breakdown', responseId: data.id }),
-            });
-            if (res.status === 429) {
-              const payload = await res.json().catch(() => ({}));
-              window.dispatchEvent(
-                new CustomEvent('kondo:quota-exceeded', {
-                  detail: { context: payload?.message || "You've hit your daily breakdown limit" },
-                }),
-              );
-              return;
-            }
-          } catch {
-            // Network error — fall through and show the cached breakdown so
-            // we don't punish the user for a flaky connection.
-          }
-        }
-
         setCurrentBreakdownContent(existingContent);
         setIsBreakdownModalOpen(true);
+        // Fire-and-forget: record the usage on the server but don't block the
+        // modal opening on the round-trip. Free users over quota may briefly
+        // see one extra cached breakdown; the trade-off is instant open.
+        if (data.id) {
+          fetch('/api/stripe/check-and-record-usage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feature: 'breakdown', responseId: data.id }),
+          }).catch(() => {});
+        }
         return;
       }
 

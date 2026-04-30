@@ -92,29 +92,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // Handle cached audio (either from props or local cache) - no loading state needed since it's instantaneous
       if (cachedAudio) {
-        // Cache hit: ask the server to record (and enforce) the quota BEFORE
-        // playing. Free users over their daily TTS limit will get a 429 here
-        // and see the upgrade prompt instead of hearing the cached audio.
+        // Fire-and-forget: record the usage on the server but don't block
+        // playback on the round-trip. Free users over quota may briefly hear
+        // one extra cached audio; the trade-off is instant playback.
         if (responseId) {
-          try {
-            const res = await fetch('/api/stripe/check-and-record-usage', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ feature: 'tts', responseId }),
-            });
-            if (res.status === 429) {
-              const payload = await res.json().catch(() => ({}));
-              window.dispatchEvent(
-                new CustomEvent('kondo:quota-exceeded', {
-                  detail: { context: payload?.message || "You've hit your daily audio limit" },
-                }),
-              );
-              return;
-            }
-          } catch {
-            // Network error — fall through and play the cached audio so we
-            // don't punish the user for a flaky connection.
-          }
+          fetch('/api/stripe/check-and-record-usage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feature: 'tts', responseId }),
+          }).catch(() => {});
         }
 
         // console.log('💾 Using cached audio - NO LOADING STATE');
