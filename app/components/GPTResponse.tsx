@@ -615,6 +615,31 @@ export default function GPTResponse({
       const cachedBreakdown = currentIsMobile ? mobileBreakdownContent : desktopBreakdownContent;
       
       if (cachedBreakdown) {
+        // Cache hit: ask the server to record (and enforce) the quota BEFORE
+        // opening the modal. Free users over their daily breakdown limit will
+        // get a 429 here and see the upgrade prompt instead of the breakdown.
+        if (responseId) {
+          try {
+            const res = await fetch('/api/stripe/check-and-record-usage', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ feature: 'breakdown', responseId }),
+            });
+            if (res.status === 429) {
+              const data = await res.json().catch(() => ({}));
+              window.dispatchEvent(
+                new CustomEvent('kondo:quota-exceeded', {
+                  detail: { context: data?.message || "You've hit your daily breakdown limit" },
+                }),
+              );
+              return;
+            }
+          } catch {
+            // Network error — fall through and show the cached breakdown so
+            // we don't punish the user for a flaky connection.
+          }
+        }
+
         setCurrentBreakdownContent(cachedBreakdown);
         setIsBreakdownModalOpen(true);
         if (responseId) await trackBreakdownClick(responseId);

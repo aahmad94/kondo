@@ -42,7 +42,12 @@ export async function getCommunityAudio(
       throw new Error('Community response not found');
     }
 
-    // If we already have cached audio, return it
+    // DB cache hit: no ElevenLabs call needed. Still call commitQuota() so
+    // this access counts toward today's quota — the gate above already
+    // enforced free-user limits and the dedup logic ensures we count at most
+    // once per (user, communityResponseId, day). The client-side
+    // /api/stripe/check-and-record-usage path handles the parallel case
+    // where the client short-circuits this endpoint entirely.
     if (existingCommunityResponse.audio && existingCommunityResponse.audioMimeType) {
       await commitQuota();
       return {
