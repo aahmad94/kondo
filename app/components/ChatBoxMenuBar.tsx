@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, CommandLineIcon, EnvelopeIcon, ArrowDownTrayIcon, AcademicCapIcon, BuildingLibraryIcon } from '@heroicons/react/24/solid';
+import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, EnvelopeIcon, ArrowDownTrayIcon, AcademicCapIcon, BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
@@ -123,7 +123,6 @@ export default function ChatBoxMenuBar({
   const showCreateInstructions = isRoot; // Show instructions when in create view (root)
   const showNewReport = isDojo;
   const showEmailSubscription = isDojo; // Only show email button in Dojo
-  const showAdditionalCommands = isRoot;
   const showStats = true; // Show stats in all modes
   const showImportEntireBookmark = isCommunityWithSelectedBookmark && onImportEntireBookmark;
 
@@ -228,29 +227,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Additional Commands Button - Sixth (root only) */}
-              {showAdditionalCommands && (
-                <button
-                  onClick={(e) => handleContentModal('commands', e)}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <CommandLineIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>AI commands</span>
-                </button>
-              )}
-
-              {/* Create Instructions Button - Seventh (root only) */}
-              {showCreateInstructions && (
-                <button
-                  onClick={() => handleContentModal('create')}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
-                >
-                  <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
-                  <span>instructions</span>
-                </button>
-              )}
-
-              {/* Dojo Tips Button - Eighth */}
+              {/* Dojo Tips Button */}
               {showDojoTips && (
                 <button
                   onClick={() => handleContentModal('tips')}
@@ -261,7 +238,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Community Instructions Button - Eighth */}
+              {/* Community Instructions Button */}
               {showCommunityInstructions && (
                 <button
                   onClick={() => handleContentModal('community')}
@@ -272,7 +249,7 @@ export default function ChatBoxMenuBar({
                 </button>
               )}
 
-              {/* Stats Button - Ninth */}
+              {/* Stats Button */}
               {showStats && (
                 <button
                   onClick={() => handleContentModal('stats')}
@@ -280,6 +257,17 @@ export default function ChatBoxMenuBar({
                 >
                   <ChartBarIcon className="h-4 w-4 flex-shrink-0" />
                   <span>stats</span>
+                </button>
+              )}
+
+              {/* Create Instructions Button (root only) */}
+              {showCreateInstructions && (
+                <button
+                  onClick={() => handleContentModal('create')}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>instructions</span>
                 </button>
               )}
             </div>
