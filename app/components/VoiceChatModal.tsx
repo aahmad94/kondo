@@ -5,6 +5,7 @@ import {
   XMarkIcon,
   MicrophoneIcon,
   StopIcon,
+  HandRaisedIcon,
 } from '@heroicons/react/24/solid';
 
 interface VoiceChatModalProps {
@@ -61,6 +62,12 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
+  // Tracks whether assistant audio is *actually* playing through speakers,
+  // independent of the server's `response.created`/`response.done` lifecycle.
+  // The server can finish generating before we finish playing — this state
+  // is what gates the Interject button, so users can always cut Grok off
+  // for as long as they can hear him.
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
@@ -69,6 +76,19 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const playbackCursorRef = useRef<number>(0);
+  // Tracks every BufferSource we schedule for assistant playback so we can
+  // stop them all on interject (or teardown).
+  const playingSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
+  // Single timer used to flip `isAudioPlaying` back to false at exactly the
+  // moment the last-scheduled chunk finishes playing. Each new audio delta
+  // bumps `playbackCursorRef` forward and resets this timer.
+  const playbackEndTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // True while we're suppressing the current assistant turn after an interject.
+  // Late-arriving audio deltas for the cancelled turn are dropped on arrival,
+  // since xAI may keep streaming for a beat after we send `response.cancel`.
+  // Cleared when the next turn starts (`response.created`) or the user begins
+  // speaking (`input_audio_buffer.speech_started`).
+  const suppressIncomingAudioRef = useRef<boolean>(false);
   const isMutedRef = useRef<boolean>(false);
   const transcriptEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,7 +101,34 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
     transcriptEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [transcript]);
 
+  // Schedules `setIsAudioPlaying(false)` to fire exactly when the
+  // last-scheduled audio chunk is expected to finish playing. Should be
+  // called every time `playbackCursorRef` is advanced.
+  const armPlaybackEndTimer = useCallback(() => {
+    const ctx = outputAudioCtxRef.current;
+    if (!ctx) return;
+    if (playbackEndTimerRef.current) {
+      clearTimeout(playbackEndTimerRef.current);
+      playbackEndTimerRef.current = null;
+    }
+    const remainingMs = Math.max(0, (playbackCursorRef.current - ctx.currentTime) * 1000);
+    // Small grace period (~80ms) absorbs OS/browser audio buffer latency so
+    // the button doesn't flip "listening" while the user can still hear the
+    // tail of the last chunk.
+    playbackEndTimerRef.current = setTimeout(() => {
+      playbackEndTimerRef.current = null;
+      setIsAudioPlaying(false);
+    }, remainingMs + 80);
+  }, []);
+
   const teardown = useCallback(() => {
+    if (playbackEndTimerRef.current) {
+      clearTimeout(playbackEndTimerRef.current);
+      playbackEndTimerRef.current = null;
+    }
+    setIsAudioPlaying(false);
+    suppressIncomingAudioRef.current = false;
+    playingSourcesRef.current.clear();
     try {
       processorRef.current?.disconnect();
     } catch {}
@@ -121,19 +168,29 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
 
     switch (data.type) {
       case 'input_audio_buffer.speech_started': {
+        // User started talking — any leftover suppression for the previous
+        // assistant turn is no longer relevant.
+        suppressIncomingAudioRef.current = false;
         setStatus('listening');
         break;
       }
       case 'response.created': {
+        // Brand new assistant turn — open the playback gate again.
+        suppressIncomingAudioRef.current = false;
         setStatus('speaking');
         break;
       }
       case 'response.done': {
+        suppressIncomingAudioRef.current = false;
         setStatus('listening');
         break;
       }
       case 'response.output_audio.delta': {
         if (!outputAudioCtxRef.current || !data.delta) return;
+        // Drop any deltas for an interrupted turn. xAI may keep streaming
+        // for a beat after we send `response.cancel`; we don't want to
+        // schedule those into the output context.
+        if (suppressIncomingAudioRef.current) return;
         const float32 = base64PCM16ToFloat32(data.delta);
         const ctx = outputAudioCtxRef.current;
         const buffer = ctx.createBuffer(1, float32.length, SAMPLE_RATE);
@@ -144,6 +201,16 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
         const startAt = Math.max(ctx.currentTime, playbackCursorRef.current);
         src.start(startAt);
         playbackCursorRef.current = startAt + buffer.duration;
+        // Track the source so interject can stop it. Auto-clean when it ends.
+        playingSourcesRef.current.add(src);
+        src.onended = () => {
+          playingSourcesRef.current.delete(src);
+        };
+        // Drive the "is the user actually hearing audio" state off the
+        // playback timeline, not server lifecycle events — the server may
+        // finish generating well before we finish playing.
+        setIsAudioPlaying(true);
+        armPlaybackEndTimer();
         break;
       }
       case 'response.output_audio.done': {
@@ -189,6 +256,50 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
       default:
         break;
     }
+  }, []);
+
+  // Interject: stop the assistant mid-utterance so the user can talk.
+  //
+  // We can't trust the server to actually halt the in-flight turn — even if
+  // it honors `response.cancel`, audio deltas already in flight will still
+  // arrive — so the client takes ownership of silencing things:
+  //
+  //   1. Set a suppression flag so any further deltas for this turn are
+  //      dropped at message-handler time.
+  //   2. Stop & disconnect every BufferSource we've already scheduled on
+  //      the output context.
+  //   3. Snap the playback cursor forward so the next legitimate audio
+  //      chunk plays immediately rather than queued behind silenced audio.
+  //   4. Send `response.cancel` over the WS so the server can save tokens
+  //      if it does support cancellation.
+  //
+  // The flag is cleared on the next `response.created` (new turn) or when
+  // the user starts speaking (`input_audio_buffer.speech_started`).
+  const handleInterject = useCallback(() => {
+    suppressIncomingAudioRef.current = true;
+    if (playbackEndTimerRef.current) {
+      clearTimeout(playbackEndTimerRef.current);
+      playbackEndTimerRef.current = null;
+    }
+    for (const src of playingSourcesRef.current) {
+      try {
+        src.stop();
+      } catch {}
+      try {
+        src.disconnect();
+      } catch {}
+    }
+    playingSourcesRef.current.clear();
+    if (outputAudioCtxRef.current) {
+      playbackCursorRef.current = outputAudioCtxRef.current.currentTime;
+    }
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send(JSON.stringify({ type: 'response.cancel' }));
+      } catch {}
+    }
+    setIsAudioPlaying(false);
+    setStatus('listening');
   }, []);
 
   const startSession = useCallback(async () => {
@@ -318,29 +429,27 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Treat the assistant as "speaking" for UI purposes whenever audio is
+  // actually playing OR the server has signaled an in-flight response.
+  // Server lifecycle alone is not sufficient — `response.done` can fire
+  // seconds before the queued audio actually finishes playing.
+  const isAssistantSpeaking = isAudioPlaying || status === 'speaking';
+
   const statusLabel = (() => {
-    switch (status) {
-      case 'connecting':
-        return 'Connecting…';
-      case 'listening':
-        return isMuted ? 'Muted' : 'Listening…';
-      case 'speaking':
-        return 'Grok is speaking…';
-      case 'error':
-        return 'Error';
-      default:
-        return 'Idle';
-    }
+    if (status === 'connecting') return 'Connecting…';
+    if (status === 'error') return 'Error';
+    if (status === 'idle') return 'Idle';
+    if (isAssistantSpeaking) return 'Grok is speaking…';
+    return isMuted ? 'Muted' : 'Listening…';
   })();
 
-  const ringClass =
-    status === 'speaking'
-      ? 'ring-4 ring-blue-400 animate-pulse'
-      : status === 'listening' && !isMuted
-        ? 'ring-4 ring-green-400'
-        : status === 'error'
-          ? 'ring-4 ring-red-400'
-          : 'ring-2 ring-border';
+  const ringClass = isAssistantSpeaking
+    ? 'ring-4 ring-blue-400 animate-pulse'
+    : status === 'listening' && !isMuted
+      ? 'ring-4 ring-green-400'
+      : status === 'error'
+        ? 'ring-4 ring-red-400'
+        : 'ring-2 ring-border';
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[90]">
@@ -423,6 +532,20 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
                 <span>Mute</span>
               </>
             )}
+          </button>
+          <button
+            onClick={handleInterject}
+            disabled={!isAssistantSpeaking}
+            aria-label="Interject"
+            title="Cut Grok off so you can talk"
+            className={`px-4 py-2 rounded transition-colors flex items-center gap-2 ${
+              isAssistantSpeaking
+                ? 'bg-red-500 text-white hover:bg-red-600 border border-red-500'
+                : 'border border-border text-foreground opacity-50 cursor-not-allowed'
+            }`}
+          >
+            <HandRaisedIcon className="h-4 w-4" />
+            <span>Interject</span>
           </button>
           <button
             onClick={onClose}
