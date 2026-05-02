@@ -11,7 +11,7 @@ const DOJO_INSTRUCTIONS = `
 
 const JAPANESE_INSTRUCTIONS = {
   main: `
-  Create study material for your library — leverage the pills below or enter a phrase to get started
+  Create study material for your library — leverage the input fields below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -19,7 +19,7 @@ const JAPANESE_INSTRUCTIONS = {
 
 const KOREAN_INSTRUCTIONS = {
   main: `
-  Create study material for your library — leverage the pills below or enter a phrase to get started
+  Create study material for your library — leverage the input fields below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -27,7 +27,7 @@ const KOREAN_INSTRUCTIONS = {
 
 const SPANISH_INSTRUCTIONS = {
   main: `
-  Create study material for your library — leverage the pills below or enter a phrase to get started
+  Create study material for your library — leverage the input fields below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -35,7 +35,7 @@ const SPANISH_INSTRUCTIONS = {
 
 const ARABIC_INSTRUCTIONS = {
   main: `
-  Create study material for your library — leverage the pills below or enter a phrase to get started
+  Create study material for your library — leverage the input fields below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -43,7 +43,7 @@ const ARABIC_INSTRUCTIONS = {
 
 const CHINESE_INSTRUCTIONS = {
   main: `
-  Create study material for your library — leverage the pills below or enter a phrase to get started
+  Create study material for your library — leverage the input fields below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
@@ -51,7 +51,7 @@ const CHINESE_INSTRUCTIONS = {
 
 const URDU_INSTRUCTIONS = {
   main: `
-  Create study material for your library — leverage the pills below or enter a phrase to get started
+  Create study material for your library — leverage the input fields below or enter a phrase to get started
 `,
   dailySummary: DOJO_INSTRUCTIONS,
   dojoDetailed: ''
