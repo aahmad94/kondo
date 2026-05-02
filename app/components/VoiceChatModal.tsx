@@ -519,7 +519,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
           <button
             onClick={() => setIsMuted((m) => !m)}
             disabled={status !== 'listening' && status !== 'speaking'}
-            className="px-4 py-2 border border-border text-foreground rounded hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="px-4 py-2 border border-border text-foreground rounded hover:bg-accent disabled:opacity-50 disabled:cursor-default transition-colors flex items-center gap-2"
           >
             {isMuted ? (
               <>
@@ -541,7 +541,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
             className={`px-4 py-2 rounded transition-colors flex items-center gap-2 ${
               isAssistantSpeaking
                 ? 'bg-red-500 text-white hover:bg-red-600 border border-red-500'
-                : 'border border-border text-foreground opacity-50 cursor-not-allowed'
+                : 'border border-border text-foreground opacity-50 cursor-default'
             }`}
           >
             <HandRaisedIcon className="h-4 w-4" />
