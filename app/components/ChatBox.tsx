@@ -50,6 +50,8 @@ interface ChatBoxProps {
   onDeckCreated: (newDeck: { id: string, title: string }) => void;
   isDecksCollapsed: boolean;
   onDecksRefresh?: () => void;
+  /** Narrow screens: swipe right on chat opens decks bar, swipe left closes it (same 768px breakpoint as Decks). */
+  onDecksCollapsedChange?: (collapsed: boolean) => void;
 }
 
 interface Response {
@@ -131,7 +133,8 @@ export default function ChatBox({
   onDeckSelect,
   onDeckCreated,
   isDecksCollapsed,
-  onDecksRefresh
+  onDecksRefresh,
+  onDecksCollapsedChange
 }: ChatBoxProps) {
   const { data: session, status } = useSession()
   const router = useRouter();
@@ -171,6 +174,7 @@ export default function ChatBox({
   const [responses, setResponses] = useState<Record<string, Response>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const decksSwipeTouchStartRef = useRef<{ x: number; y: number } | null>(null);
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   
@@ -1365,6 +1369,39 @@ export default function ChatBox({
     }
   };
 
+  const handleDecksBarSwipeStart = (e: React.TouchEvent) => {
+    if (!onDecksCollapsedChange) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    if (e.touches.length !== 1) return;
+    decksSwipeTouchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  };
+
+  const handleDecksBarSwipeEnd = (e: React.TouchEvent) => {
+    if (!onDecksCollapsedChange) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    const start = decksSwipeTouchStartRef.current;
+    decksSwipeTouchStartRef.current = null;
+    if (!start || e.changedTouches.length !== 1) return;
+
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    const minDistance = 56;
+    if (Math.abs(dx) < minDistance) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.25) return;
+
+    if (dx > 0 && isDecksCollapsed) {
+      onDecksCollapsedChange(false);
+    } else if (dx < 0 && !isDecksCollapsed) {
+      onDecksCollapsedChange(true);
+    }
+  };
+
+  const handleDecksBarSwipeCancel = () => {
+    decksSwipeTouchStartRef.current = null;
+  };
 
   if (status === "loading") {
     return <div>Loading...</div>
@@ -1401,7 +1438,13 @@ export default function ChatBox({
         />
       )}
       
-      <div className="flex flex-col justify-between flex-1 h-0">
+      <div
+        className="flex flex-col justify-between flex-1 h-0"
+        style={{ touchAction: onDecksCollapsedChange ? 'pan-y' : undefined }}
+        onTouchStart={onDecksCollapsedChange ? handleDecksBarSwipeStart : undefined}
+        onTouchEnd={onDecksCollapsedChange ? handleDecksBarSwipeEnd : undefined}
+        onTouchCancel={onDecksCollapsedChange ? handleDecksBarSwipeCancel : undefined}
+      >
         {/* Chat Content Container */}
         <div 
           ref={chatContainerRef}
