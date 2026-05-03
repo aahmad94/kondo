@@ -236,6 +236,7 @@ export default function Home() {
             onDeckCreated={handleDeckCreated}
             isDecksCollapsed={isDecksCollapsed}
             onDecksRefresh={triggerDecksRefresh}
+            onDecksCollapsedChange={setIsDecksCollapsed}
           />
         </div>
       </div>
