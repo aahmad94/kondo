@@ -175,6 +175,8 @@ export default function ChatBox({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const decksSwipeTouchStartRef = useRef<{ x: number; y: number } | null>(null);
+  /** Snapshot of document selection at touchstart; if it differs at touchend, user was selecting text. */
+  const decksSwipeSelectionAtStartRef = useRef('');
   const [responseQuote, setResponseQuote] = useState<string|null>(null);
   const [userInputOffset, setUserInputOffset] = useState<number>(0);
   
@@ -1373,6 +1375,8 @@ export default function ChatBox({
     if (!onDecksCollapsedChange) return;
     if (typeof window === 'undefined' || window.innerWidth >= 768) return;
     if (e.touches.length !== 1) return;
+
+    decksSwipeSelectionAtStartRef.current = document.getSelection()?.toString() ?? '';
     decksSwipeTouchStartRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
@@ -1382,9 +1386,14 @@ export default function ChatBox({
   const handleDecksBarSwipeEnd = (e: React.TouchEvent) => {
     if (!onDecksCollapsedChange) return;
     if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+
     const start = decksSwipeTouchStartRef.current;
     decksSwipeTouchStartRef.current = null;
+
     if (!start || e.changedTouches.length !== 1) return;
+
+    const selectionNow = document.getSelection()?.toString() ?? '';
+    if (selectionNow !== decksSwipeSelectionAtStartRef.current) return;
 
     const dx = e.changedTouches[0].clientX - start.x;
     const dy = e.changedTouches[0].clientY - start.y;
