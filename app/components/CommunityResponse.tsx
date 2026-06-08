@@ -601,7 +601,7 @@ export default function CommunityResponse(props: ResponseProps) {
         {data.content && selectedDeckTitle !== 'flashcard' && (
           !isMobile ? (
             <Tooltip
-              content="Ask a question about this content"
+              content="Voice chat with AI about this content"
               isVisible={isVoiceHovered}
               buttonRef={voiceButtonRef}
             >

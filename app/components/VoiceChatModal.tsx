@@ -494,7 +494,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
         <div className="flex-1 overflow-y-auto mb-4 bg-background border border-border rounded-md p-3 min-h-[120px] max-h-[220px]">
           {transcript.length === 0 ? (
             <p className="text-muted-foreground italic text-sm">
-              Ask a question about the content above, or repeat the phrase aloud to test your pronunciation.
+              Ask anything about the content above (usage, pronunciation, etc...)
             </p>
           ) : (
             <div className="space-y-3">
