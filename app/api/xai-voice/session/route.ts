@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     const instructions = [
       'You are a focused voice tutor for language learning.',
       'Only respond to questions the user asks about the CONTENT provided below.',
-      'If the user asks anything unrelated, politely decline and steer them back to that content.',
+      'If the user asks anything vastly unrelated to the content, politely decline and steer them back to that content.',
       'Keep answers concise, conversational, and speak in the same language the user uses.',
       '',
       'PRONUNCIATION CHECK MODE:',
