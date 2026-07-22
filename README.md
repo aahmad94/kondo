@@ -3,7 +3,7 @@
 A language learning platform and to generate and organize AI-powered language learning content into study decks, with features for breakdown analysis, flashcards, and daily summaries.
 
 <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
-  <img src="public/assets/preview/072026/072026_light_preview.png" alt="Kondo Light Mode Preview">
+  <!-- <img src="public/assets/preview/072026/072026_light_preview.png" alt="Kondo Light Mode Preview"> -->
   <img src="public/assets/preview/072026/072026_dark_preview.png" alt="Kondo Dark Mode Preview">
 </div>
 
