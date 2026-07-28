@@ -168,11 +168,11 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
               </p>
             )}
             <h2 className="text-lg font-semibold text-card-foreground">
-              {isPremium ? 'Your Premium Plan' : 'Upgrade to Premium'}
+              {isPremium ? 'Your Supporter Tier' : 'Become a Supporter'}
             </h2>
             {!isPremium && (
               <p className="text-sm text-muted-foreground mt-0.5">
-                Unlock unlimited access to all features
+                Support Kondo and unlock unlimited access to all features
               </p>
             )}
           </div>
@@ -210,7 +210,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
                 <th className="text-left text-muted-foreground font-normal pb-2 w-[40%]" />
                 <th className="text-center text-muted-foreground font-medium pb-2 w-[20%]">Free</th>
                 <th className="text-center text-muted-foreground font-medium pb-2 w-[20%]">Usage</th>
-                <th className="text-center font-semibold text-amber-500 pb-2 w-[20%]">Premium</th>
+                <th className="text-center font-semibold text-amber-500 pb-2 w-[20%]">Supporter</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -276,7 +276,7 @@ const PremiumModal: React.FC<PremiumModalProps> = ({
               disabled={loading}
               className="w-full py-2.5 px-4 rounded bg-amber-500 hover:bg-amber-400 text-white font-semibold transition-colors disabled:opacity-50"
             >
-              {loading ? 'Redirecting to checkout...' : 'Subscribe now'}
+              {loading ? 'Redirecting to checkout...' : 'Become a Supporter'}
             </button>
           )}
 

@@ -13,7 +13,9 @@ import EditAliasModal from './EditAliasModal';
 import LandingPageModal from './LandingPageModal';
 import AddToHomeScreenModal from './AddToHomeScreenModal';
 import PremiumModal from './PremiumModal';
+import DonateModal from './DonateModal';
 import { useUserAlias } from '../contexts/UserAliasContext';
+import { trackDonateModalOpen } from '@/lib/analytics';
 
 interface MenuBarProps {
   onLanguageChange: (languageCode: string) => void;
@@ -31,6 +33,8 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
   const [isAddToHomeScreenModalOpen, setIsAddToHomeScreenModalOpen] = useState(false);
   const [showAddToHomeScreen, setShowAddToHomeScreen] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
+  const [donateThanks, setDonateThanks] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null);
   const [cancelAtPeriodEnd, setCancelAtPeriodEnd] = useState(false);
@@ -97,6 +101,12 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
       // Clean the URL without a full reload
       window.history.replaceState({}, '', window.location.pathname);
     }
+    // Show the donation thank-you when redirected back from Stripe Checkout
+    if (params.get('donate') === 'success') {
+      setDonateThanks(true);
+      setIsDonateModalOpen(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }, []);
 
   if (status === "loading") {
@@ -153,8 +163,26 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
           Kondo
         </Link>
         <div className="flex items-center gap-4 mr-4">
-          <LanguageSelector 
-            onLanguageChange={onLanguageChange} 
+          {/*
+            Buy me a coffee CTA. On non-narrow screens it sits left of the
+            language selector as a nav button. On mobile it collapses into the
+            dropdown menu item below instead — except for logged-out users, who
+            have no dropdown, so the CTA stays visible for them at every width.
+          */}
+          <button
+            onClick={() => {
+              setDonateThanks(false);
+              setIsDonateModalOpen(true);
+              trackDonateModalOpen('menubar-cta');
+            }}
+            className={`${session?.user?.image ? 'hidden sm:inline-flex' : 'inline-flex'} items-center gap-1.5 rounded border border-border px-3 py-1.5 text-sm font-medium text-card-foreground hover:bg-accent transition-colors whitespace-nowrap`}
+            aria-label="Buy me a coffee"
+          >
+            <span aria-hidden="true">☕</span>
+            <span className="hidden md:inline">Buy me a coffee</span>
+          </button>
+          <LanguageSelector
+            onLanguageChange={onLanguageChange}
             onClearDeck={onClearDeck}
           />
           {session?.user?.image && (
@@ -170,7 +198,19 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
               {showDropdown && (
                 <div className="absolute right-0 mt-2 min-w-[100px] w-max rounded-md shadow-lg bg-popover ring-1 ring-border z-[60]">
                   <div className="py-1">
-                    {/* Premium / Manage Subscription */}
+                    {/* Buy me a coffee — mobile only; on wider screens the nav CTA covers this */}
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        setDonateThanks(false);
+                        setIsDonateModalOpen(true);
+                        trackDonateModalOpen('dropdown');
+                      }}
+                      className="sm:hidden flex items-center justify-between w-full px-4 py-2 text-sm text-left text-popover-foreground hover:bg-accent whitespace-nowrap"
+                    >
+                      <span>☕ Buy me a coffee</span>
+                    </button>
+                    {/* Supporter Tier / Manage Subscription */}
                     <button
                       onClick={() => {
                         setShowDropdown(false);
@@ -182,7 +222,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
                       {isPremium ? (
                         <span className="text-popover-foreground">Manage subscription</span>
                       ) : (
-                        <span className="font-semibold text-amber-500">✦ Go Premium</span>
+                        <span className="font-semibold text-amber-500">✦ Become a Supporter</span>
                       )}
                     </button>
                     <div className="border-t border-border my-1" />
@@ -300,6 +340,12 @@ const MenuBar: React.FC<MenuBarProps> = ({ onLanguageChange, onClearDeck }: Menu
         subscriptionEndsAt={subscriptionEndsAt}
         cancelAtPeriodEnd={cancelAtPeriodEnd}
         triggerContext={premiumTriggerContext}
+      />
+
+      <DonateModal
+        isOpen={isDonateModalOpen}
+        onClose={() => { setIsDonateModalOpen(false); setDonateThanks(false); }}
+        showThanks={donateThanks}
       />
     </>
   )

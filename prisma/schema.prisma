@@ -48,6 +48,7 @@ model User {
   cancelAtPeriodEnd     Boolean                    @default(false)
   usageTracking         UsageTracking?
   quotaConsumptions     QuotaConsumption[]
+  donations             Donation[]
 }
 
 
@@ -304,4 +305,27 @@ model QuotaConsumption {
 
   @@unique([userId, feature, responseId, dayBucket])
   @@index([userId, dayBucket])
+}
+
+// One-time "Buy me a coffee" support payments. Distinct from the recurring
+// Supporter (premium) subscription tracked on User. Rows are written by the
+// Stripe `checkout.session.completed` webhook; `stripeSessionId` is unique so
+// webhook redelivery upserts rather than duplicates. `userId` is null when the
+// donor was not logged in.
+model Donation {
+  id                    String   @id @default(cuid())
+  userId                String?
+  email                 String?
+  amountCents           Int
+  currency              String   @default("usd")
+  status                String   @default("succeeded") // succeeded | pending | failed
+  stripeSessionId       String   @unique
+  stripePaymentIntentId String?  @unique
+  message               String?
+  createdAt             DateTime @default(now())
+
+  user                  User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
 }
