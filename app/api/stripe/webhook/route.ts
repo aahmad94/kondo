@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import stripe from '@/lib/stripe/stripeClient';
 import { syncSubscriptionFromStripe } from '@/lib/stripe/subscriptionService';
+import { recordDonation } from '@/lib/stripe/donationService';
 
 // Required: disable Next.js body parsing so we can verify the raw Stripe signature
 export const runtime = 'nodejs';
@@ -76,6 +77,32 @@ export async function POST(request: Request) {
         if (subscriptionId) {
           await syncSubscriptionFromStripe(customerId, 'premium', subscriptionId);
         }
+        break;
+      }
+
+      case 'checkout.session.completed': {
+        const s = event.data.object as any;
+        // This event also fires for the Supporter (subscription) checkout, so
+        // only handle one-time donation sessions. The premium flow is synced
+        // separately via customer.subscription.* events.
+        if (s.mode !== 'payment' || s.metadata?.kind !== 'donation') break;
+        if (s.payment_status !== 'paid') break;
+
+        const paymentIntentId =
+          typeof s.payment_intent === 'string'
+            ? s.payment_intent
+            : s.payment_intent?.id ?? null;
+
+        await recordDonation({
+          stripeSessionId: s.id,
+          amountCents: s.amount_total ?? 0,
+          currency: s.currency ?? 'usd',
+          email: s.customer_details?.email ?? s.customer_email ?? null,
+          userId: s.metadata?.userId || null,
+          message: s.metadata?.message || null,
+          paymentIntentId,
+          status: 'succeeded',
+        });
         break;
       }
 

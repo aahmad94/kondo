@@ -35,7 +35,9 @@ export const AmplitudeEvents = {
   PAUSE_TOGGLE: 'pause_toggle',
   LANGUAGE_CHANGE: 'language_change',
   CLEAR_DECK: 'clear_deck',
-  DECK_SELECT: 'deck_select'
+  DECK_SELECT: 'deck_select',
+  DONATE_MODAL_OPEN: 'donate_modal_open',
+  DONATE_CHECKOUT_START: 'donate_checkout_start'
 } as const;
 
 // Helper function to get user properties
@@ -125,9 +127,17 @@ export const trackClearDeck = async () => {
 };
 
 export const trackDeckSelect = async (deckId: string | null, deckTitle: string | null) => {
-  await trackEvent(AmplitudeEvents.DECK_SELECT, { 
-    deckId, 
+  await trackEvent(AmplitudeEvents.DECK_SELECT, {
+    deckId,
     deckTitle
   });
+};
+
+export const trackDonateModalOpen = async (source: 'menubar-cta' | 'dropdown') => {
+  await trackEvent(AmplitudeEvents.DONATE_MODAL_OPEN, { source });
+};
+
+export const trackDonateCheckoutStart = async (amountCents: number) => {
+  await trackEvent(AmplitudeEvents.DONATE_CHECKOUT_START, { amountCents });
 };
 
