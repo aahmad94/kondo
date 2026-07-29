@@ -4,3 +4,10 @@
 .next
 .next/*
 .claude/
+
+# Database dumps and local secrets — never commit these
+kondo_backup.sql
+reset.sql
+secrets.txt
+*.dump
+.DS_Store
