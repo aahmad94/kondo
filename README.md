@@ -16,6 +16,8 @@ A language learning platform and to generate and organize AI-powered language le
 - **🔍 Content Breakdown & Analysis** - Dissect and analyze generated material with detailed explanations and context
 - **🃏 Interactive Flashcard Mode** - Study with interactive flashcards that hide and reveal content for effective memorization
 - **🎧 Text-to-Speech Integration** - Listen to pronunciations with ElevenLabs voice synthesis
+- **🎙️ Voice Chat with AI** - Talk through any response in real time with a voice tutor scoped to that phrase — ask follow-up questions, or read the phrase aloud for a pronunciation score and targeted critique. Interject at any point to cut the tutor off mid-answer
+- **📤 CSV Export** - Export any deck to CSV with expression, reading, phonetic, translation, rank, notes, and breakdown columns — take your study material to a spreadsheet or another SRS tool
 - **🌍 Multi-Language Support** - Learn Japanese, Korean, Spanish, Arabic, and Chinese with language-specific features
 - **🔥 Daily Streaks** - Build and maintain your learning streak by adding content to your library daily through generating new content or importing from the community feed
 - **📱 Responsive Design** - Seamless experience across desktop and mobile devices
@@ -68,6 +70,7 @@ A language learning platform and to generate and organize AI-powered language le
    **Optional Variables:**
    - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY`: For enhanced search
    - `ELEVENLABS_API_KEY`: For text-to-speech functionality
+   - `XAI_VOICE_API_KEY`: [Get from xAI](https://console.x.ai/) — for real-time voice chat with AI
    - `NEXT_PUBLIC_AMPLITUDE_API_KEY`: For analytics
 
 5. **Set up Google OAuth**
@@ -95,7 +98,7 @@ A language learning platform and to generate and organize AI-powered language le
 
 ### Additional Setup Notes
 
-- **Languages**: The app supports Japanese, Korean, Spanish, and Arabic. The seed script creates these languages in the database.
+- **Languages**: The app supports Japanese, Korean, Spanish, Arabic, and Chinese. The seed script creates these languages in the database.
 - **Authentication**: Users sign in with Google OAuth and get default study decks created automatically.
 - **Database**: Uses Prisma ORM with PostgreSQL for data management.
 
