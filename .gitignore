@@ -11,3 +11,4 @@ reset.sql
 secrets.txt
 *.dump
 .DS_Store
+tsconfig.tsbuildinfo
