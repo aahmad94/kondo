@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, EnvelopeIcon, ArrowDownTrayIcon, AcademicCapIcon, BuildingLibraryIcon } from '@heroicons/react/24/solid';
+import { WrenchIcon, PlusIcon, RectangleStackIcon, Bars3CenterLeftIcon, ChartBarIcon, EnvelopeIcon, ArrowDownTrayIcon, AcademicCapIcon, BuildingLibraryIcon, TableCellsIcon } from '@heroicons/react/24/solid';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ContentModal from './ui/ContentModal';
 import ConfirmationModal from './ui/ConfirmationModal';
@@ -50,6 +50,9 @@ export default function ChatBoxMenuBar({
   
   // Email subscription modal state
   const [showEmailModal, setShowEmailModal] = useState(false);
+
+  // CSV export state
+  const [isExporting, setIsExporting] = useState(false);
 
   // Handle content modal types
   const handleContentModal = (type: 'tips' | 'stats' | 'commands' | 'community' | 'create', event?: React.MouseEvent<HTMLButtonElement>) => {
@@ -100,6 +103,39 @@ export default function ChatBoxMenuBar({
     }
   };
 
+  // Handle CSV export of the selected deck
+  const handleExportCsv = async () => {
+    if (!selectedDeck.id || isExporting) return;
+
+    setIsExporting(true);
+    try {
+      const res = await fetch(`/api/exportDeck?deckId=${encodeURIComponent(selectedDeck.id)}`);
+      if (!res.ok) {
+        throw new Error(`Export failed with status ${res.status}`);
+      }
+
+      // Pull the server-generated filename out of the Content-Disposition
+      // header so the download matches the deck and date.
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+      const filename = filenameMatch ? filenameMatch[1] : `kondo-${selectedDeck.title || 'deck'}.csv`;
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting deck to CSV:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Handle Community button click
   const handleCommunityClick = () => {
     if (onDeckSelect) {
@@ -125,6 +161,10 @@ export default function ChatBoxMenuBar({
   const showEmailSubscription = isDojo; // Only show email button in Dojo
   const showStats = true; // Show stats in all modes
   const showImportEntireBookmark = isCommunityWithSelectedBookmark && onImportEntireBookmark;
+  // CSV export is available anywhere responses are listed — regular decks,
+  // dojo, and "all responses" (whose synthetic "all" id the API expands into
+  // an every-deck export). Community is excluded: those aren't the user's.
+  const showExportCsv = (isOtherBookmark || isDojo) && !!selectedDeck.id;
 
   return (
     <>
@@ -268,6 +308,18 @@ export default function ChatBoxMenuBar({
                 >
                   <Bars3CenterLeftIcon className="h-4 w-4 flex-shrink-0" />
                   <span>instructions</span>
+                </button>
+              )}
+
+              {/* Export CSV Button - last (regular decks only) */}
+              {showExportCsv && (
+                <button
+                  onClick={handleExportCsv}
+                  disabled={isExporting}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm bg-card hover:bg-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-card-foreground hover:text-primary-foreground rounded-sm transition-colors duration-200 whitespace-nowrap"
+                >
+                  <TableCellsIcon className="h-4 w-4 flex-shrink-0" />
+                  <span>{isExporting ? 'exporting...' : 'export CSV'}</span>
                 </button>
               )}
             </div>
