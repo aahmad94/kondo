@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import FormModal from './ui/FormModal';
 
@@ -12,6 +12,8 @@ interface CreateDeckModalProps {
   communityDeckTitle?: string;
   userDecks?: Array<{ id: string; title: string }>;
   onImportToExistingDeck?: (deckId: string) => void;
+  /** Prefills the deck name field (e.g. from an empty deck filter search) */
+  initialTitle?: string;
 }
 
 export default function CreateDeckModal({ 
@@ -23,13 +25,24 @@ export default function CreateDeckModal({
   isImportingEntireDeck = false,
   communityDeckTitle,
   userDecks = [],
-  onImportToExistingDeck
+  onImportToExistingDeck,
+  initialTitle = '',
 }: CreateDeckModalProps) {
-  const [deckTitle, setDeckTitle] = useState('');
+  const [deckTitle, setDeckTitle] = useState(initialTitle);
   const [error, setError] = useState<string | null>(null);
   const [importMode, setImportMode] = useState<'merge' | 'new' | 'create' | null>(null);
   const [selectedDeckId, setSelectedDeckId] = useState<string>('');
   const { data: session } = useSession();
+
+  // Prefill deck name when the modal opens (e.g. after filtering decks with no matches)
+  useEffect(() => {
+    if (isOpen) {
+      setDeckTitle(initialTitle.trim());
+      setError(null);
+      setImportMode(null);
+      setSelectedDeckId('');
+    }
+  }, [isOpen, initialTitle]);
 
   // Find existing deck with matching title
   const existingDeck = isImportingEntireDeck && communityDeckTitle 

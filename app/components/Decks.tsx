@@ -50,6 +50,7 @@ export default function Decks({
   const [deckToEdit, setDeckToEdit] = useState<Deck | null>(null);
   const [showDeckDropdown, setShowDeckDropdown] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [deckSearchTerm, setDeckSearchTerm] = useState('');
   const { data: session } = useSession();
   const router = useRouter();
   const { isMobile } = useIsMobile();
@@ -437,6 +438,8 @@ export default function Decks({
                   onDeleteClick={handleDeleteClick}
                   onTouchStart={handleTouchStart}
                   onTouchEnd={handleTouchEnd}
+                  searchTerm={deckSearchTerm}
+                  onSearchTermChange={setDeckSearchTerm}
                 />
               </div>
             </>
@@ -451,6 +454,7 @@ export default function Decks({
           onClose={() => setIsCreateModalOpen(false)}
           onDeckCreated={handleDeckCreated}
           reservedDeckTitles={reservedDeckTitles}
+          initialTitle={deckSearchTerm}
         />
       )}
       {isDeleteModalOpen && deckToDelete && (

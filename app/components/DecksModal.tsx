@@ -79,6 +79,7 @@ export default function DecksModal({
   const [streakData, setStreakData] = useState<{ currentStreak: number; maxStreak: number } | null>(null);
   const [pendingNavigation, setPendingNavigation] = useState<{ deckId: string; deckTitle: string } | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [deckSearchTerm, setDeckSearchTerm] = useState('');
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -296,6 +297,8 @@ export default function DecksModal({
               onDeckSelect={(id, title) => communityResponse ? handleCommunityImport(id) : handleAddToDeck(id)}
               isLoading={isLoading}
               isAddingToDeck={isAddingToDeck}
+              searchTerm={deckSearchTerm}
+              onSearchTermChange={setDeckSearchTerm}
             />
           </div>
         </div>
@@ -308,6 +311,7 @@ export default function DecksModal({
           onDeckCreated={handleCreateAndAddToDeck}
           reservedDeckTitles={reservedDeckTitles}
           optionalCopy='Add to New Deck'
+          initialTitle={deckSearchTerm}
         />
       )}
 

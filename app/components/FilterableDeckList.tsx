@@ -24,6 +24,9 @@ interface FilterableDeckListProps {
   onDeleteClick?: (deck: Deck, e: React.MouseEvent) => void;
   onTouchStart?: (e: React.TouchEvent, deckId: string, deckTitle: string) => void;
   onTouchEnd?: (e: React.TouchEvent, deckId: string, deckTitle: string) => void;
+  /** Controlled search term; when provided, parent owns the filter value */
+  searchTerm?: string;
+  onSearchTermChange?: (term: string) => void;
 }
 
 export function FilterableDeckList({
@@ -40,9 +43,20 @@ export function FilterableDeckList({
   onEditClick,
   onDeleteClick,
   onTouchStart,
-  onTouchEnd
+  onTouchEnd,
+  searchTerm: controlledSearchTerm,
+  onSearchTermChange,
 }: FilterableDeckListProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [internalSearchTerm, setInternalSearchTerm] = useState('');
+  const isSearchControlled = controlledSearchTerm !== undefined;
+  const searchTerm = isSearchControlled ? controlledSearchTerm : internalSearchTerm;
+
+  const handleSearchTermChange = (term: string) => {
+    if (!isSearchControlled) {
+      setInternalSearchTerm(term);
+    }
+    onSearchTermChange?.(term);
+  };
 
   const filteredDecks = useMemo(() => {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
@@ -73,7 +87,7 @@ export function FilterableDeckList({
               type="text"
               placeholder="filter decks..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchTermChange(e.target.value)}
               className="w-full px-3 py-1.5 text-sm bg-background border border-border rounded-sm text-card-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -157,7 +171,7 @@ export function FilterableDeckList({
           type="text"
           placeholder="filter decks..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => handleSearchTermChange(e.target.value)}
           className="w-full px-3 py-2 bg-background border border-border rounded-sm text-card-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
