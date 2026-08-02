@@ -900,6 +900,16 @@ export default function GPTResponse({
                 />
               )}
 
+              {/* Voice chat button - flashcard mode only, shown after answer is revealed (right of breakdown + speaker) */}
+              {selectedDeckTitle === 'flashcard' && showAnswer && response && (
+                <IconButton
+                  icon={<MicrophoneIcon className="h-6 w-6" />}
+                  onClick={() => setIsVoiceChatOpen(true)}
+                  tooltipContent="Ask a question about this content"
+                  buttonRef={voiceButtonRef}
+                  colorScheme="blue"
+                />
+              )}
 
             </>
           )}
@@ -1005,7 +1015,7 @@ export default function GPTResponse({
             </div>
           )}
 
-          {/* Voice chat (Grok) button - only for actual responses, hidden in flashcard mode */}
+          {/* Voice chat (Grok) button - non-flashcard responses only (flashcard uses left-side mic when answer revealed) */}
           {type !== 'instruction' && response && selectedDeckTitle !== 'flashcard' && (
             !isMobile ? (
               <Tooltip

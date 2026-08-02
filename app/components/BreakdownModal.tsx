@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, PlayCircleIcon, PauseCircleIcon } from '@heroicons/react/24/solid';
+import { MicrophoneIcon } from '@heroicons/react/24/outline';
 import Tooltip from './Tooltip';
 import { useIsMobile } from '../hooks/useIsMobile';
 import RankContainer from './ui/RankContainer';
@@ -7,6 +8,7 @@ import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
 import { StyledMarkdown, AliasBadge } from './ui';
 import { prepareTextForSpeech } from '@/lib/utils';
+import VoiceChatModal from './VoiceChatModal';
 
 interface BreakdownModalProps {
   isOpen: boolean;
@@ -63,6 +65,8 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
 }) => {
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);
   const speakerButtonRef = React.useRef<HTMLButtonElement>(null);
+  const voiceButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [isVoiceChatOpen, setIsVoiceChatOpen] = useState(false);
 
   const onRankClick = async (increment: boolean) => {
     if (!responseId || !onRankUpdate) return;
@@ -148,6 +152,17 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
                 onAudioCached={onAudioCached}
               />
             )}
+
+            {/* Voice chat button - right of speaker */}
+            {originalResponse && (
+              <IconButton
+                icon={<MicrophoneIcon className="h-6 w-6" />}
+                onClick={() => setIsVoiceChatOpen(true)}
+                tooltipContent="Ask a question about this content"
+                buttonRef={voiceButtonRef}
+                colorScheme="blue"
+              />
+            )}
           </div>
           <button onClick={onClose} className="text-card-foreground hover:text-muted-foreground transition-colors duration-200">
             <XMarkIcon className="h-6 w-6" />
@@ -195,6 +210,16 @@ const BreakdownModal: React.FC<BreakdownModalProps> = ({
           </div>
         )}
       </div>
+
+      {/* Voice Chat Modal (xAI Grok) — z-[90], above this breakdown modal */}
+      {isVoiceChatOpen && originalResponse && (
+        <VoiceChatModal
+          isOpen={isVoiceChatOpen}
+          onClose={() => setIsVoiceChatOpen(false)}
+          responseText={originalResponse}
+          language={selectedLanguage}
+        />
+      )}
     </div>
   );
 };
