@@ -1,5 +1,6 @@
 import prisma from '../database/prisma';
 import { gateDailyResponseFeature } from '../stripe/subscriptionService';
+import { getElevenLabsSpeed, getElevenLabsVoiceId } from '../utils/ttsConfig';
 
 /**
  * Gets or generates audio for a community response with caching.
@@ -84,24 +85,8 @@ async function generateCommunityAudio(
   language: string
 ): Promise<{ audio: string; mimeType: string }> {
   try {
-    // Select voice model based on language (same as GPTResponse)
-    const voiceId = (() => {
-      switch (language) {
-        case 'ja': return 'b34JylakFZPlGS0BnwyY'; // Japanese voice
-        case 'ko': return 'z6Kj0hecH20CdetSElRT'; // Korean voice
-        case 'es': return '2Lb1en5ujrODDIqmp7F3'; // Spanish voice
-        case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
-        case 'zh': return 'GgmlugwQ4LYXBbEXENWm'; // Chinese voice
-        case 'ur': return '9cI5mhBtM4WtQ9Fo6jWQ'; // Urdu voice
-        case 'vi': return 'RCmOaM1iiIH5xX3QXjIF'; // Vietnamese voice (Khanh Lam)
-        default: return 'pNInz6obpgDQGcFmaJgB';  // Default
-      }
-    })();
-
-    let speed = 0.70;
-    if (language === 'ja') {
-      speed = 0.75;
-    }
+    const voiceId = getElevenLabsVoiceId(language);
+    const speed = getElevenLabsSpeed(language);
 
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
