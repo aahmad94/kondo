@@ -50,12 +50,12 @@ export function getElevenLabsSpeed(language: string): number {
 export const NORMAL_PLAYBACK_RATE = 1.0;
 
 /** Slower (even) play rate — same audio, more deliberate for learners. */
-export const SLOW_PLAYBACK_RATE = 0.8;
+export const SLOW_PLAYBACK_RATE = 0.65;
 
 /**
- * Playback rates for a language. Vietnamese uses a slightly reduced "normal"
- * rate on top of the already-slow generation so the first listen is a bit
- * calmer than raw ElevenLabs output.
+ * Playback rates for a language. Vietnamese uses a reduced "normal" rate on
+ * top of already-slow generation, and a much slower second pass for careful
+ * listening.
  */
 export function getPlaybackRates(language: string): {
   normal: number;
@@ -63,8 +63,8 @@ export function getPlaybackRates(language: string): {
 } {
   if (language === 'vi') {
     return {
-      normal: 0.9,
-      slow: 0.75,
+      normal: 0.8,
+      slow: 0.55,
     };
   }
   return {
