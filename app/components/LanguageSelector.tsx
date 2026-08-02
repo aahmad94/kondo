@@ -128,7 +128,7 @@ export default function LanguageSelector({ onClearDeck, onLanguageChange }: Lang
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Listbox.Options className="absolute max-h-60 w-full overflow-auto rounded-sm bg-popover/95 backdrop-blur-sm py-1 text-base shadow-lg ring-1 ring-border focus:outline-none z-50">
+          <Listbox.Options className="absolute max-h-56 w-full overflow-auto rounded-sm bg-popover/95 backdrop-blur-sm py-1 text-base shadow-lg ring-1 ring-border focus:outline-none z-50">
             {languages.map((language) => (
               <Listbox.Option
                 key={language.id}
