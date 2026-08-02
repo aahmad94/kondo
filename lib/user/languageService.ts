@@ -57,13 +57,22 @@ const URDU_INSTRUCTIONS = {
   dojoDetailed: ''
 };
 
+const VIETNAMESE_INSTRUCTIONS = {
+  main: `
+  Create study material for your library — leverage the input fields below or enter a phrase to get started
+`,
+  dailySummary: DOJO_INSTRUCTIONS,
+  dojoDetailed: ''
+};
+
 const INSTRUCTIONS_BY_LANGUAGE_CODE: Record<string, LanguageInstructions> = {
   ja: JAPANESE_INSTRUCTIONS,
   ko: KOREAN_INSTRUCTIONS,
   es: SPANISH_INSTRUCTIONS,
   ar: ARABIC_INSTRUCTIONS,
   zh: CHINESE_INSTRUCTIONS,
-  ur: URDU_INSTRUCTIONS
+  ur: URDU_INSTRUCTIONS,
+  vi: VIETNAMESE_INSTRUCTIONS
 };
 
 /**

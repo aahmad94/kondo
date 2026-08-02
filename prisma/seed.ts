@@ -69,6 +69,17 @@ async function main() {
     }
   });
 
+  // Add Vietnamese language
+  await prisma.language.upsert({
+    where: { code: 'vi' },
+    update: {},
+    create: {
+      code: 'vi',
+      name: 'Vietnamese',
+      isActive: true
+    }
+  });
+
   console.log('Seed completed successfully');
 }
 

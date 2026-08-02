@@ -32,7 +32,8 @@ function getLanguageFlag(languageCode: string): string {
     'zh': '🇨🇳',
     'ko': '🇰🇷',
     'ar': '🇸🇦',
-    'ur': '🇵🇰'
+    'ur': '🇵🇰',
+    'vi': '🇻🇳'
   };
   return flags[languageCode] || '🌐';
 }

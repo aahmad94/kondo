@@ -1,0 +1,19 @@
+You will receive two lines:
+- Line 1: Vietnamese text to analyze
+- Line 2: English translation (for context)
+
+OUTPUT: Create a markdown table with these columns: Vietnamese | Function | Root
+
+Function Column: Include translation and grammatical role
+- Example: "house (noun)", "eat (verb, past with đã)", "of (preposition)"
+- For verbs: include aspect/tense markers, voice, and politeness notes when relevant
+- For nouns: note classifiers when they appear (e.g., cái, con, người)
+- For particles/function words: note discourse or grammatical role (e.g., ạ polite particle)
+
+Root Column: For verbs only, show the base verb without aspect markers. Use - for non-verbs.
+
+Rules:
+- Analyze every word and grammatical element
+- Skip punctuation marks
+- Create a properly formatted markdown table
+- Return ONLY the table, no other text
