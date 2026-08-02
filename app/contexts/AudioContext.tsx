@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useRef, useCallback } from 'react';
 import { trackSpeakerClick } from '@/lib/analytics';
+import { getPlaybackRates } from '@/lib/utils/ttsConfig';
 
 interface AudioContextType {
   isPlaying: boolean;
@@ -40,13 +41,32 @@ const convertBase64ToAudioUrl = (base64Audio: string, mimeType: string): string 
   return URL.createObjectURL(audioBlob);
 };
 
+/** Prefer pitch-preserving slowdown when the browser supports it. */
+const applyPlaybackRate = (audio: HTMLAudioElement, rate: number) => {
+  audio.playbackRate = rate;
+  // Chromium / WebKit: keep pitch stable when slowing down for learners
+  if ('preservesPitch' in audio) {
+    (audio as HTMLMediaElement & { preservesPitch: boolean }).preservesPitch = true;
+  }
+  if ('webkitPreservesPitch' in audio) {
+    (audio as HTMLMediaElement & { webkitPreservesPitch: boolean }).webkitPreservesPitch = true;
+  }
+  if ('mozPreservesPitch' in audio) {
+    (audio as HTMLMediaElement & { mozPreservesPitch: boolean }).mozPreservesPitch = true;
+  }
+};
+
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentResponseId, setCurrentResponseId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  
+
   // Local cache to store audio data by responseId for fast access
   const audioCacheRef = useRef<Map<string, { audio: string; mimeType: string }>>(new Map());
+
+  // Per-response: whether the *next* successful play should use the slow rate.
+  // Starts false → first click is normal; then alternates slow → normal → slow…
+  const nextPlayShouldBeSlowRef = useRef<Map<string, boolean>>(new Map());
 
   const pauseAudio = useCallback(() => {
     if (audioRef.current) {
@@ -55,9 +75,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsPlaying(false);
     setCurrentResponseId(null);
   }, []);
-  
+
   const getCachedAudio = useCallback((responseId: string) => {
     return audioCacheRef.current.get(responseId) || null;
+  }, []);
+
+  /**
+   * Peek the rate for this response without advancing the toggle.
+   * Call commitPlaybackRateToggle only after playback successfully starts.
+   */
+  const peekPlaybackRate = useCallback((responseId: string, language: string): number => {
+    const { normal, slow } = getPlaybackRates(language);
+    const playSlow = nextPlayShouldBeSlowRef.current.get(responseId) ?? false;
+    return playSlow ? slow : normal;
+  }, []);
+
+  const commitPlaybackRateToggle = useCallback((responseId: string) => {
+    const playSlow = nextPlayShouldBeSlowRef.current.get(responseId) ?? false;
+    // Flip for the next speaker click on this response.
+    nextPlayShouldBeSlowRef.current.set(responseId, !playSlow);
   }, []);
 
   const playAudio = useCallback(async (
@@ -69,9 +105,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     onError?: (error: string) => void
   ) => {
     try {
-      // console.log('🎵 playAudio called:', { responseId, hasCachedAudio: !!cachedAudio, isPlaying, currentResponseId });
-
-      // If already playing the same audio, pause it
+      // If already playing the same audio, pause it (do not flip speed toggle)
       if (isPlaying && currentResponseId === responseId) {
         pauseAudio();
         return;
@@ -79,16 +113,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // If playing different audio, stop it first
       if (isPlaying) {
-        // console.log('🛑 Stopping different audio');
         pauseAudio();
       }
 
       // Check local cache first (fastest option)
       const localCachedAudio = audioCacheRef.current.get(responseId);
       if (localCachedAudio) {
-        // console.log('⚡ Using local cached audio - FASTEST PATH');
         cachedAudio = localCachedAudio;
       }
+
+      const playbackRate = peekPlaybackRate(responseId, selectedLanguage);
 
       // Handle cached audio (either from props or local cache) - no loading state needed since it's instantaneous
       if (cachedAudio) {
@@ -103,27 +137,23 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }).catch(() => {});
         }
 
-        // console.log('💾 Using cached audio - NO LOADING STATE');
-        
         if (!audioRef.current) {
           audioRef.current = new Audio();
         }
 
         try {
-          // console.log('🔄 Converting base64 to audio URL...');
           const audioUrl = convertBase64ToAudioUrl(cachedAudio.audio, cachedAudio.mimeType);
-          // console.log('✅ Audio URL created');
-          
+
           audioRef.current.src = audioUrl;
-          
+          applyPlaybackRate(audioRef.current, playbackRate);
+
           // Set playing state immediately for cached audio
-          // console.log('🟢 Setting playing state immediately');
           setIsPlaying(true);
           setCurrentResponseId(responseId);
+          commitPlaybackRateToggle(responseId);
 
           const playPromise = audioRef.current.play();
           if (playPromise !== undefined) {
-            // console.log('🎵 Play promise created (non-blocking)');
             // Handle play promise without awaiting to avoid loading blip
             playPromise.catch((error) => {
               console.error('❌ Cached audio play error:', error);
@@ -134,13 +164,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               return;
             });
           }
-          
-          // console.log('📊 Tracking (Amplitude) speaker click...');
+
           await trackSpeakerClick(responseId);
-          // console.log('✅ Cached audio setup complete');
 
           audioRef.current.onended = () => {
-            // console.log('🔚 Cached audio ended');
             setIsPlaying(false);
             setCurrentResponseId(null);
             URL.revokeObjectURL(audioUrl);
@@ -163,7 +190,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       // Generate new audio via API - only show loading for this path
-      // console.log('🌐 No cached audio - fetching from API with loading state');
       onLoadingChange?.(true);
 
       const res = await fetch('/api/textToSpeech', {
@@ -171,7 +197,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           text: textToSpeak,
           language: selectedLanguage,
           responseId: responseId
@@ -186,7 +212,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const data = await res.json();
 
       // Cache the audio data locally for future use
-      // console.log('💾 Caching audio data locally for future use');
       audioCacheRef.current.set(responseId, { audio: data.audio, mimeType: data.mimeType });
 
       if (!audioRef.current) {
@@ -195,16 +220,18 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       try {
         const audioUrl = convertBase64ToAudioUrl(data.audio, data.mimeType);
-        
+
         audioRef.current.src = audioUrl;
+        applyPlaybackRate(audioRef.current, playbackRate);
 
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
           await playPromise;
         }
-        
+
         setIsPlaying(true);
         setCurrentResponseId(responseId);
+        commitPlaybackRateToggle(responseId);
         await trackSpeakerClick(responseId);
 
         audioRef.current.onended = () => {
@@ -225,10 +252,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error('❌ playAudio error:', error);
       onError?.(error.message || 'Failed to generate speech');
     } finally {
-      // console.log('🔄 Setting loading to false');
       onLoadingChange?.(false);
     }
-  }, [isPlaying, currentResponseId, pauseAudio]);
+  }, [isPlaying, currentResponseId, pauseAudio, peekPlaybackRate, commitPlaybackRateToggle]);
 
   // Cleanup on unmount
   React.useEffect(() => {
@@ -247,4 +273,4 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
     </AudioContext.Provider>
   );
-}; 
+};
