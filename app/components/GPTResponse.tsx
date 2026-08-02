@@ -907,8 +907,8 @@ export default function GPTResponse({
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          {/* Language options dropdown - show for non-English languages except Spanish, but hide in flashcard mode */}
-          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && type !== 'instruction' && (hasExpression || responseType === 'clarification') && selectedDeckTitle !== 'flashcard' && (
+          {/* Language options dropdown - show for non-English languages that have phonetic/reading lines (not Spanish/Vietnamese), hide in flashcard mode */}
+          {selectedLanguage !== 'en' && selectedLanguage !== 'es' && selectedLanguage !== 'vi' && type !== 'instruction' && (hasExpression || responseType === 'clarification') && selectedDeckTitle !== 'flashcard' && (
             <div className="relative flex flex-col justify-center" ref={furiganaDropdownRef}>
               <button
                 onClick={() => setShowFuriganaDropdown(!showFuriganaDropdown)}

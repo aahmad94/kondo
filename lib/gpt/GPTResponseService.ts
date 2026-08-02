@@ -352,6 +352,7 @@ export async function convertTextToSpeech(text: string, language: string, respon
         case 'ar': return '21m00Tcm4TlvDq8ikWAM'; // Arabic voice
         case 'zh': return 'GgmlugwQ4LYXBbEXENWm'; // Chinese voice
         case 'ur': return '9cI5mhBtM4WtQ9Fo6jWQ'; // Urdu voice
+        case 'vi': return 'RCmOaM1iiIH5xX3QXjIF'; // Vietnamese voice (Khanh Lam)
         default: return 'pNInz6obpgDQGcFmaJgB';  // Default
       }
     })();

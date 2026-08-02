@@ -9,6 +9,8 @@ const LANGUAGE_NAMES: Record<string, string> = {
   'es': 'Spanish',
   'ko': 'Korean',
   'ar': 'Arabic',
+  'ur': 'Urdu',
+  'vi': 'Vietnamese',
   'all': 'All Languages'
 };
 
@@ -18,6 +20,8 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   'es': '🇪🇸',
   'ko': '🇰🇷',
   'ar': '🇸🇦',
+  'ur': '🇵🇰',
+  'vi': '🇻🇳',
   'all': '🌐'
 };
 

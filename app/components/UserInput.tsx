@@ -15,6 +15,7 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ar: 'Arabic',
   zh: 'Chinese',
   ur: 'Urdu',
+  vi: 'Vietnamese',
 };
 
 const DIFFICULTY_OPTIONS = [
@@ -106,6 +107,7 @@ export default function UserInput({
     ar: 'مرحباً',
     zh: '你好',
     ur: 'السلام علیکم',
+    vi: 'Xin chào',
   };
 
   // True when the user has typed into the field without first selecting a command
