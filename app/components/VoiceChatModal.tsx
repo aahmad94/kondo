@@ -26,6 +26,8 @@ type ConnectionStatus = 'idle' | 'connecting' | 'listening' | 'speaking' | 'erro
 
 const SAMPLE_RATE = 24000;
 const CHUNK_SAMPLES = 2048;
+/** Fallback if the session endpoint omits `model` (should match server pin). */
+const DEFAULT_XAI_VOICE_MODEL = 'grok-voice-think-fast-2.0';
 
 function float32ToBase64PCM16(float32: Float32Array): string {
   const pcm16 = new Int16Array(float32.length);
@@ -323,11 +325,16 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
         throw new Error(msg);
       }
 
-      const { value: token, instructions } = await sessionRes.json();
+      const { value: token, instructions, model } = await sessionRes.json();
       if (!token) throw new Error('Missing ephemeral token');
 
+      const voiceModel =
+        typeof model === 'string' && model.length > 0
+          ? model
+          : DEFAULT_XAI_VOICE_MODEL;
+
       const ws = new WebSocket(
-        'wss://api.x.ai/v1/realtime?model=grok-voice-think-fast-1.0',
+        `wss://api.x.ai/v1/realtime?model=${voiceModel}`,
         [`xai-client-secret.${token}`]
       );
       wsRef.current = ws;

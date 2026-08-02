@@ -10,6 +10,8 @@ import {
 export const runtime = 'nodejs';
 
 const XAI_CLIENT_SECRETS_URL = 'https://api.x.ai/v1/realtime/client_secrets';
+/** Grok Voice Think Fast 2.0 — flagship speech-to-speech model (July 2026). */
+const XAI_VOICE_MODEL = 'grok-voice-think-fast-2.0';
 
 export async function POST(request: Request) {
   try {
@@ -69,7 +71,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         expires_after: { seconds: 600 },
         session: {
-          model: 'grok-voice-think-fast-1.0',
+          model: XAI_VOICE_MODEL,
           voice: 'eve',
           instructions,
           turn_detection: { type: 'server_vad' },
@@ -101,7 +103,7 @@ export async function POST(request: Request) {
       value: data.value,
       expires_at: data.expires_at,
       instructions,
-      model: 'grok-voice-think-fast-1.0',
+      model: XAI_VOICE_MODEL,
     });
   } catch (error: any) {
     console.error('Error creating xAI voice session:', error);
