@@ -858,6 +858,7 @@ export default function GPTResponse({
                 <RankContainer 
                   rank={rank} 
                   onRankClick={onRankClick}
+                  showKeyboardHints={selectedDeckTitle === 'flashcard'}
                 />
               )}
 

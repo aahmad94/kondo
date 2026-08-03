@@ -149,6 +149,16 @@ export default function FlashcardModal({
     }
   };
 
+  const handleRankChange = async (increment: boolean) => {
+    const currentResponse = responses[currentIndex];
+    if (!currentResponse?.id || !onRankUpdate) return;
+
+    const newRank = increment ? currentResponse.rank + 1 : currentResponse.rank - 1;
+    if (newRank >= 1 && newRank <= 3) {
+      await onRankUpdate(currentResponse.id, newRank);
+    }
+  };
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -162,6 +172,14 @@ export default function FlashcardModal({
         case 'ArrowRight':
           event.preventDefault();
           handleNext();
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          handleRankChange(true);
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          handleRankChange(false);
           break;
         case 'Shift':
           event.preventDefault();
@@ -190,7 +208,7 @@ export default function FlashcardModal({
       document.addEventListener('keydown', handleKeyPress);
       return () => document.removeEventListener('keydown', handleKeyPress);
     }
-  }, [isOpen, handlePrevious, handleNext, toggleAnswer, handleAudioToggle, handleBreakdownTrigger, onClose, showAnswer]);
+  }, [isOpen, handlePrevious, handleNext, handleRankChange, toggleAnswer, handleAudioToggle, handleBreakdownTrigger, onClose, showAnswer]);
 
   if (!isOpen || responses.length === 0) return null;
 
