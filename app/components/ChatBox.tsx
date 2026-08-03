@@ -15,7 +15,7 @@ import ConfirmationModal from './ui/ConfirmationModal';
 import { StreakCelebrationModal, DeckNavigationModal } from './ui';
 import { getLanguageInstructions } from '@/lib/user';
 import SearchBar from './SearchBar';
-import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
+import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackCommunityImport, trackAddToDeck } from '@/lib/analytics';
 import { extractExpressions, createAliasColorMap, getAliasColor } from '@/lib/utils';
 import ChatBoxMenuBar from './ChatBoxMenuBar';
 import FlashcardModal from './FlashcardModal';
@@ -985,12 +985,34 @@ export default function ChatBox({
     try {
       const result = await importCommunityResponseAction(communityResponseId);
       if (result.success) {
+        await trackCommunityImport({
+          communityResponseId,
+          bookmarkId: result.bookmark?.id ?? null,
+          bookmarkTitle: result.bookmark?.title ?? null,
+          importType: 'single',
+          wasBookmarkCreated: result.wasBookmarkCreated,
+          success: true,
+        });
+        // Also count as a bookmark add (with community-import flag)
+        if (result.bookmark) {
+          await trackAddToDeck(
+            result.response?.id ?? communityResponseId,
+            result.bookmark.id,
+            result.bookmark.title,
+            { isCommunityImport: true }
+          );
+        }
         // Refresh community feed to update import counts with fresh data
         refetchCommunityFresh();
         
         // Show success message
         console.log('Successfully imported response:', result.message);
       } else {
+        await trackCommunityImport({
+          communityResponseId,
+          importType: 'single',
+          success: false,
+        });
         console.error('Failed to import response:', result.error);
         
         // If the error is about importing own response, show self-import modal
@@ -1042,6 +1064,38 @@ export default function ChatBox({
       }
       
       if (result.success) {
+        const isBatch = communityResponseId === 'batch-import';
+        const importType = isBatch
+          ? 'batch'
+          : bookmarkId && !createNew
+            ? 'single_to_bookmark'
+            : 'single';
+
+        await trackCommunityImport({
+          communityResponseId,
+          bookmarkId: result.bookmark?.id ?? bookmarkId ?? null,
+          bookmarkTitle: result.bookmark?.title ?? null,
+          importType,
+          isBatch,
+          importedCount:
+            isBatch && 'importedCount' in result && typeof result.importedCount === 'number'
+              ? result.importedCount
+              : 1,
+          wasBookmarkCreated: result.wasBookmarkCreated,
+          success: true,
+        });
+        // Also count as a bookmark add (with community-import flag)
+        if (result.bookmark) {
+          await trackAddToDeck(
+            !isBatch && 'response' in result && result.response?.id
+              ? result.response.id
+              : communityResponseId,
+            result.bookmark.id,
+            result.bookmark.title,
+            { isCommunityImport: true }
+          );
+        }
+
         // Check if we should celebrate a streak
         const hasStreakCelebration = 'streakData' in result && result.streakData?.isNewStreak;
         
@@ -1102,6 +1156,18 @@ export default function ChatBox({
           onDeckSelect(result.bookmark.id, result.bookmark.title);
         }
       } else {
+        const isBatch = communityResponseId === 'batch-import';
+        await trackCommunityImport({
+          communityResponseId,
+          bookmarkId: bookmarkId ?? null,
+          importType: isBatch
+            ? 'batch'
+            : bookmarkId && !createNew
+              ? 'single_to_bookmark'
+              : 'single',
+          isBatch,
+          success: false,
+        });
         console.error('Failed to import response:', result.error);
         
         // Show specific error modals based on error type
@@ -1674,7 +1740,11 @@ export default function ChatBox({
                     isSharedToCommunity={response.isSharedToCommunity}
                     selectedLanguage={selectedLanguage}
                     onLoadingChange={setIsLoading}
-                    onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                    onBreakdownClick={() =>
+                      trackBreakdownClick(response.id!, {
+                        isCommunityImport: response.source === 'imported',
+                      })
+                    }
                     onDecksRefresh={onDecksRefresh}
                   />
                 ));
@@ -1729,7 +1799,11 @@ export default function ChatBox({
                     isSharedToCommunity={response.isSharedToCommunity}
                     selectedLanguage={selectedLanguage}
                     onLoadingChange={setIsLoading}
-                    onBreakdownClick={() => trackBreakdownClick(response.id!)}
+                    onBreakdownClick={() =>
+                      trackBreakdownClick(response.id!, {
+                        isCommunityImport: response.source === 'imported',
+                      })
+                    }
                     onDecksRefresh={onDecksRefresh}
                   />
                 ));

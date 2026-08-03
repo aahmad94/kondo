@@ -43,7 +43,7 @@ import {
   DeckNavigationModal
 } from './ui';
 import Tooltip from './Tooltip';
-import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
+import { trackBreakdownClick, trackPauseToggle } from '@/lib/analytics';
 import { extractExpressions, prepareTextForSpeech, getAliasCSSVars, parseClarificationResponse } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { deleteCommunityResponseAction } from '../../actions/community';
@@ -315,7 +315,10 @@ export default function CommunityResponse(props: ResponseProps) {
 
       await generateBreakdown(isMobile);
       setIsBreakdownModalOpen(true);
-      trackBreakdownClick(data.id || '');
+      trackBreakdownClick(data.id || '', {
+        isCommunityResponse: true,
+        isCommunityImport: false,
+      });
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to generate breakdown');
       setIsErrorModalOpen(true);
@@ -411,7 +414,10 @@ export default function CommunityResponse(props: ResponseProps) {
   const handlePauseToggle = async (responseId: string, isPaused: boolean) => {
     if (isGPTResponseProps(props) && props.onPauseToggle) {
       await props.onPauseToggle(responseId, isPaused);
-      trackPauseToggle(isPaused);
+      trackPauseToggle(isPaused, {
+        isCommunityResponse: false,
+        isCommunityImport: props.data?.source === 'imported',
+      });
     }
   };
 
