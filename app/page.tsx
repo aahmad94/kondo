@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import MenuBar from './components/MenuBar';
 import ChatBox from './components/ChatBox';
 import Decks from './components/Decks';
-import { initAmplitude, trackLanguageChange, trackClearDeck, trackDeckSelect } from '@/lib/analytics';
+import { initAmplitude, setAnalyticsLanguage, trackLanguageChange, trackClearDeck, trackDeckSelect } from '@/lib/analytics';
 
 export default function Home() {
   const { data: session, status } = useSession()
@@ -40,6 +40,13 @@ export default function Home() {
       initAmplitude();
     }
   }, [session]);
+
+  // Keep Amplitude's selectedLanguage property in sync with app language state
+  useEffect(() => {
+    if (selectedLanguage) {
+      setAnalyticsLanguage(selectedLanguage);
+    }
+  }, [selectedLanguage]);
 
   // Handle authentication
   useEffect(() => {
@@ -187,6 +194,7 @@ export default function Home() {
   }
 
   const handleLanguageChange = (languageCode: string) => {
+    setAnalyticsLanguage(languageCode);
     trackLanguageChange(selectedLanguage || 'ja', languageCode);
     setSelectedLanguage(languageCode);
     handleDeckSelect(null, null);
