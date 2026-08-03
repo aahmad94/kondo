@@ -14,6 +14,7 @@ import DecksModal from './DecksModal';
 import ConfirmationModal from './ui/ConfirmationModal';
 import { StreakCelebrationModal, DeckNavigationModal } from './ui';
 import { getLanguageInstructions } from '@/lib/user';
+import { DEFAULT_LLM_MODEL } from '@/lib/gpt/aiConfig';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
 import { extractExpressions, createAliasColorMap, getAliasColor } from '@/lib/utils';
@@ -592,7 +593,7 @@ export default function ChatBox({
         body: JSON.stringify({ 
           prompt: processedPrompt,
           languageCode: selectedLanguage || 'ja',
-          model: model || 'gpt-4o', // Default to gpt-4o if no model is specified
+          model: model || DEFAULT_LLM_MODEL,
           responseType: responseQuote ? 'clarification' : 'response'
       }),
       });
@@ -695,7 +696,7 @@ export default function ChatBox({
     const submitResponse = `* Breakdown the following phrase:\n\n${response}`;
 
     if (type === 'breakdown') {
-      handleSubmit(submitResponse, 'gpt-4o-mini');
+      handleSubmit(submitResponse, DEFAULT_LLM_MODEL);
       setResponseQuote(null); // Clear any existing quote when doing breakdown
     } else {
       setResponseQuote(response);

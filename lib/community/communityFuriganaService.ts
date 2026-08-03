@@ -1,5 +1,6 @@
 import 'server-only';
 import prisma from '../database/prisma';
+import { DEFAULT_LLM_MODEL } from '../gpt/aiConfig';
 import fs from 'fs';
 import path from 'path';
 
@@ -84,7 +85,7 @@ async function generateCommunityFurigana(
       body: JSON.stringify({ 
         prompt: prompt,
         languageCode: 'ja',
-        model: 'gpt-4o'
+        model: DEFAULT_LLM_MODEL
       }),
     });
 

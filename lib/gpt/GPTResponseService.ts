@@ -4,6 +4,7 @@ import { getUserLanguageId } from '../user/languageService';
 import { updateStreakOnActivity, type StreakData } from '../user/streakService';
 import { gateDailyResponseFeature } from '../stripe/subscriptionService';
 import { getElevenLabsSpeed, getElevenLabsVoiceId } from '../utils/ttsConfig';
+import { DEFAULT_LLM_MODEL } from './aiConfig';
 import fs from 'fs';
 import path from 'path';
 
@@ -494,7 +495,7 @@ export async function getBreakdown(text: string, language: string, responseId?: 
       body: JSON.stringify({ 
         prompt: combinedContent,
         systemPrompt: breakdownSystemPrompt,
-        model: 'gpt-4o'
+        model: DEFAULT_LLM_MODEL
       }),
     });
 
