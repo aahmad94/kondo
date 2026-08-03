@@ -12,6 +12,7 @@ interface NoteModalProps {
   isEditing: boolean;
   onSave?: (note: string) => Promise<void>;
   onEdit?: () => void;
+  onDelete?: () => Promise<void>;
   isSaving?: boolean;
   isReadOnly?: boolean;
 }
@@ -23,11 +24,13 @@ const NoteModal: React.FC<NoteModalProps> = ({
   isEditing,
   onSave,
   onEdit,
+  onDelete,
   isSaving = false,
   isReadOnly = false
 }) => {
   const [noteText, setNoteText] = useState(note);
   const [localIsSaving, setLocalIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { isMobile } = useIsMobile();
 
   // Update local note text when prop changes
@@ -54,9 +57,24 @@ const NoteModal: React.FC<NoteModalProps> = ({
     }
   };
 
+  const handleDelete = async () => {
+    if (!onDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await onDelete();
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!isOpen) return null;
 
-  const isLoading = isSaving || localIsSaving;
+  const isLoading = isSaving || localIsSaving || isDeleting;
+  // Delete is available only when editing an existing note (not for a brand-new empty note)
+  const canDelete = !!onDelete && !!note.trim();
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex justify-center items-center z-[80]">
@@ -97,14 +115,25 @@ const NoteModal: React.FC<NoteModalProps> = ({
 
         {/* Footer with action buttons */}
         {!isReadOnly && (
-          <div className="flex justify-end gap-2 pt-4 border-t border-border flex-shrink-0">
+          <div className={`flex pt-4 border-t border-border flex-shrink-0 ${
+            isEditing && canDelete ? 'justify-between' : 'justify-end'
+          } gap-2`}>
+            {isEditing && canDelete && (
+              <button
+                onClick={handleDelete}
+                disabled={isLoading}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            )}
             {isEditing ? (
               <button
                 onClick={handleSave}
                 disabled={isLoading || !noteText.trim()}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isLoading ? 'Saving...' : 'Save'}
+                {isLoading && !isDeleting ? 'Saving...' : 'Save'}
               </button>
             ) : (
               <button
