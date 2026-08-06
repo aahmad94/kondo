@@ -22,13 +22,13 @@ async function main() {
       select: { id: true }
     });
 
-    // Define default bookmarks
+    // Define default bookmarks (keep in sync with lib/bookmarks/defaultDecks.ts)
     const defaultBookmarks = [
       { title: 'travel', isReserved: false },
       { title: 'counting', isReserved: false },
+      { title: 'alphabet', isReserved: false },
       { title: 'verbs', isReserved: false },
       { title: 'daily summary', isReserved: true },
-      { title: 'all responses', isReserved: true }
     ];
 
     // Create Spanish bookmarks for each user

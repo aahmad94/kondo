@@ -12,3 +12,6 @@ secrets.txt
 *.dump
 .DS_Store
 tsconfig.tsbuildinfo
+
+# Local seed/SQL working area — do not commit
+temp-sql/

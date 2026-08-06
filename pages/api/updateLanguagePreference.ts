@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '@/lib';
+import { prisma, DEFAULT_DECK_TITLES, isReservedDeckTitle } from '@/lib';
 
 export default async function handler(
   req: NextApiRequest,
@@ -39,17 +39,17 @@ export default async function handler(
     });
 
     // If no bookmarks exist for this language, create default ones
+    // Same set as signup: travel, counting, alphabet, verbs, daily summary
     if (existingBookmarks.length === 0) {
-      const defaultBookmarks = ['counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];
       await Promise.all(
-        defaultBookmarks.map(title =>
+        DEFAULT_DECK_TITLES.map(title =>
           prisma.bookmark.create({
             data: {
               title,
               userId: userId,
               languageId: languageId,
-              isReserved: title === 'daily summary' || title === 'all responses'
-            }
+              isReserved: isReservedDeckTitle(title),
+            },
           })
         )
       );

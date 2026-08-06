@@ -2,7 +2,7 @@
 import NextAuth, { DefaultSession, NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { prisma } from '@/lib'
+import { prisma, DEFAULT_DECK_TITLES, isReservedDeckTitle } from '@/lib'
 
 declare module "next-auth" {
   interface Session {
@@ -54,17 +54,17 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Create default bookmarks for each language
-        const defaultBookmarks = ['travel', 'counting', 'verbs', 'daily summary'];
+        // travel, counting, alphabet, verbs, daily summary
         await Promise.all(
-          languages.flatMap(language => 
-            defaultBookmarks.map(title => 
+          languages.flatMap(language =>
+            DEFAULT_DECK_TITLES.map(title =>
               prisma.bookmark.create({
                 data: {
                   title,
                   userId: newUser.id,
                   languageId: language.id,
-                  isReserved: title === 'daily summary' || title === 'all responses'
-                }
+                  isReserved: isReservedDeckTitle(title),
+                },
               })
             )
           )

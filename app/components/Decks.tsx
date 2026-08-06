@@ -114,8 +114,9 @@ export default function Decks({
   }, [refreshTrigger, session?.userId]);
 
   const createDefaultDecks = async (userId: string) => {
-    const defaultDecks = ['counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];
-    
+    // Keep in sync with lib/bookmarks/defaultDecks.ts (client can't import server prisma path)
+    const defaultDecks = ['travel', 'counting', 'alphabet', 'verbs', 'daily summary'];
+
     try {
       for (const title of defaultDecks) {
         const response = await fetch('/api/createBookmark', {
