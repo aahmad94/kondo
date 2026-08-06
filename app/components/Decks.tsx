@@ -115,7 +115,7 @@ export default function Decks({
 
   const createDefaultDecks = async (userId: string) => {
     // Keep in sync with lib/bookmarks/defaultDecks.ts (client can't import server prisma path)
-    const defaultDecks = ['travel', 'counting', 'alphabet', 'verbs', 'daily summary'];
+    const defaultDecks = ['travel', 'counting', 'alphabet', 'verbs', 'introductions', 'daily summary'];
 
     try {
       for (const title of defaultDecks) {

@@ -28,6 +28,7 @@ async function main() {
       { title: 'counting', isReserved: false },
       { title: 'alphabet', isReserved: false },
       { title: 'verbs', isReserved: false },
+      { title: 'introductions', isReserved: false },
       { title: 'daily summary', isReserved: true },
     ];
 

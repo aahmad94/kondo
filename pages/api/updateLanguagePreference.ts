@@ -39,7 +39,7 @@ export default async function handler(
     });
 
     // If no bookmarks exist for this language, create default ones
-    // Same set as signup: travel, counting, alphabet, verbs, daily summary
+    // Same set as signup: travel, counting, alphabet, verbs, introductions, daily summary
     if (existingBookmarks.length === 0) {
       await Promise.all(
         DEFAULT_DECK_TITLES.map(title =>

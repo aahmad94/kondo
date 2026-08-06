@@ -3,7 +3,7 @@
  * Used on signup (all active languages) and when a language has no decks yet
  * (language preference switch).
  *
- * Seed content is planned for: travel, counting, alphabet, verbs.
+ * Seed content targets: travel, counting, alphabet, verbs, introductions.
  * `daily summary` is reserved/system and stays empty of seed cards.
  */
 export const DEFAULT_DECK_TITLES = [
@@ -11,6 +11,7 @@ export const DEFAULT_DECK_TITLES = [
   'counting',
   'alphabet',
   'verbs',
+  'introductions',
   'daily summary',
 ] as const;
 

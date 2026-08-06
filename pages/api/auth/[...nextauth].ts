@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Create default bookmarks for each language
-        // travel, counting, alphabet, verbs, daily summary
+        // travel, counting, alphabet, verbs, introductions, daily summary
         await Promise.all(
           languages.flatMap(language =>
             DEFAULT_DECK_TITLES.map(title =>
