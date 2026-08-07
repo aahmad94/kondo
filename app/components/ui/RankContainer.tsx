@@ -10,13 +10,16 @@ interface RankContainerProps {
   onRankClick?: (increment: boolean) => void | Promise<void>;
   className?: string;
   forceDarkMode?: boolean;
+  /** When true, tooltips include ↑/↓ keyboard shortcut hints (flashcard mode). */
+  showKeyboardHints?: boolean;
 }
 
 const RankContainer: React.FC<RankContainerProps> = ({ 
   rank, 
   onRankClick,
   className = '',
-  forceDarkMode = false
+  forceDarkMode = false,
+  showKeyboardHints = false,
 }) => {
   const [rankContainerOutline, setRankContainerOutline] = useState('#d93900');
   const [isUpChevronHovered, setIsUpChevronHovered] = useState(false);
@@ -57,7 +60,19 @@ const RankContainer: React.FC<RankContainerProps> = ({
     >
       {!isMobile ? (
         <Tooltip
-          content="Rank higher"
+          content={
+            showKeyboardHints ? (
+              <div>
+                <div className="text-white">Rank higher</div>
+                <div className="text-gray-300 flex items-center gap-1">
+                  <span className="text-sm">↑</span>
+                  <span>up arrow</span>
+                </div>
+              </div>
+            ) : (
+              'Rank higher'
+            )
+          }
           isVisible={isUpChevronHovered}
           buttonRef={upChevronRef}
         >
@@ -89,7 +104,19 @@ const RankContainer: React.FC<RankContainerProps> = ({
       
       {!isMobile ? (
         <Tooltip
-          content="Rank lower"
+          content={
+            showKeyboardHints ? (
+              <div>
+                <div className="text-white">Rank lower</div>
+                <div className="text-gray-300 flex items-center gap-1">
+                  <span className="text-sm">↓</span>
+                  <span>down arrow</span>
+                </div>
+              </div>
+            ) : (
+              'Rank lower'
+            )
+          }
           isVisible={isDownChevronHovered}
           buttonRef={downChevronRef}
         >
@@ -114,6 +141,7 @@ const RankContainer: React.FC<RankContainerProps> = ({
           <ChevronDownIcon className="h-5 w-5" />
         </button>
       )}
+
     </div>
   );
 };

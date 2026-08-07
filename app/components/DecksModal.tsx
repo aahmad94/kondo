@@ -5,6 +5,7 @@ import CreateDeckModal from './CreateDeckModal';
 import { useRouter } from 'next/navigation';
 import { FilterableDeckList } from './FilterableDeckList';
 import { StreakCelebrationModal } from './ui';
+import { trackAddToDeck } from '@/lib/analytics';
 
 interface Deck {
   id: string;
@@ -41,6 +42,8 @@ interface DecksModalProps {
   // the save endpoint so any QuotaConsumption rows can be migrated to the
   // new persisted id.
   tempResponseId?: string | null;
+  /** Optional response id for Amplitude (may be a temp id pre-persist). */
+  responseId?: string | null;
   onDeckCreated?: (newDeck: { id: string, title: string }) => void;
   onDeckSelect?: (id: string | null, title: string | null) => void;
   // Community import props
@@ -65,6 +68,7 @@ export default function DecksModal({
   isKanaEnabled,
   responseType = 'response',
   tempResponseId,
+  responseId,
   onDeckCreated,
   onDeckSelect,
   communityResponse,
@@ -159,6 +163,14 @@ export default function DecksModal({
       // Find the deck info regardless of celebration
       // Use provided deck if available (e.g., when just created), otherwise search in decks array
       const deck = providedDeck || decks.find(b => b.id === deckId);
+
+      // Amplitude: user added a response to a bookmark/deck
+      await trackAddToDeck(
+        result.response?.id || responseId || tempResponseId,
+        deckId,
+        deck?.title || providedDeck?.title || 'unknown',
+        { isCommunityImport: false }
+      );
       
       if (shouldCelebrate) {
         setStreakData({

@@ -30,7 +30,7 @@ import SpeakerButton from './ui/SpeakerButton';
 import IconButton from './ui/IconButton';
 import { StyledMarkdown, DeleteIcon, AliasBadge, ExpandableContent, DeckNavigationModal } from './ui';
 import Tooltip from './Tooltip';
-import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackAddToDeck } from '@/lib/analytics';
+import { trackBreakdownClick, trackPauseToggle, trackChangeRank } from '@/lib/analytics';
 import { checkGPTResponseDeletionImpactAction, deleteGPTResponseWithCascadeAction } from '../../actions/community';
 import { saveNoteAction } from '../../actions/notes';
 import { extractExpressions, prepareTextForSpeech, parseClarificationResponse } from '@/lib/utils';
@@ -495,7 +495,9 @@ export default function GPTResponse({
     const newRank = increment ? rank + 1 : rank - 1;
     if (newRank >= 1 && newRank <= 3) {
       await onRankUpdate(responseId, newRank);
-      await trackChangeRank(responseId, rank, newRank);
+      await trackChangeRank(responseId, rank, newRank, {
+        isCommunityImport: source === 'imported',
+      });
     }
   };
 
@@ -617,7 +619,11 @@ export default function GPTResponse({
       if (cachedBreakdown) {
         setCurrentBreakdownContent(cachedBreakdown);
         setIsBreakdownModalOpen(true);
-        if (responseId) await trackBreakdownClick(responseId);
+        if (responseId) {
+          await trackBreakdownClick(responseId, {
+            isCommunityImport: source === 'imported',
+          });
+        }
         // Fire-and-forget: record the usage on the server but don't block the
         // modal opening on the round-trip. Free users over quota may briefly
         // see one extra cached breakdown; the trade-off is instant open.
@@ -634,7 +640,11 @@ export default function GPTResponse({
       // Generate the breakdown we need - show external loading for initial click
       await generateBreakdown(currentIsMobile, true);
       setIsBreakdownModalOpen(true);
-      if (responseId) await trackBreakdownClick(responseId);
+      if (responseId) {
+        await trackBreakdownClick(responseId, {
+          isCommunityImport: source === 'imported',
+        });
+      }
     } catch (error: any) {
       setErrorMessage(error.message || 'Failed to generate breakdown');
       setIsErrorModalOpen(true);
@@ -724,7 +734,9 @@ export default function GPTResponse({
   const handlePauseToggle = async (responseId: string, newIsPaused: boolean) => {
     if (!onPauseToggle) return;
     await onPauseToggle(responseId, newIsPaused);
-    await trackPauseToggle(newIsPaused);
+    await trackPauseToggle(newIsPaused, {
+      isCommunityImport: source === 'imported',
+    });
   };
 
   const handleShareToCommunity = async () => {
@@ -743,12 +755,6 @@ export default function GPTResponse({
       console.error('Error sharing to community:', error);
     } finally {
       setIsSharing(false);
-    }
-  };
-
-  const handleAddToDeck = async (deckId: string, deckTitle: string) => {
-    if (responseId) {
-      await trackAddToDeck(responseId, deckId, deckTitle);
     }
   };
 
@@ -852,6 +858,7 @@ export default function GPTResponse({
                 <RankContainer 
                   rank={rank} 
                   onRankClick={onRankClick}
+                  showKeyboardHints={selectedDeckTitle === 'flashcard'}
                 />
               )}
 
@@ -1400,6 +1407,7 @@ export default function GPTResponse({
           // Forwarded to the save endpoint so the server can carry over any
           // QuotaConsumption rows from the temp to the new persisted id.
           tempResponseId={responseId && responseId.includes('temp') ? responseId : null}
+          responseId={responseId}
           onDeckCreated={onDeckCreated}
           onDeckSelect={onDeckSelect}
           onDecksRefresh={onDecksRefresh}

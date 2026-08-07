@@ -93,6 +93,11 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
   const suppressIncomingAudioRef = useRef<boolean>(false);
   const isMutedRef = useRef<boolean>(false);
   const transcriptEndRef = useRef<HTMLDivElement | null>(null);
+  // Generation counter: teardown() bumps this so any in-flight startSession
+  // (awaiting the session mint or getUserMedia) abandons work instead of
+  // re-attaching a live Grok voice WebSocket after the modal has closed.
+  const sessionGenRef = useRef(0);
+  const sessionAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     isMutedRef.current = isMuted;
@@ -124,12 +129,29 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
   }, []);
 
   const teardown = useCallback(() => {
+    // Invalidate any in-flight startSession / ws.onopen work first so async
+    // continuations cannot re-open mic or keep a WebSocket after close.
+    sessionGenRef.current += 1;
+    if (sessionAbortRef.current) {
+      sessionAbortRef.current.abort();
+      sessionAbortRef.current = null;
+    }
     if (playbackEndTimerRef.current) {
       clearTimeout(playbackEndTimerRef.current);
       playbackEndTimerRef.current = null;
     }
     setIsAudioPlaying(false);
     suppressIncomingAudioRef.current = false;
+    // Stop scheduled playback before closing the output context so audio
+    // does not keep playing after the modal is dismissed.
+    for (const src of playingSourcesRef.current) {
+      try {
+        src.stop();
+      } catch {}
+      try {
+        src.disconnect();
+      } catch {}
+    }
     playingSourcesRef.current.clear();
     try {
       processorRef.current?.disconnect();
@@ -151,12 +173,23 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
       outputAudioCtxRef.current?.close();
     } catch {}
     outputAudioCtxRef.current = null;
-    try {
-      if (wsRef.current && wsRef.current.readyState <= 1) {
-        wsRef.current.close();
-      }
-    } catch {}
+    const ws = wsRef.current;
     wsRef.current = null;
+    if (ws) {
+      // Drop handlers so late events from a closing socket cannot update state
+      // or keep the logical session alive after teardown.
+      try {
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
+      } catch {}
+      try {
+        if (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      } catch {}
+    }
     playbackCursorRef.current = 0;
   }, []);
 
@@ -305,6 +338,14 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
   }, []);
 
   const startSession = useCallback(async () => {
+    // Claim a generation id for this attempt. teardown() increments the ref,
+    // so any await that resumes after close will see a mismatch and bail out.
+    const sessionGen = ++sessionGenRef.current;
+    const abortController = new AbortController();
+    sessionAbortRef.current = abortController;
+
+    const isStale = () => sessionGenRef.current !== sessionGen;
+
     setErrorMsg(null);
     setStatus('connecting');
     setTranscript([]);
@@ -314,10 +355,14 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ responseText, language }),
+        signal: abortController.signal,
       });
+
+      if (isStale()) return;
 
       if (!sessionRes.ok) {
         const err = await sessionRes.json().catch(() => ({}));
+        if (isStale()) return;
         const msg =
           err.error === 'QUOTA_EXCEEDED' && err.message
             ? err.message
@@ -326,6 +371,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
       }
 
       const { value: token, instructions, model } = await sessionRes.json();
+      if (isStale()) return;
       if (!token) throw new Error('Missing ephemeral token');
 
       const voiceModel =
@@ -337,24 +383,43 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
         `wss://api.x.ai/v1/realtime?model=${voiceModel}`,
         [`xai-client-secret.${token}`]
       );
+
+      // Modal may have closed between token mint and socket construction.
+      if (isStale()) {
+        try {
+          ws.close();
+        } catch {}
+        return;
+      }
+
       wsRef.current = ws;
 
       ws.onopen = async () => {
-        ws.send(
-          JSON.stringify({
-            type: 'session.update',
-            session: {
-              voice: 'eve',
-              instructions,
-              turn_detection: { type: 'server_vad' },
-              audio: {
-                input: { format: { type: 'audio/pcm', rate: SAMPLE_RATE } },
-                output: { format: { type: 'audio/pcm', rate: SAMPLE_RATE } },
-              },
-            },
-          })
-        );
+        if (isStale() || wsRef.current !== ws) {
+          try {
+            ws.close();
+          } catch {}
+          return;
+        }
 
+        try {
+          ws.send(
+            JSON.stringify({
+              type: 'session.update',
+              session: {
+                voice: 'eve',
+                instructions,
+                turn_detection: { type: 'server_vad' },
+                audio: {
+                  input: { format: { type: 'audio/pcm', rate: SAMPLE_RATE } },
+                  output: { format: { type: 'audio/pcm', rate: SAMPLE_RATE } },
+                },
+              },
+            })
+          );
+        } catch {
+          return;
+        }
 
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
@@ -364,6 +429,17 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
               autoGainControl: true,
             },
           });
+
+          // User closed the modal while the mic permission prompt was open,
+          // or teardown raced the await — release the stream and do not attach.
+          if (isStale() || wsRef.current !== ws) {
+            stream.getTracks().forEach((t) => t.stop());
+            try {
+              ws.close();
+            } catch {}
+            return;
+          }
+
           micStreamRef.current = stream;
 
           const AudioCtxCtor =
@@ -393,8 +469,14 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
           source.connect(processor);
           processor.connect(inputCtx.destination);
 
+          if (isStale() || wsRef.current !== ws) {
+            teardown();
+            return;
+          }
+
           setStatus('listening');
         } catch (micErr: any) {
+          if (isStale()) return;
           console.error('Mic error:', micErr);
           setErrorMsg('Microphone access is required.');
           setStatus('error');
@@ -404,20 +486,33 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
       ws.onmessage = handleMessage;
 
       ws.onerror = (e) => {
+        if (isStale() || wsRef.current !== ws) return;
         console.error('WebSocket error:', e);
         setErrorMsg('Connection error');
         setStatus('error');
       };
 
       ws.onclose = () => {
+        if (isStale() || wsRef.current !== ws) return;
         setStatus('idle');
       };
     } catch (err: any) {
+      // AbortError is expected when the modal closes mid-fetch — not an error UI.
+      if (err?.name === 'AbortError' || isStale()) return;
       console.error('Voice session error:', err);
       setErrorMsg(err?.message || 'Failed to start voice session');
       setStatus('error');
     }
-  }, [responseText, language, handleMessage]);
+  }, [responseText, language, handleMessage, teardown]);
+
+  const handleClose = useCallback(() => {
+    teardown();
+    setStatus('idle');
+    setTranscript([]);
+    setErrorMsg(null);
+    setIsMuted(false);
+    onClose();
+  }, [teardown, onClose]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -425,6 +520,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
       setStatus('idle');
       setTranscript([]);
       setErrorMsg(null);
+      setIsMuted(false);
       return;
     }
     startSession();
@@ -463,7 +559,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
       <div className="bg-card border border-border p-6 rounded-sm w-[560px] max-w-[92vw] max-h-[85vh] flex flex-col">
         <div className="flex justify-end items-center pb-2 flex-shrink-0">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Close voice chat"
           >
@@ -555,7 +651,7 @@ const VoiceChatModal: React.FC<VoiceChatModalProps> = ({
             <span>Interject</span>
           </button>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
           >
             End
