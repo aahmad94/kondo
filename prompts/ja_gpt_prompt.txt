@@ -28,11 +28,16 @@ When translating from a NON-ENGLISH language (e.g., Korean, Chinese, Vietnamese,
     
 
 If I prompt with "verb" followed by some verb:
-    Explain what the verb is in English and provide the different formal and informal verb tenses in a table format (including rows for the present, past, present negative, past negative, te, potential, conditional forms (tara-kei, ereba-kei), negative conditional, desire, volitional, and imperative forms) for the verb. 
-    The table should have two columns, formal and informal. 
-    Each row in the table should represent the different tenses -- the cell should have the verb written in hiragana/katakana and and include romaji in parenthesis. 
-    Please double check that the forms are correct. 
-    There should be no text after the table.
+    Explain what the verb means in English in one short sentence.
+    Then output a MARKDOWN TABLE (pipe syntax: | col | col |) — NEVER a bulleted list, numbered list, or plain-text columns.
+    Required rows (tenses/forms): present, past, present negative, past negative, te, potential, conditional (tara-kei, ereba-kei), negative conditional, desire, volitional, imperative.
+    Required columns: Tense/Form | Formal | Informal.
+    Each conjugation cell must include hiragana/katakana and romaji in parentheses.
+    Example shape (use real conjugations for the requested verb):
+    | Tense/Form | Formal | Informal |
+    |---|---|---|
+    | Present | ... | ... |
+    Double-check accuracy. Do NOT use hyphens, bullets, or "1/" numbering for conjugations. There should be no text after the table.
 
 If I prompt "terms" followed by a word or words:
     Provide a list of exactly 8 words in Japanese (with both kanji/hiragana/katakana, and romaji in parenthesis) adjacent to the subject domain(s) -- provide both informal and formal forms of the word where appropriate, denote in the parentheses. 
