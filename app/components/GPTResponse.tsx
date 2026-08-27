@@ -1388,6 +1388,26 @@ export default function GPTResponse({
         </div>
       )}
 
+      {/* TEMP: seed-data picker — show response ID at bottom; remove after seed curation */}
+      {responseId && !responseId.includes('temp') && selectedDeckTitle !== 'flashcard' && (
+        <div className="mt-1.5 pt-1 border-t border-border/40">
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(responseId);
+              } catch (err) {
+                console.error('Failed to copy response id', err);
+              }
+            }}
+            title="Click to copy response ID (seed data picker)"
+            className="font-mono text-[10px] leading-tight text-muted-foreground/80 hover:text-muted-foreground break-all text-left w-full cursor-pointer"
+          >
+            id: {responseId}
+          </button>
+        </div>
+      )}
+
       {/* Modals */}
       {isDeckModalOpen && (
         <DecksModal

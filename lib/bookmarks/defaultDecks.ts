@@ -1,10 +1,13 @@
 /**
  * Canonical default decks created for every user × language.
- * Used on signup (all active languages) and when a language has no decks yet
- * (language preference switch).
+ * Used on signup (all active languages) and on language switch
+ * (ensure each title exists; create missing ones).
  *
  * Seed content targets: travel, counting, alphabet, verbs, introductions.
  * `daily summary` is reserved/system and stays empty of seed cards.
+ *
+ * When seed catalog ships: copy SeedResponse → GPTResponse with source='seed'
+ * (not shareable to community). See temp-sql/IMPLEMENTATION-PLAN.md.
  */
 export const DEFAULT_DECK_TITLES = [
   'travel',
