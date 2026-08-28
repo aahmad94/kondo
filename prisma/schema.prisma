@@ -184,6 +184,8 @@ model Bookmark {
   user             User              @relation(fields: [userId], references: [id])
   responses        GPTResponse[]     @relation("BookmarksToResponses")
   communityImports CommunityImport[]
+
+  @@unique([userId, languageId, title])
 }
 
 // Fixed catalog of default-deck cards. Copied into per-user GPTResponse rows
