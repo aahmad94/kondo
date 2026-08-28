@@ -6,7 +6,8 @@ import {
   sendDailyEmailsFunction, 
   sendWeeklyEmailsFunction, 
   buildDojoReportFunction,
-  retryFailedSummaryFunction
+  retryFailedSummaryFunction,
+  provisionUserSeedDecksFunction
 } from '@/lib/inngest';
 
 // Initialize the Inngest client
@@ -243,6 +244,7 @@ export default serve({
     buildDojoReportFunction,
     retryFailedSummaryFunction,
     sendDailyEmailsFunction,
-    sendWeeklyEmailsFunction
+    sendWeeklyEmailsFunction,
+    provisionUserSeedDecksFunction,
   ],
 });

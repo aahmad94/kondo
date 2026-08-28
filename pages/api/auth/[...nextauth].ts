@@ -2,11 +2,14 @@
 import NextAuth, { DefaultSession, NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { Inngest } from 'inngest'
 import {
   prisma,
+  ensureDefaultBookmarksForAllActiveLanguages,
   ensureDefaultDecksAndSeeds,
-  ensureDefaultDecksAndSeedsForAllActiveLanguages,
 } from '@/lib'
+
+const inngest = new Inngest({ id: 'Kondo' })
 
 declare module "next-auth" {
   interface Session {
@@ -44,9 +47,10 @@ export const authOptions: NextAuthOptions = {
         });
         user.id = newUser.id;
 
-        await ensureDefaultDecksAndSeedsForAllActiveLanguages(newUser.id);
+        // Empty default decks for every language are cheap. Seed *copies*
+        // for Japanese only in this request so Vercel does not 504.
+        await ensureDefaultBookmarksForAllActiveLanguages(newUser.id);
 
-        // Set Japanese as the default language preference
         const japanese = await prisma.language.findUnique({
           where: { code: 'ja' },
           select: { id: true }
@@ -59,6 +63,19 @@ export const authOptions: NextAuthOptions = {
               languageId: japanese.id
             }
           });
+          await ensureDefaultDecksAndSeeds(newUser.id, japanese.id);
+        }
+
+        try {
+          await inngest.send({
+            name: 'user.provision.seed-decks',
+            data: {
+              userId: newUser.id,
+              skipLanguageId: japanese?.id,
+            },
+          });
+        } catch (error) {
+          console.error('Failed to enqueue seed provision for other languages', error);
         }
       } else {
         user.id = existingUser.id;
