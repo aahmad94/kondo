@@ -83,12 +83,12 @@ export async function ensureDefaultDecksAndSeeds(userId: string, languageId: str
             breakdown: seed.breakdown,
             mobileBreakdown: seed.mobileBreakdown,
             source: 'seed',
-            seedResponseId: seed.id,
             isFuriganaEnabled: isJapanese,
             isPhoneticEnabled: true,
             isKanaEnabled: !isJapanese,
             user: { connect: { id: userId } },
             language: { connect: { id: languageId } },
+            seedResponse: { connect: { id: seed.id } },
             bookmarks: { connect: { id: bookmark.id } },
           },
         });
