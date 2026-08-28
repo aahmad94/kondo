@@ -102,6 +102,7 @@ model Language {
   bookmarks         Bookmark[]
   dailySummaries    DailySummary[]
   responses         GPTResponse[]
+  seedResponses     SeedResponse[]
   userPreferences   UserLanguagePreference[]
   subscriptions     UserLanguageSubscription[]
   communityResponses CommunityResponse[]
@@ -155,6 +156,7 @@ model GPTResponse {
   responseType        String               @default("response")
   source              String               @default("local")
   communityResponseId String?
+  seedResponseId      String?
   note                String?
   language            Language             @relation(fields: [languageId], references: [id])
   user                User                 @relation(fields: [userId], references: [id])
@@ -163,6 +165,10 @@ model GPTResponse {
   communityResponse   CommunityResponse?   @relation("ImportedResponses", fields: [communityResponseId], references: [id])
   originalCommunityPost CommunityResponse? @relation("OriginalResponses")
   communityImport     CommunityImport?
+  seedResponse        SeedResponse?        @relation(fields: [seedResponseId], references: [id])
+
+  @@index([seedResponseId])
+  @@unique([userId, seedResponseId])
 }
 
 model Bookmark {
@@ -170,13 +176,41 @@ model Bookmark {
   title            String
   userId           String
   languageId       String
-  isReserved       Boolean           @default(false)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  isReserved         Boolean           @default(false)
+  seedProvisionedAt  DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
   language         Language          @relation(fields: [languageId], references: [id])
   user             User              @relation(fields: [userId], references: [id])
   responses        GPTResponse[]     @relation("BookmarksToResponses")
   communityImports CommunityImport[]
+}
+
+// Fixed catalog of default-deck cards. Copied into per-user GPTResponse rows
+// (source = "seed") on signup / language switch. Audio stays here and is
+// shared; user copies do not duplicate the blob.
+model SeedResponse {
+  id                String        @id @default(cuid())
+  languageId        String
+  deckTitle         String
+  sortOrder         Int
+  content           String
+  responseType      String        @default("response")
+  rank              Int           @default(1)
+  furigana          String?
+  breakdown         String?
+  mobileBreakdown   String?
+  audio             String?
+  audioMimeType     String?
+  sourceResponseId  String?       @unique
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  language          Language      @relation(fields: [languageId], references: [id])
+  copies            GPTResponse[]
+
+  @@unique([languageId, deckTitle, sortOrder])
+  @@index([languageId, deckTitle])
 }
 
 model DailySummary {
