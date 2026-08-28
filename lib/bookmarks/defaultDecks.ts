@@ -20,9 +20,24 @@ export const DEFAULT_DECK_TITLES = [
 
 export type DefaultDeckTitle = (typeof DEFAULT_DECK_TITLES)[number];
 
+/** Learning decks that receive SeedResponse copies. Not daily summary. */
+export const SEEDABLE_DECK_TITLES = [
+  'travel',
+  'counting',
+  'alphabet',
+  'verbs',
+  'introductions',
+] as const;
+
+export type SeedableDeckTitle = (typeof SEEDABLE_DECK_TITLES)[number];
+
 /** Deck titles that cannot be deleted / are system-managed */
 export const RESERVED_DECK_TITLES = ['daily summary', 'all responses'] as const;
 
 export function isReservedDeckTitle(title: string): boolean {
   return (RESERVED_DECK_TITLES as readonly string[]).includes(title);
+}
+
+export function isSeedableDeckTitle(title: string): title is SeedableDeckTitle {
+  return (SEEDABLE_DECK_TITLES as readonly string[]).includes(title);
 }
