@@ -327,7 +327,12 @@ export async function convertTextToSpeech(text: string, language: string, respon
     if (responseId) {
       const existingResponse = await prisma.gPTResponse.findUnique({
         where: { id: responseId },
-        select: { audio: true, audioMimeType: true }
+        select: {
+          audio: true,
+          audioMimeType: true,
+          source: true,
+          seedResponseId: true,
+        }
       });
 
       if (existingResponse?.audio && existingResponse?.audioMimeType) {
@@ -342,6 +347,21 @@ export async function convertTextToSpeech(text: string, language: string, respon
           audio: existingResponse.audio,
           mimeType: existingResponse.audioMimeType
         };
+      }
+
+      // Seed copies share catalog audio instead of duplicating the blob
+      if (existingResponse?.seedResponseId) {
+        const catalog = await prisma.seedResponse.findUnique({
+          where: { id: existingResponse.seedResponseId },
+          select: { audio: true, audioMimeType: true },
+        });
+        if (catalog?.audio && catalog?.audioMimeType) {
+          await commitQuota();
+          return {
+            audio: catalog.audio,
+            mimeType: catalog.audioMimeType,
+          };
+        }
       }
     }
 
@@ -378,10 +398,19 @@ export async function convertTextToSpeech(text: string, language: string, respon
     // Only save to database if we have a responseId and the response exists
     if (responseId) {
       const responseExists = await prisma.gPTResponse.findUnique({
-        where: { id: responseId }
+        where: { id: responseId },
+        select: { id: true, seedResponseId: true, source: true },
       });
 
-      if (responseExists) {
+      if (responseExists?.seedResponseId) {
+        await prisma.seedResponse.update({
+          where: { id: responseExists.seedResponseId },
+          data: {
+            audio: audioBase64,
+            audioMimeType: audioBlob.type,
+          },
+        });
+      } else if (responseExists) {
         await prisma.gPTResponse.update({
           where: { id: responseId },
           data: {

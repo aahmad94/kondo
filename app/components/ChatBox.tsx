@@ -72,7 +72,7 @@ interface Response {
   audio?: string | null;
   audioMimeType?: string | null;
   responseType?: 'clarification' | 'response' | 'instruction';
-  source?: 'local' | 'imported';
+  source?: 'local' | 'imported' | 'seed';
   communityResponseId?: string | null;
   communityResponse?: {
     id: string;
@@ -101,7 +101,7 @@ interface BookmarkResponse {
   audio?: string | null;
   audioMimeType?: string | null;
   responseType?: 'clarification' | 'response' | 'instruction';
-  source?: 'local' | 'imported';
+  source?: 'local' | 'imported' | 'seed';
   communityResponseId?: string | null;
   communityResponse?: {
     id: string;
