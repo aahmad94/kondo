@@ -46,6 +46,13 @@ export async function shareToCommunity(userId: string, responseId: string): Prom
       return { success: false, error: 'You can only share your own responses' };
     }
 
+    if (gptResponse.source === 'seed' || gptResponse.source === 'imported') {
+      return {
+        success: false,
+        error: 'Default and imported responses cannot be shared to the community'
+      };
+    }
+
     // Check if already shared
     const existingCommunityResponse = await prisma.communityResponse.findUnique({
       where: { originalResponseId: responseId }

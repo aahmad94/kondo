@@ -2,7 +2,11 @@
 import NextAuth, { DefaultSession, NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { prisma } from '@/lib'
+import {
+  prisma,
+  ensureDefaultDecksAndSeeds,
+  ensureDefaultDecksAndSeedsForAllActiveLanguages,
+} from '@/lib'
 
 declare module "next-auth" {
   interface Session {
@@ -40,35 +44,7 @@ export const authOptions: NextAuthOptions = {
         });
         user.id = newUser.id;
 
-        // Get all active languages
-        const languages = await prisma.language.findMany({
-          where: {
-            isActive: true
-          },
-          select: { id: true }
-        });
-
-        if (languages.length === 0) {
-          console.error('No active languages found in database');
-          return false;
-        }
-
-        // Create default bookmarks for each language
-        const defaultBookmarks = ['travel', 'counting', 'verbs', 'daily summary'];
-        await Promise.all(
-          languages.flatMap(language => 
-            defaultBookmarks.map(title => 
-              prisma.bookmark.create({
-                data: {
-                  title,
-                  userId: newUser.id,
-                  languageId: language.id,
-                  isReserved: title === 'daily summary' || title === 'all responses'
-                }
-              })
-            )
-          )
-        );
+        await ensureDefaultDecksAndSeedsForAllActiveLanguages(newUser.id);
 
         // Set Japanese as the default language preference
         const japanese = await prisma.language.findUnique({
@@ -86,6 +62,13 @@ export const authOptions: NextAuthOptions = {
         }
       } else {
         user.id = existingUser.id;
+        const preference = await prisma.userLanguagePreference.findUnique({
+          where: { userId: existingUser.id },
+          select: { languageId: true },
+        });
+        if (preference) {
+          await ensureDefaultDecksAndSeeds(existingUser.id, preference.languageId);
+        }
       }
       return true;
     },

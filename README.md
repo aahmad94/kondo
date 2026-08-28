@@ -9,7 +9,7 @@ A language learning platform and to generate and organize AI-powered language le
 
 ## ✨ Key Features
 
-- **🎯 AI-Generated Study Material** - Generate contextualized language learning content using OpenAI and organize it into personalized study decks
+- **🎯 AI-Generated Study Material** - Generate contextualized language learning content using xAI Grok and organize it into personalized study decks
 - **👥 Community Feed** - Share and discover language learning content from the community, learn from others' examples, and contribute your own insights
 - **📊 Smart Ranking System** - Rank and organize responses in your study decks to prioritize study material based on difficulty and mastery
 - **🥋 Daily Dojo Sessions** - Automatically compile lower-ranked responses from all study decks into focused daily study sessions
@@ -29,7 +29,7 @@ A language learning platform and to generate and organize AI-powered language le
 - Node.js 18+ and npm
 - PostgreSQL database
 - Google OAuth credentials
-- OpenAI API key
+- xAI API key (for chat, breakdowns, and reading aids)
 
 ### Installation
 
@@ -65,7 +65,7 @@ A language learning platform and to generate and organize AI-powered language le
    - `NEXTAUTH_URL`: Your app URL (http://localhost:3000 for development)
    - `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
    - `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`: [Get from Google Console](https://console.developers.google.com/)
-   - `OPENAI_API_KEY`: [Get from OpenAI](https://platform.openai.com/api-keys)
+   - `XAI_API_KEY`: [Get from xAI](https://console.x.ai/) — text generation (chat, breakdowns, furigana) via Grok 4.5
 
    **Optional Variables:**
    - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY`: For enhanced search

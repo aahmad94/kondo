@@ -20,7 +20,7 @@ interface SearchResult {
   mobileBreakdown: string | null;
   responseType?: 'clarification' | 'response' | 'instruction';
   bookmarks: Record<string, string>;
-  source?: 'local' | 'imported';
+  source?: 'local' | 'imported' | 'seed';
   communityResponseId?: string | null;
   communityResponse?: {
     id: string;

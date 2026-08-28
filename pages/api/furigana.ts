@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib';
 import { getCommunityFurigana } from '@/lib/community';
+import { DEFAULT_LLM_MODEL } from '@/lib/gpt/aiConfig';
 import fs from 'fs';
 import path from 'path';
 
@@ -60,7 +61,7 @@ async function handleClarificationFurigana(
       body: JSON.stringify({ 
         prompt: prompt,
         languageCode: 'ja',
-        model: 'gpt-4o'
+        model: DEFAULT_LLM_MODEL
       }),
     });
 
@@ -187,7 +188,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       body: JSON.stringify({ 
         prompt: prompt,
         languageCode: 'ja',
-        model: 'gpt-4o'
+        model: DEFAULT_LLM_MODEL
       }),
     });
 

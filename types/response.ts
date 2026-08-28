@@ -21,7 +21,7 @@ export interface GPTResponseData extends BaseResponseData {
   isPhoneticEnabled: boolean;
   isKanaEnabled: boolean;
   responseType?: 'clarification' | 'response' | 'instruction';
-  source: 'local' | 'imported';
+  source: 'local' | 'imported' | 'seed';
   communityResponseId?: string | null;
   decks?: Record<string, string>;
   note?: string | null;

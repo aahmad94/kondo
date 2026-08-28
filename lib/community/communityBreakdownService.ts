@@ -1,6 +1,7 @@
 import 'server-only';
 import prisma from '../database/prisma';
 import { gateDailyResponseFeature } from '../stripe/subscriptionService';
+import { DEFAULT_LLM_MODEL } from '../gpt/aiConfig';
 import fs from 'fs';
 import path from 'path';
 
@@ -148,7 +149,7 @@ async function generateCommunityBreakdown(
       body: JSON.stringify({ 
         prompt: combinedContent,
         systemPrompt: breakdownSystemPrompt,
-        model: 'gpt-4o'
+        model: DEFAULT_LLM_MODEL
       }),
     });
 

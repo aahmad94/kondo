@@ -9,9 +9,12 @@ import {
   incrementResponseUsage,
   quotaExceededResponse,
 } from '@/lib/stripe/subscriptionService';
+import { DEFAULT_LLM_MODEL, XAI_BASE_URL } from '@/lib/gpt/aiConfig';
 
+// Text generation via xAI (OpenAI-compatible). Requires XAI_API_KEY.
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.XAI_API_KEY,
+  baseURL: XAI_BASE_URL,
 });
 
 // Read prompts from files
@@ -29,6 +32,10 @@ export default async function handler(
   }
 
   try {
+    if (!process.env.XAI_API_KEY) {
+      return res.status(503).json({ message: 'XAI_API_KEY is not configured' });
+    }
+
     const session = await getServerSession(req, res, authOptions);
     const userId = (session as any)?.userId || (session?.user as any)?.id;
 
@@ -40,7 +47,7 @@ export default async function handler(
       }
     }
 
-    const { prompt, languageCode = 'ja', model = 'gpt-4o', systemPrompt: customSystemPrompt, responseType = 'response' } = req.body;
+    const { prompt, languageCode = 'ja', model = DEFAULT_LLM_MODEL, systemPrompt: customSystemPrompt, responseType = 'response' } = req.body;
 
     // Use custom system prompt if provided, otherwise use default language prompt
     const systemPrompt = customSystemPrompt || getPromptFromFile(languageCode);

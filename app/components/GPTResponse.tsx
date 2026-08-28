@@ -71,7 +71,7 @@ interface GPTResponseProps {
   onGenerateSummary?: (forceRefresh?: boolean) => Promise<void>;
   onDeckSelect?: (id: string | null, title: string | null) => void;
   onShare?: (responseId: string) => Promise<void>;
-  source?: 'local' | 'imported';
+  source?: 'local' | 'imported' | 'seed';
   communityResponseId?: string | null;
   communityResponse?: {
     id: string;
@@ -160,7 +160,7 @@ export default function GPTResponse({
   const [addedDeckInfo, setAddedDeckInfo] = useState<{ id: string; title: string } | null>(null);
   
   // Determine if share button should be disabled
-  const isShareDisabled = source === 'imported' || isSharedToCommunity || isSharing;
+  const isShareDisabled = source === 'imported' || source === 'seed' || isSharedToCommunity || isSharing;
 
   const router = useRouter();
   const pauseButtonRef = React.useRef<HTMLButtonElement>(null);

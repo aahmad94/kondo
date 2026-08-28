@@ -30,7 +30,7 @@ interface BreakdownModalProps {
   onAudioCached?: (audio: { audio: string; mimeType: string }) => void;
   onError?: (error: string) => void;
   onToggleView?: (toTextView: boolean) => void;
-  source?: 'local' | 'imported';
+  source?: 'local' | 'imported' | 'seed';
   communityResponse?: {
     id: string;
     isActive: boolean;
