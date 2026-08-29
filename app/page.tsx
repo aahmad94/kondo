@@ -198,6 +198,8 @@ export default function Home() {
     trackLanguageChange(selectedLanguage || 'ja', languageCode);
     setSelectedLanguage(languageCode);
     handleDeckSelect(null, null);
+    // Seed copies run in the background; refetch decks once they land.
+    window.setTimeout(() => triggerDecksRefresh(), 2500);
   };
 
   // While we're resolving the initial landing page / deck selection,

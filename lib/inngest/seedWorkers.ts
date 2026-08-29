@@ -10,10 +10,18 @@ export const provisionUserSeedDecksFunction = inngest.createFunction(
     triggers: [{ event: 'user.provision.seed-decks' }],
   },
   async ({ event, step }) => {
-    const { userId, skipLanguageId } = event.data as {
+    const { userId, skipLanguageId, languageId } = event.data as {
       userId: string;
       skipLanguageId?: string;
+      languageId?: string;
     };
+
+    if (languageId) {
+      await step.run('seed-one-language', async () => {
+        await ensureDefaultDecksAndSeeds(userId, languageId);
+      });
+      return { userId, languageId };
+    }
 
     const languages = await step.run('list-languages', async () => {
       return prisma.language.findMany({
