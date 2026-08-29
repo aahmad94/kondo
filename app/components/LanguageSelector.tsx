@@ -4,7 +4,6 @@ import { Fragment, useEffect, useState } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { ChevronUpDownIcon } from '@heroicons/react/24/solid'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import { trackLanguageChange } from '@/lib/analytics';
 
 interface Language {
@@ -23,7 +22,6 @@ export default function LanguageSelector({ onClearDeck, onLanguageChange }: Lang
   const [languages, setLanguages] = useState<Language[]>([]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchLanguageData = async () => {
@@ -63,6 +61,21 @@ export default function LanguageSelector({ onClearDeck, onLanguageChange }: Lang
 
   const handleLanguageChange = async (language: Language) => {
     if (!session?.userId) return;
+    if (selectedLanguage?.id === language.id) return;
+
+    const previous = selectedLanguage;
+
+    // Optimistic: the selector used to wait for seed copies to finish, so a
+    // click looked like a no-op until refresh.
+    await trackLanguageChange(previous?.code || 'ja', language.code);
+    setSelectedLanguage(language);
+    localStorage.setItem('preferredLanguage', JSON.stringify({
+      code: language.code,
+      id: language.id,
+      name: language.name
+    }));
+    onClearDeck();
+    onLanguageChange(language.code);
 
     try {
       const response = await fetch('/api/updateLanguagePreference', {
@@ -76,27 +89,20 @@ export default function LanguageSelector({ onClearDeck, onLanguageChange }: Lang
         }),
       });
 
-      if (response.ok) {
-        // Track language change before updating state
-        await trackLanguageChange(selectedLanguage?.code || 'ja', language.code);
-        setSelectedLanguage(language);
-        // Store language in local storage
-        localStorage.setItem('preferredLanguage', JSON.stringify({
-          code: language.code,
-          id: language.id,
-          name: language.name
-        }));
-        // Clear the deck selection
-        onClearDeck();
-        // Update the language in the parent component
-        onLanguageChange(language.code);
-        // Navigate to the base path without query parameters
-        router.push('/');
-        // Trigger a refetch of decks to get the ones for the new language
-        await fetch(`/api/getBookmarks?userId=${session.userId}`);
+      if (!response.ok) {
+        throw new Error('Failed to update language preference');
       }
     } catch (error) {
       console.error('Error updating language preference:', error);
+      if (previous) {
+        setSelectedLanguage(previous);
+        onLanguageChange(previous.code);
+        localStorage.setItem('preferredLanguage', JSON.stringify({
+          code: previous.code,
+          id: previous.id,
+          name: previous.name
+        }));
+      }
     }
   };
 

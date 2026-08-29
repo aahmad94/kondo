@@ -1,5 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { Inngest } from 'inngest';
 import { prisma, ensureDefaultDecksAndSeeds } from '@/lib';
+
+const inngest = new Inngest({ id: 'Kondo' });
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,7 +19,6 @@ export default async function handler(
   }
 
   try {
-    // Upsert the language preference
     const preference = await prisma.userLanguagePreference.upsert({
       where: {
         userId: userId,
@@ -30,7 +32,19 @@ export default async function handler(
       },
     });
 
-    await ensureDefaultDecksAndSeeds(userId, languageId);
+    // Do not block the language switch on seed copies. Return immediately so
+    // the selector updates; provision in the background.
+    try {
+      await inngest.send({
+        name: 'user.provision.seed-decks',
+        data: { userId, languageId },
+      });
+    } catch (error) {
+      console.error('Failed to enqueue seed provision; running inline', error);
+      void ensureDefaultDecksAndSeeds(userId, languageId).catch((seedError) => {
+        console.error('Inline seed provision failed', seedError);
+      });
+    }
 
     return res.status(200).json(preference);
   } catch (error) {
