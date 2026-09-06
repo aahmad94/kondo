@@ -9,13 +9,15 @@ import {
   incrementResponseUsage,
   quotaExceededResponse,
 } from '@/lib/stripe/subscriptionService';
-import { DEFAULT_LLM_MODEL, XAI_BASE_URL } from '@/lib/gpt/aiConfig';
+import { DEFAULT_LLM_MODEL } from '@/lib/gpt/aiConfig';
 
-// Text generation via xAI (OpenAI-compatible). Requires XAI_API_KEY.
 const openai = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: XAI_BASE_URL,
+  apiKey: process.env.OPENAI_API_KEY,
 });
+
+export const config = {
+  maxDuration: 60,
+};
 
 // Read prompts from files
 const getPromptFromFile = (languageCode: string): string => {
@@ -32,8 +34,8 @@ export default async function handler(
   }
 
   try {
-    if (!process.env.XAI_API_KEY) {
-      return res.status(503).json({ message: 'XAI_API_KEY is not configured' });
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ message: 'OPENAI_API_KEY is not configured' });
     }
 
     const session = await getServerSession(req, res, authOptions);

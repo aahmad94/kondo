@@ -1,10 +1,7 @@
 /**
- * Shared AI provider config for text generation (chat, breakdowns, furigana).
- * Uses xAI's OpenAI-compatible API: https://docs.x.ai
+ * Shared model id for text generation (chat, breakdowns, furigana).
+ * Chat completions go through OpenAI via pages/api/openai.ts.
  */
 
 /** Default model for study content, breakdowns, and reading aids. */
-export const DEFAULT_LLM_MODEL = 'grok-4.5';
-
-/** xAI OpenAI-compatible base URL */
-export const XAI_BASE_URL = 'https://api.x.ai/v1';
+export const DEFAULT_LLM_MODEL = 'gpt-4o';

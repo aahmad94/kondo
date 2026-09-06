@@ -696,7 +696,7 @@ export default function ChatBox({
     const submitResponse = `* Breakdown the following phrase:\n\n${response}`;
 
     if (type === 'breakdown') {
-      handleSubmit(submitResponse, DEFAULT_LLM_MODEL);
+      handleSubmit(submitResponse, 'gpt-4o-mini');
       setResponseQuote(null); // Clear any existing quote when doing breakdown
     } else {
       setResponseQuote(response);
