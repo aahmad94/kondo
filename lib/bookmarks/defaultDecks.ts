@@ -41,3 +41,11 @@ export function isReservedDeckTitle(title: string): boolean {
 export function isSeedableDeckTitle(title: string): title is SeedableDeckTitle {
   return (SEEDABLE_DECK_TITLES as readonly string[]).includes(title);
 }
+
+/** Match a stored deck title to a canonical default title (trim + case-insensitive). */
+export function canonicalDefaultTitle(title: string): DefaultDeckTitle | null {
+  const normalized = title.trim().toLowerCase();
+  return (DEFAULT_DECK_TITLES as readonly string[]).includes(normalized)
+    ? (normalized as DefaultDeckTitle)
+    : null;
+}
