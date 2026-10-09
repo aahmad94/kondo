@@ -608,7 +608,8 @@ export default function ChatBox({
       } catch {
         throw new Error('The language model request failed. Try again.');
       }
-      if (!data.result?.trim()) {
+      const result = data.result?.trim() ?? '';
+      if (!result) {
         throw new Error('The language model returned an empty response. Try again.');
       }
       // Generate a temporary id for client-side responses
@@ -617,7 +618,7 @@ export default function ChatBox({
         ...prevResponses,
         [tempId]: {
           id: tempId,
-          content: data.result,
+          content: result,
           rank: 1,
           isPaused: false,
           createdAt: new Date(),
