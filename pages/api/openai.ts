@@ -9,19 +9,28 @@ import {
   incrementResponseUsage,
   quotaExceededResponse,
 } from '@/lib/stripe/subscriptionService';
-import { DEFAULT_LLM_MODEL } from '@/lib/gpt/aiConfig';
+import {
+  DEFAULT_LLM_MODEL,
+  LLM_REQUEST_TIMEOUT_MS,
+  XAI_BASE_URL,
+} from '@/lib/gpt/aiConfig';
+import { completionFailureResponse } from '@/lib/gpt/completionFailure';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.XAI_API_KEY,
+  baseURL: XAI_BASE_URL,
+  timeout: LLM_REQUEST_TIMEOUT_MS,
+  maxRetries: 1,
 });
 
 export const config = {
   maxDuration: 60,
 };
 
-// Read prompts from files
-const getPromptFromFile = (languageCode: string): string => {
+const getPromptFromFile = (languageCode: string): string | null => {
+  if (!/^[a-z]{2}$/.test(languageCode)) return null;
   const promptPath = path.join(process.cwd(), 'prompts', `${languageCode}_gpt_prompt.txt`);
+  if (!fs.existsSync(promptPath)) return null;
   return fs.readFileSync(promptPath, 'utf8');
 };
 
@@ -34,14 +43,13 @@ export default async function handler(
   }
 
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({ message: 'OPENAI_API_KEY is not configured' });
+    if (!process.env.XAI_API_KEY) {
+      return res.status(503).json({ message: 'XAI_API_KEY is not configured' });
     }
 
     const session = await getServerSession(req, res, authOptions);
     const userId = (session as any)?.userId || (session?.user as any)?.id;
 
-    // Only enforce quota for authenticated users
     if (userId) {
       const quota = await checkResponseQuota(userId);
       if (!quota.allowed) {
@@ -49,32 +57,57 @@ export default async function handler(
       }
     }
 
-    const { prompt, languageCode = 'ja', model = DEFAULT_LLM_MODEL, systemPrompt: customSystemPrompt, responseType = 'response' } = req.body;
+    const {
+      prompt,
+      languageCode = 'ja',
+      systemPrompt: customSystemPrompt,
+      responseType = 'response',
+    } = req.body ?? {};
 
-    // Use custom system prompt if provided, otherwise use default language prompt
-    const systemPrompt = customSystemPrompt || getPromptFromFile(languageCode);
+    if (typeof prompt !== 'string' || !prompt.trim()) {
+      return res.status(400).json({ message: 'Prompt is required' });
+    }
+
+    // Callers used to send gpt-4o / gpt-4o-mini. Those ids are rejected by xAI
+    // and the OpenAI account behind them has no credits, so the server picks
+    // the model.
+    const systemPrompt = (typeof customSystemPrompt === 'string' && customSystemPrompt.trim())
+      ? customSystemPrompt
+      : getPromptFromFile(typeof languageCode === 'string' ? languageCode : 'ja');
+    if (!systemPrompt) {
+      return res.status(400).json({ message: 'Unsupported language' });
+    }
 
     const completion = await openai.chat.completions.create({
-      model: model,
+      model: DEFAULT_LLM_MODEL,
       messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt },
       ],
       temperature: 0.7,
       max_tokens: 800,
     });
 
-    const result = completion.choices[0]?.message?.content || 'No response generated';
+    const result = completion.choices[0]?.message?.content?.trim();
+    if (!result) {
+      return res.status(502).json({ message: 'The language model returned an empty response. Try again.' });
+    }
 
     // Count this generation toward the user's weekly response quota.
-    // Done after a successful completion so failed OpenAI calls don't count.
+    // Done after a successful completion so failed calls don't count.
     if (userId) {
       await incrementResponseUsage(userId);
     }
 
     return res.status(200).json({ result, responseType });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ message: 'Error processing request' });
+    const failure = completionFailureResponse(error);
+    const details = error as { status?: number; code?: string; message?: string };
+    console.error('Completion failed', {
+      status: details?.status,
+      code: details?.code,
+      message: details?.message,
+    });
+    return res.status(failure.status).json({ message: failure.message });
   }
 }

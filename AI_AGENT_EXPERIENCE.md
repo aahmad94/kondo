@@ -15,7 +15,7 @@ Yes, I've created a substantial codebase (>100 files) using AI coding agents. Th
 ## Use Case
 
 Kondo is a language learning platform that helps users:
-- Generate AI-powered study material using OpenAI
+- Generate AI-powered study material using xAI
 - Organize content into personalized study decks with ranking systems
 - Participate in a community feed to share and discover learning content
 - Practice with flashcards, breakdowns, and daily "Dojo" sessions
@@ -23,7 +23,7 @@ Kondo is a language learning platform that helps users:
 - Track learning streaks and receive daily email digests
 
 The application integrates multiple services:
-- OpenAI API for content generation
+- xAI API for content generation
 - ElevenLabs for text-to-speech
 - NextAuth for authentication
 - Prisma ORM with PostgreSQL
