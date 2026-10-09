@@ -14,7 +14,8 @@ import DecksModal from './DecksModal';
 import ConfirmationModal from './ui/ConfirmationModal';
 import { StreakCelebrationModal, DeckNavigationModal } from './ui';
 import { getLanguageInstructions } from '@/lib/user';
-import { DEFAULT_LLM_MODEL } from '@/lib/gpt/aiConfig';
+import { LLM_CLIENT_TIMEOUT_MS } from '@/lib/gpt/aiConfig';
+import { messageFromFailedCompletion } from '@/lib/gpt/completionFailure';
 import SearchBar from './SearchBar';
 import { trackBreakdownClick, trackPauseToggle, trackChangeRank, trackCommunityImport, trackAddToDeck } from '@/lib/analytics';
 import { extractExpressions, createAliasColorMap, getAliasColor } from '@/lib/utils';
@@ -576,7 +577,7 @@ export default function ChatBox({
   };
 
   // Handle the user's input, does not save to database
-  const handleSubmit = async (prompt: string, model?: string) => {
+  const handleSubmit = async (prompt: string) => {
     try {
       setIsLoading(true);
       
@@ -590,18 +591,26 @@ export default function ChatBox({
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: AbortSignal.timeout(LLM_CLIENT_TIMEOUT_MS),
         body: JSON.stringify({ 
           prompt: processedPrompt,
           languageCode: selectedLanguage || 'ja',
-          model: model || DEFAULT_LLM_MODEL,
           responseType: responseQuote ? 'clarification' : 'response'
       }),
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        throw new Error(messageFromFailedCompletion(await res.text()));
       }
-      const data: { result: string } = await res.json();
+      let data: { result?: string };
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error('The language model request failed. Try again.');
+      }
+      if (!data.result?.trim()) {
+        throw new Error('The language model returned an empty response. Try again.');
+      }
       // Generate a temporary id for client-side responses
       const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setResponses(prevResponses => ({
@@ -622,12 +631,18 @@ export default function ChatBox({
       setResponseQuote(null);
     } catch (error) {
       console.error('Error fetching data:', error);
+      const timedOut = error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError');
+      const content = timedOut
+        ? 'The language model took too long to respond. Try again.'
+        : error instanceof Error && error.message
+          ? error.message
+          : 'An error occurred while fetching the response.';
       const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setResponses(prevResponses => ({
         ...prevResponses,
         [tempId]: {
           id: tempId,
-          content: 'An error occurred while fetching the response.',
+          content,
           rank: 1,
           isPaused: false,
           createdAt: new Date(),
@@ -696,7 +711,7 @@ export default function ChatBox({
     const submitResponse = `* Breakdown the following phrase:\n\n${response}`;
 
     if (type === 'breakdown') {
-      handleSubmit(submitResponse, 'gpt-4o-mini');
+      handleSubmit(submitResponse);
       setResponseQuote(null); // Clear any existing quote when doing breakdown
     } else {
       setResponseQuote(response);
