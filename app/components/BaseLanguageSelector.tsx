@@ -14,7 +14,8 @@ const BaseLanguageSelector: React.FC<BaseLanguageSelectorProps> = ({
   const languages = [
     { code: 'en', name: 'English' },
     { code: 'ja', name: 'Japanese' },
-    { code: 'vi', name: 'Vietnamese' }
+    { code: 'vi', name: 'Vietnamese' },
+    { code: 'th', name: 'Thai' }
   ];
 
   return (

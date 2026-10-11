@@ -76,6 +76,16 @@ describe('parseResponseLines', () => {
     });
   });
 
+  it('parses a 3-line Thai response with RTGS romanization', () => {
+    const content = '1/ สวัสดีครับ\n2/ sawàtdii khráp\n3/ Hello';
+    expect(parseResponseLines(content, 'th')).toEqual({
+      expression: 'สวัสดีครับ',
+      reading: '',
+      phonetic: 'sawàtdii khráp',
+      translation: 'Hello',
+    });
+  });
+
   it('parses a 2-line response as expression plus translation', () => {
     const content = '1/ Hola\n2/ Hello';
     expect(parseResponseLines(content, 'es')).toEqual({

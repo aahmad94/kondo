@@ -23,6 +23,10 @@ export function getElevenLabsVoiceId(language: string): string {
       return '9cI5mhBtM4WtQ9Fo6jWQ'; // Urdu
     case 'vi':
       return 'RCmOaM1iiIH5xX3QXjIF'; // Vietnamese (Khanh Lam)
+    case 'th':
+      // Jessica: premade multilingual voice; ElevenLabs uses it as the Thai TTS
+      // demo, so tones and syllable timing stay clear for learners.
+      return 'cgSgspJ2msm6clMCkdW9';
     default:
       return 'pNInz6obpgDQGcFmaJgB';
   }

@@ -80,6 +80,17 @@ async function main() {
     }
   });
 
+  // Add Thai language
+  await prisma.language.upsert({
+    where: { code: 'th' },
+    update: {},
+    create: {
+      code: 'th',
+      name: 'Thai',
+      isActive: true
+    }
+  });
+
   console.log('Seed completed successfully');
 }
 

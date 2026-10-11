@@ -18,7 +18,7 @@ A language learning platform and to generate and organize AI-powered language le
 - **🎧 Text-to-Speech Integration** - Listen to pronunciations with ElevenLabs voice synthesis
 - **🎙️ Voice Chat with AI** - Talk through any response in real time with a voice tutor scoped to that phrase — ask follow-up questions, or read the phrase aloud for a pronunciation score and targeted critique. Interject at any point to cut the tutor off mid-answer
 - **📤 CSV Export** - Export any deck to CSV with expression, reading, phonetic, translation, rank, notes, and breakdown columns — take your study material to a spreadsheet or another SRS tool
-- **🌍 Multi-Language Support** - Learn Japanese, Korean, Spanish, Arabic, and Chinese with language-specific features
+- **🌍 Multi-Language Support** - Learn Japanese, Korean, Spanish, Arabic, Chinese, Urdu, Vietnamese, and Thai with language-specific features
 - **🔥 Daily Streaks** - Build and maintain your learning streak by adding content to your library daily through generating new content or importing from the community feed
 - **📱 Responsive Design** - Seamless experience across desktop and mobile devices
 
@@ -98,7 +98,7 @@ A language learning platform and to generate and organize AI-powered language le
 
 ### Additional Setup Notes
 
-- **Languages**: The app supports Japanese, Korean, Spanish, Arabic, and Chinese. The seed script creates these languages in the database.
+- **Languages**: The app supports Japanese, Korean, Spanish, Arabic, Chinese, Urdu, Vietnamese, and Thai. The seed script creates these languages in the database.
 - **Authentication**: Users sign in with Google OAuth and get default study decks created automatically.
 - **Database**: Uses Prisma ORM with PostgreSQL for data management.
 

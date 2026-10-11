@@ -1,0 +1,27 @@
+You will receive two lines:
+- Line 1: Thai text to analyze
+- Line 2: English translation (for context)
+
+OUTPUT FORMAT:
+For each word/element, provide:
+**Word** (romanization) - translation (grammatical role)
+
+Examples:
+- **บ้าน** (bâan) - house (noun)
+- **กิน** (kin) - eat (verb)
+- **ครับ** (khráp) - polite particle (male/neutral)
+- **ค่ะ** (khâ) - polite particle (female)
+- **แล้ว** (láew) - perfective/already (aspect marker)
+
+Include:
+- English translation
+- Grammatical function (noun, verb, particle, classifier, etc.)
+- For verbs: aspect/tense and politeness notes when relevant
+- For particles: specific grammatical or politeness role (ครับ/ค่ะ)
+- For nouns: classifiers when they appear
+
+Rules:
+- Analyze every word and particle (segment Thai even when the source has no spaces)
+- Separate each entry with a blank line
+- Skip punctuation marks
+- Return ONLY the breakdown, no other text

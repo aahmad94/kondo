@@ -4,7 +4,7 @@ import type { SeedableDeckTitle } from './defaultDecks';
  * Source GPTResponse IDs (Adeel's library) used to populate SeedResponse.
  * Order within each deck is sortOrder (0-based).
  */
-export type SeedCatalogLanguageCode = 'zh' | 'ar' | 'ja' | 'ko' | 'es' | 'ur' | 'vi';
+export type SeedCatalogLanguageCode = 'zh' | 'ar' | 'ja' | 'ko' | 'es' | 'ur' | 'vi' | 'th';
 
 export const SEED_CATALOG_SOURCE_IDS: Record<
   SeedCatalogLanguageCode,
@@ -190,5 +190,14 @@ export const SEED_CATALOG_SOURCE_IDS: Record<
       'cmtcvciwo000fjsenxbhgbkag',
       'cmtcvcn30000hjsena7if38ol',
     ],
+  },
+  // No Adeel-library source IDs yet; empty arrays keep the catalog typed
+  // so load-seed-catalog can fill these in later without a type change.
+  th: {
+    counting: [],
+    alphabet: [],
+    travel: [],
+    verbs: [],
+    introductions: [],
   },
 };
