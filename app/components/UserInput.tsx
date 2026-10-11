@@ -16,6 +16,7 @@ const LANGUAGE_NAMES: Record<string, string> = {
   zh: 'Chinese',
   ur: 'Urdu',
   vi: 'Vietnamese',
+  th: 'Thai',
 };
 
 const DIFFICULTY_OPTIONS = [
@@ -108,6 +109,7 @@ export default function UserInput({
     zh: '你好',
     ur: 'السلام علیکم',
     vi: 'Xin chào',
+    th: 'สวัสดีครับ',
   };
 
   // True when the user has typed into the field without first selecting a command

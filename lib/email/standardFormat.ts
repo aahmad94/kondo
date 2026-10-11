@@ -38,6 +38,7 @@ function getPhoneticLineIndex(language: string, itemsLength: number): number {
     case 'ko': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Korean
     case 'ar': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Arabic
     case 'ur': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Urdu
+    case 'th': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Thai RTGS
     default: return -1;
   }
 }

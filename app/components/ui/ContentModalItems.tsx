@@ -245,7 +245,10 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
       'ko': 'Korean', 
       'es': 'Spanish',
       'ar': 'Arabic',
-      'zh': 'Chinese'
+      'zh': 'Chinese',
+      'ur': 'Urdu',
+      'vi': 'Vietnamese',
+      'th': 'Thai'
     };
     return names[language] || 'Japanese';
   };
@@ -263,7 +266,10 @@ export function AdditionalCommands({ selectedLanguage }: AdditionalCommandsProps
       'ko': 'phonetic table of Hangul and romanization',
       'es': 'phonetic table of Spanish script and romanization', 
       'ar': 'phonetic table of Arabic script and romanization',
-      'zh': 'table of common Chinese characters'
+      'zh': 'table of common Chinese characters',
+      'ur': 'phonetic table of Urdu script and romanization',
+      'vi': 'table of the Vietnamese alphabet and tones',
+      'th': 'phonetic table of Thai consonants, vowels, and tones'
     };
     return descriptions[language] || 'phonetic table of hiragana/katakana and romaji';
   };

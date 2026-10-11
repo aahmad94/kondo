@@ -11,6 +11,7 @@ const LANGUAGE_NAMES: Record<string, string> = {
   'ar': 'Arabic',
   'ur': 'Urdu',
   'vi': 'Vietnamese',
+  'th': 'Thai',
   'all': 'All Languages'
 };
 
@@ -22,6 +23,7 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   'ar': '🇸🇦',
   'ur': '🇵🇰',
   'vi': '🇻🇳',
+  'th': '🇹🇭',
   'all': '🌐'
 };
 

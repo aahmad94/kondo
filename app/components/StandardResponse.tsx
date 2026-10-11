@@ -80,6 +80,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
       case 'ko': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Korean
       case 'ar': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Arabic
       case 'ur': return itemsLength === 3 ? 1 : -1; // 2nd line (index 1) for 3-line Urdu
+      case 'th': return itemsLength >= 3 ? 1 : -1; // 2nd line (index 1) for Thai RTGS
       default: return -1;
     }
   };
@@ -220,6 +221,9 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
             style={selectedLanguage === 'ar' || selectedLanguage === 'ur' ? { 
               fontSize: '1.575rem', 
               lineHeight: '2.2rem'
+            } : selectedLanguage === 'th' ? {
+              fontSize: '1.25rem',
+              lineHeight: '2rem'
             } : selectedLanguage === 'ko' ? { 
               fontSize: '1.125rem', 
               lineHeight: '1.75rem'

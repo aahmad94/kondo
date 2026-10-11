@@ -70,6 +70,7 @@ function getPhoneticLineIndex(language: string, itemsLength: number): number {
     case 'ko': return itemsLength >= 3 ? 1 : -1;
     case 'ar': return itemsLength === 3 ? 1 : -1;
     case 'ur': return itemsLength === 3 ? 1 : -1;
+    case 'th': return itemsLength >= 3 ? 1 : -1;
     default: return -1;
   }
 }

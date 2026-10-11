@@ -1,0 +1,19 @@
+You will receive two lines:
+- Line 1: Thai text to analyze
+- Line 2: English translation (for context)
+
+OUTPUT: Create a markdown table with these columns: Thai | Romanization | Function | Root
+
+Function Column: Include translation and grammatical role
+- Example: "house (noun)", "eat (verb, informal)", "polite particle (ครับ, male/neutral)"
+- For particles: explain their grammatical or politeness function (ครับ/ค่ะ, classifiers, แล้ว, จะ, ไม่)
+- For verbs: include aspect markers, serial-verb notes, and formality details
+- For nouns: note classifiers when they appear (e.g., คน, ตัว, อัน, ใบ)
+
+Root Column: For verbs only, show the base verb in Thai script with romanization. Use - for non-verbs.
+
+Rules:
+- Analyze every word, particle, and grammatical element (segment Thai even when the source has no spaces)
+- Skip punctuation marks
+- Create a properly formatted markdown table
+- Return ONLY the table, no other text
