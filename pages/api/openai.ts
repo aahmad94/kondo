@@ -15,6 +15,10 @@ import {
   XAI_BASE_URL,
 } from '@/lib/gpt/aiConfig';
 import { completionFailureResponse } from '@/lib/gpt/completionFailure';
+import {
+  THAI_RANDOM_ENGLISH_RETRY,
+  thaiTopiclessRandomMissingEnglish,
+} from '@/lib/gpt/thaiRandomFormat';
 
 const openai = new OpenAI({
   apiKey: process.env.XAI_API_KEY,
@@ -88,9 +92,38 @@ export default async function handler(
       max_tokens: 800,
     });
 
-    const result = completion.choices[0]?.message?.content?.trim();
+    let result = completion.choices[0]?.message?.content?.trim();
     if (!result) {
       return res.status(502).json({ message: 'The language model returned an empty response. Try again.' });
+    }
+
+    // Topicless Thai "random" sometimes copies the Thai sentence onto line 3.
+    // One corrective pass asks for the English sentence. Keep the first card
+    // if that pass fails, so a format miss does not become a hard error.
+    const studyLanguage = typeof languageCode === 'string' ? languageCode : 'ja';
+    if (studyLanguage === 'th' && thaiTopiclessRandomMissingEnglish(prompt, result)) {
+      try {
+        const retry = await openai.chat.completions.create({
+          model: DEFAULT_LLM_MODEL,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt },
+            { role: 'assistant', content: result },
+            { role: 'user', content: THAI_RANDOM_ENGLISH_RETRY },
+          ],
+          temperature: 0.2,
+          max_tokens: 800,
+        });
+        const retried = retry.choices[0]?.message?.content?.trim();
+        if (retried) result = retried;
+      } catch (retryError) {
+        const details = retryError as { status?: number; code?: string; message?: string };
+        console.error('Thai random English retry failed', {
+          status: details?.status,
+          code: details?.code,
+          message: details?.message,
+        });
+      }
     }
 
     // Count this generation toward the user's weekly response quota.
