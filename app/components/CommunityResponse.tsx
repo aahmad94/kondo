@@ -44,7 +44,7 @@ import {
 } from './ui';
 import Tooltip from './Tooltip';
 import { trackBreakdownClick, trackPauseToggle } from '@/lib/analytics';
-import { extractExpressions, prepareTextForSpeech, getAliasCSSVars, parseClarificationResponse } from '@/lib/utils';
+import { extractExpressions, prepareTextForSpeech, getAliasCSSVars, parseClarificationResponse, normalizeFuriganaArray } from '@/lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { deleteCommunityResponseAction } from '../../actions/community';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -90,12 +90,7 @@ export default function CommunityResponse(props: ResponseProps) {
   // For clarifications: array of furigana strings, one per expression block
   const [clarificationFuriganaArray, setClarificationFuriganaArray] = useState<string[] | null>(() => {
     if (isCommunityResponseProps(props) && props.data.responseType === 'clarification' && data.furigana) {
-      try {
-        const parsed = JSON.parse(data.furigana);
-        return Array.isArray(parsed) ? parsed : null;
-      } catch {
-        return null;
-      }
+      return normalizeFuriganaArray(data.furigana);
     }
     return null;
   });
@@ -173,8 +168,11 @@ export default function CommunityResponse(props: ResponseProps) {
         
         const { addFuriganaForClarification } = await import('@/lib/utils');
         const furiganaArrayString = await addFuriganaForClarification(blocksData, data.id);
-        const parsed = JSON.parse(furiganaArrayString);
-        setClarificationFuriganaArray(parsed);
+        const parsed = normalizeFuriganaArray(furiganaArrayString);
+        if (parsed) {
+          setClarificationFuriganaArray(parsed);
+          setCurrentFurigana(JSON.stringify(parsed));
+        }
       } catch (error) {
         console.error('Error generating clarification furigana:', error);
       }

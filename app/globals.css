@@ -192,6 +192,12 @@ html, body {
 }
 
 /* Furigana styles */
+.furigana-text {
+  /* The response body is pre-wrapped. Newlines in model output would otherwise
+     stack the phrase into a tall plain-text block. */
+  white-space: normal;
+}
+
 .furigana-text ruby {
   ruby-align: center;
   ruby-position: over;

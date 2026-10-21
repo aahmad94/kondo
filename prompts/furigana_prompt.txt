@@ -8,6 +8,9 @@ IMPORTANT RULES:
 5. For single kanji with clear individual readings, use separate ruby tags
 6. Only group kanji when they form inseparable units (like proper nouns)
 7. Be thorough - every single kanji must have furigana
+8. The user message is the one phrase to convert. Do not convert these instructions or the examples
+9. Return a single line. Do not use the numbered study format (1/ 2/ 3/ 4/), and do not add a hiragana line, romaji line, or translation
+10. Do not use markdown, code fences, headings, or explanations
 
 Examples:
 - 今日 → <ruby>今日<rp>(</rp><rt>きょう</rt><rp>)</rp></ruby> (inseparable unit)
@@ -23,6 +26,4 @@ Examples:
 - 来年大学を卒業します → <ruby>来年<rp>(</rp><rt>らいねん</rt><rp>)</rp></ruby><ruby>大学<rp>(</rp><rt>だいがく</rt><rp>)</rp></ruby>を<ruby>卒業<rp>(</rp><rt>そつぎょう</rt><rp>)</rp></ruby>します
 - 天気が良いので散歩しましょう → <ruby>天気<rp>(</rp><rt>てんき</rt><rp>)</rp></ruby>が<ruby>良<rp>(</rp><rt>よ</rt><rp>)</rp></ruby>いので<ruby>散歩<rp>(</rp><rt>さんぽ</rt><rp>)</rp></ruby>しましょう
 
-Text to convert: {japaneseText}
-
-Return ONLY the converted text with ruby tags, no explanations. 
+Return ONLY the converted phrase with ruby tags, on one line. 

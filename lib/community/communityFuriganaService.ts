@@ -1,8 +1,7 @@
 import 'server-only';
 import prisma from '../database/prisma';
-import { DEFAULT_LLM_MODEL } from '../gpt/aiConfig';
-import fs from 'fs';
-import path from 'path';
+import { generateFuriganaMarkup } from '../utils/furiganaGenerate';
+import { normalizeFuriganaHtml } from '../utils/furiganaHtml';
 
 /**
  * Gets or generates furigana for a community response with caching
@@ -32,16 +31,16 @@ export async function getCommunityFurigana(
       throw new Error('Community response not found');
     }
 
-    // If we already have cached furigana, return it
-    if (existingCommunityResponse.furigana) {
+    // Cached study-card text is not renderable ruby. Regenerate those rows.
+    const normalized = existingCommunityResponse.furigana
+      ? normalizeFuriganaHtml(existingCommunityResponse.furigana)
+      : null;
+    if (normalized) {
       console.log(`Returning cached furigana for community response ${communityResponseId}`);
-      return {
-        furigana: existingCommunityResponse.furigana
-      };
+      return { furigana: normalized };
     }
 
-    // Generate new furigana since we don't have it cached
-    const furiganaResult = await generateCommunityFurigana(japaneseText);
+    const furiganaResult = await generateFuriganaMarkup(japaneseText);
 
     // Update the community response with the new furigana
     await prisma.communityResponse.update({
@@ -62,41 +61,4 @@ export async function getCommunityFurigana(
   }
 }
 
-/**
- * Generates furigana for community response content using OpenAI
- */
-async function generateCommunityFurigana(
-  japaneseText: string
-): Promise<string> {
-  try {
-    // Load furigana prompt from file (same as GPT response)
-    const promptPath = path.join(process.cwd(), 'prompts', 'furigana_prompt.txt');
-    const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
-    const prompt = promptTemplate.replace('{japaneseText}', japaneseText);
 
-    // Generate furigana using server-side API approach (same as GPT response)
-    const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-    
-    const response = await fetch(`${appUrl}/api/openai`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        prompt: prompt,
-        languageCode: 'ja',
-        model: DEFAULT_LLM_MODEL
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate furigana');
-    }
-
-    const data = await response.json();
-    return data.result;
-  } catch (error) {
-    console.error('Error generating community furigana:', error);
-    throw error;
-  }
-}

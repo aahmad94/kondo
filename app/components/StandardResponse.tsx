@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { addFurigana, containsKanji, extractJapaneseFromLine, calculatePlaceholderDimensions } from '@/lib/utils';
+import { addFurigana, containsKanji, extractJapaneseFromLine, calculatePlaceholderDimensions, normalizeFuriganaHtml } from '@/lib/utils';
 import FuriganaText from './FuriganaText';
 
 interface StandardResponseProps {
@@ -56,7 +56,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
   const shouldShowFurigana = isFuriganaEnabled || (responseType === 'clarification' && selectedLanguage === 'ja');
   // Auto-hide kana (hiragana/katakana line 2) for Japanese clarifications (furigana already shows reading)
   const shouldShowKana = isKanaEnabled && !(responseType === 'clarification' && selectedLanguage === 'ja');
-  const [furiganaText, setFuriganaText] = useState<string>(cachedFurigana || '');
+  const [furiganaText, setFuriganaText] = useState<string>(() => normalizeFuriganaHtml(cachedFurigana) ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -96,8 +96,9 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
 
   // Sync furigana text with cached furigana prop changes and reset when content changes
   useEffect(() => {
-    if (cachedFurigana) {
-      setFuriganaText(cachedFurigana);
+    const safeCached = normalizeFuriganaHtml(cachedFurigana);
+    if (safeCached) {
+      setFuriganaText(safeCached);
     } else {
       setFuriganaText('');
       setRetryCount(0); // Reset retry count when content changes
@@ -108,8 +109,9 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     const generateFurigana = async () => {
       if (!shouldUseFurigana) return;
       
-      // If we already have cached furigana or current furigana text, don't make an API call
-      if (cachedFurigana || furiganaText) {
+      // Cached study-card text is not ruby, so it must be generated again.
+      const safeCached = normalizeFuriganaHtml(cachedFurigana);
+      if (safeCached || furiganaText) {
         return;
       }
 
@@ -123,7 +125,11 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
         const hiraganaText = processedItems[1];
         
         const furiganaResult = await addFurigana(japaneseText, hiraganaText, responseId || undefined);
-        setFuriganaText(furiganaResult);
+        const safeFurigana = normalizeFuriganaHtml(furiganaResult);
+        if (!safeFurigana) {
+          throw new Error('Furigana result was not ruby markup');
+        }
+        setFuriganaText(safeFurigana);
         setRetryCount(0); // Reset retry count on success
       } catch (error) {
         console.error('Error generating furigana:', error);
@@ -143,7 +149,7 @@ export default function StandardResponse({ items, selectedLanguage = 'ja', respo
     };
 
     generateFurigana();
-  }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount, responseId]);
+  }, [shouldUseFurigana, processedItems[0], processedItems[1], retryCount, responseId, cachedFurigana, furiganaText]);
 
   // If this is a Japanese 4-line response, render the enhanced version
   if (isJapaneseFourLine) {
