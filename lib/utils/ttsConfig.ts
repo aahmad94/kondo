@@ -24,7 +24,7 @@ export function getElevenLabsVoiceId(language: string): string {
     case 'vi':
       return 'RCmOaM1iiIH5xX3QXjIF'; // Vietnamese (Khanh Lam)
     case 'th':
-      return '7XW5JhaNn90bnFojQ5DA'; // Thai
+      return 'v2NF9R77fF8wZRdbGYTg'; // Thai (Siriporn)
     default:
       return 'pNInz6obpgDQGcFmaJgB';
   }
