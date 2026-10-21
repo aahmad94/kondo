@@ -5,7 +5,7 @@ import { ChevronDownIcon, PauseCircleIcon, PlayCircleIcon, PlusIcon, CheckCircle
 import BreakdownModalDemo from './BreakdownModalDemo';
 import { useIsMobile } from '../hooks/useIsMobile';
 import Tooltip from './Tooltip';
-import { addFurigana, containsKanji } from '@/lib/utils';
+import { addFurigana, containsKanji, normalizeFuriganaHtml } from '@/lib/utils';
 import FuriganaText from './FuriganaText';
 import RankContainer from './ui/RankContainer';
 import SpeakerButton from './ui/SpeakerButton';
@@ -42,7 +42,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
   const [rank, setRank] = useState(response.rank);
   const [isPaused, setIsPaused] = useState(response.isPaused);
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
-  const [furiganaText, setFuriganaText] = useState<string>(response.content.furigana || '');
+  const [furiganaText, setFuriganaText] = useState<string>(() => normalizeFuriganaHtml(response.content.furigana) ?? '');
   const [isLoadingFurigana, setIsLoadingFurigana] = useState(false);
   const { isMobile } = useIsMobile();
 
@@ -76,8 +76,9 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
       if (!shouldUseFurigana) return;
       
       // If we already have furigana in the dummy data, use it
-      if (response.content.furigana) {
-        setFuriganaText(response.content.furigana);
+      const cached = normalizeFuriganaHtml(response.content.furigana);
+      if (cached) {
+        setFuriganaText(cached);
         return;
       }
 
@@ -85,7 +86,7 @@ export default function GPTResponseDemo({ response }: GPTResponseDemoProps) {
       setIsLoadingFurigana(true);
       try {
         const furiganaResult = await addFurigana(response.content.japanese, response.content.hiragana, response.id);
-        setFuriganaText(furiganaResult);
+        setFuriganaText(normalizeFuriganaHtml(furiganaResult) ?? '');
       } catch (error) {
         console.error('Error generating furigana:', error);
         // On error, don't use furigana - fall back to original 4-line format

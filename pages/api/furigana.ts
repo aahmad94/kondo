@@ -1,9 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib';
 import { getCommunityFurigana } from '@/lib/community';
-import { DEFAULT_LLM_MODEL } from '@/lib/gpt/aiConfig';
-import fs from 'fs';
-import path from 'path';
+import { generateFuriganaMarkup } from '@/lib/utils/furiganaGenerate';
+import { normalizeFuriganaArray, normalizeFuriganaHtml } from '@/lib/utils/furiganaHtml';
 
 /**
  * Helper function to generate furigana for multiple expression blocks in a clarification
@@ -29,15 +28,11 @@ async function handleClarificationFurigana(
 
       const cachedResponse = communityResponse || gptResponse;
       if (cachedResponse?.furigana && cachedResponse.responseType === 'clarification') {
-        // Try to parse as JSON array
-        try {
-          const parsed = JSON.parse(cachedResponse.furigana);
-          if (Array.isArray(parsed)) {
-            console.log(`Returning cached furigana array for clarification ${responseId}`);
-            return res.status(200).json({ furiganaArray: cachedResponse.furigana });
-          }
-        } catch (e) {
-          // Not a JSON array, continue to generation
+        const normalized = normalizeFuriganaArray(cachedResponse.furigana);
+        if (normalized) {
+          const furiganaArray = JSON.stringify(normalized);
+          console.log(`Returning cached furigana array for clarification ${responseId}`);
+          return res.status(200).json({ furiganaArray });
         }
       }
     } catch (dbError) {
@@ -45,32 +40,12 @@ async function handleClarificationFurigana(
     }
   }
 
-  // Generate furigana for each block
-  const promptPath = path.join(process.cwd(), 'prompts', 'furigana_prompt.txt');
-  const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
-  const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-
   const furiganaPromises = blocks.map(async (block) => {
-    const prompt = promptTemplate.replace('{japaneseText}', block.japaneseText);
-    
-    const response = await fetch(`${appUrl}/api/openai`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        prompt: prompt,
-        languageCode: 'ja',
-        model: DEFAULT_LLM_MODEL
-      }),
-    });
-
-    if (!response.ok) {
+    try {
+      return await generateFuriganaMarkup(block.japaneseText);
+    } catch {
       throw new Error('Failed to generate furigana for block');
     }
-
-    const data = await response.json();
-    return data.result;
   });
 
   const furiganaResults = await Promise.all(furiganaPromises);
@@ -155,9 +130,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             select: { furigana: true }
           });
 
-          if (cachedResponse?.furigana) {
+          const normalized = cachedResponse?.furigana
+            ? normalizeFuriganaHtml(cachedResponse.furigana)
+            : null;
+          if (normalized) {
             console.log(`Returning cached furigana for response ${responseId}`);
-            return res.status(200).json({ furigana: cachedResponse.furigana });
+            return res.status(200).json({ furigana: normalized });
           }
         } catch (dbError) {
           console.error('Error checking cached furigana:', dbError);
@@ -170,34 +148,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Handle case where responseId is not provided, is temp, or GPT response generation
-
-    // Generate furigana for GPT response (existing logic)
-    // Load furigana prompt from file
-    const promptPath = path.join(process.cwd(), 'prompts', 'furigana_prompt.txt');
-    const promptTemplate = fs.readFileSync(promptPath, 'utf-8');
-    const prompt = promptTemplate.replace('{japaneseText}', japaneseText);
-
-    // Generate furigana using server-side API approach
-    const appUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-    
-    const response = await fetch(`${appUrl}/api/openai`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        prompt: prompt,
-        languageCode: 'ja',
-        model: DEFAULT_LLM_MODEL
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate furigana');
-    }
-
-    const data = await response.json();
-    const furiganaResult = data.result;
+    const furiganaResult = await generateFuriganaMarkup(japaneseText);
 
     // If responseId is provided and it's not a temp response, try to cache the furigana result
     if (responseId && !responseId.includes('temp')) {
