@@ -43,6 +43,10 @@ export function getElevenLabsSpeed(language: string): number {
       // reads as fairly natural at this floor; extra slowdown on even-numbered
       // plays is handled client-side via playbackRate.
       return 0.7;
+    case 'th':
+      // A step above the learner floor. Both speaker clicks play this
+      // recording, so the first pass and the slower second pass both speed up.
+      return 0.85;
     default:
       return 0.7;
   }
@@ -67,6 +71,14 @@ export function getPlaybackRates(language: string): {
     return {
       normal: 0.8,
       slow: 0.55,
+    };
+  }
+  if (language === 'th') {
+    // Both speaker clicks are a little faster than the shared learner rates.
+    // The second click stays slower than the first.
+    return {
+      normal: 1.1,
+      slow: 0.75,
     };
   }
   return {
