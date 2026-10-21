@@ -191,13 +191,32 @@ export const SEED_CATALOG_SOURCE_IDS: Record<
       'cmtcvcn30000hjsena7if38ol',
     ],
   },
-  // No Adeel-library source IDs yet; empty arrays keep the catalog typed
-  // so load-seed-catalog can fill these in later without a type change.
   th: {
-    counting: [],
-    alphabet: [],
-    travel: [],
-    verbs: [],
-    introductions: [],
+    counting: [
+      'cmvhsmhix0000f000a5f47fe4',
+      'cmvhsmitj00017635fbe53b2f',
+      'cmvhsmjwa000221dc379834df',
+      'cmvhsmkqu00031aad0116d90b',
+    ],
+    alphabet: [
+      'cmvhsmllf00046a281c3628ae',
+      'cmvhsmmg90005fd241efda57c',
+      'cmvhsmncv0006fdcd6be59569',
+    ],
+    travel: [
+      'cmvhsmo7c0007aeca7e2c4a5d',
+      'cmvhsmp280008c77020103956',
+      'cmvhsmpx4000965d85f536092',
+    ],
+    verbs: [
+      'cmvhsmqzg000a62fc471b89f5',
+      'cmvhsmru5000bda8eed9fd721',
+      'cmvhsmsoq000c57f85ead694e',
+    ],
+    introductions: [
+      'cmvhsmtj8000dc51bc9bb5650',
+      'cmvhsmue6000e6d9dd88a15c8',
+      'cmvhsmv92000f73add2f72bb4',
+    ],
   },
 };
