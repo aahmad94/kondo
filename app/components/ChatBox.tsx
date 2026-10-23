@@ -127,6 +127,11 @@ const sortResponses = (responses: Response[]): Response[] => {
   });
 };
 
+/** True if a touch began inside a rendered markdown table; such swipes belong to the table's horizontal scroll. */
+function isTouchInsideTable(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest('table') !== null;
+}
+
 export default function ChatBox({ 
   selectedDeck, 
   reservedDeckTitles,
@@ -1458,6 +1463,11 @@ export default function ChatBox({
     if (!onDecksCollapsedChange) return;
     if (typeof window === 'undefined' || window.innerWidth >= 768) return;
     if (e.touches.length !== 1) return;
+    // Let wide markdown tables (e.g. verb tables) scroll horizontally without toggling the decks bar.
+    if (isTouchInsideTable(e.target)) {
+      decksSwipeTouchStartRef.current = null;
+      return;
+    }
 
     decksSwipeSelectionAtStartRef.current = document.getSelection()?.toString() ?? '';
     decksSwipeTouchStartRef.current = {
